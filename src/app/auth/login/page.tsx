@@ -3,17 +3,46 @@
 import * as React from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { Apple } from "lucide-react";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 
-import { Button } from "@/components/ui/Button";
-import { Input } from "@/components/ui/Input";
-import { PageWrapper } from "@/components/layout/PageWrapper";
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+      <path
+        fill="#FFC107"
+        d="M43.611 20.083H42V20H24v8h11.303C33.86 32.658 29.333 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.956 3.044l5.657-5.657C34.995 6.053 29.734 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"
+      />
+      <path
+        fill="#FF3D00"
+        d="M6.306 14.691l6.571 4.819C14.655 16.108 19.001 12 24 12c3.059 0 5.842 1.154 7.956 3.044l5.657-5.657C34.995 6.053 29.734 4 24 4c-7.682 0-14.365 4.328-17.694 10.691z"
+      />
+      <path
+        fill="#4CAF50"
+        d="M24 44c5.221 0 10.101-1.996 13.743-5.238l-6.349-5.372C29.33 35.077 26.805 36 24 36c-5.312 0-9.828-3.315-11.287-7.946l-6.522 5.025C9.474 39.556 16.227 44 24 44z"
+      />
+      <path
+        fill="#1976D2"
+        d="M43.611 20.083H42V20H24v8h11.303c-.698 1.966-1.99 3.634-3.709 4.762l6.349 5.372C36.715 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"
+      />
+    </svg>
+  );
+}
+
+function AppleIcon() {
+  return (
+    <svg width="16" height="18" viewBox="0 0 24 24" aria-hidden="true" fill="white">
+      <path d="M16.365 1.43c0 1.14-.41 2.2-1.23 3.18-.98 1.14-2.58 2.02-3.96 1.91-.17-1.16.35-2.3 1.25-3.31.94-1.04 2.57-1.82 3.94-1.78Z" />
+      <path d="M20.31 17.17c-.46 1.05-.68 1.52-1.27 2.45-.82 1.27-1.98 2.85-3.42 2.86-1.28.01-1.61-.84-3.35-.83-1.74.01-2.1.85-3.38.84-1.44-.02-2.54-1.44-3.36-2.71-2.3-3.55-2.54-7.71-1.12-9.89 1-1.53 2.58-2.43 4.07-2.43 1.52 0 2.47.84 3.72.84 1.22 0 1.96-.85 3.7-.85 1.33 0 2.74.72 3.74 1.97-3.28 1.8-2.75 6.51.67 7.75Z" />
+    </svg>
+  );
+}
 
 export default function LoginPage() {
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
+  const [showPass, setShowPass] = React.useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -38,99 +67,380 @@ export default function LoginPage() {
   }
 
   return (
-    <PageWrapper className="py-6 md:py-10">
-      <div className="mx-auto w-full max-w-md">
-        <div className="overflow-hidden rounded-[var(--radius-xl)] border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-[0_18px_60px_rgba(18,24,24,0.10)]">
-          <div className="relative h-56 w-full">
-            <div className="absolute inset-0 bg-[radial-gradient(900px_circle_at_20%_10%,rgba(47,125,179,0.20),transparent_55%),radial-gradient(900px_circle_at_80%_40%,rgba(10,163,127,0.24),transparent_55%),linear-gradient(to_bottom,rgba(20,24,24,0.15),rgba(20,24,24,0.35))]" />
-            <div className="absolute inset-0 opacity-[0.10] [background-image:url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2290%22%20height%3D%2290%22%3E%3Cfilter%20id%3D%22n%22%3E%3CfeTurbulence%20type%3D%22fractalNoise%22%20baseFrequency%3D%220.8%22%20numOctaves%3D%222%22%20stitchTiles%3D%22stitch%22/%3E%3C/filter%3E%3Crect%20width%3D%2290%22%20height%3D%2290%22%20filter%3D%22url(%23n)%22%20opacity%3D%220.35%22/%3E%3C/svg%3E')]" />
-            <div className="absolute left-4 top-4 text-sm font-semibold text-white/90">
-              PLAIner
+    <div>
+      {/* HERO SUPERIOR */}
+      <div
+        style={{
+          height: "42vh",
+          minHeight: "280px",
+          background:
+            "linear-gradient(160deg, #0D9E7A 0%, #1a6b9a 60%, #2D3561 100%)",
+          position: "relative",
+          overflow: "hidden",
+          borderRadius: "0 0 32px 32px",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          padding: "56px 24px 28px",
+        }}
+      >
+        <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
+          <div
+            style={{
+              position: "absolute",
+              top: "-60px",
+              right: "-40px",
+              width: "220px",
+              height: "220px",
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.06)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              bottom: "-30px",
+              left: "-60px",
+              width: "180px",
+              height: "180px",
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.05)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "40%",
+              left: "30%",
+              width: "120px",
+              height: "120px",
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.04)",
+            }}
+          />
+        </div>
+
+        <div style={{ position: "relative" }}>
+          <span
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "22px",
+              fontWeight: 800,
+              letterSpacing: "-0.03em",
+              color: "#fff",
+            }}
+          >
+            PL<span style={{ color: "rgba(255,255,255,0.55)" }}>AI</span>ner
+          </span>
+          <p
+            style={{
+              fontSize: "12px",
+              color: "rgba(255,255,255,0.55)",
+              marginTop: "2px",
+              letterSpacing: "0.01em",
+            }}
+          >
+            planifica sense fricció
+          </p>
+        </div>
+
+        <div style={{ position: "relative" }}>
+          <h1
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "32px",
+              fontWeight: 800,
+              color: "#fff",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.1,
+              marginBottom: "6px",
+            }}
+          >
+            El món t&apos;espera.
+          </h1>
+          <p
+            style={{
+              fontSize: "14px",
+              color: "rgba(255,255,255,0.60)",
+              lineHeight: 1.4,
+            }}
+          >
+            El teu pròxim viatge, a 3 minuts.
+          </p>
+        </div>
+      </div>
+
+      {/* FORM CARD overlapping */}
+      <div
+        style={{
+          margin: "-20px 16px 0",
+          background: "var(--surface)",
+          borderRadius: "var(--r-xl)",
+          boxShadow: "var(--shadow-lg)",
+          padding: "28px 24px 24px",
+          position: "relative",
+          zIndex: 10,
+          border: "1px solid var(--border)",
+        }}
+      >
+        <h2
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "22px",
+            fontWeight: 700,
+            color: "var(--text)",
+            letterSpacing: "-0.02em",
+            marginBottom: "4px",
+          }}
+        >
+          Benvingut de nou
+        </h2>
+        <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "24px" }}>
+          El teu pròxim viatge t&apos;està esperant.
+        </p>
+
+        <form onSubmit={onSubmit}>
+          {/* Email */}
+          <div style={{ marginBottom: "16px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "11px",
+                fontWeight: 600,
+                letterSpacing: "0.07em",
+                textTransform: "uppercase",
+                color: "var(--text-muted)",
+                marginBottom: "6px",
+              }}
+            >
+              Correu electrònic
+            </label>
+            <div style={{ position: "relative" }}>
+              <Mail
+                size={16}
+                style={{
+                  position: "absolute",
+                  left: "14px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "var(--text-faint)",
+                }}
+              />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="nom@exemple.com"
+                autoComplete="email"
+                required
+                style={{
+                  width: "100%",
+                  height: "50px",
+                  paddingLeft: "40px",
+                  paddingRight: "14px",
+                  background: "var(--surface-2)",
+                  border: "1.5px solid var(--border)",
+                  borderRadius: "var(--r-md)",
+                  fontSize: "15px",
+                  color: "var(--text)",
+                  outline: "none",
+                  transition: "var(--t)",
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--green)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+              />
             </div>
           </div>
 
-          <div className="p-6">
-            <h1 className="font-display text-3xl font-extrabold tracking-wide">
-              Benvingut de nou
-            </h1>
-            <p className="mt-2 text-sm text-[color:var(--color-text-muted)]">
-              El teu pròxim viatge t’està esperant.
-            </p>
-
-            <form className="mt-7 space-y-4" onSubmit={onSubmit}>
-              <Input
-                label="Correu electrònic"
-                type="email"
-                value={email}
-                placeholder="nom@exemple.com"
-                onChange={(e) => setEmail(e.target.value)}
-                autoComplete="email"
-                required
+          {/* Password */}
+          <div style={{ marginBottom: "8px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "11px",
+                fontWeight: 600,
+                letterSpacing: "0.07em",
+                textTransform: "uppercase",
+                color: "var(--text-muted)",
+                marginBottom: "6px",
+              }}
+            >
+              Contrasenya
+            </label>
+            <div style={{ position: "relative" }}>
+              <Lock
+                size={16}
+                style={{
+                  position: "absolute",
+                  left: "14px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  color: "var(--text-faint)",
+                }}
               />
-              <Input
-                label="Contrasenya"
-                type="password"
+              <input
+                type={showPass ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 autoComplete="current-password"
                 required
+                style={{
+                  width: "100%",
+                  height: "50px",
+                  paddingLeft: "40px",
+                  paddingRight: "44px",
+                  background: "var(--surface-2)",
+                  border: "1.5px solid var(--border)",
+                  borderRadius: "var(--r-md)",
+                  fontSize: "15px",
+                  color: "var(--text)",
+                  outline: "none",
+                  transition: "var(--t)",
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "var(--green)")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
               />
-
-              <div className="flex items-center justify-between">
-                <a
-                  href="#"
-                  className="text-sm font-medium text-[color:var(--color-primary)] hover:underline"
-                >
-                  He oblidat la contrasenya
-                </a>
-              </div>
-
-              {error ? (
-                <p className="text-sm text-[color:rgba(255,94,86,0.95)]">
-                  {error}
-                </p>
-              ) : null}
-
-              <Button className="w-full" size="lg" isLoading={loading}>
-                Iniciar sessió
-              </Button>
-
-              <div className="mt-3 grid gap-3">
-                <Button
-                  className="w-full"
-                  type="button"
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => signIn("google", { callbackUrl: "/onboarding" })}
-                >
-                  Continua amb Google
-                </Button>
-                <Button
-                  className="w-full"
-                  type="button"
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => {}}
-                >
-                  <Apple className="h-4 w-4" aria-hidden="true" />
-                  Continua amb Apple
-                </Button>
-              </div>
-            </form>
-
-            <p className="mt-6 text-sm text-[color:var(--color-text-muted)]">
-              No tens compte?{" "}
-              <Link
-                className="font-semibold text-[color:var(--color-primary)] hover:underline"
-                href="/auth/register"
+              <button
+                type="button"
+                onClick={() => setShowPass((p) => !p)}
+                style={{
+                  position: "absolute",
+                  right: "12px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  color: "var(--text-faint)",
+                  padding: "4px",
+                }}
+                aria-label={showPass ? "Amagar contrasenya" : "Mostrar contrasenya"}
               >
-                Crear-la →
-              </Link>
-            </p>
+                {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
-        </div>
+
+          <div style={{ textAlign: "right", marginBottom: "20px" }}>
+            <a
+              href="/auth/forgot-password"
+              style={{
+                fontSize: "13px",
+                fontWeight: 500,
+                color: "var(--green)",
+                textDecoration: "none",
+              }}
+            >
+              He oblidat la contrasenya
+            </a>
+          </div>
+
+          {error ? (
+            <p style={{ fontSize: "13px", color: "rgba(240,90,53,0.95)", marginBottom: 10 }}>
+              {error}
+            </p>
+          ) : null}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{
+              width: "100%",
+              height: "52px",
+              background: "var(--green)",
+              color: "#fff",
+              border: "none",
+              borderRadius: "var(--r-pill)",
+              fontSize: "15px",
+              fontWeight: 700,
+              fontFamily: "var(--font-display)",
+              letterSpacing: "-0.01em",
+              boxShadow: "var(--shadow-cta)",
+              transition: "var(--t)",
+              cursor: "pointer",
+              marginBottom: "16px",
+              opacity: loading ? 0.8 : 1,
+            }}
+          >
+            {loading ? "Carregant…" : "Iniciar sessió"}
+          </button>
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+              marginBottom: "16px",
+            }}
+          >
+            <div style={{ flex: 1, height: "1px", background: "var(--border)" }} />
+            <span style={{ fontSize: "12px", color: "var(--text-faint)", whiteSpace: "nowrap" }}>
+              o continua amb
+            </span>
+            <div style={{ flex: 1, height: "1px", background: "var(--border)" }} />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginBottom: "24px" }}>
+            <button
+              type="button"
+              onClick={() => signIn("google", { callbackUrl: "/onboarding" })}
+              style={{
+                width: "100%",
+                height: "48px",
+                background: "var(--surface)",
+                color: "var(--text)",
+                border: "1.5px solid var(--border-md)",
+                borderRadius: "var(--r-pill)",
+                fontSize: "14px",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+                transition: "var(--t)",
+                cursor: "pointer",
+              }}
+            >
+              <GoogleIcon />
+              Continua amb Google
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {}}
+              style={{
+                width: "100%",
+                height: "48px",
+                background: "var(--text)",
+                color: "#fff",
+                border: "none",
+                borderRadius: "var(--r-pill)",
+                fontSize: "14px",
+                fontWeight: 600,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "10px",
+                transition: "var(--t)",
+                cursor: "pointer",
+              }}
+            >
+              <AppleIcon />
+              Continua amb Apple
+            </button>
+          </div>
+
+          <p style={{ textAlign: "center", fontSize: "14px", color: "var(--text-muted)" }}>
+            No tens compte?{" "}
+            <Link
+              href="/auth/register"
+              style={{ color: "var(--green)", fontWeight: 600, textDecoration: "none" }}
+            >
+              Crear-la →
+            </Link>
+          </p>
+        </form>
       </div>
-    </PageWrapper>
+    </div>
   );
 }
 

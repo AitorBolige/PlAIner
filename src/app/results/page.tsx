@@ -11,6 +11,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { BudgetBreakdown } from "@/components/trip/BudgetBreakdown";
 import { DayAccordion, type DayDTO } from "@/components/trip/DayAccordion";
 import { useSearchStore } from "@/store/useSearchStore";
+import { ErrorState } from "@/components/ErrorState";
 
 type TripDTO = {
   id: string;
@@ -59,6 +60,10 @@ export default function ResultsPage() {
       }).catch(() => null);
 
       if (!gen || !gen.ok) {
+        if (gen?.status === 401) {
+          router.push("/auth/login?redirect=/search&reason=generate");
+          return;
+        }
         const data = (await gen?.json().catch(() => null)) as { error?: string } | null;
         if (!ignore) {
           setLoading(false);
@@ -93,7 +98,7 @@ export default function ResultsPage() {
     return () => {
       ignore = true;
     };
-  }, [search.budgetMax, search.dateRange?.end, search.dateRange?.start, search.destination, search.people]);
+  }, [router, search.budgetMax, search.dateRange?.end, search.dateRange?.start, search.destination, search.people]);
 
   return (
     <PageWrapper className="py-10">
@@ -129,19 +134,7 @@ export default function ResultsPage() {
           </div>
         </Card>
       ) : error ? (
-        <Card className="p-8">
-          <div className="font-display text-xl font-extrabold tracking-wide">
-            No ho hem pogut completar
-          </div>
-          <div className="mt-2 text-sm text-[color:var(--color-text-muted)]">
-            {error}
-          </div>
-          <div className="mt-6 flex gap-3">
-            <Button variant="secondary" onClick={() => router.push("/search")}>
-              Tornar al cercador
-            </Button>
-          </div>
-        </Card>
+        <ErrorState message={error} onGoHome={() => router.push("/search")} />
       ) : trip ? (
         <div className="grid gap-6 lg:grid-cols-[2fr_3fr]">
           <div className="lg:sticky lg:top-20 lg:self-start">

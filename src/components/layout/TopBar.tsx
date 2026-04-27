@@ -14,15 +14,18 @@ export function TopBar() {
   if (hidden) return null;
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[color:var(--color-border)] bg-[color:rgba(246,244,239,0.85)] backdrop-blur-xl md:hidden">
+    <header className="sticky top-0 z-40 border-b border-[color:var(--border)] bg-[color:rgba(244,241,236,0.88)] backdrop-blur-xl md:hidden">
       <div className="mx-auto flex h-14 w-full max-w-md items-center justify-between px-4">
-        <div className="text-sm font-semibold tracking-tight">PLAIner</div>
+        <div className="text-sm font-semibold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+          PLAIner
+        </div>
         <Link
           href="/search"
           aria-label="Anar a inici"
           className={cn(
-            "inline-flex h-10 w-10 items-center justify-center rounded-full border border-[color:var(--color-border)] bg-white/70 text-[color:var(--color-text)]",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)]"
+            "inline-flex h-10 w-10 items-center justify-center rounded-full border bg-white/70",
+            "border-[color:var(--border-md)] text-[color:var(--text)]",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--green)]"
           )}
         >
           <Home className="h-5 w-5" />

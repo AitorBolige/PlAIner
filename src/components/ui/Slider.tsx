@@ -36,14 +36,14 @@ export function Slider({
         onChange={(e) => onChange(Number(e.target.value))}
         className={cn(
           "h-11 w-full appearance-none bg-transparent",
-          "[&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-[color:rgba(255,255,255,0.08)]",
-          "[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[color:var(--color-primary)] [&::-webkit-slider-thumb]:shadow-[0_10px_35px_rgba(232,160,74,0.14)] [&::-webkit-slider-thumb]:mt-[-6px]",
+          "[&::-webkit-slider-runnable-track]:h-2 [&::-webkit-slider-runnable-track]:rounded-full [&::-webkit-slider-runnable-track]:bg-[color:rgba(0,0,0,0.10)]",
+          "[&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-[color:var(--green)] [&::-webkit-slider-thumb]:shadow-[0_10px_35px_rgba(13,158,122,0.18)] [&::-webkit-slider-thumb]:mt-[-6px]",
           "[&:focus-visible::-webkit-slider-thumb]:outline-none [&:focus-visible::-webkit-slider-thumb]:ring-2",
-          "[&::-moz-range-track]:h-2 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-[color:rgba(255,255,255,0.08)]",
-          "[&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[color:var(--color-primary)]"
+          "[&::-moz-range-track]:h-2 [&::-moz-range-track]:rounded-full [&::-moz-range-track]:bg-[color:rgba(0,0,0,0.10)]",
+          "[&::-moz-range-thumb]:h-5 [&::-moz-range-thumb]:w-5 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:bg-[color:var(--green)]"
         )}
         style={{
-          background: `linear-gradient(to right, var(--color-primary) 0%, var(--color-primary) ${pct}%, rgba(255,255,255,0.08) ${pct}%, rgba(255,255,255,0.08) 100%)`,
+          background: `linear-gradient(to right, var(--green) 0%, var(--green) ${pct}%, rgba(0,0,0,0.10) ${pct}%, rgba(0,0,0,0.10) 100%)`,
           borderRadius: 9999,
         }}
       />

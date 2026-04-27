@@ -48,10 +48,11 @@ const tabs: Tab[] = [
 
 export function BottomTabBar() {
   const pathname = usePathname() ?? "/";
+  if (pathname.startsWith("/auth")) return null;
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-[color:var(--color-border)] bg-[color:rgba(246,244,239,0.9)] backdrop-blur-xl md:hidden"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-[color:var(--border)] bg-[color:rgba(244,241,236,0.92)] backdrop-blur-xl md:hidden"
       aria-label="Navegació principal"
     >
       <div className="mx-auto grid max-w-md grid-cols-5 px-2 pb-[max(env(safe-area-inset-bottom),0px)] pt-2">
@@ -63,7 +64,7 @@ export function BottomTabBar() {
               href={t.href}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 rounded-[var(--radius-lg)] px-2 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)]",
-                active ? "text-[color:var(--color-primary)]" : "text-[color:var(--color-text-muted)]"
+                active ? "text-[color:var(--green)]" : "text-[color:var(--text-muted)]"
               )}
             >
               <t.Icon className={cn("h-5 w-5", active ? "" : "opacity-90")} />

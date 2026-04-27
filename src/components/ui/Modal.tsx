@@ -38,7 +38,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
       />
       <div
         className={cn(
-          "relative w-full max-w-lg rounded-[var(--radius-xl)] border border-[color:var(--color-border)] bg-[color:rgba(20,22,24,0.92)] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.55)]",
+          "relative w-full max-w-lg rounded-[var(--radius-xl)] border border-[color:var(--border)] bg-[color:var(--surface)] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)]",
           className
         )}
       >
@@ -51,7 +51,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
               type="button"
               aria-label="Tancar"
               onClick={onClose}
-              className="rounded-full px-3 py-2 text-sm text-[color:var(--color-text-muted)] hover:bg-white/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--color-bg)]"
+              className="rounded-full px-3 py-2 text-sm text-[color:var(--text-muted)] hover:bg-black/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--green)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--bg)]"
             >
               Tancar
             </button>

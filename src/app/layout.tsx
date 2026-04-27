@@ -5,6 +5,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { BottomTabBar } from "@/components/layout/BottomTabBar";
 import { TopBar } from "@/components/layout/TopBar";
+import { Providers } from "@/app/Providers";
 
 export const metadata: Metadata = {
   title: "PLAIner",
@@ -19,21 +20,19 @@ export default function RootLayout({
   return (
     <html lang="ca">
       <head>
-        <link
-          rel="stylesheet"
-          href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=cabinet-grotesk@700,800&display=swap"
-        />
       </head>
       <body className="min-h-dvh antialiased">
-        <div className="hidden md:block">
-          <Navbar />
-        </div>
-        <TopBar />
-        <main className="pb-24 md:pb-0">{children}</main>
-        <div className="hidden md:block">
-          <Footer />
-        </div>
-        <BottomTabBar />
+        <Providers>
+          <div className="hidden md:block">
+            <Navbar />
+          </div>
+          <TopBar />
+          <main className="pb-24 md:pb-0">{children}</main>
+          <div className="hidden md:block">
+            <Footer />
+          </div>
+          <BottomTabBar />
+        </Providers>
       </body>
     </html>
   );
