@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+:root {
+  /* Surfaces */
+  --color-bg: #f6f4ef;
+  --color-surface: #ffffff;
+  --color-surface-2: #f1efe9;
+  --color-border: rgba(22, 24, 24, 0.10);
+
+  /* Text */
+  --color-text: #141818;
+  --color-text-muted: rgba(20, 24, 24, 0.62);
+  --color-text-faint: rgba(20, 24, 24, 0.38);
+
+  /* Accents */
+  --color-primary: #0aa37f;
+  --color-primary-hover: #08906f;
+  --color-primary-active: #067a5f;
+  --color-secondary: #2f7db3;
+  --color-success: #1f9d5c;
+
+  /* Typography */
+  --font-display: "Cabinet Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Satoshi", ui-sans-serif, system-ui, sans-serif;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --radius-full: 9999px;
+
+  /* Motion */
+  --ease-out-premium: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  text-rendering: geometricPrecision;
+}
+
+* {
+  outline-color: color-mix(in srgb, var(--color-primary) 65%, transparent);
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-primary) 35%, transparent);
+  color: var(--color-text);
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .glass {
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 16px 40px rgba(18, 24, 24, 0.06);
+  }
+}
