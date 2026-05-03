@@ -1523,8 +1523,7 @@ function DestinationSheet({ open, onClose, onSelect }) {
     ? DESTINATIONS
     : DESTINATIONS.filter((d) => d.cats && d.cats.includes(cat));
 
-  const featured = byCat[0];
-  const grid = byCat.slice(1);
+  const grid = byCat;
 
   return (
     <Sheet open={open} onClose={onClose} height="92%">
@@ -1643,76 +1642,9 @@ function DestinationSheet({ open, onClose, onSelect }) {
                 <div style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Pròximament més destins</div>
               </div>
             ) : <>
-              {/* Featured — full width hero */}
-              <div style={{ marginBottom: 10 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
-                  <div className="micro" style={{ color: 'var(--green)', letterSpacing: '0.08em' }}>RECOMANAT PER A TU</div>
-                  <span style={{ fontSize: 11.5, color: 'var(--text-faint)' }}>{byCat.length} destins</span>
-                </div>
-                <button onClick={() => { onSelect(featured); onClose(); }} className="pl-tap" style={{
-                  position: 'relative', width: '100%', height: 210,
-                  borderRadius: 24, overflow: 'hidden', background: '#0a0a0a',
-                  border: 'none', display: 'block',
-                  boxShadow: '0 12px 40px rgba(0,0,0,0.22)',
-                }}>
-                  <HeroImg src={featured.img} alt={featured.city} label={featured.city}/>
-                  {/* cinematic gradient */}
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.85) 100%)' }}/>
-                  {/* Top row */}
-                  <div style={{ position: 'absolute', top: 14, left: 14, right: 14, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{
-                      display: 'inline-flex', alignItems: 'center', gap: 5,
-                      background: 'var(--green)', color: '#fff',
-                      fontSize: 10, fontWeight: 800, letterSpacing: '0.07em',
-                      padding: '5px 11px', borderRadius: 9999, textTransform: 'uppercase',
-                    }}>
-                      <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-                        <path d="M4 0.5L4.9 2.9H7.4L5.3 4.4L6.1 6.8L4 5.3L1.9 6.8L2.7 4.4L0.6 2.9H3.1L4 0.5Z" fill="white"/>
-                      </svg>
-                      Tendència
-                    </div>
-                    <div style={{
-                      background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(12px)',
-                      WebkitBackdropFilter: 'blur(12px)',
-                      border: '1px solid rgba(255,255,255,0.18)',
-                      color: '#fff', fontSize: 11.5, fontWeight: 700,
-                      padding: '5px 11px', borderRadius: 9999,
-                      fontFamily: 'var(--font-display)', letterSpacing: '-0.01em',
-                    }}>des de {featured.from}€</div>
-                  </div>
-                  {/* Bottom info */}
-                  <div style={{ position: 'absolute', left: 16, bottom: 16, right: 16 }}>
-                    <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-                      <div>
-                        <div className="display" style={{ fontWeight: 800, fontSize: 28, color: '#fff', letterSpacing: '-0.04em', lineHeight: 1, textShadow: '0 2px 20px rgba(0,0,0,0.5)' }}>{featured.city}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 5 }}>
-                          <span style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.78)', fontWeight: 500 }}>{featured.country}</span>
-                          <span style={{ width: 3, height: 3, borderRadius: 9999, background: 'rgba(255,255,255,0.35)', display: 'inline-block' }}/>
-                          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>{featured.temp}</span>
-                          <span style={{ width: 3, height: 3, borderRadius: 9999, background: 'rgba(255,255,255,0.35)', display: 'inline-block' }}/>
-                          <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>{featured.hours}</span>
-                        </div>
-                      </div>
-                      <div style={{
-                        width: 36, height: 36, borderRadius: 9999,
-                        background: 'rgba(255,255,255,0.15)',
-                        backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)',
-                        border: '1px solid rgba(255,255,255,0.25)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      }}>
-                        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                          <path d="M3 11L11 3M11 3H5M11 3v6" stroke="#fff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                    </div>
-                  </div>
-                </button>
-              </div>
-
-              {/* Grid */}
               {grid.length > 0 && (
                 <>
-                  <div className="micro" style={{ color: 'var(--text-muted)', margin: '18px 2px 12px', letterSpacing: '0.08em' }}>MÉS DESTINS</div>
+                  <div className="micro" style={{ color: 'var(--text-muted)', margin: '0 2px 12px', letterSpacing: '0.08em' }}>DESTINS · {grid.length}</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                     {grid.map((d) => (
                       <button key={d.id} onClick={() => { onSelect(d); onClose(); }} className="pl-tap" style={{
@@ -2904,13 +2836,6 @@ function TripsScreen({ trips, offerSnapshot, offerLoadError, offerLoading, onAdd
           })}
         </div>
 
-        {offerLoadError && (
-          <div style={{ margin: '16px 16px 0', padding: '12px 14px', borderRadius: 16, background: 'var(--coral-subtle)', color: 'var(--text)' }}>
-            <div className="micro" style={{ color: 'var(--coral)' }}>OFERTES REALS</div>
-            <div style={{ fontSize: 13, marginTop: 4 }}>{offerLoadError}</div>
-          </div>
-        )}
-
         <LiveOffersPreview offerSnapshot={offerSnapshot} offerLoadError={offerLoadError} offerLoading={offerLoading} />
 
         {/* List */}
@@ -3141,8 +3066,9 @@ function LoadingSkeletonSection({ title }) {
   );
 }
 
-function HotelOfferCard({ offer }) {
+function HotelOfferCard({ offer, pickMode, onPick }) {
   const ratingLabel = typeof offer.rating === 'number' ? offer.rating.toFixed(1) : null;
+  const showPick = Boolean(pickMode);
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '92px 1fr', gap: 12, padding: 12, borderRadius: 18, background: '#fff', border: '1px solid var(--border)' }}>
       <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: 16, overflow: 'hidden', background: 'var(--surface-2)', position: 'relative' }}>
@@ -3163,24 +3089,60 @@ function HotelOfferCard({ offer }) {
           </div>
           <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 6 }}>{offer.provider}</div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-          <div>
-            <div className="display" style={{ fontWeight: 900, fontSize: 22, lineHeight: 1 }}>{formatMoney(offer.price, offer.currency)}</div>
-            <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 2 }}>per estada</div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+          <div style={{ alignSelf: 'stretch', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+            <div>
+              <div className="display" style={{ fontWeight: 900, fontSize: 22, lineHeight: 1 }}>{formatMoney(offer.price, offer.currency)}</div>
+              <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 2 }}>per estada</div>
+            </div>
           </div>
-          <a href={offer.bookingUrl} target="_blank" rel="noreferrer" style={{
-            padding: '10px 14px', borderRadius: 14, background: 'var(--green)', color: '#fff',
-            fontSize: 13, fontWeight: 800, textDecoration: 'none', boxShadow: 'var(--shadow-cta)', whiteSpace: 'nowrap'
-          }}>
-            Reservar
-          </a>
+          {showPick && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 6, width: '100%', maxWidth: 200 }}>
+              <button
+                type="button"
+                onClick={() => onPick && onPick(offer)}
+                className="pl-tap"
+                style={{
+                  padding: '10px 14px', borderRadius: 14, background: 'var(--green)', color: '#fff',
+                  fontSize: 13, fontWeight: 800, border: 'none', cursor: 'pointer', boxShadow: 'var(--shadow-cta)',
+                }}
+              >
+                Seleccionar allotjament
+              </button>
+              {offer.bookingUrl ? (
+                <a
+                  href={offer.bookingUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{
+                    padding: '8px 12px', borderRadius: 14, border: '1px solid var(--border)', background: '#fff',
+                    color: 'var(--text-muted)', fontSize: 12.5, fontWeight: 700, textDecoration: 'none',
+                    textAlign: 'center',
+                  }}
+                >
+                  Veure oferta en viu
+                </a>
+              ) : null}
+            </div>
+          )}
+          {!showPick && offer.bookingUrl ? (
+            <a
+              href={offer.bookingUrl}
+              target="_blank"
+              rel="noreferrer"
+              style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--green)', textDecoration: 'underline', textUnderlineOffset: 2 }}
+            >
+              Obrir la pàgina de reserva →
+            </a>
+          ) : null}
         </div>
       </div>
     </div>
   );
 }
 
-function FlightOfferCard({ offer }) {
+function FlightOfferCard({ offer, pickMode, onPick }) {
+  const showPick = Boolean(pickMode);
   return (
     <div style={{ display: 'flex', alignItems: 'stretch', justifyContent: 'space-between', gap: 12, padding: 14, borderRadius: 18, background: '#fff', border: '1px solid var(--border)' }}>
       <div style={{ minWidth: 0, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
@@ -3195,17 +3157,48 @@ function FlightOfferCard({ offer }) {
           <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 6 }}>{offer.provider}</div>
         </div>
       </div>
-      <div style={{ flexShrink: 0, textAlign: 'right', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 10 }}>
+      <div style={{ flexShrink: 0, textAlign: 'right', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 10, alignItems: 'flex-end' }}>
         <div>
           <div className="display" style={{ fontWeight: 900, fontSize: 22, lineHeight: 1 }}>{formatMoney(offer.price, offer.currency)}</div>
           <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 2 }}>anada i tornada</div>
         </div>
-        <a href={offer.bookingUrl} target="_blank" rel="noreferrer" style={{
-          padding: '10px 14px', borderRadius: 14, background: 'var(--coral)', color: '#fff',
-          fontSize: 13, fontWeight: 800, textDecoration: 'none', boxShadow: 'var(--shadow-cta)', whiteSpace: 'nowrap'
-        }}>
-          Veure vol
-        </a>
+        {showPick ? (
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', gap: 6 }}>
+            <button
+              type="button"
+              onClick={() => onPick && onPick(offer)}
+              className="pl-tap"
+              style={{
+                padding: '10px 14px', borderRadius: 14, background: 'var(--coral)', color: '#fff',
+                fontSize: 13, fontWeight: 800, border: 'none', cursor: 'pointer', boxShadow: 'var(--shadow-cta)', whiteSpace: 'nowrap',
+              }}
+            >
+              Seleccionar vol
+            </button>
+            {offer.bookingUrl ? (
+              <a
+                href={offer.bookingUrl}
+                target="_blank"
+                rel="noreferrer"
+                style={{
+                  padding: '8px 12px', borderRadius: 14, border: '1px solid var(--border)', background: '#fff',
+                  color: 'var(--text-muted)', fontSize: 12.5, fontWeight: 700, textDecoration: 'none', whiteSpace: 'nowrap',
+                }}
+              >
+                Veure vol en viu
+              </a>
+            ) : null}
+          </div>
+        ) : offer.bookingUrl ? (
+          <a
+            href={offer.bookingUrl}
+            target="_blank"
+            rel="noreferrer"
+            style={{ fontSize: 12.5, fontWeight: 600, color: 'var(--coral)', textDecoration: 'underline', textUnderlineOffset: 2 }}
+          >
+            Obrir la pàgina del vol →
+          </a>
+        ) : null}
       </div>
     </div>
   );
@@ -3221,58 +3214,106 @@ function formatMoney(price, currency) {
   }
 }
 
-function OfferRow({ label, title, price, provider, bookingUrl, description }) {
+function TravelBasketStepDots({ step }) {
+  const steps = [
+    { id: 'flights', label: 'Vol' },
+    { id: 'hotels', label: 'Hotel' },
+    { id: 'summary', label: 'Resum' },
+  ];
+  const rawIndex = steps.findIndex((s) => s.id === step);
+  const activeIndex = rawIndex >= 0 ? rawIndex : 0;
   return (
-    <div className="p-4 border rounded-lg mb-4 bg-white shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-      <div className="flex-1">
-        {label && <span className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-1 block">{label}</span>}
-        <h4 className="text-lg font-semibold text-gray-900">{title}</h4>
-        {description && <p className="text-sm text-gray-600 mt-1">{description}</p>}
-        <p className="text-xs text-gray-400 mt-2">Found via {provider}</p>
-      </div>
-      <div className="flex flex-col items-end gap-2">
-        <span className="text-xl font-bold text-gray-900">{price}</span>
-        {bookingUrl && (
-          <a
-            href={bookingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors"
-          >
-            Book Now
-          </a>
-        )}
-      </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: 14 }}>
+      {steps.map((s, i) => {
+        const done = activeIndex > i;
+        const active = activeIndex === i;
+        return (
+          <React.Fragment key={s.id}>
+            {i > 0 && (
+              <div style={{ flex: '0 0 8px', height: 3, borderRadius: 2, background: activeIndex >= i ? 'var(--green)' : 'var(--border)' }}/>
+            )}
+            <div
+              title={s.label}
+              style={{
+                flex: 1,
+                padding: '8px 6px',
+                borderRadius: 12,
+                textAlign: 'center',
+                fontSize: 11.5,
+                fontWeight: active ? 800 : done ? 600 : 500,
+                color: active ? '#fff' : done ? 'var(--green-deep)' : 'var(--text-muted)',
+                background: active ? 'var(--text)' : done ? 'var(--green-subtle)' : 'var(--surface-2)',
+                border: `1px solid ${active ? 'var(--text)' : 'var(--border)'}`,
+              }}
+            >
+              {i + 1}. {s.label}
+            </div>
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 }
 
 function LiveOffersPreview({ offerSnapshot, offerLoadError, offerLoading }) {
-  const [activeTab, setActiveTab] = React.useState('hotels');
   const offers = offerSnapshot?.offers || [];
-  const hotels = offers.filter((offer) => String(offer.type).toUpperCase() === 'HOTEL');
-  const flights = offers.filter((offer) => String(offer.type).toUpperCase() === 'TRANSPORT');
+  const hotels = offers.filter((offer) => {
+    const t = String(offer.type || '').toUpperCase();
+    return t === 'HOTEL' || t === 'ACCOMMODATION';
+  });
+  const flights = offers.filter((offer) => String(offer.type || '').toUpperCase() === 'TRANSPORT');
   const isLoading = Boolean(offerLoading);
   const hasError = Boolean(offerLoadError);
 
+  const [currentStep, setCurrentStep] = React.useState('flights');
+  const [selectedFlight, setSelectedFlight] = React.useState(null);
+  const [selectedHotel, setSelectedHotel] = React.useState(null);
+
+  const resetBasketSignature = `${offerSnapshot?.search?.destination || ''}|${offerSnapshot?.search?.city || ''}|${offerSnapshot?.search?.id || ''}|${offerSnapshot?.search?.refreshedAt || ''}|${offers.length}`;
+
   React.useEffect(() => {
-    console.log('[LiveOffersPreview] offerSnapshot:', offerSnapshot);
-    console.log('[LiveOffersPreview] offerLoading:', offerLoading, 'offerLoadError:', offerLoadError);
-    console.log('[LiveOffersPreview] total offers:', offers.length, 'hotels:', hotels.length, 'flights:', flights.length);
-    if (offers.length > 0) {
-      console.log('[LiveOffersPreview] offer types seen:', Array.from(new Set(offers.map((o) => o.type))));
-      console.log('[LiveOffersPreview] first offer sample:', offers[0]);
+    setCurrentStep('flights');
+    setSelectedFlight(null);
+    setSelectedHotel(null);
+  }, [resetBasketSignature]);
+
+  const handlePickFlight = (offer) => {
+    setSelectedFlight(offer);
+    setSelectedHotel(null);
+    setCurrentStep('hotels');
+  };
+
+  const handlePickHotel = (offer) => {
+    setSelectedHotel(offer);
+    setCurrentStep('summary');
+  };
+
+  const handleBack = () => {
+    if (currentStep === 'hotels') {
+      setCurrentStep('flights');
+      setSelectedFlight(null);
+      setSelectedHotel(null);
+      return;
     }
-  }, [offerSnapshot, offerLoading, offerLoadError]);
+    if (currentStep === 'summary') {
+      setCurrentStep('hotels');
+      setSelectedHotel(null);
+    }
+  };
+
+  const showBack = currentStep !== 'flights';
+
+  const sectionTitle =
+    currentStep === 'flights' ? 'Tria el teu vol' :
+    currentStep === 'hotels' ? 'Tria el teu allotjament' :
+    'Itinerari desat a la teva selecció';
 
   if (isLoading) {
     return (
       <div style={{ margin: '16px 16px 0', padding: 18, background: '#fff', borderRadius: 24, border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
-        <div className="micro" style={{ marginBottom: 10 }}>OFERTES REALS</div>
-        <div style={{ display: 'grid', gap: 12 }}>
-          <LoadingSkeletonSection title="Hotels" />
-          <LoadingSkeletonSection title="Flights" />
-        </div>
+        <div className="micro" style={{ marginBottom: 10 }}>CONSTRUEIX EL VIATGE</div>
+        <TravelBasketStepDots step="flights" />
+        <LoadingSkeletonSection title="Flights" />
       </div>
     );
   }
@@ -3280,7 +3321,7 @@ function LiveOffersPreview({ offerSnapshot, offerLoadError, offerLoading }) {
   if (hasError) {
     return (
       <div style={{ margin: '16px 16px 0', padding: 18, background: '#fff', borderRadius: 24, border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
-        <div className="micro" style={{ marginBottom: 10 }}>OFERTES REALS</div>
+        <div className="micro" style={{ marginBottom: 10 }}>CONSTRUEIX EL VIATGE</div>
         <div style={{ padding: 18, borderRadius: 18, background: 'var(--coral-subtle)', border: '1px solid rgba(240,90,53,0.18)' }}>
           <div style={{ fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: '-0.02em' }}>
             No hem pogut carregar les ofertes
@@ -3296,13 +3337,13 @@ function LiveOffersPreview({ offerSnapshot, offerLoadError, offerLoading }) {
   if (!hotels.length && !flights.length) {
     return (
       <div style={{ margin: '16px 16px 0', padding: 18, background: '#fff', borderRadius: 24, border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
-        <div className="micro" style={{ marginBottom: 10 }}>OFERTES REALS</div>
+        <div className="micro" style={{ marginBottom: 10 }}>CONSTRUEIX EL VIATGE</div>
         <div style={{ padding: 18, borderRadius: 18, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
           <div style={{ fontWeight: 700, fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: '-0.02em' }}>
             Encara estem preparant les ofertes
           </div>
           <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>
-            Quan el refresc acabi, aquí veuràs hotels i vols guardats a la memòria cau.
+            Quan el refresc acabi, podràs triar primer un vol i després un hotel pas a pas.
           </div>
         </div>
       </div>
@@ -3311,73 +3352,119 @@ function LiveOffersPreview({ offerSnapshot, offerLoadError, offerLoading }) {
 
   return (
     <div style={{ margin: '16px 16px 0', padding: 18, background: '#fff', borderRadius: 24, border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
-      <div className="micro" style={{ marginBottom: 12 }}>OFERTES REALS</div>
-      
-      {/* Tab toggles */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-        <button
-          onClick={() => setActiveTab('hotels')}
-          style={{
-            flex: 1,
-            padding: '10px 12px',
-            borderRadius: 12,
-            border: activeTab === 'hotels' ? '2px solid var(--green)' : '1px solid var(--border)',
-            background: activeTab === 'hotels' ? 'var(--green-subtle)' : 'transparent',
-            color: activeTab === 'hotels' ? 'var(--green)' : 'var(--text-muted)',
-            fontWeight: activeTab === 'hotels' ? 700 : 500,
-            fontSize: 13,
-            cursor: 'pointer',
-            transition: 'all 150ms ease',
-          }}
-        >
-          Hotels ({hotels.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('flights')}
-          style={{
-            flex: 1,
-            padding: '10px 12px',
-            borderRadius: 12,
-            border: activeTab === 'flights' ? '2px solid var(--coral)' : '1px solid var(--border)',
-            background: activeTab === 'flights' ? 'var(--coral-subtle)' : 'transparent',
-            color: activeTab === 'flights' ? 'var(--coral)' : 'var(--text-muted)',
-            fontWeight: activeTab === 'flights' ? 700 : 500,
-            fontSize: 13,
-            cursor: 'pointer',
-            transition: 'all 150ms ease',
-          }}
-        >
-          Flights ({flights.length})
-        </button>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10, marginBottom: 10 }}>
+        <div style={{ flex: 1 }}>
+          <div className="micro" style={{ marginBottom: 4 }}>CONSTRUEIX EL VIATGE</div>
+          <div style={{ fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 19, letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+            {sectionTitle}
+          </div>
+        </div>
+        {showBack ? (
+          <button type="button" className="pl-tap" onClick={handleBack} style={{
+            flexShrink: 0, padding: '8px 12px', borderRadius: 9999,
+            border: '1px solid var(--border)', background: 'var(--surface-2)',
+            fontSize: 13, fontWeight: 700, color: 'var(--text)',
+          }}>
+            ← Enrere
+          </button>
+        ) : null}
       </div>
 
-      {/* Content based on active tab */}
-      {activeTab === 'hotels' && (
-        <OffersSection
-          title="Hotels"
-          accent="var(--green)"
-          count={hotels.length}
-          emptyText="No hi ha hotels disponibles encara."
-        >
-          {hotels.map((offer, index) => (
-            <HotelOfferCard key={`${offer.id || offer.title || 'hotel'}-${index}`} offer={offer} />
-          ))}
-        </OffersSection>
+      <TravelBasketStepDots step={currentStep} />
+
+      {currentStep === 'flights' && (
+        <>
+          {!flights.length ? (
+            <div style={{ padding: 14, borderRadius: 18, background: 'var(--surface-2)', border: '1px solid var(--border)', fontSize: 13.5, color: 'var(--text-muted)' }}>
+              No hem trobat vols disponibles ara mateix per aquesta combinació de dates i destinació.
+            </div>
+          ) : (
+            <OffersSection
+              title="Vols disponibles"
+              accent="var(--coral)"
+              count={flights.length}
+              emptyText="Sense vols ara mateix."
+            >
+              {flights.map((offer, index) => (
+                <FlightOfferCard
+                  key={`${offer.id || offer.title || 'flight'}-${index}`}
+                  offer={offer}
+                  pickMode
+                  onPick={handlePickFlight}
+                />
+              ))}
+            </OffersSection>
+          )}
+        </>
       )}
 
-      {activeTab === 'flights' && (
-        <OffersSection
-          title="Flights"
-          accent="var(--coral)"
-          count={flights.length}
-          emptyText="No hi ha vols disponibles encara."
-        >
-          {flights.map((offer, index) => (
-            <FlightOfferCard key={`${offer.id || offer.title || 'flight'}-${index}`} offer={offer} />
-          ))}
-        </OffersSection>
+      {currentStep === 'hotels' && selectedFlight && (
+        <>
+          <div style={{ marginBottom: 12, padding: 12, borderRadius: 16, border: '1px solid var(--border)', background: 'var(--surface-2)' }}>
+            <div className="micro" style={{ color: 'var(--coral)' }}>VOL TRIAT</div>
+            <div style={{ marginTop: 6, fontWeight: 700, fontSize: 14 }}>{selectedFlight.title}</div>
+            <div style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 2 }}>
+              {formatMoney(selectedFlight.price, selectedFlight.currency)} · pots canviar-lo amb «Enrere»
+            </div>
+          </div>
+          {!hotels.length ? (
+            <div style={{ padding: 14, borderRadius: 18, background: 'var(--surface-2)', border: '1px solid var(--border)', fontSize: 13.5, color: 'var(--text-muted)' }}>
+              No hem trobat hotels disponibles ara mateix. Prova dates diferents amb «Enrere» als vols més endavant.
+            </div>
+          ) : (
+            <OffersSection
+              title="Allotjaments"
+              accent="var(--green)"
+              count={hotels.length}
+              emptyText="Sense hotels ara mateix."
+            >
+              {hotels.map((offer, index) => (
+                <HotelOfferCard
+                  key={`${offer.id || offer.title || 'hotel'}-${index}`}
+                  offer={offer}
+                  pickMode
+                  onPick={handlePickHotel}
+                />
+              ))}
+            </OffersSection>
+          )}
+        </>
       )}
-      
+
+      {currentStep === 'summary' && selectedFlight && selectedHotel && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{
+            padding: 14, borderRadius: 18, background: 'var(--green-subtle)', border: '1px solid rgba(13,158,122,0.25)',
+          }}>
+            <div className="micro" style={{ color: 'var(--green-deep)' }}>VIATGE A LA SAFATA</div>
+            <div style={{ fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: '-0.02em', marginTop: 4 }}>
+              Tot llest — revisa i reserva fora si vols
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6, lineHeight: 1.45 }}>
+              Els preus es mostren amb la divisa que retorna cada proveïdor. Els enllaços de veure/reserva porten als llocs originals.
+            </div>
+          </div>
+
+          <div className="micro" style={{ color: 'var(--coral)' }}>VOL</div>
+          <FlightOfferCard offer={selectedFlight} pickMode={false} />
+
+          <div className="micro" style={{ color: 'var(--green)' }}>ALLOTJAMENT</div>
+          <HotelOfferCard offer={selectedHotel} pickMode={false} />
+
+          <div style={{
+            padding: 14, borderRadius: 16, background: 'var(--surface-2)', border: '1px solid var(--border)',
+            display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap',
+          }}>
+            <div>
+              <div className="micro">SUBTOTALS (ESTIMATS)</div>
+              <div style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 4 }}>
+                Vol: {formatMoney(selectedFlight.price, selectedFlight.currency)} · Hotel: {formatMoney(selectedHotel.price, selectedHotel.currency)}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-muted)' }}>
         Font: {offerSnapshot?.search?.status || 'unknown'} · actualitzat {offerSnapshot?.search?.refreshedAt ? new Date(offerSnapshot.search.refreshedAt).toLocaleString('ca-ES') : 'ara'}
       </div>
