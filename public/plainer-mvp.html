@@ -3064,90 +3064,6 @@ function BottomTabs({ tab, onTab }) {
 
 Object.assign(window, { GeneratingScreen, TripsScreen, BottomTabs });
 
-function LiveOffersPreview({ offerSnapshot, offerLoadError, offerLoading }) {
-  const offers = offerSnapshot?.offers || [];
-  const hotels = offers.filter((offer) => String(offer.type).toUpperCase() === 'HOTEL');
-  const flights = offers.filter((offer) => String(offer.type).toUpperCase() === 'TRANSPORT');
-  const isLoading = Boolean(offerLoading);
-  const hasError = Boolean(offerLoadError);
-
-  if (isLoading) {
-    return (
-      <div style={{ margin: '16px 16px 0', padding: 18, background: '#fff', borderRadius: 24, border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
-        <div className="micro" style={{ marginBottom: 10 }}>OFERTES REALS</div>
-        <div style={{ display: 'grid', gap: 12 }}>
-          <LoadingSkeletonSection title="Hotels" />
-          <LoadingSkeletonSection title="Flights" />
-        </div>
-      </div>
-    );
-  }
-
-  if (hasError) {
-    return (
-      <div style={{ margin: '16px 16px 0', padding: 18, background: '#fff', borderRadius: 24, border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
-        <div className="micro" style={{ marginBottom: 10 }}>OFERTES REALS</div>
-        <div style={{ padding: 18, borderRadius: 18, background: 'var(--coral-subtle)', border: '1px solid rgba(240,90,53,0.18)' }}>
-          <div style={{ fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: '-0.02em' }}>
-            No hem pogut carregar les ofertes
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>
-            {offerLoadError || 'Revisa el filtre de destinació o torna-ho a intentar en uns segons.'}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (!hotels.length && !flights.length) {
-    return (
-      <div style={{ margin: '16px 16px 0', padding: 18, background: '#fff', borderRadius: 24, border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
-        <div className="micro" style={{ marginBottom: 10 }}>OFERTES REALS</div>
-        <div style={{ padding: 18, borderRadius: 18, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
-          <div style={{ fontWeight: 700, fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: '-0.02em' }}>
-            Encara estem preparant les ofertes
-          </div>
-          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>
-            Quan el refresc acabi, aquí veuràs hotels i vols guardats a la memòria cau.
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div style={{ margin: '16px 16px 0', padding: 18, background: '#fff', borderRadius: 24, border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
-      <div className="micro" style={{ marginBottom: 8 }}>OFERTES REALS</div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <OffersSection
-          title="Hotels"
-          accent="var(--green)"
-          count={hotels.length}
-          emptyText="No hi ha hotels disponibles encara."
-        >
-          {hotels.map((offer, index) => (
-            <HotelOfferCard key={`${offer.id || offer.title || 'hotel'}-${index}`} offer={offer} />
-          ))}
-        </OffersSection>
-
-        <OffersSection
-          title="Flights"
-          accent="var(--coral)"
-          count={flights.length}
-          emptyText="No hi ha vols disponibles encara."
-        >
-          {flights.map((offer, index) => (
-            <FlightOfferCard key={`${offer.id || offer.title || 'flight'}-${index}`} offer={offer} />
-          ))}
-        </OffersSection>
-      </div>
-      <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-muted)' }}>
-        Font: {offerSnapshot?.search?.status || 'unknown'} · actualitzat {offerSnapshot?.search?.refreshedAt ? new Date(offerSnapshot.search.refreshedAt).toLocaleString('ca-ES') : 'ara'}
-      </div>
-    </div>
-  );
-}
-
 function OffersSection({ title, accent, count, emptyText, children }) {
   return (
     <div style={{ padding: 14, borderRadius: 20, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
@@ -3307,13 +3223,47 @@ function formatMoney(price, currency) {
 
 function OfferRow({ label, title, price, provider, bookingUrl, description }) {
   return (
-export function LiveOffersPreview({ offerSnapshot, offerLoadError, offerLoading }) {
+    <div className="p-4 border rounded-lg mb-4 bg-white shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex-1">
+        {label && <span className="text-xs font-bold uppercase tracking-wider text-blue-600 mb-1 block">{label}</span>}
+        <h4 className="text-lg font-semibold text-gray-900">{title}</h4>
+        {description && <p className="text-sm text-gray-600 mt-1">{description}</p>}
+        <p className="text-xs text-gray-400 mt-2">Found via {provider}</p>
+      </div>
+      <div className="flex flex-col items-end gap-2">
+        <span className="text-xl font-bold text-gray-900">{price}</span>
+        {bookingUrl && (
+          <a
+            href={bookingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 transition-colors"
+          >
+            Book Now
+          </a>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function LiveOffersPreview({ offerSnapshot, offerLoadError, offerLoading }) {
   const [activeTab, setActiveTab] = React.useState('hotels');
   const offers = offerSnapshot?.offers || [];
   const hotels = offers.filter((offer) => String(offer.type).toUpperCase() === 'HOTEL');
   const flights = offers.filter((offer) => String(offer.type).toUpperCase() === 'TRANSPORT');
   const isLoading = Boolean(offerLoading);
   const hasError = Boolean(offerLoadError);
+
+  React.useEffect(() => {
+    console.log('[LiveOffersPreview] offerSnapshot:', offerSnapshot);
+    console.log('[LiveOffersPreview] offerLoading:', offerLoading, 'offerLoadError:', offerLoadError);
+    console.log('[LiveOffersPreview] total offers:', offers.length, 'hotels:', hotels.length, 'flights:', flights.length);
+    if (offers.length > 0) {
+      console.log('[LiveOffersPreview] offer types seen:', Array.from(new Set(offers.map((o) => o.type))));
+      console.log('[LiveOffersPreview] first offer sample:', offers[0]);
+    }
+  }, [offerSnapshot, offerLoading, offerLoadError]);
 
   if (isLoading) {
     return (
@@ -3433,20 +3383,6 @@ export function LiveOffersPreview({ offerSnapshot, offerLoadError, offerLoading 
       </div>
     </div>
   );
-      <div style={{ minWidth: 0 }}>
-        <div className="micro" style={{ color: 'var(--green)' }}>{label}</div>
-        <div style={{ fontWeight: 700, fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}>{title}</div>
-        <div style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 2 }}>{description}</div>
-        <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 4 }}>{provider}</div>
-      </div>
-      <div style={{ textAlign: 'right', flexShrink: 0 }}>
-        <div className="display" style={{ fontWeight: 800, fontSize: 20 }}>{Math.round(price)} €</div>
-        <a href={bookingUrl} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: 'var(--green)', fontWeight: 700, textDecoration: 'none' }}>
-          Reservar
-        </a>
-      </div>
-    </div>
-  );
 }
 
 
@@ -3480,6 +3416,8 @@ function PLAIerApp({ initialRoute = 'login', initialTab = 'trips' }) {
     setOfferLoading(true);
     setOfferLoadError(null);
 
+    const requestedCurrency = String(params.currency || params.userCurrency || 'EUR').toUpperCase().slice(0, 3);
+
     const requestUrl = new URL('/api/travel-offers', window.location.origin);
     requestUrl.searchParams.set('destination', destinationCity);
     requestUrl.searchParams.set('city', destinationCity);
@@ -3487,11 +3425,10 @@ function PLAIerApp({ initialRoute = 'login', initialTab = 'trips' }) {
     requestUrl.searchParams.set('startDate', startDate.toISOString().slice(0, 10));
     requestUrl.searchParams.set('endDate', endDate.toISOString().slice(0, 10));
     requestUrl.searchParams.set('people', String(params.people || 2));
-    // include origin and maxPrice (budget)
     if (params.origin) requestUrl.searchParams.set('origin', String(params.origin));
     requestUrl.searchParams.set('budgetMax', String(params.budget || 1200));
     requestUrl.searchParams.set('maxPrice', String((params.maxPrice ?? params.budget) || 1200));
-    requestUrl.searchParams.set('currency', 'EUR');
+    requestUrl.searchParams.set('currency', requestedCurrency);
 
     try {
       const response = await fetch(requestUrl.toString());
@@ -3515,7 +3452,7 @@ function PLAIerApp({ initialRoute = 'login', initialTab = 'trips' }) {
               people: params.people || 2,
               budgetMax: params.budget || 1200,
               maxPrice: (params.maxPrice ?? params.budget) || 1200,
-              currency: 'EUR',
+              currency: requestedCurrency,
               origin: params.origin || undefined,
             } }),
           });

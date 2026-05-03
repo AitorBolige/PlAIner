@@ -6,7 +6,7 @@ import {
   travelOfferQuerySchema,
   upsertTravelSearchOffers,
 } from "@/lib/travel-offers";
-import { searchFlightsMetasearchForQuery, searchHotelsRapidAPI } from "@/lib/travel-providers";
+import { searchFlightsMetasearchForQuery, searchHotelsApiDojo } from "@/lib/travel-providers";
 
 type SourceKind = "hotel" | "transport";
 
@@ -423,16 +423,41 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
   const collected: TravelOfferInput[] = [];
   const errors: string[] = [];
 
-  for (const source of sources) {
-    // If a RapidAPI hotel provider is configured, prefer it instead of scraping configured hotel URLs
-    try {
-      if (source.kind === "hotel" && process.env.RAPIDAPI_KEY && process.env.RAPIDAPI_HOST) {
-        const offers = await searchHotelsRapidAPI(normalizedQuery);
-        collected.push(...offers);
-        // skip the other handlers for this hotel source
-        continue;
-      }
+  // Hotels: APIDojo Booking-v1 (RAPIDAPI_HOST + RAPIDAPI_KEY).
+  const hasApiDojoHotelCreds = Boolean(
+    process.env.RAPIDAPI_HOST?.trim() && process.env.RAPIDAPI_KEY?.trim(),
+  );
+  let hotelHandledViaApi = false;
 
+  if (hasApiDojoHotelCreds) {
+    try {
+      const offers = await searchHotelsApiDojo({
+        query: normalizedQuery.city || normalizedQuery.destination,
+        checkin: normalizedQuery.startDate
+          ? normalizedQuery.startDate.toISOString().slice(0, 10)
+          : undefined,
+        checkout: normalizedQuery.endDate
+          ? normalizedQuery.endDate.toISOString().slice(0, 10)
+          : undefined,
+        adults: normalizedQuery.people ?? 2,
+        rooms: 1,
+        currency: normalizedQuery.currency,
+        maxPrice: normalizedQuery.maxPrice ?? normalizedQuery.budgetMax ?? undefined,
+      });
+      collected.push(...offers);
+      hotelHandledViaApi = true;
+    } catch (error) {
+      errors.push(error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  for (const source of sources) {
+    if (source.kind === "hotel" && hotelHandledViaApi) {
+      // Live API already handled hotels; skip the scrape source so we don't
+      // dilute results with stale Trivago HTML.
+      continue;
+    }
+    try {
       const offers = await scrapeSource(source);
       collected.push(...offers);
     } catch (error) {

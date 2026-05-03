@@ -1,54 +1,51 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 
-import { travelOfferQuerySchema } from "@/lib/travel-offers";
-import { searchHotelsRapidAPI } from "@/lib/travel-providers";
+import {
+  searchHotelsApiDojo,
+  type ApiDojoHotelParams,
+} from "@/lib/travel-providers";
 
-function parseQuery(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-
-  return travelOfferQuerySchema.safeParse({
-    destination: searchParams.get("destination") ?? "Lisbon",
-    city: searchParams.get("city") ?? "Lisbon",
-    countryCode: searchParams.get("countryCode") ?? "PT",
-    startDate:
-      searchParams.get("startDate") ??
-      new Date().toISOString().slice(0, 10),
-    endDate:
-      searchParams.get("endDate") ??
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
-    people: searchParams.get("people") ?? "2",
-    budgetMax: searchParams.get("budgetMax") ?? "500",
-    currency: searchParams.get("currency") ?? "EUR",
-  });
-}
-
-export async function GET(request: NextRequest) {
-  const parsed = parseQuery(request);
-
-  if (!parsed.success) {
-    return NextResponse.json(
-      { success: false, error: "Invalid query parameters", issues: parsed.error.flatten() },
-      { status: 400 },
-    );
-  }
-
+export async function GET(request: Request) {
   try {
-    const offers = await searchHotelsRapidAPI(parsed.data);
+    const url = new URL(request.url);
+    const queryFromUrl = url.searchParams.get("query");
+    const adultsFromUrl = url.searchParams.get("adults");
+    const currencyFromUrl = url.searchParams.get("currency");
+
+    const checkin = new Date();
+    checkin.setDate(checkin.getDate() + 3);
+    const checkout = new Date();
+    checkout.setDate(checkout.getDate() + 5);
+
+    const params: ApiDojoHotelParams = {
+      query: queryFromUrl || "Lisbon",
+      checkin: checkin.toISOString().split("T")[0],
+      checkout: checkout.toISOString().split("T")[0],
+      adults: adultsFromUrl ? Number(adultsFromUrl) : 2,
+      rooms: 1,
+      currency: currencyFromUrl || "EUR",
+    };
+
+    console.log(`[DEBUG hotels] Calling searchHotelsApiDojo with:`, params);
+    const offers = await searchHotelsApiDojo(params);
 
     return NextResponse.json({
       success: true,
-      query: parsed.data,
-      offersCount: offers.length,
+      provider: "APIDojo Booking-v1",
+      offerCount: offers.length,
+      preview: offers.slice(0, 3),
       offers,
+      testQuery: params,
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    const stack = error instanceof Error ? error.stack : undefined;
+    console.error(`[DEBUG hotels] Route Error:`, error);
     return NextResponse.json(
       {
         success: false,
-        query: parsed.data,
-        offersCount: 0,
-        offers: [],
-        error: error instanceof Error ? error.message : "Unknown error",
+        error: message,
+        stack,
       },
       { status: 500 },
     );
