@@ -1,11 +1,13 @@
 import { TravelOfferInput, TravelOfferQuery } from "./travel-offers";
 
-type DuffelFlightParams = {
+type MetasearchFlightParams = {
   originIata: string;
   destinationIata: string;
   departureDate?: string; // YYYY-MM-DD
   returnDate?: string; // YYYY-MM-DD (optional)
   passengers?: number;
+  maxPrice?: number;
+  currency?: string;
 };
 
 type FlightRouteContext = {
@@ -146,14 +148,9 @@ export async function searchHotelsRapidAPI(query: TravelOfferQuery): Promise<Tra
   return offers;
 }
 
-export function resolveDuffelFlightRoute(query: TravelOfferQuery): FlightRouteContext {
-  const destinationIata = resolveDuffelDestinationIata(query);
-  // Prefer explicit query.origin (IATA or city). If it's a 3-letter code, treat as IATA.
-  let originIata = undefined;
-  if (query.origin && typeof query.origin === 'string' && query.origin.trim().length === 3) {
-    originIata = query.origin.trim().toUpperCase();
-  }
-  originIata = originIata || process.env.DUFFEL_ORIGIN_IATA?.trim().toUpperCase() || resolveDefaultOriginIata(query) || "BCN";
+export function resolveMetasearchFlightRoute(query: TravelOfferQuery): FlightRouteContext {
+  const destinationIata = resolveFlightDestinationIata(query);
+  const originIata = resolveFlightOriginIata(query);
 
   return {
     originIata,
@@ -209,154 +206,166 @@ function extractBookingProperties(payload: unknown) {
   return [];
 }
 
-/**
- * Search flights via Duffel. This helper will attempt to use the @duffel/api SDK if available,
- * otherwise falls back to the HTTP endpoints. Provide origin/destination as IATA codes.
- * Maps Duffel offers into the TravelOfferInput shape with type `transport`.
- */
-export async function searchFlightsDuffel(params: DuffelFlightParams): Promise<TravelOfferInput[]> {
-  const token = process.env.DUFFEL_ACCESS_TOKEN;
-  if (!token) throw new Error("Duffel access token not configured (DUFFEL_ACCESS_TOKEN)");
+function getRapidApiFlightConfig() {
+  const host = process.env.RAPIDAPI_FLIGHTS_HOST?.trim() || process.env.RAPIDAPI_HOST?.trim();
+  const key = process.env.RAPIDAPI_FLIGHTS_KEY?.trim() || process.env.RAPIDAPI_KEY?.trim();
+  const path = process.env.RAPIDAPI_FLIGHTS_PATH?.trim() || "/flights/search-roundtrip";
+  if (!host || !key) {
+    throw new Error("RapidAPI flight metasearch not configured (RAPIDAPI_FLIGHTS_HOST / RAPIDAPI_FLIGHTS_KEY)");
+  }
+  return { host, key, path: path.startsWith("/") ? path : `/${path}` };
+}
 
-  const { originIata, destinationIata, departureDate, returnDate, passengers = 1 } = params;
+function buildRapidApiFlightSearchUrl(params: MetasearchFlightParams) {
+  const { host, path } = getRapidApiFlightConfig();
+  const searchParams = new URLSearchParams();
+  const currency = String((params.currency || "EUR").toUpperCase()).slice(0, 3);
 
-  // Try SDK first (if installed)
-  try {
-    // Dynamic import so the project doesn't break if the package isn't installed yet
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { Duffel } = require("@duffel/api");
-    const client = new Duffel({ token });
+  searchParams.set("origin", params.originIata);
+  searchParams.set("destination", params.destinationIata);
+  searchParams.set("fly_from", params.originIata);
+  searchParams.set("fly_to", params.destinationIata);
+  searchParams.set("originIataCode", params.originIata);
+  searchParams.set("destinationIataCode", params.destinationIata);
+  searchParams.set("date_from", params.departureDate ?? "");
+  searchParams.set("dateFrom", params.departureDate ?? "");
+  searchParams.set("departureDate", params.departureDate ?? "");
+  if (params.returnDate) {
+    searchParams.set("returnDate", params.returnDate);
+    searchParams.set("return_date", params.returnDate);
+  }
+  searchParams.set("adults", String(params.passengers ?? 1));
+  searchParams.set("passengers", String(params.passengers ?? 1));
+  searchParams.set("currency", currency);
+  searchParams.set("curr", currency);
+  searchParams.set("limit", "20");
+  searchParams.set("sort", "price");
+  searchParams.set("sortBy", "price");
+  if (typeof params.maxPrice === "number" && Number.isFinite(params.maxPrice)) {
+    searchParams.set("price_to", String(params.maxPrice));
+    searchParams.set("priceTo", String(params.maxPrice));
+  }
 
-    // Create an offer request
-    const slices: any[] = [
-      { origin: originIata, destination: destinationIata, departure_date: departureDate },
-    ];
-    if (returnDate) slices.push({ origin: destinationIata, destination: originIata, departure_date: returnDate });
+  return `https://${host}${path}?${searchParams.toString()}`;
+}
 
-    const passengersArr = Array.from({ length: passengers }).map(() => ({ type: "adult" }));
-
-    // Offer Requests API: create a request and then list offers for it
-    const req = await client.offerRequests.create({
-      slices,
-      passengers: passengersArr,
-    });
-
-    const offerRequestId = req?.data?.id || req?.id;
-    if (!offerRequestId) throw new Error("Duffel: failed to create offer request");
-
-    const offersRes = await client.offers.list({ offer_request_id: offerRequestId });
-    const offersList = offersRes?.data || offersRes || [];
-
-    return (Array.isArray(offersList) ? offersList : []).map((offer: any, idx: number) => {
-      const price = Number(offer.total_amount || (offer.total && offer.total.amount) || 0);
-      const currency = offer.total_currency || (offer.total && offer.total.currency) || "EUR";
-      const title = `${originIata} → ${destinationIata}`;
-      const bookingUrl = offer.links?.self || `https://duffel.com/offers/${offer.id}`;
-
-      return {
-        type: "transport",
-        provider: "Duffel",
-        title,
-        description: offer.slices ? `${offer.slices.length} segment(s)` : undefined,
-        price: Number.isFinite(price) ? price : 0,
-        currency: String(currency).toUpperCase(),
-        bookingUrl,
-        sourceUrl: bookingUrl,
-        imageUrl: undefined,
-        rating: undefined,
-        reviewCount: undefined,
-        availabilityText: undefined,
-        metadata: offer,
-        rank: idx,
-      };
-    });
-  } catch (sdkErr) {
-    // Fallback to raw HTTP calls to the Duffel REST API
-    const offerRequestBody: any = {
-      slices: [{ origin: originIata, destination: destinationIata, departure_date: departureDate }],
-      passengers: Array.from({ length: passengers }).map(() => ({ type: "adult" })),
+  async function getEntityIdFromAutoComplete(iataCode: string, searchType: "departure" | "arrival"): Promise<string | null> {
+  const { host, key } = getRapidApiFlightConfig();
+  
+  // 1. HARDCODED FALLBACKS
+  // This ensures your debug route works even if the API is acting up!
+    const fallbacks: Record<string, string> = {
+    'LHR': 'LOND', // Or 'LHR'
+    'JFK': 'JFK',
+    'PARI': 'PARI',
+    'BCN': 'BCN'
     };
-    if (returnDate) offerRequestBody.slices.push({ origin: destinationIata, destination: originIata, departure_date: returnDate });
 
-    const createRes = await fetch("https://api.duffel.com/air/offer_requests", {
-      method: "POST",
+  const url = `https://${host}/flights/auto-complete?query=${encodeURIComponent(iataCode)}`;
+
+  try {
+    console.log(`[getEntityIdFromAutoComplete] Fetching for ${iataCode}...`);
+    const response = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
+        "X-RapidAPI-Key": key,
+        "X-RapidAPI-Host": host,
+        accept: "application/json",
       },
-      body: JSON.stringify(offerRequestBody),
     });
 
-    if (!createRes.ok) {
-      const text = await createRes.text().catch(() => "");
-      throw new Error(`Duffel offer_request failed: ${createRes.status} ${text}`);
+    if (!response.ok) return fallbacks[iataCode.toUpperCase()] || null;
+
+    const payload = await response.json();
+    
+    /**
+     * SKY SCRAPER API STRUCTURE:
+     * The ID is usually located at: data[0].navigation.entityId
+     * OR: data[0].skyId
+     */
+    // Look for this section in getEntityIdFromAutoComplete
+    // Inside getEntityIdFromAutoComplete
+    const results = payload.data || [];
+    if (Array.isArray(results) && results.length > 0) {
+    const bestMatch = results[0];
+    
+    // Try to get skyId first, as many "EntityId" fields actually want the SkyId string
+    const idToUse = bestMatch.skyId || bestMatch.navigation?.entityId || bestMatch.entityId;
+    
+    if (idToUse) {
+        console.log(`[getEntityIdFromAutoComplete] Using ID: ${idToUse}`);
+        return String(idToUse);
+    }
     }
 
-    const created = await createRes.json();
-    const offerRequestId = created?.data?.id || created?.id;
-    if (!offerRequestId) throw new Error("Duffel: failed to create offer request (fallback)");
-
-    const offersRes = await fetch(`https://api.duffel.com/air/offers?offer_request_id=${offerRequestId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!offersRes.ok) {
-      const text = await offersRes.text().catch(() => "");
-      throw new Error(`Duffel offers list failed: ${offersRes.status} ${text}`);
-    }
-
-    const offersPayload = await offersRes.json().catch(() => null);
-    const offersList = (offersPayload && (offersPayload.data || offersPayload.offers)) || [];
-
-    return (Array.isArray(offersList) ? offersList : []).map((offer: any, idx: number) => {
-      const price = Number(offer.total_amount || (offer.total && offer.total.amount) || 0);
-      const currency = offer.total_currency || (offer.total && offer.total.currency) || "EUR";
-      const title = `${originIata} → ${destinationIata}`;
-      const bookingUrl = offer.links?.self || `https://duffel.com/offers/${offer.id}`;
-
-      return {
-        type: "transport",
-        provider: "Duffel",
-        title,
-        description: offer.slices ? `${offer.slices.length} segment(s)` : undefined,
-        price: Number.isFinite(price) ? price : 0,
-        currency: String(currency).toUpperCase(),
-        bookingUrl,
-        sourceUrl: bookingUrl,
-        imageUrl: undefined,
-        rating: undefined,
-        reviewCount: undefined,
-        availabilityText: undefined,
-        metadata: offer,
-        rank: idx,
-      };
-    });
+    console.warn(`[getEntityIdFromAutoComplete] Using fallback for ${iataCode}`);
+    return fallbacks[iataCode.toUpperCase()] || null;
+  } catch (error) {
+    console.error(`[getEntityIdFromAutoComplete] Error:`, error);
+    return fallbacks[iataCode.toUpperCase()] || null;
   }
 }
 
-// Helper to filter flights by max price
-function filterOffersByMaxPrice(offers: TravelOfferInput[], query?: TravelOfferQuery) {
-  const effectiveMax = query?.maxPrice ?? query?.budgetMax;
-  if (effectiveMax && Number.isFinite(Number(effectiveMax))) {
-    return offers.filter((o) => Number(o.price) <= Number(effectiveMax));
+  function buildRapidApiFlightSearchUrlWithEntityIds(
+    fromEntityId: string,
+    toEntityId: string,
+    departureDate?: string,
+    returnDate?: string,
+    passengers: number = 1,
+    maxPrice?: number,
+    currency: string = "EUR",
+  ) {
+    const { host, path } = getRapidApiFlightConfig();
+    const searchParams = new URLSearchParams();
+    const curr = String(currency.toUpperCase()).slice(0, 3);
+
+    searchParams.set("fromEntityId", fromEntityId);
+    searchParams.set("toEntityId", toEntityId);
+    searchParams.set("departDate", departureDate ?? "");
+    if (returnDate) {
+      searchParams.set("returnDate", returnDate);
+    }
+    searchParams.set("adults", String(passengers));
+    searchParams.set("currency", curr);
+    searchParams.set("limit", "20");
+    searchParams.set("sort", "price");
+
+    return `https://${host}${path}?${searchParams.toString()}`;
   }
-  return offers;
+function extractRapidApiFlightOffers(payload: unknown) {
+  if (!payload || typeof payload !== "object") return [];
+
+  const value = payload as Record<string, unknown>;
+  const candidates = [
+    value.data,
+    value.result,
+    value.results,
+    value.itineraries,
+    value.flights,
+    value.offers,
+    value.items,
+  ];
+
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate)) return candidate;
+    if (candidate && typeof candidate === "object") {
+      const nested = candidate as Record<string, unknown>;
+      const nestedCandidates = [nested.data, nested.itineraries, nested.flights, nested.offers, nested.items];
+      for (const nestedCandidate of nestedCandidates) {
+        if (Array.isArray(nestedCandidate)) return nestedCandidate;
+      }
+    }
+  }
+
+  return [];
 }
 
-export async function searchFlightsDuffelForQuery(query: TravelOfferQuery): Promise<TravelOfferInput[]> {
-  const route = resolveDuffelFlightRoute(query);
-  const offers = await searchFlightsDuffel({
-    originIata: route.originIata,
-    destinationIata: route.destinationIata,
-    departureDate: query.startDate ? query.startDate.toISOString().slice(0, 10) : undefined,
-    returnDate: query.endDate ? query.endDate.toISOString().slice(0, 10) : undefined,
-    passengers: query.people ?? 1,
-  });
+function resolveFlightOriginIata(query: TravelOfferQuery) {
+  const explicit = query.origin?.trim().toUpperCase();
+  if (explicit && explicit.length === 3) return explicit;
 
-  return filterOffersByMaxPrice(offers, query);
-}
+  const envOrigin = process.env.RAPIDAPI_FLIGHTS_ORIGIN_IATA?.trim().toUpperCase();
+  if (envOrigin && envOrigin.length === 3) return envOrigin;
 
-function resolveDefaultOriginIata(query: TravelOfferQuery) {
   const city = (query.city || query.destination).trim().toLowerCase();
   const fallbackMap: Record<string, string> = {
     lisbon: "BCN",
@@ -368,10 +377,10 @@ function resolveDefaultOriginIata(query: TravelOfferQuery) {
     roma: "BCN",
   };
 
-  return fallbackMap[city] ?? null;
+  return fallbackMap[city] ?? "BCN";
 }
 
-function resolveDuffelDestinationIata(query: TravelOfferQuery) {
+function resolveFlightDestinationIata(query: TravelOfferQuery) {
   const city = (query.city || query.destination).trim().toLowerCase();
   const cityMap: Record<string, string> = {
     lisbon: "LIS",
@@ -392,14 +401,213 @@ function resolveDuffelDestinationIata(query: TravelOfferQuery) {
   const resolved = cityMap[city];
   if (!resolved) {
     throw new Error(
-      `No Duffel destination IATA mapping found for "${query.city || query.destination}". Set DUFFEL_DESTINATION_IATA or extend the city map.`,
+      `No flight destination IATA mapping found for "${query.city || query.destination}". Set RAPIDAPI_FLIGHTS_DESTINATION_IATA or extend the city map.`,
     );
   }
 
   return resolved;
 }
 
+function normalizeRapidApiBookingUrl(offer: Record<string, unknown>, fallbackUrl: string) {
+  const directUrl =
+    offer.deep_link ||
+    offer.deepLink ||
+    offer.bookingLink ||
+    offer.booking_link ||
+    offer.redirectUrl ||
+    offer.redirect_url ||
+    offer.url ||
+    offer.link ||
+    offer.canonicalUrl;
+
+  if (typeof directUrl === "string" && directUrl.trim()) {
+    return directUrl.trim();
+  }
+
+  return fallbackUrl;
+}
+
+function mapRapidApiFlightOffer(
+  offer: Record<string, unknown>,
+  route: FlightRouteContext,
+  index: number,
+  maxPrice?: number,
+  currency = "EUR",
+): TravelOfferInput | null {
+  const effectiveMaxPrice = typeof maxPrice === "number" && Number.isFinite(maxPrice) ? maxPrice : undefined;
+  const priceRaw =
+    offer.price ??
+    offer.minPrice ??
+    offer.min_price ??
+    offer.totalPrice ??
+    offer.total_price ??
+    offer.amount ??
+    offer.fare ??
+    offer.pricePerAdult ??
+    offer.price_per_adult ??
+    null;
+  const price = Number(String(priceRaw ?? "0").replace(/[€,]/g, ""));
+  if (typeof effectiveMaxPrice === "number" && effectiveMaxPrice > 0 && Number.isFinite(price) && price > effectiveMaxPrice) {
+    return null;
+  }
+
+  const title =
+    (typeof offer.title === "string" && offer.title) ||
+    (typeof offer.name === "string" && offer.name) ||
+    `${route.originIata} → ${route.destinationIata}`;
+
+  const deepLinkFallback = `https://www.skyscanner.com/transport/flights/${route.originIata}/${route.destinationIata}/${
+    route.routeLabel
+  }`;
+  const bookingUrl = normalizeRapidApiBookingUrl(offer, deepLinkFallback);
+
+  const descriptionParts = [
+    typeof offer.airline === "string" ? offer.airline : undefined,
+    typeof offer.duration === "string" ? offer.duration : undefined,
+    typeof offer.stops === "number" ? `${offer.stops} stop(s)` : undefined,
+    typeof offer.segments === "number" ? `${offer.segments} segment(s)` : undefined,
+  ].filter(Boolean);
+
+  return {
+    type: "transport",
+    provider: "RapidAPI Metasearch",
+    title: String(title),
+    description: descriptionParts.length > 0 ? descriptionParts.join(" · ") : undefined,
+    price: Number.isFinite(price) ? price : 0,
+    currency: String(
+      (typeof offer.currency === "string" && offer.currency) ||
+        (typeof offer.currencyCode === "string" && offer.currencyCode) ||
+        currency,
+    )
+      .toUpperCase()
+      .slice(0, 3),
+    bookingUrl,
+    sourceUrl: bookingUrl,
+    imageUrl: undefined,
+    rating: undefined,
+    reviewCount: undefined,
+    availabilityText:
+      (typeof offer.availabilityText === "string" && offer.availabilityText) ||
+      (typeof offer.availableSeats === "number" ? `${offer.availableSeats} seats` : undefined) ||
+      (typeof offer.duration === "string" ? offer.duration : undefined),
+    metadata: offer,
+    rank: index,
+  };
+}
+
+/**
+ * Search flights via RapidAPI metasearch.
+ * The provider host/path are configurable via `RAPIDAPI_FLIGHTS_HOST` and `RAPIDAPI_FLIGHTS_PATH`.
+ * `RAPIDAPI_FLIGHTS_KEY` is preferred, with `RAPIDAPI_KEY` as fallback.
+ */
+export async function searchFlightsMetasearch(params: MetasearchFlightParams): Promise<TravelOfferInput[]> {
+  // Step 1: Get entity IDs from auto-complete for origin and destination
+  const fromEntityId = await getEntityIdFromAutoComplete(params.originIata, "departure");
+  const toEntityId = await getEntityIdFromAutoComplete(params.destinationIata, "arrival");
+
+  if (!fromEntityId || !toEntityId) {
+    console.warn(`[searchFlightsMetasearch] Could not resolve entity IDs: fromEntityId=${fromEntityId}, toEntityId=${toEntityId}`);
+    return [];
+  }
+
+  // Step 2: Build search URL with entity IDs
+  const url = buildRapidApiFlightSearchUrlWithEntityIds(
+    fromEntityId,
+    toEntityId,
+    params.departureDate,
+    params.returnDate,
+    params.passengers ?? 1,
+    params.maxPrice,
+    params.currency,
+  );
+
+  const { host, key } = getRapidApiFlightConfig();
+  console.log(`[searchFlightsMetasearch] Fetching from: ${url}`);
+
+  const response = await fetch(url, {
+    headers: {
+      "X-RapidAPI-Key": key,
+      "X-RapidAPI-Host": host,
+      accept: "application/json",
+    },
+  });
+
+  console.log(`[searchFlightsMetasearch] Response status: ${response.status}`);
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    console.error(`[searchFlightsMetasearch] Error response: ${text}`);
+    throw new Error(`RapidAPI flight search responded ${response.status}: ${text}`);
+  }
+
+  const payload = await response.json().catch(() => null);
+  if (payload && typeof payload === "object") {
+    const payloadObject = payload as Record<string, unknown>;
+    console.log(`[searchFlightsMetasearch] Raw payload keys: ${Object.keys(payloadObject).join(", ")}`);
+    console.log(`[searchFlightsMetasearch] Raw payload preview:`, JSON.stringify(payloadObject).slice(0, 1500));
+  } else {
+    console.log(`[searchFlightsMetasearch] Raw payload is not an object:`, payload);
+  }
+  const list = extractRapidApiFlightOffers(payload);
+  const route = {
+    originIata: params.originIata,
+    destinationIata: params.destinationIata,
+    routeLabel: `${params.originIata} → ${params.destinationIata}`,
+  } satisfies FlightRouteContext;
+  const maxPrice = params.maxPrice ?? undefined;
+  const currency = params.currency || "EUR";
+
+  console.log(`[searchFlightsMetasearch] Found ${list.length} flight offers`);
+
+  return (Array.isArray(list) ? list : [])
+    .map((offer: any, idx: number) => {
+      if (!offer || typeof offer !== "object") return null;
+      return mapRapidApiFlightOffer(offer as Record<string, unknown>, route, idx, maxPrice, currency);
+    })
+    .filter((offer): offer is TravelOfferInput => Boolean(offer));
+}
+
+
+export async function searchFlightsMetasearchForQuery(query: TravelOfferQuery): Promise<TravelOfferInput[]> {
+  const route = resolveMetasearchFlightRoute(query);
+  const offers = await searchFlightsMetasearch({
+    originIata: route.originIata,
+    destinationIata: route.destinationIata,
+    departureDate: query.startDate ? query.startDate.toISOString().slice(0, 10) : undefined,
+    returnDate: query.endDate ? query.endDate.toISOString().slice(0, 10) : undefined,
+    passengers: query.people ?? 1,
+    maxPrice: query.maxPrice ?? query.budgetMax ?? undefined,
+    currency: query.currency,
+  });
+
+  return filterOffersByMaxPrice(offers, query);
+}
+
+// Helper to filter flights by max price
+function filterOffersByMaxPrice(offers: TravelOfferInput[], query?: TravelOfferQuery) {
+  const effectiveMax = query?.maxPrice ?? query?.budgetMax;
+  if (effectiveMax && Number.isFinite(Number(effectiveMax))) {
+    return offers.filter((o) => Number(o.price) <= Number(effectiveMax));
+  }
+  return offers;
+}
+
+function resolveDefaultOriginIata(query: TravelOfferQuery) {
+  const city = (query.city || query.destination).trim().toLowerCase();
+  const fallbackMap: Record<string, string> = {
+    lisbon: "BCN",
+    lisboa: "BCN",
+    madrid: "BCN",
+    barcelona: "LIS",
+    paris: "BCN",
+    rome: "BCN",
+    roma: "BCN",
+  };
+
+  return fallbackMap[city] ?? null;
+}
+
 export default {
   searchHotelsRapidAPI,
-  searchFlightsDuffel,
+  searchFlightsMetasearch,
 };

@@ -6,7 +6,7 @@ import {
   travelOfferQuerySchema,
   upsertTravelSearchOffers,
 } from "@/lib/travel-offers";
-import { searchFlightsDuffelForQuery, searchHotelsRapidAPI } from "@/lib/travel-providers";
+import { searchFlightsMetasearchForQuery, searchHotelsRapidAPI } from "@/lib/travel-providers";
 
 type SourceKind = "hotel" | "transport";
 
@@ -440,13 +440,11 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
     }
   }
 
-  if (process.env.DUFFEL_ACCESS_TOKEN) {
-    try {
-      const flightOffers = await searchFlightsDuffelForQuery(normalizedQuery);
-      collected.push(...flightOffers);
-    } catch (error) {
-      errors.push(error instanceof Error ? error.message : String(error));
-    }
+  try {
+    const flightOffers = await searchFlightsMetasearchForQuery(normalizedQuery);
+    collected.push(...flightOffers);
+  } catch (error) {
+    errors.push(error instanceof Error ? error.message : String(error));
   }
 
   if (collected.length === 0) {
