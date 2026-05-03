@@ -3,8 +3,27 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum TravelSearchStatus {
+  PENDING
+  READY
+  STALE
+  ERROR
+}
+
+enum TravelOfferType {
+  HOTEL
+  TRANSPORT
+}
+
+enum TravelRefreshRunStatus {
+  PENDING
+  SUCCESS
+  ERROR
 }
 
 model User {
@@ -45,6 +64,73 @@ model Trip {
   isFavorite     Boolean   @default(false)
   days           Day[]
   createdAt      DateTime  @default(now())
+}
+
+model TravelSearch {
+  id           String               @id @default(cuid())
+  cacheKey     String               @unique
+  destination  String
+  city         String?
+  countryCode  String?
+  startDate    DateTime?
+  endDate      DateTime?
+  people       Int                  @default(2)
+  budgetMax    Int?
+  origin       String?
+  maxPrice     Int?
+  currency     String               @default("EUR")
+  status       TravelSearchStatus   @default(PENDING)
+  refreshedAt  DateTime?
+  expiresAt    DateTime?
+  offers       TravelOffer[]
+  refreshRuns  TravelRefreshRun[]
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([destination, startDate, endDate])
+  @@index([expiresAt])
+}
+
+model TravelOffer {
+  id              String            @id @default(cuid())
+  searchId        String
+  search          TravelSearch      @relation(fields: [searchId], references: [id], onDelete: Cascade)
+  type            TravelOfferType
+  provider        String
+  title           String
+  description     String?
+  price           Float
+  currency        String            @default("EUR")
+  bookingUrl      String
+  sourceUrl       String?
+  imageUrl        String?
+  rating          Float?
+  reviewCount     Int?
+  availabilityText String?
+  metadata        Json?
+  rank            Int               @default(0)
+  fetchedAt       DateTime          @default(now())
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@index([searchId, type, rank])
+  @@index([provider])
+}
+
+model TravelRefreshRun {
+  id              String                 @id @default(cuid())
+  searchId        String
+  search          TravelSearch           @relation(fields: [searchId], references: [id], onDelete: Cascade)
+  status          TravelRefreshRunStatus @default(PENDING)
+  providerSummary String?
+  requestPayload  Json?
+  errorMessage    String?
+  resultCount     Int                    @default(0)
+  startedAt       DateTime
+  finishedAt      DateTime?
+  createdAt       DateTime               @default(now())
+
+  @@index([searchId, startedAt])
 }
 
 model Day {

@@ -40,6 +40,12 @@
   .pl-spin { animation: pl-spin 0.85s linear infinite; }
   @keyframes pl-fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
   .pl-fadein { animation: pl-fadein 320ms var(--ease) both; }
+  @keyframes pl-shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .pl-skeleton {
+    background: linear-gradient(90deg, rgba(232,228,221,0.7) 25%, rgba(242,239,233,0.95) 37%, rgba(232,228,221,0.7) 63%);
+    background-size: 400% 100%;
+    animation: pl-shimmer 1.25s ease-in-out infinite;
+  }
   @keyframes pl-sheet-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
   @keyframes pl-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
   .pl-sheet { animation: pl-sheet-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both; }
@@ -2152,6 +2158,33 @@ function BudgetSheet({ open, onClose, onConfirm, value = 1200 }) {
   );
 }
 
+// ── Origin sheet (simple IATA input) ───────────────────────────────────
+function OriginSheet({ open, onClose, onConfirm, value = 'BCN' }) {
+  const [v, setV] = React.useState(value || '');
+  const inputRef = React.useRef(null);
+
+  React.useEffect(() => { if (!open) return; setV(value || ''); const t = setTimeout(() => inputRef.current?.focus(), 220); return () => clearTimeout(t); }, [open]);
+
+  const suggestions = ['BCN','LIS','MAD','CDG','FCO','JFK','DPS','RAK'].filter((s) => s.includes(v.toUpperCase()));
+
+  return (
+    <Sheet open={open} onClose={onClose} title="On vols sortir?" height="44%">
+      <div style={{ padding: '12px 20px' }}>
+        <div className="micro">Codi aeroport / ciutat</div>
+        <input ref={inputRef} value={v} onChange={(e) => setV(e.target.value)} placeholder="BCN" style={{ width: '100%', padding: '12px 14px', marginTop: 8, borderRadius: 12, border: '1px solid var(--border)' }} />
+        <div style={{ marginTop: 12, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+          {suggestions.map((s) => (
+            <button key={s} onClick={() => setV(s)} className="pl-tap" style={{ padding: '8px 12px', borderRadius: 9999, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>{s}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ padding: '12px 20px 22px' }}>
+        <button disabled={!v} onClick={() => { onConfirm(v); onClose(); }} className="pl-tap" style={{ width: '100%', height: 52, borderRadius: 9999, background: v ? 'var(--green)' : 'var(--surface-2)', color: v ? '#fff' : 'var(--text-faint)', fontFamily: 'var(--font-display)', fontWeight: 700 }}>{v ? `Usar ${v}` : 'Selecciona un codi'}</button>
+      </div>
+    </Sheet>
+  );
+}
+
 Object.assign(window, { Sheet, DestinationSheet, DatesSheet, TransportSheet, BudgetSheet, Tag });
 
 
@@ -2347,6 +2380,7 @@ function SearchScreen({ user, onGenerate }) {
   const [destination, setDestination] = React.useState(null);
   const [dates, setDates] = React.useState(null);
   const [transport, setTransport] = React.useState(null);
+  const [origin, setOrigin] = React.useState('BCN');
   const [people, setPeople] = React.useState(2);
   const [budget, setBudget] = React.useState(1200);
 
@@ -2418,6 +2452,13 @@ function SearchScreen({ user, onGenerate }) {
             valueIcon={TIc ? <TIc size={16} style={{ marginRight: 6, color: 'var(--coral)' }}/> : null}
             onClick={() => setOpenSheet('transport')}
           />
+          <Row
+            icon={<IcArrowRight size={18}/>} iconColor="var(--blue)" iconBg="var(--blue-subtle)"
+            label="ORIGEN"
+            value={origin}
+            placeholder="Codi aeroport (IATA), ex: BCN"
+            onClick={() => setOpenSheet('origin')}
+          />
           {/* Personas (inline +/-) */}
           <div style={{
             display: 'flex', alignItems: 'center', gap: 12,
@@ -2456,7 +2497,8 @@ function SearchScreen({ user, onGenerate }) {
           <button
             disabled={!ready}
             onClick={() => ready && onGenerate({
-              destination, dates, transport, people, budget
+              destination, dates, transport, people, budget,
+              origin, maxPrice: budget
             })}
             className="pl-tap"
             style={{
@@ -2536,6 +2578,7 @@ function SearchScreen({ user, onGenerate }) {
       <DatesSheet open={openSheet === 'dates'} onClose={() => setOpenSheet(null)} onConfirm={setDates} value={dates}/>
       <TransportSheet open={openSheet === 'transport'} onClose={() => setOpenSheet(null)} onSelect={setTransport} value={transport}/>
       <BudgetSheet open={openSheet === 'budget'} onClose={() => setOpenSheet(null)} onConfirm={setBudget} value={budget}/>
+      <OriginSheet open={openSheet === 'origin'} onClose={() => setOpenSheet(null)} onConfirm={setOrigin} value={origin}/>
     </div>
   );
 }
@@ -2781,7 +2824,7 @@ function GeneratingScreen({ params, onDone }) {
 }
 
 // ─────────────────────────────────────────────────────────────
-function TripsScreen({ trips, onAdd, onOpen, onTab, tab = 'trips' }) {
+function TripsScreen({ trips, offerSnapshot, offerLoadError, offerLoading, onAdd, onOpen, onTab, tab = 'trips' }) {
   const [filter, setFilter] = React.useState('all');
   const [favs, setFavs] = React.useState(() => {
     const s = new Set();
@@ -2860,6 +2903,15 @@ function TripsScreen({ trips, onAdd, onOpen, onTab, tab = 'trips' }) {
             );
           })}
         </div>
+
+        {offerLoadError && (
+          <div style={{ margin: '16px 16px 0', padding: '12px 14px', borderRadius: 16, background: 'var(--coral-subtle)', color: 'var(--text)' }}>
+            <div className="micro" style={{ color: 'var(--coral)' }}>OFERTES REALS</div>
+            <div style={{ fontSize: 13, marginTop: 4 }}>{offerLoadError}</div>
+          </div>
+        )}
+
+        <LiveOffersPreview offerSnapshot={offerSnapshot} offerLoadError={offerLoadError} offerLoading={offerLoading} />
 
         {/* List */}
         <div style={{ marginTop: 20, padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -3012,6 +3064,266 @@ function BottomTabs({ tab, onTab }) {
 
 Object.assign(window, { GeneratingScreen, TripsScreen, BottomTabs });
 
+function LiveOffersPreview({ offerSnapshot, offerLoadError, offerLoading }) {
+  const offers = offerSnapshot?.offers || [];
+  const hotels = offers.filter((offer) => String(offer.type).toUpperCase() === 'HOTEL');
+  const flights = offers.filter((offer) => String(offer.type).toUpperCase() === 'TRANSPORT');
+  const isLoading = Boolean(offerLoading);
+  const hasError = Boolean(offerLoadError);
+
+  if (isLoading) {
+    return (
+      <div style={{ margin: '16px 16px 0', padding: 18, background: '#fff', borderRadius: 24, border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
+        <div className="micro" style={{ marginBottom: 10 }}>OFERTES REALS</div>
+        <div style={{ display: 'grid', gap: 12 }}>
+          <LoadingSkeletonSection title="Hotels" />
+          <LoadingSkeletonSection title="Flights" />
+        </div>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div style={{ margin: '16px 16px 0', padding: 18, background: '#fff', borderRadius: 24, border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
+        <div className="micro" style={{ marginBottom: 10 }}>OFERTES REALS</div>
+        <div style={{ padding: 18, borderRadius: 18, background: 'var(--coral-subtle)', border: '1px solid rgba(240,90,53,0.18)' }}>
+          <div style={{ fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: '-0.02em' }}>
+            No hem pogut carregar les ofertes
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>
+            {offerLoadError || 'Revisa el filtre de destinació o torna-ho a intentar en uns segons.'}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!hotels.length && !flights.length) {
+    return (
+      <div style={{ margin: '16px 16px 0', padding: 18, background: '#fff', borderRadius: 24, border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
+        <div className="micro" style={{ marginBottom: 10 }}>OFERTES REALS</div>
+        <div style={{ padding: 18, borderRadius: 18, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+          <div style={{ fontWeight: 700, fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: '-0.02em' }}>
+            Encara estem preparant les ofertes
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 6 }}>
+            Quan el refresc acabi, aquí veuràs hotels i vols guardats a la memòria cau.
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ margin: '16px 16px 0', padding: 18, background: '#fff', borderRadius: 24, border: '1px solid var(--border)', boxShadow: 'var(--shadow-md)' }}>
+      <div className="micro" style={{ marginBottom: 8 }}>OFERTES REALS</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <OffersSection
+          title="Hotels"
+          accent="var(--green)"
+          count={hotels.length}
+          emptyText="No hi ha hotels disponibles encara."
+        >
+          {hotels.map((offer, index) => (
+            <HotelOfferCard key={`${offer.id || offer.title || 'hotel'}-${index}`} offer={offer} />
+          ))}
+        </OffersSection>
+
+        <OffersSection
+          title="Flights"
+          accent="var(--coral)"
+          count={flights.length}
+          emptyText="No hi ha vols disponibles encara."
+        >
+          {flights.map((offer, index) => (
+            <FlightOfferCard key={`${offer.id || offer.title || 'flight'}-${index}`} offer={offer} />
+          ))}
+        </OffersSection>
+      </div>
+      <div style={{ marginTop: 12, fontSize: 12, color: 'var(--text-muted)' }}>
+        Font: {offerSnapshot?.search?.status || 'unknown'} · actualitzat {offerSnapshot?.search?.refreshedAt ? new Date(offerSnapshot.search.refreshedAt).toLocaleString('ca-ES') : 'ara'}
+      </div>
+    </div>
+  );
+}
+
+function OffersSection({ title, accent, count, emptyText, children }) {
+  return (
+    <div style={{ padding: 14, borderRadius: 20, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
+        <div>
+          <div style={{ fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 18, letterSpacing: '-0.02em' }}>{title}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>
+            {count} result{count === 1 ? '' : 'ats'} disponibles
+          </div>
+        </div>
+        <div style={{ padding: '6px 10px', borderRadius: 9999, background: accent, color: '#fff', fontSize: 12, fontWeight: 700 }}>
+          {count}
+        </div>
+      </div>
+      {count > 0 ? <div style={{ display: 'grid', gap: 10 }}>{children}</div> : <SectionEmpty text={emptyText} />}
+    </div>
+  );
+}
+
+function SectionEmpty({ text }) {
+  return (
+    <div style={{ padding: '16px 14px', borderRadius: 16, background: '#fff', border: '1px dashed var(--border)', color: 'var(--text-muted)', fontSize: 13 }}>
+      {text}
+    </div>
+  );
+}
+
+function LoadingPanel({ title, subtitle }) {
+  return (
+    <div style={{ padding: 16, borderRadius: 18, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+        <div>
+          <div style={{ fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 18 }}>{title}</div>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>{subtitle}</div>
+        </div>
+        <div style={{ width: 38, height: 38, borderRadius: 9999, border: '3px solid rgba(13,158,122,0.18)', borderTopColor: 'var(--green)', animation: 'spin 900ms linear infinite' }} />
+      </div>
+    </div>
+  );
+}
+
+function LoadingSkeletonSection({ title }) {
+  return (
+    <div style={{ padding: 14, borderRadius: 20, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
+        <div>
+          <div className="pl-skeleton" style={{ width: 92, height: 18, borderRadius: 9999 }} />
+          <div className="pl-skeleton" style={{ width: 130, height: 11, borderRadius: 9999, marginTop: 8 }} />
+        </div>
+        <div className="pl-skeleton" style={{ width: 34, height: 26, borderRadius: 9999 }} />
+      </div>
+
+      <div style={{ display: 'grid', gap: 10 }}>
+        {[0, 1].map((idx) => (
+          <div key={idx} style={{ display: 'grid', gridTemplateColumns: title === 'Hotels' ? '92px 1fr' : '42px 1fr', gap: 12, padding: 12, borderRadius: 18, background: '#fff', border: '1px solid var(--border)' }}>
+            <div className="pl-skeleton" style={{ width: '100%', aspectRatio: title === 'Hotels' ? '1 / 1' : '1 / 1', borderRadius: title === 'Hotels' ? 16 : 14 }} />
+            <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 12 }}>
+              <div>
+                <div className="pl-skeleton" style={{ width: '72%', height: 18, borderRadius: 9999 }} />
+                <div className="pl-skeleton" style={{ width: '92%', height: 11, borderRadius: 9999, marginTop: 10 }} />
+                <div className="pl-skeleton" style={{ width: '42%', height: 11, borderRadius: 9999, marginTop: 8 }} />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                <div>
+                  <div className="pl-skeleton" style={{ width: 88, height: 22, borderRadius: 9999 }} />
+                  <div className="pl-skeleton" style={{ width: 58, height: 10, borderRadius: 9999, marginTop: 8 }} />
+                </div>
+                <div className="pl-skeleton" style={{ width: 96, height: 40, borderRadius: 14 }} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HotelOfferCard({ offer }) {
+  const ratingLabel = typeof offer.rating === 'number' ? offer.rating.toFixed(1) : null;
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: '92px 1fr', gap: 12, padding: 12, borderRadius: 18, background: '#fff', border: '1px solid var(--border)' }}>
+      <div style={{ width: '100%', aspectRatio: '1 / 1', borderRadius: 16, overflow: 'hidden', background: 'var(--surface-2)', position: 'relative' }}>
+        {offer.imageUrl ? (
+          <img src={offer.imageUrl} alt={offer.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        ) : (
+          <div style={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, rgba(13,158,122,0.15), rgba(232,93,58,0.15))' }} />
+        )}
+      </div>
+      <div style={{ minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 10 }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <div style={{ fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 17, letterSpacing: '-0.02em' }}>{offer.title}</div>
+            {ratingLabel && <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--green)' }}>★ {ratingLabel}</span>}
+          </div>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.45 }}>
+            {offer.availabilityText || offer.description || 'Oferta actualitzada'}
+          </div>
+          <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 6 }}>{offer.provider}</div>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div>
+            <div className="display" style={{ fontWeight: 900, fontSize: 22, lineHeight: 1 }}>{formatMoney(offer.price, offer.currency)}</div>
+            <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 2 }}>per estada</div>
+          </div>
+          <a href={offer.bookingUrl} target="_blank" rel="noreferrer" style={{
+            padding: '10px 14px', borderRadius: 14, background: 'var(--green)', color: '#fff',
+            fontSize: 13, fontWeight: 800, textDecoration: 'none', boxShadow: 'var(--shadow-cta)', whiteSpace: 'nowrap'
+          }}>
+            Reservar
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FlightOfferCard({ offer }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'stretch', justifyContent: 'space-between', gap: 12, padding: 14, borderRadius: 18, background: '#fff', border: '1px solid var(--border)' }}>
+      <div style={{ minWidth: 0, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+        <div style={{ width: 42, height: 42, borderRadius: 14, background: 'rgba(232,93,58,0.12)', color: 'var(--coral)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <IcPlane size={20} />
+        </div>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 17, letterSpacing: '-0.02em' }}>{offer.title}</div>
+          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.45 }}>
+            {offer.availabilityText || offer.description || 'Vol amb tarifes actualitzades'}
+          </div>
+          <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 6 }}>{offer.provider}</div>
+        </div>
+      </div>
+      <div style={{ flexShrink: 0, textAlign: 'right', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 10 }}>
+        <div>
+          <div className="display" style={{ fontWeight: 900, fontSize: 22, lineHeight: 1 }}>{formatMoney(offer.price, offer.currency)}</div>
+          <div style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 2 }}>anada i tornada</div>
+        </div>
+        <a href={offer.bookingUrl} target="_blank" rel="noreferrer" style={{
+          padding: '10px 14px', borderRadius: 14, background: 'var(--coral)', color: '#fff',
+          fontSize: 13, fontWeight: 800, textDecoration: 'none', boxShadow: 'var(--shadow-cta)', whiteSpace: 'nowrap'
+        }}>
+          Veure vol
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function formatMoney(price, currency) {
+  const value = Number(price) || 0;
+  const code = String(currency || 'EUR').toUpperCase();
+  try {
+    return new Intl.NumberFormat('ca-ES', { style: 'currency', currency: code, maximumFractionDigits: 0 }).format(value);
+  } catch {
+    return `${Math.round(value)} ${code}`;
+  }
+}
+
+function OfferRow({ label, title, price, provider, bookingUrl, description }) {
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, padding: 12, borderRadius: 14, background: 'var(--surface-2)' }}>
+      <div style={{ minWidth: 0 }}>
+        <div className="micro" style={{ color: 'var(--green)' }}>{label}</div>
+        <div style={{ fontWeight: 700, fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}>{title}</div>
+        <div style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 2 }}>{description}</div>
+        <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 4 }}>{provider}</div>
+      </div>
+      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+        <div className="display" style={{ fontWeight: 800, fontSize: 20 }}>{Math.round(price)} €</div>
+        <a href={bookingUrl} target="_blank" rel="noreferrer" style={{ fontSize: 12, color: 'var(--green)', fontWeight: 700, textDecoration: 'none' }}>
+          Reservar
+        </a>
+      </div>
+    </div>
+  );
+}
+
 
 // === app.jsx ===
 // PLAIner — App router (in-app state machine)
@@ -3024,6 +3336,84 @@ function PLAIerApp({ initialRoute = 'login', initialTab = 'trips' }) {
   const [pendingParams, setPendingParams] = React.useState(null);
   const [openTrip, setOpenTrip] = React.useState(null);
   const [bottomTab, setBottomTab] = React.useState(initialTab);
+  const [offerSnapshot, setOfferSnapshot] = React.useState(null);
+  const [offerLoadError, setOfferLoadError] = React.useState(null);
+  const [offerLoading, setOfferLoading] = React.useState(false);
+
+  async function loadLiveOffers(params) {
+    const destinationCity = params?.destination?.city || params?.destination?.name || params?.destination?.country || 'Lisbon';
+    const countryCode = params?.destination?.countryCode || params?.destination?.country_code || undefined;
+    const startDate = params?.dates?.start;
+    const endDate = params?.dates?.end;
+
+    if (!destinationCity || !startDate || !endDate) {
+      setOfferLoadError('No hi ha prou dades per carregar ofertes reals.');
+      setOfferLoading(false);
+      return;
+    }
+
+    setOfferLoading(true);
+    setOfferLoadError(null);
+
+    const requestUrl = new URL('/api/travel-offers', window.location.origin);
+    requestUrl.searchParams.set('destination', destinationCity);
+    requestUrl.searchParams.set('city', destinationCity);
+    if (countryCode) requestUrl.searchParams.set('countryCode', countryCode);
+    requestUrl.searchParams.set('startDate', startDate.toISOString().slice(0, 10));
+    requestUrl.searchParams.set('endDate', endDate.toISOString().slice(0, 10));
+    requestUrl.searchParams.set('people', String(params.people || 2));
+    // include origin and maxPrice (budget)
+    if (params.origin) requestUrl.searchParams.set('origin', String(params.origin));
+    requestUrl.searchParams.set('budgetMax', String(params.budget || 1200));
+    requestUrl.searchParams.set('maxPrice', String((params.maxPrice ?? params.budget) || 1200));
+    requestUrl.searchParams.set('currency', 'EUR');
+
+    try {
+      const response = await fetch(requestUrl.toString());
+      const payload = await response.json().catch(() => null);
+      // If we have a cache with offers, use it
+      if (response.ok && payload?.cache && Array.isArray(payload.cache.offers) && payload.cache.offers.length > 0) {
+        setOfferSnapshot(payload.cache);
+        setOfferLoadError(null);
+      } else {
+        // No cached offers — trigger a refresh and retry
+        try {
+          const postRes = await fetch('/api/travel-offers/refresh', {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ query: {
+              destination: destinationCity,
+              city: destinationCity,
+              countryCode: countryCode || undefined,
+              startDate: startDate.toISOString().slice(0,10),
+              endDate: endDate.toISOString().slice(0,10),
+              people: params.people || 2,
+              budgetMax: params.budget || 1200,
+              maxPrice: (params.maxPrice ?? params.budget) || 1200,
+              currency: 'EUR',
+              origin: params.origin || undefined,
+            } }),
+          });
+          const postPayload = await postRes.json().catch(() => null);
+          if (postRes.ok && postPayload?.cache) {
+            setOfferSnapshot(postPayload.cache);
+            setOfferLoadError(null);
+          } else {
+            setOfferSnapshot(null);
+            setOfferLoadError(postPayload?.error || 'No s\'han pogut carregar les ofertes reals.');
+          }
+        } catch (err) {
+          setOfferSnapshot(null);
+          setOfferLoadError(err instanceof Error ? err.message : 'No s\'ha pogut connectar amb /api/travel-offers.');
+        }
+      }
+    } catch (error) {
+      setOfferSnapshot(null);
+      setOfferLoadError(error instanceof Error ? error.message : 'No s\'ha pogut connectar amb /api/travel-offers.');
+    } finally {
+      setOfferLoading(false);
+    }
+  }
 
   React.useEffect(() => {
     if (initialRoute !== 'login') {
@@ -3063,6 +3453,7 @@ function PLAIerApp({ initialRoute = 'login', initialTab = 'trips' }) {
               img: p.destination.img,
             };
             setTrips([newTrip, ...trips]);
+            void loadLiveOffers(p);
             setBottomTab('trips');
             setRoute('trips');
             setPendingParams(null);
@@ -3072,6 +3463,9 @@ function PLAIerApp({ initialRoute = 'login', initialTab = 'trips' }) {
       {route === 'trips' && (
         <TripsScreen
           trips={trips}
+          offerSnapshot={offerSnapshot}
+          offerLoadError={offerLoadError}
+          offerLoading={offerLoading}
           tab={bottomTab}
           onAdd={() => { setBottomTab('search'); setRoute('search'); }}
           onTab={(id) => { setBottomTab(id); if (id === 'search') setRoute('search'); }}
