@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import "./globals.css";
+import Providers from "./Providers";
 
 export const metadata: Metadata = {
   title: "PLAIner — MVP Premium",
@@ -15,8 +17,8 @@ export default function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </head>
-      <body style={{ margin: 0, padding: 0, overflow: 'hidden', width: '100vw', height: '100vh' }}>
-        {children}
+      <body style={{ margin: 0, padding: 0, width: '100vw', minHeight: '100vh' }}>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

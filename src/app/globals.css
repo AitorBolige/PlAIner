@@ -1,7 +1,88 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --bg: #F4F1EC;
+  --surface: #FFFFFF;
+  --surface-2: #EDEAE4;
+  --surface-3: #E4E0D8;
+  --border: rgba(0,0,0,0.07);
+  --border-md: rgba(0,0,0,0.12);
+  --text: #18160F;
+  --text-muted: #7A7570;
+  --text-faint: #B8B4AE;
+  --green: #0D9E7A;
+  --green-hover: #0B8A6A;
+  --green-deep: #0a6f5e;
+  --green-subtle: rgba(13,158,122,0.10);
+  --green-glow: rgba(13,158,122,0.22);
+  --coral: #F05A35;
+  --coral-subtle: rgba(240,90,53,0.10);
+  --blue: #3B87E8;
+  --blue-subtle: rgba(59,135,232,0.10);
+  --gold: #C8860A;
+  --gold-subtle: rgba(200,134,10,0.10);
+  --font-display: 'Plus Jakarta Sans', -apple-system, system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, system-ui, sans-serif;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.05);
+  --shadow-cta: 0 4px 24px rgba(13,158,122,0.32), 0 1px 4px rgba(13,158,122,0.16);
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-pill: 9999px;
+  --t: 200ms var(--ease);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
 html, body {
   margin: 0;
   padding: 0;
   width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg);
 }
+
+button { font-family: inherit; cursor: pointer; }
+input { font-family: inherit; }
+
+/* Main app routes — mobile-app feel */
+body.app-shell {
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Auth pages — scrollable */
+body.auth-page {
+  overflow-y: auto;
+  background: var(--bg);
+}
+
+* { scrollbar-width: none; }
+*::-webkit-scrollbar { display: none; }
+
+@keyframes pl-spin { to { transform: rotate(360deg); } }
+.pl-spin { animation: pl-spin 0.85s linear infinite; }
+@keyframes pl-fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.pl-fadein { animation: pl-fadein 320ms var(--ease) both; }
+@keyframes pl-sheet-in { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes pl-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+.pl-sheet { animation: pl-sheet-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.pl-backdrop { animation: pl-backdrop-in 240ms ease both; }
+.pl-tap { transition: transform 150ms var(--ease); }
+.pl-tap:active { transform: scale(0.97); }
+@keyframes pl-float { 0%,100% { transform: translate(0,0); } 50% { transform: translate(8px,-12px); } }
+.pl-float-1 { animation: pl-float 8s ease-in-out infinite; }
+.pl-float-2 { animation: pl-float 11s ease-in-out infinite reverse; }
+.pl-float-3 { animation: pl-float 14s ease-in-out infinite; }
+.display { font-family: var(--font-display); }
+.micro { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); }

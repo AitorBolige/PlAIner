@@ -1,9 +1,8 @@
-export default function Home() {
-  return (
-    <iframe
-      src="/plainer-mvp.html"
-      style={{ width: '100vw', height: '100vh', border: 'none', display: 'block' }}
-      title="PLAIner MVP"
-    />
-  );
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
+
+export default async function Home() {
+  const session = await getServerSession(authOptions);
+  redirect(session ? "/search" : "/auth/login");
 }
