@@ -1,75 +1,64 @@
 # PLAIner — MVP Travel Planner AI
 
-Next.js 14 (App Router) + TypeScript + NextAuth + Prisma + PostgreSQL (Supabase) + Resend.
+Next.js 14 (App Router) + TypeScript + Tailwind CSS v4 + NextAuth + Prisma + Postgres (Supabase).
 
-## Configuració local (per a nous col·laboradors)
+## Local setup
 
-### 1. Clona el repositori i instal·la dependències
+### 1) Install dependencies
 
 ```bash
-git clone <repo-url>
-cd PlAIner
 npm install
 ```
 
-### 2. Variables d'entorn
+### 2) Environment variables
+
+Copy `.env.example` to `.env.local` and fill:
+
+- **Database**: `DATABASE_URL` (Supabase pooler connection string for the app) and `DIRECT_URL` (Supabase direct Postgres connection string for Prisma migrations)
+- **Auth**: `NEXTAUTH_URL`, `NEXTAUTH_SECRET`
+- **Google OAuth** (optional but supported): `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`
+- **OpenAI**: `OPENAI_API_KEY`
+- **Travel offers ingestion**: `TRAVEL_OFFERS_INGEST_SECRET` (optional), `TRAVEL_OFFERS_TTL_HOURS` (defaults to 12)
+- **Scrape sources**: `TRAVEL_HOTEL_SCRAPE_URL`, `TRAVEL_TRANSPORT_SCRAPE_URL` (optional templates with `{{destination}}`, `{{destinationSlug}}`, `{{city}}`, `{{citySlug}}`, `{{countryCode}}`, `{{countrySlug}}`, `{{startDate}}`, `{{endDate}}`, `{{people}}`, `{{budgetMax}}`, `{{currency}}`)
+
+For the first hotel provider, point `TRAVEL_HOTEL_SCRAPE_URL` at a Trivago listing page template. The refresh pipeline will try a Trivago-specific parser first, then fall back to the existing demo offers if the page cannot be parsed.
+
+### 3) Database migrations
+
+After setting `DATABASE_URL`:
 
 ```bash
-cp .env.example .env.local
+npm run prisma:migrate
 ```
 
-Omple `.env.local` amb els valors que et passarà el teu company d'equip:
-
-| Variable | Com obtenir-la |
-|----------|---------------|
-| `DATABASE_URL` | Supabase Dashboard → Settings → Database → Connection string → **Transaction mode** |
-| `NEXTAUTH_SECRET` | Executa: `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | `http://localhost:3000` (local) |
-| `GOOGLE_CLIENT_ID` | Google Cloud Console → Credentials |
-| `GOOGLE_CLIENT_SECRET` | Google Cloud Console → Credentials |
-| `RESEND_API_KEY` | resend.com → API Keys |
-
-> ⚠️ **Important sobre DATABASE_URL**: Supabase usa IPv6 per connexions directes, cosa que **no funciona en moltes xarxes domèstiques**. Usa sempre la URL del **pooler** (format `aws-X-[region].pooler.supabase.com:6543`), no la connexió directa (`db.[ref].supabase.co:5432`). Si el pooler tampoc funciona, prova amb hotspot mòbil.
-
-### 3. Genera el Prisma Client
-
-```bash
-npm run prisma:generate
-```
-
-> No cal executar migracions — la base de dades ja té totes les taules creades a Supabase.
-
-### 4. Arrenca l'app
+### 4) Run the app
 
 ```bash
 npm run dev
 ```
 
-Obre `http://localhost:3000`.
+Open `http://localhost:3000`.
 
----
+## MVP routes
 
-## Flux d'autenticació
+- `/` landing
+- `/auth/login` and `/auth/register`
+- `/onboarding`
+- `/search`
+- `/results`
+- `/trip/[id]` + `/trip/[id]/budget` + `/trip/[id]/surprise`
+- `/profile`, `/history`
 
-| Ruta | Descripció |
-|------|------------|
-| `/auth/login` | Login amb email/password o Google |
-| `/auth/register` | Crear compte nou |
-| `/auth/forgot-password` | Sol·licitar reset de contrasenya |
-| `/auth/reset-password` | Crear nova contrasenya (via link per email) |
+## Travel offers API
 
-## Rutes MVP
+- `GET /api/travel-offers` reads the cached hotel and transport offers for a destination query.
+- `POST /api/travel-offers` upserts normalized offers from a scraper or provider job.
+- When `TRAVEL_OFFERS_INGEST_SECRET` is set, `POST` requests must include `x-travel-offers-secret`.
+- `POST /api/travel-offers/refresh` runs the scraping backend for a query and stores fresh cache data.
+- If no scrape source URLs are configured, the backend falls back to demo offers so you can test the flow locally.
 
-- `/` — landing
-- `/search` — cercador principal
-- `/results` — resultats de cerca
-- `/history` — historial de viatges
-- `/auth/*` — autenticació completa
+## Provider notes
 
-## Stack
+- Trivago is a good first hotel provider because its listing pages expose hotel names, ratings, locations, and prices in a consistent public layout.
+- Booking.com does not expose a simple public hotel-search API for general app use. Its public developer surface is partner-oriented (Demand API, Connectivity APIs, and Metasearch Connect), so it is not the best first implementation target unless you already have partner access.
 
-- **Framework**: Next.js 14 App Router
-- **Auth**: NextAuth v4 + Prisma Adapter
-- **BD**: PostgreSQL via Supabase + Prisma ORM
-- **Emails**: Resend
-- **Passwords**: bcryptjs (hash rounds: 12)
