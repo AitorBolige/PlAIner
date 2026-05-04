@@ -27,7 +27,7 @@ async function logLogin({
 
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
-  pages: { signIn: "/auth/login" },
+  pages: { signIn: "/plainer-mvp.html" },
   providers: [
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
       ? [
