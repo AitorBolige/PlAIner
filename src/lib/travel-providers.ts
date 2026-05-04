@@ -329,12 +329,24 @@ function trimSkyScraperSkyId(value: unknown): string | null {
 async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | null> {
   const { host, key } = getRapidApiFlightConfig();
 
+  // Well-known skyIds for the most common airports (avoids an extra API call)
+  // Use airport IATA codes directly — the /web/flights endpoint requires airport-level IDs (not city skyIds like PARI/LOND)
   const fallbacks: Record<string, string> = {
-    LHR: "LOND",
-    JFK: "JFK",
-    PARI: "PARI",
-    BCN: "BCN",
+    BCN: "BCN", MAD: "MAD", LIS: "LIS", LHR: "LHR", LGW: "LGW",
+    CDG: "CDG", ORY: "ORY", JFK: "JFK", EWR: "EWR", LAX: "LAX",
+    FCO: "FCO", MXP: "MXP", VCE: "VCE", FLR: "FLR", NAP: "NAP",
+    AMS: "AMS", BER: "BER", MUC: "MUC", FRA: "FRA", VIE: "VIE",
+    ZRH: "ZRH", BRU: "BRU", CPH: "CPH", ARN: "ARN", OSL: "OSL",
+    HEL: "HEL", ATH: "ATH", IST: "IST", DXB: "DXB", DOH: "DOH",
+    HND: "HND", NRT: "NRT", BKK: "BKK", SIN: "SIN", DPS: "DPS",
+    RAK: "RAK", CAI: "CAI", PRG: "PRG", BUD: "BUD", WAW: "WAW",
+    SVQ: "SVQ", VLC: "VLC", PMI: "PMI", IBZ: "IBZ", TFS: "TFS",
+    OPO: "OPO", MIA: "MIA", CUN: "CUN", MLE: "MLE", HKT: "HKT",
   };
+
+  // Use well-known fallback immediately if available to avoid an API round-trip
+  const directFallback = fallbacks[iataCode.toUpperCase()];
+  if (directFallback) return directFallback;
 
   const url = `https://${host}/flights/auto-complete?query=${encodeURIComponent(iataCode)}`;
 
@@ -363,9 +375,17 @@ async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | n
       const navigation = item.navigation as Record<string, unknown> | undefined;
       const flight = navigation?.relevantFlightParams as Record<string, unknown> | undefined;
 
+      // Prefer airport-level flightParams.skyId (e.g. "CDG") over city-level skyId (e.g. "PARI")
+      const flightSkyId = trimSkyScraperSkyId(flight?.skyId);
+      const entityType = String(navigation?.entityType ?? "").toUpperCase();
+      if (flightSkyId && entityType === "AIRPORT") {
+        console.log(`[getEntityIdFromAutoComplete] Using airport skyId: ${flightSkyId}`);
+        return flightSkyId;
+      }
+
       const skyId =
         trimSkyScraperSkyId(item.skyId) ||
-        trimSkyScraperSkyId(flight?.skyId) ||
+        flightSkyId ||
         trimSkyScraperSkyId(navigation?.skyId);
       if (skyId) {
         console.log(`[getEntityIdFromAutoComplete] Using skyId: ${skyId}`);
@@ -402,12 +422,11 @@ function buildRapidApiFlightSearchUrlWithEntityIds(
   const searchParams = new URLSearchParams();
   const curr = String(currency.toUpperCase()).slice(0, 3);
 
-  searchParams.set("fromEntityId", fromEntityId);
-  searchParams.set("toEntityId", toEntityId);
-  searchParams.set("departDate", departureDate ?? "");
-  if (returnDate) {
-    searchParams.set("returnDate", returnDate);
-  }
+  // flights-sky.p.rapidapi.com uses placeIdFrom / placeIdTo
+  searchParams.set("placeIdFrom", fromEntityId);
+  searchParams.set("placeIdTo", toEntityId);
+  if (departureDate) searchParams.set("departDate", departureDate);
+  if (returnDate) searchParams.set("returnDate", returnDate);
   searchParams.set("adults", String(passengers));
   searchParams.set("currency", curr);
   searchParams.set("limit", "20");
@@ -416,29 +435,36 @@ function buildRapidApiFlightSearchUrlWithEntityIds(
   return `https://${host}${path}?${searchParams.toString()}`;
 }
 
-function extractRapidApiFlightOffers(payload: unknown) {
+function extractRapidApiFlightOffers(payload: unknown): Array<unknown> {
   if (!payload || typeof payload !== "object") return [];
+  const root = payload as Record<string, unknown>;
 
-  const value = payload as Record<string, unknown>;
-  const candidates = [
-    value.data,
-    value.result,
-    value.results,
-    value.itineraries,
-    value.flights,
-    value.offers,
-    value.items,
-  ];
-
-  for (const candidate of candidates) {
-    if (Array.isArray(candidate)) return candidate;
-    if (candidate && typeof candidate === "object") {
-      const nested = candidate as Record<string, unknown>;
-      const nestedCandidates = [nested.data, nested.itineraries, nested.flights, nested.offers, nested.items];
-      for (const nestedCandidate of nestedCandidates) {
-        if (Array.isArray(nestedCandidate)) return nestedCandidate;
+  // flights-sky: data.itineraries.buckets[].items (primary structure)
+  const dataObj = root.data as Record<string, unknown> | undefined;
+  if (dataObj && typeof dataObj === "object") {
+    const itineraries = dataObj.itineraries as Record<string, unknown> | undefined;
+    if (itineraries && typeof itineraries === "object") {
+      const buckets = itineraries.buckets as Array<Record<string, unknown>> | undefined;
+      if (Array.isArray(buckets) && buckets.length > 0) {
+        const items: unknown[] = [];
+        for (const bucket of buckets) {
+          if (Array.isArray(bucket.items)) items.push(...bucket.items);
+        }
+        if (items.length > 0) return items;
+      }
+      // results fallback
+      if (Array.isArray(itineraries.results) && (itineraries.results as unknown[]).length > 0) {
+        return itineraries.results as unknown[];
       }
     }
+    // flat data array
+    if (Array.isArray(dataObj)) return dataObj;
+  }
+
+  // Generic fallbacks
+  for (const key of ["result", "results", "itineraries", "flights", "offers", "items"] as const) {
+    const val = root[key];
+    if (Array.isArray(val) && val.length > 0) return val;
   }
 
   return [];
@@ -451,46 +477,127 @@ function resolveFlightOriginIata(query: TravelOfferQuery) {
   const envOrigin = process.env.RAPIDAPI_FLIGHTS_ORIGIN_IATA?.trim().toUpperCase();
   if (envOrigin && envOrigin.length === 3) return envOrigin;
 
-  const city = (query.city || query.destination).trim().toLowerCase();
-  const fallbackMap: Record<string, string> = {
-    lisbon: "BCN",
-    lisboa: "BCN",
-    madrid: "BCN",
-    barcelona: "LIS",
-    paris: "BCN",
-    rome: "BCN",
-    roma: "BCN",
-  };
-
-  return fallbackMap[city] ?? "BCN";
+  // Default origin is Barcelona; avoid origin === destination
+  const dest = resolveFlightDestinationIata(query).toUpperCase();
+  return dest === "BCN" ? "MAD" : "BCN";
 }
 
 function resolveFlightDestinationIata(query: TravelOfferQuery) {
-  const city = (query.city || query.destination).trim().toLowerCase();
+  const city = (query.city || query.destination).trim().toLowerCase()
+    .normalize("NFD").replace(/[̀-ͯ]/g, ""); // strip accents
   const cityMap: Record<string, string> = {
-    lisbon: "LIS",
-    lisboa: "LIS",
+    // Iberian Peninsula
+    lisbon: "LIS", lisboa: "LIS", lisbonne: "LIS",
     madrid: "MAD",
     barcelona: "BCN",
+    seville: "SVQ", sevilla: "SVQ",
+    valencia: "VLC",
+    bilbao: "BIO",
+    malaga: "AGP",
+    porto: "OPO",
+    faro: "FAO",
+    // France
     paris: "CDG",
-    rome: "FCO",
-    roma: "FCO",
-    tokyo: "HND",
-    marraqueix: "RAK",
-    marrakech: "RAK",
+    nice: "NCE",
+    lyon: "LYS",
+    marseille: "MRS",
+    bordeaux: "BOD",
+    // Italy
+    rome: "FCO", roma: "FCO",
+    milan: "MXP", mila: "MXP", milano: "MXP",
+    florence: "FLR", firenze: "FLR",
+    venice: "VCE", venecia: "VCE", venezia: "VCE",
+    naples: "NAP", napoles: "NAP", napoli: "NAP",
+    // UK
+    london: "LHR",
+    edinburgh: "EDI",
+    manchester: "MAN",
+    // Central Europe
+    amsterdam: "AMS",
+    berlin: "BER",
+    munich: "MUC", munic: "MUC", munchen: "MUC",
+    frankfurt: "FRA",
+    hamburg: "HAM",
+    vienna: "VIE", viena: "VIE", wien: "VIE",
+    zurich: "ZRH", zuric: "ZRH",
+    geneva: "GVA", ginebra: "GVA",
+    brussels: "BRU", brusel: "BRU", bruxelles: "BRU",
+    // Eastern Europe
+    prague: "PRG", praga: "PRG",
+    budapest: "BUD",
+    warsaw: "WAW", varsovia: "WAW",
+    krakow: "KRK", cracovia: "KRK",
+    bucharest: "OTP", bucarest: "OTP",
+    sofia: "SOF",
+    // Scandinavia
+    copenhagen: "CPH", copenhaguen: "CPH", copenague: "CPH",
+    stockholm: "ARN",
+    oslo: "OSL",
+    helsinki: "HEL",
+    // Mediterranean / Balkans
+    athens: "ATH", atenes: "ATH", atenas: "ATH",
+    istanbul: "IST", estambul: "IST",
+    dubrovnik: "DBV",
+    split: "SPU",
+    thessaloniki: "SKG",
+    // Middle East / Africa
+    dubai: "DXB",
+    doha: "DOH",
+    abu: "AUH",
+    marrakech: "RAK", marraquech: "RAK", marraqueix: "RAK",
+    casablanca: "CMN",
+    cairo: "CAI", el: "CAI",
+    // Asia
+    tokyo: "HND", tokio: "HND",
+    osaka: "KIX",
+    kyoto: "ITM",
+    bangkok: "BKK",
+    singapore: "SIN",
+    "kuala lumpur": "KUL",
     bali: "DPS",
-    "new york": "JFK",
+    hong: "HKG",
+    seoul: "ICN",
+    beijing: "PEK", pekin: "PEK",
+    shanghai: "PVG",
+    delhi: "DEL",
+    mumbai: "BOM",
+    // Americas
+    "new york": "JFK", nueva: "JFK",
+    "los angeles": "LAX",
+    miami: "MIA",
+    cancun: "CUN",
+    mexico: "MEX",
+    bogota: "BOG",
+    lima: "LIM",
+    buenos: "EZE",
+    // Islands / Beach
     santorini: "JTR",
+    mykonos: "JMK",
+    ibiza: "IBZ",
+    mallorca: "PMI",
+    tenerife: "TFS",
+    "las palmas": "LPA",
+    fuerteventura: "FUE",
+    lanzarote: "ACE",
+    maldives: "MLE",
+    phuket: "HKT",
   };
 
   const resolved = cityMap[city];
-  if (!resolved) {
-    throw new Error(
-      `No flight destination IATA mapping found for "${query.city || query.destination}". Set RAPIDAPI_FLIGHTS_DESTINATION_IATA or extend the city map.`,
-    );
+  if (resolved) return resolved;
+
+  // Try partial match for compound names
+  for (const [key, iata] of Object.entries(cityMap)) {
+    if (city.startsWith(key) || key.startsWith(city)) return iata;
   }
 
-  return resolved;
+  // Last resort: use env override or throw
+  const envDest = process.env.RAPIDAPI_FLIGHTS_DESTINATION_IATA?.trim().toUpperCase();
+  if (envDest && envDest.length === 3) return envDest;
+
+  throw new Error(
+    `No flight destination IATA for "${query.city || query.destination}". Add it to the city map in travel-providers.ts.`,
+  );
 }
 
 function pickFirstString(values: Array<unknown>): string | null {
@@ -587,6 +694,9 @@ function parseFlightPriceCandidate(value: unknown): number {
 
 function extractFlightPrice(offer: Record<string, unknown>): number {
   const candidates: Array<unknown> = [
+    // flights-sky uses price.raw
+    (offer.price as Record<string, unknown> | undefined)?.raw,
+    (offer.price as Record<string, unknown> | undefined)?.formatted,
     offer.price,
     offer.minPrice,
     offer.min_price,

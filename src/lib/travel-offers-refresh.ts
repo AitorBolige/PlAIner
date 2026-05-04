@@ -412,18 +412,10 @@ async function scrapeSource(source: TravelSource) {
 export async function refreshTravelOffers(query: TravelOfferQuery) {
   const normalizedQuery = travelOfferQuerySchema.parse(query);
   const sources = getConfiguredSources(normalizedQuery);
-
-  if (sources.length === 0) {
-    return upsertTravelSearchOffers(normalizedQuery, buildFallbackOffers(normalizedQuery), {
-      providerSummary: "Demo fallback offers because no scrape sources are configured.",
-      status: TravelRefreshRunStatus.SUCCESS,
-    });
-  }
-
   const collected: TravelOfferInput[] = [];
   const errors: string[] = [];
 
-  // Hotels: APIDojo Booking-v1 (RAPIDAPI_HOST + RAPIDAPI_KEY).
+  // 1. Hotels via APIDojo Booking-v1 (always attempted when credentials present)
   const hasApiDojoHotelCreds = Boolean(
     process.env.RAPIDAPI_HOST?.trim() && process.env.RAPIDAPI_KEY?.trim(),
   );
@@ -444,19 +436,33 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
         currency: normalizedQuery.currency,
         maxPrice: normalizedQuery.maxPrice ?? normalizedQuery.budgetMax ?? undefined,
       });
-      collected.push(...offers);
-      hotelHandledViaApi = true;
+      if (offers.length > 0) {
+        collected.push(...offers);
+        hotelHandledViaApi = true;
+      }
     } catch (error) {
-      errors.push(error instanceof Error ? error.message : String(error));
+      errors.push(`Hotels API: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
-  for (const source of sources) {
-    if (source.kind === "hotel" && hotelHandledViaApi) {
-      // Live API already handled hotels; skip the scrape source so we don't
-      // dilute results with stale Trivago HTML.
-      continue;
+  // 2. Flights via RapidAPI metasearch (always attempted when credentials present)
+  const hasFlightCreds = Boolean(
+    (process.env.RAPIDAPI_FLIGHTS_HOST?.trim() || process.env.RAPIDAPI_HOST?.trim()) &&
+    (process.env.RAPIDAPI_FLIGHTS_KEY?.trim() || process.env.RAPIDAPI_KEY?.trim()),
+  );
+
+  if (hasFlightCreds) {
+    try {
+      const flightOffers = await searchFlightsMetasearchForQuery(normalizedQuery);
+      if (flightOffers.length > 0) collected.push(...flightOffers);
+    } catch (error) {
+      errors.push(`Flights API: ${error instanceof Error ? error.message : String(error)}`);
     }
+  }
+
+  // 3. Scrape sources (Trivago etc.) — skipped for hotels if API already returned results
+  for (const source of sources) {
+    if (source.kind === "hotel" && hotelHandledViaApi) continue;
     try {
       const offers = await scrapeSource(source);
       collected.push(...offers);
@@ -465,37 +471,19 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
     }
   }
 
-  try {
-    const flightOffers = await searchFlightsMetasearchForQuery(normalizedQuery);
-    collected.push(...flightOffers);
-  } catch (error) {
-    errors.push(error instanceof Error ? error.message : String(error));
-  }
-
+  // 4. Fallback only if nothing was collected at all
   if (collected.length === 0) {
-    if (errors.length > 0) {
-      return upsertTravelSearchOffers(normalizedQuery, [], {
-        providerSummary: errors.join(" | "),
-        status: TravelRefreshRunStatus.ERROR,
-        errorMessage: errors.join(" | "),
-      });
-    }
-
-    if (sources.some((source) => source.kind === "hotel" && isTrivagoSource(source))) {
-      return upsertTravelSearchOffers(normalizedQuery, buildFallbackOffers(normalizedQuery), {
-        providerSummary: "Trivago did not return usable hotel listings; using demo fallback offers.",
-        status: TravelRefreshRunStatus.SUCCESS,
-      });
-    }
-
     return upsertTravelSearchOffers(normalizedQuery, buildFallbackOffers(normalizedQuery), {
-      providerSummary: "Fallback offers because the configured sources did not return usable JSON-LD.",
-      status: TravelRefreshRunStatus.SUCCESS,
+      providerSummary: errors.length > 0
+        ? `No results from APIs (${errors.join(" | ")}); using demo fallback.`
+        : "No results from any source; using demo fallback.",
+      status: errors.length > 0 ? TravelRefreshRunStatus.ERROR : TravelRefreshRunStatus.SUCCESS,
+      errorMessage: errors.length > 0 ? errors.join(" | ") : undefined,
     });
   }
 
   return upsertTravelSearchOffers(normalizedQuery, collected, {
-    providerSummary: `Refreshed from ${sources.length} configured source(s).`,
+    providerSummary: `${collected.length} offers collected (hotels: ${collected.filter(o => o.type === "hotel").length}, flights: ${collected.filter(o => o.type === "transport").length}).`,
     status: TravelRefreshRunStatus.SUCCESS,
   });
 }

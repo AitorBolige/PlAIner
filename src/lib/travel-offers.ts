@@ -138,6 +138,8 @@ function toSearchSnapshot(
     endDate: Date | null;
     people: number;
     budgetMax: number | null;
+    origin: string | null;
+    maxPrice: number | null;
     currency: string;
     status: TravelSearchStatus;
     refreshedAt: Date | null;
