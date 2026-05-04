@@ -4455,8 +4455,11 @@ function SearchScreen(_ref43) {
         className:'pl-tap',
         onClick: async () => {
           setShowLogout(false);
-          try { await fetch('/api/auth/signout', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: new URLSearchParams({csrfToken: await (fetch('/api/auth/csrf').then(r=>r.json()).then(d=>d.csrfToken||''))})}); } catch(e) {}
-          onLogout && onLogout();
+          try {
+            const csrf = await fetch('/api/auth/csrf').then(r=>r.json()).then(d=>d.csrfToken||'');
+            await fetch('/api/auth/signout', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body: new URLSearchParams({csrfToken: csrf})});
+          } catch(e) {}
+          window.location.replace('/auth/login');
         },
         style:{
           width:'100%', padding:'9px 14px', borderRadius:10, border:'none',
@@ -7093,12 +7096,7 @@ function PLAIerApp(_ref62) {
     tab: bottomTab,
     onTab: navigateTab
   }),
-  route === 'login' && /*#__PURE__*/React.createElement(LoginScreen, {
-    onAuth: u => {
-      setUser(u);
-      setRoute('search');
-    }
-  }), route === 'search' && /*#__PURE__*/React.createElement("div", {
+  route === 'search' && /*#__PURE__*/React.createElement("div", {
     key: 'screen-search',
     className: 'pl-slide-in-' + slideDir,
     style: {position:'absolute',inset:0}
@@ -7477,7 +7475,6 @@ function Phone(_ref64) {
 function App() {
   const isMobile = window.innerWidth <= 500;
   const [sessionChecked, setSessionChecked] = React.useState(false);
-  const [initialRoute, setInitialRoute] = React.useState('login');
   const [initialUser, setInitialUser] = React.useState(null);
 
   React.useEffect(() => {
@@ -7485,12 +7482,16 @@ function App() {
       .then(r => r.json())
       .then(data => {
         if (data && data.user) {
-          setInitialRoute('search');
           setInitialUser({ name: data.user.name || data.user.email });
+          setSessionChecked(true);
+        } else {
+          // No session — redirect to the real login page
+          window.location.replace('/auth/login');
         }
       })
-      .catch(() => {})
-      .finally(() => setSessionChecked(true));
+      .catch(() => {
+        window.location.replace('/auth/login');
+      });
   }, []);
 
   const phoneStyle = {
@@ -7520,7 +7521,7 @@ function App() {
               borderBottom:'3px solid transparent', borderLeft:'3px solid transparent'
             }})
           )
-        : React.createElement(PLAIerApp, { initialRoute, initialUser })
+        : React.createElement(PLAIerApp, { initialRoute: 'search', initialUser })
     )
   );
 }
