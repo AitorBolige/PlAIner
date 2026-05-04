@@ -4061,26 +4061,62 @@ Object.assign(window, {
 
 function LoginScreen(_ref41) {
   let onAuth = _ref41.onAuth;
-  const _React$useState27 = React.useState('joana@plainer.app'),
-    _React$useState28 = _slicedToArray(_React$useState27, 2),
-    email = _React$useState28[0],
-    setEmail = _React$useState28[1];
-  const _React$useState29 = React.useState('••••••••'),
-    _React$useState30 = _slicedToArray(_React$useState29, 2),
-    pw = _React$useState30[0],
-    setPw = _React$useState30[1];
-  const _React$useState31 = React.useState(false),
-    _React$useState32 = _slicedToArray(_React$useState31, 2),
-    showPw = _React$useState32[0],
-    setShowPw = _React$useState32[1];
-  const _React$useState33 = React.useState(false),
-    _React$useState34 = _slicedToArray(_React$useState33, 2),
-    emailFocus = _React$useState34[0],
-    setEmailFocus = _React$useState34[1];
-  const _React$useState35 = React.useState(false),
-    _React$useState36 = _slicedToArray(_React$useState35, 2),
-    pwFocus = _React$useState36[0],
-    setPwFocus = _React$useState36[1];
+  const [email, setEmail] = React.useState('');
+  const [pw, setPw] = React.useState('');
+  const [showPw, setShowPw] = React.useState(false);
+  const [emailFocus, setEmailFocus] = React.useState(false);
+  const [pwFocus, setPwFocus] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
+  const [tab, setTab] = React.useState('login'); // 'login' | 'register'
+  const [name, setName] = React.useState('');
+  const [nameFocus, setNameFocus] = React.useState(false);
+
+  async function handleSubmit() {
+    if (!email || !pw) { setError('Omple tots els camps.'); return; }
+    setLoading(true); setError(null);
+    try {
+      if (tab === 'register') {
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({name: name || email.split('@')[0], email, password: pw})
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) { setError(data.error || 'Error al registrar-se.'); setLoading(false); return; }
+      }
+      const res = await fetch('/api/auth/callback/credentials', {
+        method: 'POST',
+        headers: {'Content-Type':'application/x-www-form-urlencoded'},
+        body: new URLSearchParams({email, password: pw, csrfToken: await getCsrfToken(), callbackUrl: '/plainer-mvp.html', json: 'true'}),
+        redirect: 'manual'
+      });
+      // NextAuth credentials: check session after POST
+      const sessionRes = await fetch('/api/auth/session');
+      const session = await sessionRes.json().catch(() => null);
+      if (session && session.user) {
+        onAuth && onAuth({name: session.user.name || session.user.email});
+      } else {
+        setError('Credencials incorrectes. Torna-ho a intentar.');
+      }
+    } catch(e) { setError('Error de connexió.'); }
+    setLoading(false);
+  }
+
+  async function getCsrfToken() {
+    try {
+      const r = await fetch('/api/auth/csrf');
+      const d = await r.json();
+      return d.csrfToken || '';
+    } catch { return ''; }
+  }
+
+  function handleGoogle() {
+    window.location.href = '/api/auth/signin/google?callbackUrl=' + encodeURIComponent(window.location.href);
+  }
+  function handleFacebook() {
+    window.location.href = '/api/auth/signin/facebook?callbackUrl=' + encodeURIComponent(window.location.href);
+  }
   return /*#__PURE__*/React.createElement("div", {
     className: "pl-app pl-fadein",
     style: {
@@ -4150,189 +4186,110 @@ function LoginScreen(_ref41) {
       marginBottom: 6
     }
   }, "El m\xF3n t'espera."), /*#__PURE__*/React.createElement("div", {
+    style: { fontSize: 14, color: 'rgba(255,255,255,0.66)', letterSpacing: '-0.005em' }
+  }, "El teu pr\xF2xim viatge, a 3 minuts."))),
+  React.createElement("div", {
     style: {
-      fontSize: 14,
-      color: 'rgba(255,255,255,0.66)',
-      letterSpacing: '-0.005em'
-    }
-  }, "El teu pr\xF2xim viatge, a 3 minuts."))), /*#__PURE__*/React.createElement("div", {
-    style: {
-      position: 'absolute',
-      top: 'calc(46% - 24px)',
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: '#fff',
-      borderTopLeftRadius: 28,
-      borderTopRightRadius: 28,
-      boxShadow: '0 -4px 24px rgba(0,0,0,0.08)',
-      padding: '28px 24px 24px',
-      display: 'flex',
-      flexDirection: 'column',
-      overflowY: 'auto'
+      position: 'absolute', top: 'calc(46% - 24px)', left: 0, right: 0, bottom: 0,
+      background: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28,
+      boxShadow: '0 -4px 24px rgba(0,0,0,0.08)', padding: '28px 24px 24px',
+      display: 'flex', flexDirection: 'column', overflowY: 'auto'
     },
     className: "pl-noscroll"
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "display",
-    style: {
-      fontWeight: 700,
-      fontSize: 22,
-      color: 'var(--text)',
-      letterSpacing: '-0.02em',
-      marginBottom: 4
-    }
-  }, "Benvingut de nou"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 13.5,
-      color: 'var(--text-muted)',
-      marginBottom: 22
-    }
-  }, "El teu pr\xF2xim viatge t'est\xE0 esperant."), /*#__PURE__*/React.createElement("div", {
-    className: "micro",
-    style: {
-      marginBottom: 8
-    }
-  }, "EMAIL"), /*#__PURE__*/React.createElement(Field, {
-    icon: /*#__PURE__*/React.createElement(IcMail, {
-      size: 18
-    }),
-    focus: emailFocus
-  }, /*#__PURE__*/React.createElement("input", {
-    value: email,
-    onChange: e => setEmail(e.target.value),
-    onFocus: () => setEmailFocus(true),
-    onBlur: () => setEmailFocus(false),
-    placeholder: "el-teu-email@correu.com",
-    style: fieldInput
-  })), /*#__PURE__*/React.createElement("div", {
-    className: "micro",
-    style: {
-      marginTop: 14,
-      marginBottom: 8
-    }
-  }, "CONTRASENYA"), /*#__PURE__*/React.createElement(Field, {
-    icon: /*#__PURE__*/React.createElement(IcLock, {
-      size: 18
-    }),
-    focus: pwFocus,
-    right: /*#__PURE__*/React.createElement("button", {
-      onClick: () => setShowPw(!showPw),
+  },
+    React.createElement("div", {
+      style: { display:'flex', gap:4, background:'var(--surface-2)', borderRadius:12, padding:4, marginBottom:22 }
+    },
+      ['login','register'].map(t => React.createElement("button", {
+        key: t,
+        onClick: () => { setTab(t); setError(null); },
+        className: 'pl-tap',
+        style: {
+          flex:1, height:36, borderRadius:9, fontWeight:700, fontSize:13.5,
+          background: tab===t ? '#fff' : 'transparent',
+          color: tab===t ? 'var(--text)' : 'var(--text-muted)',
+          boxShadow: tab===t ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+          border: 'none', transition: 'all 180ms ease', cursor:'pointer'
+        }
+      }, t === 'login' ? 'Iniciar sessi\u00f3' : 'Crear compte'))
+    ),
+    tab === 'register' && React.createElement(React.Fragment, null,
+      React.createElement("div", { className:"micro", style:{marginBottom:8} }, "NOM"),
+      React.createElement(Field, { icon: React.createElement(IcMail, {size:18}), focus: nameFocus },
+        React.createElement("input", {
+          value: name, onChange: e => setName(e.target.value),
+          onFocus: () => setNameFocus(true), onBlur: () => setNameFocus(false),
+          placeholder: "El teu nom", style: fieldInput
+        })
+      ),
+      React.createElement("div", { className:"micro", style:{marginTop:14, marginBottom:8} }, "EMAIL")
+    ),
+    tab === 'login' && React.createElement("div", { className:"micro", style:{marginBottom:8} }, "EMAIL"),
+    React.createElement(Field, { icon: React.createElement(IcMail, {size:18}), focus: emailFocus },
+      React.createElement("input", {
+        value: email, onChange: e => setEmail(e.target.value),
+        onFocus: () => setEmailFocus(true), onBlur: () => setEmailFocus(false),
+        placeholder: "el-teu-email@correu.com", style: fieldInput, type:"email"
+      })
+    ),
+    React.createElement("div", { className:"micro", style:{marginTop:14, marginBottom:8} }, "CONTRASENYA"),
+    React.createElement(Field, {
+      icon: React.createElement(IcLock, {size:18}), focus: pwFocus,
+      right: React.createElement("button", {
+        onClick: () => setShowPw(!showPw),
+        style: { padding:6, color: pwFocus ? 'var(--green)' : 'var(--text-faint)', border:'none', background:'transparent', cursor:'pointer' }
+      }, React.createElement(IcEye, {size:18}))
+    },
+      React.createElement("input", {
+        type: showPw ? 'text' : 'password',
+        value: pw, onChange: e => setPw(e.target.value),
+        onFocus: () => setPwFocus(true), onBlur: () => setPwFocus(false),
+        placeholder: "La teva contrasenya", style: fieldInput,
+        onKeyDown: e => e.key === 'Enter' && handleSubmit()
+      })
+    ),
+    error && React.createElement("div", {
+      style: { marginTop:12, padding:'10px 14px', borderRadius:12, background:'rgba(239,68,68,0.08)', border:'1px solid rgba(239,68,68,0.2)', fontSize:13, color:'#DC2626' }
+    }, error),
+    React.createElement("button", {
+      onClick: handleSubmit, className:"pl-tap",
+      disabled: loading,
       style: {
-        padding: 6,
-        color: pwFocus ? 'var(--green)' : 'var(--text-faint)'
+        marginTop:20, height:52, borderRadius:9999, background:'var(--green)', color:'#fff',
+        fontFamily:'var(--font-display)', fontWeight:700, fontSize:15, letterSpacing:'-0.01em',
+        boxShadow:'var(--shadow-cta)', transition:'all 200ms var(--ease)', border:'none', cursor:'pointer',
+        opacity: loading ? 0.7 : 1
       }
-    }, /*#__PURE__*/React.createElement(IcEye, {
-      size: 18
-    }))
-  }, /*#__PURE__*/React.createElement("input", {
-    type: showPw ? 'text' : 'password',
-    value: pw,
-    onChange: e => setPw(e.target.value),
-    onFocus: () => setPwFocus(true),
-    onBlur: () => setPwFocus(false),
-    placeholder: "La teva contrasenya",
-    style: fieldInput
-  })), /*#__PURE__*/React.createElement("div", {
-    style: {
-      textAlign: 'right',
-      marginTop: 10
-    }
-  }, /*#__PURE__*/React.createElement("a", {
-    style: {
-      fontSize: 13,
-      color: 'var(--green)',
-      fontWeight: 600,
-      textDecoration: 'none'
-    }
-  }, "He oblidat la contrasenya")), /*#__PURE__*/React.createElement("button", {
-    onClick: () => onAuth && onAuth({
-      name: 'Joana'
-    }),
-    className: "pl-tap",
-    style: {
-      marginTop: 20,
-      height: 52,
-      borderRadius: 9999,
-      background: 'var(--green)',
-      color: '#fff',
-      fontFamily: 'var(--font-display)',
-      fontWeight: 700,
-      fontSize: 15,
-      letterSpacing: '-0.01em',
-      boxShadow: 'var(--shadow-cta)',
-      transition: 'all 200ms var(--ease)'
-    }
-  }, "Iniciar sessi\xF3"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: 12,
-      margin: '20px 0 14px'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      height: 1,
-      background: 'var(--border)'
-    }
-  }), /*#__PURE__*/React.createElement("span", {
-    style: {
-      fontSize: 12,
-      color: 'var(--text-faint)'
-    }
-  }, "o continua amb"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      height: 1,
-      background: 'var(--border)'
-    }
-  })), /*#__PURE__*/React.createElement("button", {
-    className: "pl-tap",
-    style: {
-      height: 48,
-      borderRadius: 9999,
-      border: '1.5px solid var(--border-md)',
-      background: '#fff',
-      color: 'var(--text)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 10,
-      fontWeight: 600,
-      fontSize: 14,
-      marginBottom: 10
-    }
-  }, /*#__PURE__*/React.createElement(GoogleG, {
-    size: 18
-  }), " Continua amb Google"), /*#__PURE__*/React.createElement("button", {
-    className: "pl-tap",
-    style: {
-      height: 48,
-      borderRadius: 9999,
-      background: '#000',
-      color: '#fff',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: 10,
-      fontWeight: 600,
-      fontSize: 14
-    }
-  }, /*#__PURE__*/React.createElement(AppleLogo, {
-    size: 17
-  }), " Continua amb Apple"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      marginTop: 22,
-      textAlign: 'center',
-      fontSize: 13.5,
-      color: 'var(--text-muted)'
-    }
-  }, "No tens compte?", ' ', /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: 'var(--green)',
-      fontWeight: 600
-    }
-  }, "Crear-la \u2192"))));
+    }, loading ? 'Carregant...' : (tab === 'login' ? 'Iniciar sessi\u00f3' : 'Crear compte')),
+    React.createElement("div", {
+      style: { display:'flex', alignItems:'center', gap:12, margin:'20px 0 14px' }
+    },
+      React.createElement("div", { style:{flex:1, height:1, background:'var(--border)'} }),
+      React.createElement("span", { style:{fontSize:12, color:'var(--text-faint)'} }, "o continua amb"),
+      React.createElement("div", { style:{flex:1, height:1, background:'var(--border)'} })
+    ),
+    React.createElement("button", {
+      className:"pl-tap", onClick: handleGoogle,
+      style: {
+        height:48, borderRadius:9999, border:'1.5px solid var(--border-md)', background:'#fff',
+        color:'var(--text)', display:'flex', alignItems:'center', justifyContent:'center',
+        gap:10, fontWeight:600, fontSize:14, marginBottom:10, cursor:'pointer'
+      }
+    }, React.createElement(GoogleG, {size:18}), " Continua amb Google"),
+    React.createElement("button", {
+      className:"pl-tap", onClick: handleFacebook,
+      style: {
+        height:48, borderRadius:9999, background:'#1877F2', color:'#fff',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        gap:10, fontWeight:600, fontSize:14, border:'none', cursor:'pointer'
+      }
+    },
+      React.createElement("svg", {width:18,height:18,viewBox:"0 0 24 24",fill:"#fff"},
+        React.createElement("path", {d:"M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.1 4.388 23.094 10.125 24v-8.437H7.078v-3.49h3.047V9.41c0-3.025 1.792-4.697 4.533-4.697 1.312 0 2.686.236 2.686.236v2.97h-1.513c-1.491 0-1.956.93-1.956 1.887v2.267h3.328l-.532 3.49h-2.796V24C19.612 23.094 24 18.1 24 12.073z"})
+      ),
+      " Continua amb Facebook"
+    )
+  ));
 }
 function Field(_ref42) {
   let icon = _ref42.icon,
@@ -6955,10 +6912,9 @@ function ItinerarySection({pendingParams}) {
 // Manages: route ('login' | 'search' | 'generating' | 'trips' | 'detail'), user, trips
 
 function PLAIerApp(_ref62) {
-  let _ref62$initialRoute = _ref62.initialRoute,
-    initialRoute = _ref62$initialRoute === void 0 ? 'login' : _ref62$initialRoute,
-    _ref62$initialTab = _ref62.initialTab,
-    initialTab = _ref62$initialTab === void 0 ? 'trips' : _ref62$initialTab;
+  let initialRoute = _ref62.initialRoute === void 0 ? 'login' : _ref62.initialRoute,
+    initialTab = _ref62.initialTab === void 0 ? 'search' : _ref62.initialTab,
+    initialUser = _ref62.initialUser || null;
   const _React$useState65 = React.useState(initialRoute),
     _React$useState66 = _slicedToArray(_React$useState65, 2),
     route = _React$useState66[0],
@@ -7081,10 +7037,8 @@ function PLAIerApp(_ref62) {
     }
   }
   React.useEffect(() => {
-    if (initialRoute !== 'login') {
-      setUser({
-        name: 'Joana'
-      });
+    if (initialRoute !== 'login' && initialUser) {
+      setUser(initialUser);
     }
   }, []);
   return /*#__PURE__*/React.createElement("div", {
@@ -7479,30 +7433,53 @@ function Phone(_ref64) {
 }
 function App() {
   const isMobile = window.innerWidth <= 500;
-  return /*#__PURE__*/React.createElement("div", {
+  const [sessionChecked, setSessionChecked] = React.useState(false);
+  const [initialRoute, setInitialRoute] = React.useState('login');
+  const [initialUser, setInitialUser] = React.useState(null);
+
+  React.useEffect(() => {
+    fetch('/api/auth/session')
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.user) {
+          setInitialRoute('search');
+          setInitialUser({ name: data.user.name || data.user.email });
+        }
+      })
+      .catch(() => {})
+      .finally(() => setSessionChecked(true));
+  }, []);
+
+  const phoneStyle = {
+    width: '100%', maxWidth: 430, height: '100%',
+    maxHeight: isMobile ? '100%' : 900, position: 'relative',
+    overflow: 'hidden', borderRadius: isMobile ? 0 : 40,
+    boxShadow: isMobile ? 'none' : '0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)',
+    background: '#F4F1EC'
+  };
+
+  return React.createElement("div", {
     style: {
-      width: '100vw',
-      height: '100vh',
-      overflow: 'hidden',
+      width:'100vw', height:'100vh', overflow:'hidden',
       background: isMobile ? 'var(--bg)' : 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
+      display:'flex', alignItems:'center', justifyContent:'center'
     }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: '100%',
-      maxWidth: 430,
-      height: '100%',
-      maxHeight: isMobile ? '100%' : 900,
-      position: 'relative',
-      overflow: 'hidden',
-      borderRadius: isMobile ? 0 : 40,
-      boxShadow: isMobile ? 'none' : '0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)'
-    }
-  }, /*#__PURE__*/React.createElement(PLAIerApp, {
-    initialRoute: "login"
-  })));
+  },
+    React.createElement("div", { style: phoneStyle },
+      !sessionChecked
+        ? React.createElement("div", {
+            style: { width:'100%', height:'100%', display:'flex', alignItems:'center', justifyContent:'center',
+              background:'linear-gradient(160deg, #0D9E7A 0%, #1a6b9a 60%, #2D3561 100%)' }
+          },
+            React.createElement("div", { className:"pl-spin", style:{
+              width:36, height:36, borderRadius:'50%',
+              borderTop:'3px solid #fff', borderRight:'3px solid transparent',
+              borderBottom:'3px solid transparent', borderLeft:'3px solid transparent'
+            }})
+          )
+        : React.createElement(PLAIerApp, { initialRoute, initialUser })
+    )
+  );
 }
 
 // Frozen-in-progress generating screen (no auto-advance) for the canvas card
