@@ -50,10 +50,18 @@ export async function GET(request: NextRequest) {
   const query = parsed.data;
   const snapshot = await getTravelSearchSnapshot(query);
 
+  // If the cache exists but has no HOTEL offers, treat it as empty so the frontend
+  // triggers a refresh. This handles the case where a previous run only collected flights
+  // (e.g. because all hotels were filtered out by the old maxPrice logic).
+  const hasHotels = snapshot.offers.some(
+    (o) => String(o.type).toUpperCase() === "HOTEL",
+  );
+  const effectiveCache = hasHotels ? snapshot : { ...snapshot, offers: [] };
+
   return NextResponse.json({
     ok: true,
     query,
-    cache: snapshot,
+    cache: effectiveCache,
   });
 }
 

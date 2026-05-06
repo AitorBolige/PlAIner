@@ -434,7 +434,8 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
         adults: normalizedQuery.people ?? 2,
         rooms: 1,
         currency: normalizedQuery.currency,
-        maxPrice: normalizedQuery.maxPrice ?? normalizedQuery.budgetMax ?? undefined,
+        // Don't filter hotels by maxPrice: the user's budget covers the whole trip
+        // (flights + hotels + activities), so applying it to hotels alone cuts most results.
       });
       if (offers.length > 0) {
         collected.push(...offers);

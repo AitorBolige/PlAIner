@@ -1,5 +1,35 @@
 import { TravelOfferInput, TravelOfferQuery } from "./travel-offers";
 
+// Approximate exchange rates to EUR (updated 2025). Used when the API returns prices
+// in a currency other than EUR so the UI always shows a consistent currency.
+const EUR_RATES: Record<string, number> = {
+  EUR: 1,
+  DKK: 1 / 7.46,
+  SEK: 1 / 10.55,
+  NOK: 1 / 11.75,
+  GBP: 1.18,
+  USD: 0.92,
+  CHF: 1.06,
+  PLN: 1 / 4.27,
+  CZK: 1 / 25.3,
+  HUF: 1 / 390,
+  RON: 1 / 4.97,
+  TRY: 1 / 36,
+  JPY: 1 / 163,
+  AUD: 0.61,
+  CAD: 0.68,
+  SGD: 0.70,
+  MXN: 1 / 20,
+  BRL: 1 / 6,
+  ISK: 1 / 150,
+};
+
+function toEur(amount: number, currency: string): number {
+  const rate = EUR_RATES[currency.toUpperCase().trim()];
+  if (!rate) return amount; // unknown currency: leave as-is
+  return Math.round(amount * rate);
+}
+
 type MetasearchFlightParams = {
   originIata: string;
   destinationIata: string;
@@ -252,13 +282,16 @@ function mapApiDojoHotelOffer(
         : undefined,
     ]) ?? undefined;
 
+  const rawCurrency = String(currency).toUpperCase().slice(0, 3);
+  const priceEur = toEur(price, rawCurrency);
+
   return {
     type: "hotel",
     provider: "Booking.com via APIDojo",
     title: String(title),
     description,
-    price,
-    currency: String(currency).toUpperCase().slice(0, 3),
+    price: priceEur,
+    currency: "EUR",
     bookingUrl,
     sourceUrl: bookingUrl,
     imageUrl: imageUrl ?? undefined,
@@ -903,7 +936,7 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
     return [];
   }
 
-  // Step 2: Build search URL with entity IDs
+  // Step 2: Initial search request
   const url = buildRapidApiFlightSearchUrlWithEntityIds(
     fromEntityId,
     toEntityId,
@@ -933,14 +966,102 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
     throw new Error(`RapidAPI flight search responded ${response.status}: ${text}`);
   }
 
-  const payload = await response.json().catch(() => null);
-  if (payload && typeof payload === "object") {
-    const payloadObject = payload as Record<string, unknown>;
-    console.log(`[searchFlightsMetasearch] Raw payload keys: ${Object.keys(payloadObject).join(", ")}`);
-    console.log(`[searchFlightsMetasearch] Raw payload preview:`, JSON.stringify(payloadObject).slice(0, 1500));
-  } else {
-    console.log(`[searchFlightsMetasearch] Raw payload is not an object:`, payload);
+  let payload = await response.json().catch(() => null);
+
+  // Step 3: Poll if status is incomplete (flights-sky uses async session pattern)
+  const getSessionId = (p: unknown): string | null => {
+    if (!p || typeof p !== "object") return null;
+    const root = p as Record<string, unknown>;
+    const dataObj = root.data as Record<string, unknown> | undefined;
+    if (!dataObj) return null;
+    const ctx = (dataObj.context ?? dataObj.itineraries) as Record<string, unknown> | undefined;
+    const sessionId = ctx?.sessionId ?? dataObj.sessionId ?? root.sessionId;
+    return typeof sessionId === "string" ? sessionId : null;
+  };
+
+  const getStatus = (p: unknown): string => {
+    if (!p || typeof p !== "object") return "complete";
+    const root = p as Record<string, unknown>;
+    const dataObj = root.data as Record<string, unknown> | undefined;
+    if (!dataObj) return "complete";
+    const ctx = dataObj.context as Record<string, unknown> | undefined;
+    return (ctx?.status ?? dataObj.status ?? "complete") as string;
+  };
+
+  const sessionId = getSessionId(payload);
+  const initialStatus = getStatus(payload);
+  console.log(`[searchFlightsMetasearch] Initial status: ${initialStatus}, sessionId: ${sessionId}`);
+
+  if (initialStatus === "incomplete" && sessionId) {
+    // The flights-sky API uses a polling pattern: re-call the same search endpoint
+    // adding sessionId as a query param to retrieve progressive results.
+    const { path } = getRapidApiFlightConfig();
+    const curr = (params.currency || "EUR").toUpperCase();
+
+    // Build candidate poll URLs in priority order
+    const pollUrls = [
+      // Pattern 1: same search endpoint + sessionId (most common for flights-sky)
+      `${url}&sessionId=${encodeURIComponent(sessionId)}`,
+      // Pattern 2: dedicated /poll path derived from search path
+      `https://${host}${path.replace(/search-roundtrip$/, "poll")}?sessionId=${encodeURIComponent(sessionId)}&currency=${curr}`,
+      // Pattern 3: /web/flights/poll (separate endpoint)
+      `https://${host}/web/flights/poll?sessionId=${encodeURIComponent(sessionId)}&currency=${curr}`,
+    ];
+
+    const MAX_POLLS = 5;
+    const POLL_DELAY_MS = 2000;
+    let activePollUrl: string | null = null;
+
+    for (let attempt = 1; attempt <= MAX_POLLS; attempt++) {
+      await new Promise((res) => setTimeout(res, POLL_DELAY_MS));
+
+      // On first attempt, discover which poll URL works
+      if (attempt === 1) {
+        for (const candidate of pollUrls) {
+          console.log(`[searchFlightsMetasearch] Trying poll URL: ${candidate}`);
+          const probe = await fetch(candidate, {
+            headers: { "X-RapidAPI-Key": key, "X-RapidAPI-Host": host, accept: "application/json" },
+          });
+          if (probe.ok) {
+            activePollUrl = candidate;
+            const probePayload = await probe.json().catch(() => null);
+            const probeOffers = extractRapidApiFlightOffers(probePayload);
+            console.log(`[searchFlightsMetasearch] Poll URL works, status: ${getStatus(probePayload)}, offers: ${probeOffers.length}`);
+            if (probeOffers.length > 0 || getStatus(probePayload) === "complete") {
+              payload = probePayload;
+              activePollUrl = null; // stop polling
+            } else {
+              payload = probePayload;
+            }
+            break;
+          }
+          console.warn(`[searchFlightsMetasearch] Poll URL returned ${probe.status}: ${candidate}`);
+        }
+        if (!activePollUrl) break; // already got results or no URL works
+        continue;
+      }
+
+      if (!activePollUrl) break;
+
+      console.log(`[searchFlightsMetasearch] Polling attempt ${attempt}/${MAX_POLLS}`);
+      const pollResponse = await fetch(activePollUrl, {
+        headers: { "X-RapidAPI-Key": key, "X-RapidAPI-Host": host, accept: "application/json" },
+      });
+
+      if (!pollResponse.ok) {
+        console.warn(`[searchFlightsMetasearch] Poll ${attempt} returned ${pollResponse.status}, stopping`);
+        break;
+      }
+
+      const pollPayload = await pollResponse.json().catch(() => null);
+      const pollOffers = extractRapidApiFlightOffers(pollPayload);
+      console.log(`[searchFlightsMetasearch] Poll ${attempt} status: ${getStatus(pollPayload)}, offers: ${pollOffers.length}`);
+
+      payload = pollPayload;
+      if (pollOffers.length > 0 || getStatus(pollPayload) === "complete") break;
+    }
   }
+
   const list = extractRapidApiFlightOffers(payload);
   const route = {
     originIata: params.originIata,
@@ -950,24 +1071,7 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
   const maxPrice = params.maxPrice ?? undefined;
   const currency = params.currency || "EUR";
 
-  console.log(`[searchFlightsMetasearch] Found ${list.length} flight offers`);
-  if (Array.isArray(list) && list.length > 0) {
-    const sample = list[0] as Record<string, unknown>;
-    console.log(
-      `[searchFlightsMetasearch] First itinerary keys: ${Object.keys(sample).join(", ")}`,
-    );
-    console.log(
-      `[searchFlightsMetasearch] First itinerary deep-link candidates:`,
-      JSON.stringify({
-        deep_link: sample.deep_link,
-        url: sample.url,
-        pricing_options_first_item: Array.isArray(sample.pricing_options)
-          ? (sample.pricing_options as Array<Record<string, unknown>>)[0]?.items
-          : undefined,
-        agents: sample.agents,
-      }).slice(0, 1500),
-    );
-  }
+  console.log(`[searchFlightsMetasearch] Final offers found: ${list.length}`);
 
   return (Array.isArray(list) ? list : [])
     .map((offer: unknown, idx: number) => {
