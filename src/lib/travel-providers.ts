@@ -173,6 +173,28 @@ export async function searchHotelsApiDojo(
     );
   }
 
+  if (sPayload && typeof sPayload === "object") {
+    const msg = typeof sPayload.message === "string" ? sPayload.message.trim() : "";
+    const resultArr = sPayload.result;
+    const resultsArr = sPayload.results;
+    const hasUsableList =
+      (Array.isArray(resultArr) && resultArr.length > 0) ||
+      (Array.isArray(resultsArr) && resultsArr.length > 0);
+    if (msg && !hasUsableList) {
+      const code = sPayload.code;
+      const codeHint =
+        typeof code === "number" && code === 429 ? " (possible rate limit)" : "";
+      console.error(
+        `[searchHotelsApiDojo] properties/list API error:${codeHint} code=${JSON.stringify(code)} message=${msg}`,
+      );
+      console.error(
+        `[searchHotelsApiDojo] properties/list payload slice:`,
+        JSON.stringify(sPayload).slice(0, 800),
+      );
+      return [];
+    }
+  }
+
   const list = Array.isArray(sPayload?.result)
     ? (sPayload!.result as Array<Record<string, unknown>>)
     : Array.isArray(sPayload?.results)
@@ -313,6 +335,27 @@ function getRapidApiFlightConfig() {
   return { host, key, path: path.startsWith("/") ? path : `/${path}` };
 }
 
+/** Normalize RapidAPI path segment to always start with `/`. */
+function normalizeRapidApiPathSegment(p: string): string {
+  const t = p.trim();
+  return t.startsWith("/") ? t : `/${t}`;
+}
+
+/**
+ * Flight-Sky autocomplete path: optional override, else align with `/web/flights/...`
+ * search path, else legacy `/flights/auto-complete`.
+ */
+function getFlightAutocompletePath(): string {
+  const explicit = process.env.RAPIDAPI_FLIGHTS_AUTOCOMPLETE_PATH?.trim();
+  if (explicit) return normalizeRapidApiPathSegment(explicit);
+
+  const flightPath = process.env.RAPIDAPI_FLIGHTS_PATH?.trim() || "";
+  if (flightPath.includes("web/flights")) {
+    return "/web/flights/auto-complete";
+  }
+  return "/flights/auto-complete";
+}
+
 function buildRapidApiFlightSearchUrl(params: MetasearchFlightParams) {
   const { host, path } = getRapidApiFlightConfig();
   const searchParams = new URLSearchParams();
@@ -352,55 +395,52 @@ function trimSkyScraperSkyId(value: unknown): string | null {
   return t.length > 0 ? t : null;
 }
 
+/** When autocomplete fails, use known-good place ids (same idea as the working commit). */
+function getAutocompleteFallbackPlaceId(iataCode: string): string | null {
+  const k = iataCode.trim().toUpperCase();
+  const fallbacks: Record<string, string> = {
+    LHR: "LOND",
+    JFK: "JFK",
+    PARI: "PARI",
+    BCN: "BCN",
+    MAD: "MAD",
+    LIS: "LIS",
+    CDG: "CDG",
+    FCO: "FCO",
+    AMS: "AMS",
+    MUC: "MUC",
+    BER: "BER",
+    DPS: "DPS",
+    RAK: "RAK",
+    HND: "HND",
+    JTR: "JTR",
+  };
+  return fallbacks[k] ?? null;
+}
+
 /**
- * Sky Scraper `flights/auto-complete` returns `data[]` with `skyId` (preferred for
- * `fromEntityId` / `toEntityId` on search-roundtrip) and often duplicates it under
- * `navigation.relevantFlightParams.skyId`. Per-row resolution uses
- * `skyId || navigation?.entityId || entityId`, but pure numeric legacy IDs are skipped
- * because search-roundtrip expects SkyId-style strings for those query params.
+ * Sky Scraper / Flight-Sky autocomplete returns `data[]` rows. For search-roundtrip,
+ * we pass through `skyId` strings from the API (no `-sky` suffix). Pure numeric legacy
+ * `entityId` rows are skipped per row; non-numeric legacy ids are accepted.
+ *
+ * Path: `RAPIDAPI_FLIGHTS_AUTOCOMPLETE_PATH`, or `/web/flights/auto-complete`
+ * when `RAPIDAPI_FLIGHTS_PATH` contains `web/flights`, else `/flights/auto-complete`.
+ * On HTTP 400 or empty `data`, retries once with `/web/flights/auto-complete` if needed.
+ * On failure after retries, falls back to `getAutocompleteFallbackPlaceId` when defined.
  */
 async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | null> {
   const { host, key } = getRapidApiFlightConfig();
-
-  // Well-known skyIds for the most common airports (avoids an extra API call)
-  // Use airport IATA codes directly — the /web/flights endpoint requires airport-level IDs (not city skyIds like PARI/LOND)
-  const fallbacks: Record<string, string> = {
-    BCN: "BCN", MAD: "MAD", LIS: "LIS", LHR: "LHR", LGW: "LGW",
-    CDG: "CDG", ORY: "ORY", JFK: "JFK", EWR: "EWR", LAX: "LAX",
-    FCO: "FCO", MXP: "MXP", VCE: "VCE", FLR: "FLR", NAP: "NAP",
-    AMS: "AMS", BER: "BER", MUC: "MUC", FRA: "FRA", VIE: "VIE",
-    ZRH: "ZRH", BRU: "BRU", CPH: "CPH", ARN: "ARN", OSL: "OSL",
-    HEL: "HEL", ATH: "ATH", IST: "IST", DXB: "DXB", DOH: "DOH",
-    HND: "HND", NRT: "NRT", BKK: "BKK", SIN: "SIN", DPS: "DPS",
-    RAK: "RAK", CAI: "CAI", PRG: "PRG", BUD: "BUD", WAW: "WAW",
-    SVQ: "SVQ", VLC: "VLC", PMI: "PMI", IBZ: "IBZ", TFS: "TFS",
-    OPO: "OPO", MIA: "MIA", CUN: "CUN", MLE: "MLE", HKT: "HKT",
+  const headers = {
+    "X-RapidAPI-Key": key,
+    "X-RapidAPI-Host": host,
+    accept: "application/json",
   };
+  const webPath = "/web/flights/auto-complete";
+  let path = getFlightAutocompletePath();
 
-  // Use well-known fallback immediately if available to avoid an API round-trip
-  const directFallback = fallbacks[iataCode.toUpperCase()];
-  if (directFallback) return directFallback;
-
-  const url = `https://${host}/flights/auto-complete?query=${encodeURIComponent(iataCode)}`;
-
-  try {
-    console.log(`[getEntityIdFromAutoComplete] Fetching for ${iataCode}...`);
-    const response = await fetch(url, {
-      headers: {
-        "X-RapidAPI-Key": key,
-        "X-RapidAPI-Host": host,
-        accept: "application/json",
-      },
-    });
-
-    if (!response.ok) return fallbacks[iataCode.toUpperCase()] || null;
-
-    const payload = (await response.json()) as Record<string, unknown>;
+  const tryParsePlaceId = (payload: Record<string, unknown>): string | null => {
     const results = payload.data;
-    if (!Array.isArray(results) || results.length === 0) {
-      console.warn(`[getEntityIdFromAutoComplete] No data[] for ${iataCode}`);
-      return fallbacks[iataCode.toUpperCase()] || null;
-    }
+    if (!Array.isArray(results) || results.length === 0) return null;
 
     for (const row of results) {
       if (!row || typeof row !== "object") continue;
@@ -408,43 +448,81 @@ async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | n
       const navigation = item.navigation as Record<string, unknown> | undefined;
       const flight = navigation?.relevantFlightParams as Record<string, unknown> | undefined;
 
-      // Prefer airport-level flightParams.skyId (e.g. "CDG") over city-level skyId (e.g. "PARI")
-      const flightSkyId = trimSkyScraperSkyId(flight?.skyId);
-      const entityType = String(navigation?.entityType ?? "").toUpperCase();
-      if (flightSkyId && entityType === "AIRPORT") {
-        console.log(`[getEntityIdFromAutoComplete] Using airport skyId: ${flightSkyId}`);
-        return flightSkyId;
-      }
-
-      const skyId =
+      const skyRaw =
         trimSkyScraperSkyId(item.skyId) ||
-        flightSkyId ||
+        trimSkyScraperSkyId(flight?.skyId) ||
         trimSkyScraperSkyId(navigation?.skyId);
-      if (skyId) {
-        console.log(`[getEntityIdFromAutoComplete] Using skyId: ${skyId}`);
-        return skyId;
+
+      if (skyRaw) {
+        return skyRaw;
       }
 
-      const legacyRaw = navigation?.entityId ?? item.entityId;
+      const legacyRaw = flight?.entityId ?? navigation?.entityId ?? item.entityId;
       const legacy =
         legacyRaw !== undefined && legacyRaw !== null ? String(legacyRaw).trim() : "";
       if (legacy && !/^\d+$/.test(legacy)) {
-        console.log(`[getEntityIdFromAutoComplete] Using ID: ${legacy}`);
         return legacy;
       }
     }
 
-    console.warn(`[getEntityIdFromAutoComplete] Using fallback for ${iataCode}`);
-    return fallbacks[iataCode.toUpperCase()] || null;
-  } catch (error) {
-    console.error(`[getEntityIdFromAutoComplete] Error:`, error);
-    return fallbacks[iataCode.toUpperCase()] || null;
+    console.warn(`[getEntityIdFromAutoComplete] No usable place id (skyId or entityId) for ${iataCode}`);
+    return null;
+  };
+
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const url = `https://${host}${path}?query=${encodeURIComponent(iataCode)}`;
+    console.log(`[getEntityIdFromAutoComplete] Fetching for ${iataCode} path=${path}`);
+
+    try {
+      const response = await fetch(url, { headers });
+
+      if (!response.ok) {
+        const body = await response.text().catch(() => "");
+        console.warn(
+          `[getEntityIdFromAutoComplete] ${iataCode}: HTTP ${response.status} path=${path} body:`,
+          body.slice(0, 800),
+        );
+        if (response.status === 400 && path !== webPath && attempt === 0) {
+          console.warn(`[getEntityIdFromAutoComplete] Retrying with ${webPath}`);
+          path = webPath;
+          continue;
+        }
+        return getAutocompleteFallbackPlaceId(iataCode);
+      }
+
+      const payload = (await response.json()) as Record<string, unknown>;
+      const placeId = tryParsePlaceId(payload);
+      if (placeId) return placeId;
+
+      const results = payload.data;
+      const emptyData = !Array.isArray(results) || results.length === 0;
+      if (emptyData) {
+        console.warn(`[getEntityIdFromAutoComplete] No data[] for ${iataCode} (path=${path})`);
+        if (path !== webPath && attempt === 0) {
+          console.warn(`[getEntityIdFromAutoComplete] Retrying with ${webPath}`);
+          path = webPath;
+          continue;
+        }
+        return getAutocompleteFallbackPlaceId(iataCode);
+      }
+
+      return getAutocompleteFallbackPlaceId(iataCode);
+    } catch (error) {
+      console.error(`[getEntityIdFromAutoComplete] Error:`, error);
+      return getAutocompleteFallbackPlaceId(iataCode);
+    }
   }
+
+  return getAutocompleteFallbackPlaceId(iataCode);
 }
 
+/**
+ * Flight-Sky / Sky Scraper `search-roundtrip`: `fromEntityId` and `toEntityId` from
+ * autocomplete (plain sky segment ids such as `BCN`, `LOND`, as returned by the API).
+ */
 function buildRapidApiFlightSearchUrlWithEntityIds(
-  fromEntityId: string,
-  toEntityId: string,
+  fromPlaceId: string,
+  toPlaceId: string,
   departureDate?: string,
   returnDate?: string,
   passengers: number = 1,
@@ -455,17 +533,91 @@ function buildRapidApiFlightSearchUrlWithEntityIds(
   const searchParams = new URLSearchParams();
   const curr = String(currency.toUpperCase()).slice(0, 3);
 
-  // flights-sky.p.rapidapi.com uses placeIdFrom / placeIdTo
-  searchParams.set("placeIdFrom", fromEntityId);
-  searchParams.set("placeIdTo", toEntityId);
+  searchParams.set("fromEntityId", fromPlaceId);
+  searchParams.set("toEntityId", toPlaceId);
+
   if (departureDate) searchParams.set("departDate", departureDate);
   if (returnDate) searchParams.set("returnDate", returnDate);
   searchParams.set("adults", String(passengers));
   searchParams.set("currency", curr);
   searchParams.set("limit", "20");
   searchParams.set("sort", "price");
+  if (typeof maxPrice === "number" && Number.isFinite(maxPrice) && maxPrice > 0) {
+    searchParams.set("priceTo", String(maxPrice));
+  }
 
   return `https://${host}${path}?${searchParams.toString()}`;
+}
+
+function rootHasFlightErrors(root: Record<string, unknown>): boolean {
+  const errors = root.errors;
+  if (Array.isArray(errors)) return errors.length > 0;
+  if (errors && typeof errors === "object") return Object.keys(errors as Record<string, unknown>).length > 0;
+  return false;
+}
+
+/** Logs URL-safe shape hints (keys, typeof data, errors) — truncates long error JSON. */
+function logFlightResponseDebug(payload: unknown, phase: string): void {
+  if (!payload || typeof payload !== "object") {
+    console.log(`[Flight Debug] ${phase}: payload is null or not an object`);
+    return;
+  }
+  const root = payload as Record<string, unknown>;
+  console.log(`[Flight Debug] ${phase} Root keys:`, Object.keys(root));
+  console.log(
+    `[Flight Debug] ${phase} typeof data:`,
+    typeof root.data,
+    "data === null:",
+    root.data === null,
+    "data === undefined:",
+    root.data === undefined,
+  );
+  if ("status" in root) console.log(`[Flight Debug] ${phase} root status:`, root.status);
+  if ("message" in root) console.log(`[Flight Debug] ${phase} message:`, root.message);
+  if ("errors" in root) {
+    const s = JSON.stringify(root.errors);
+    console.log(`[Flight Debug] ${phase} errors:`, s.length > 2500 ? `${s.slice(0, 2500)}…` : s);
+  }
+  const dataVal = root.data;
+  if (dataVal && typeof dataVal === "object" && !Array.isArray(dataVal)) {
+    const d = dataVal as Record<string, unknown>;
+    console.log(`[Flight Debug] ${phase} Data keys:`, Object.keys(d));
+    if ("itineraries" in d) {
+      const itin = d.itineraries;
+      console.log(`[Flight Debug] ${phase} itineraries type:`, typeof itin, "isArray:", Array.isArray(itin));
+    }
+  } else if (Array.isArray(dataVal)) {
+    console.log(`[Flight Debug] ${phase} data is array, length:`, dataVal.length);
+  }
+}
+
+/**
+ * Shallow scan of root / nested `data` (legacy metasearch shapes). Used when bucket
+ * extraction returns nothing but the payload still contains a list somewhere.
+ */
+function extractRapidApiFlightOffersBroadShallow(value: Record<string, unknown>): Array<unknown> {
+  const candidates: Array<unknown> = [
+    value.data,
+    value.result,
+    value.results,
+    value.itineraries,
+    value.flights,
+    value.offers,
+    value.items,
+  ];
+
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate)) return candidate;
+    if (candidate && typeof candidate === "object") {
+      const nested = candidate as Record<string, unknown>;
+      const nestedCandidates = [nested.data, nested.itineraries, nested.flights, nested.offers, nested.items];
+      for (const nestedCandidate of nestedCandidates) {
+        if (Array.isArray(nestedCandidate)) return nestedCandidate;
+      }
+    }
+  }
+
+  return [];
 }
 
 function extractRapidApiFlightOffers(payload: unknown): Array<unknown> {
@@ -489,15 +641,35 @@ function extractRapidApiFlightOffers(payload: unknown): Array<unknown> {
       if (Array.isArray(itineraries.results) && (itineraries.results as unknown[]).length > 0) {
         return itineraries.results as unknown[];
       }
+      // Some flights-sky variants return data.itineraries as a plain array
+      if (Array.isArray(itineraries) && (itineraries as unknown as unknown[]).length > 0) {
+        return itineraries as unknown as unknown[];
+      }
+    }
+    // data.flights[] (alternative flights-sky shape)
+    if (Array.isArray(dataObj.flights) && (dataObj.flights as unknown[]).length > 0) {
+      return dataObj.flights as unknown[];
+    }
+    // data.results[]
+    if (Array.isArray(dataObj.results) && (dataObj.results as unknown[]).length > 0) {
+      return dataObj.results as unknown[];
     }
     // flat data array
     if (Array.isArray(dataObj)) return dataObj;
   }
 
-  // Generic fallbacks
+  // Generic fallbacks on root
   for (const key of ["result", "results", "itineraries", "flights", "offers", "items"] as const) {
     const val = root[key];
     if (Array.isArray(val) && val.length > 0) return val;
+  }
+
+  const broad = extractRapidApiFlightOffersBroadShallow(root);
+  if (broad.length > 0) return broad;
+
+  if (dataObj && typeof dataObj === "object") {
+    const fromNestedData = extractRapidApiFlightOffersBroadShallow(dataObj);
+    if (fromNestedData.length > 0) return fromNestedData;
   }
 
   return [];
@@ -927,25 +1099,28 @@ function mapRapidApiFlightOffer(
  * `RAPIDAPI_FLIGHTS_KEY` is preferred, with `RAPIDAPI_KEY` as fallback.
  */
 export async function searchFlightsMetasearch(params: MetasearchFlightParams): Promise<TravelOfferInput[]> {
-  // Step 1: Get entity IDs from auto-complete for origin and destination
-  const fromEntityId = await getEntityIdFromAutoComplete(params.originIata);
-  const toEntityId = await getEntityIdFromAutoComplete(params.destinationIata);
+  const fromId = await getEntityIdFromAutoComplete(params.originIata);
+  const toId = await getEntityIdFromAutoComplete(params.destinationIata);
 
-  if (!fromEntityId || !toEntityId) {
-    console.warn(`[searchFlightsMetasearch] Could not resolve entity IDs: fromEntityId=${fromEntityId}, toEntityId=${toEntityId}`);
+  if (!fromId || !toId) {
+    console.warn(`[searchFlightsMetasearch] Could not resolve place ids for search.`);
     return [];
   }
 
-  // Step 2: Initial search request
+  console.log(`[searchFlightsMetasearch] Using ${fromId} → ${toId}`);
+
+  // Initial search request
   const url = buildRapidApiFlightSearchUrlWithEntityIds(
-    fromEntityId,
-    toEntityId,
+    fromId,
+    toId,
     params.departureDate,
     params.returnDate,
     params.passengers ?? 1,
     params.maxPrice,
     params.currency,
   );
+
+  console.log(`[Flight Debug] Fetching URL:`, url);
 
   const { host, key } = getRapidApiFlightConfig();
   console.log(`[searchFlightsMetasearch] Fetching from: ${url}`);
@@ -967,6 +1142,7 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
   }
 
   let payload = await response.json().catch(() => null);
+  logFlightResponseDebug(payload, "after-parse");
 
   // Step 3: Poll if status is incomplete (flights-sky uses async session pattern)
   const getSessionId = (p: unknown): string | null => {
@@ -982,8 +1158,17 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
   const getStatus = (p: unknown): string => {
     if (!p || typeof p !== "object") return "complete";
     const root = p as Record<string, unknown>;
-    const dataObj = root.data as Record<string, unknown> | undefined;
-    if (!dataObj) return "complete";
+    if (rootHasFlightErrors(root)) return "error";
+
+    const dataVal = root.data;
+    if (dataVal === null || dataVal === undefined) {
+      const rs = root.status;
+      if (typeof rs === "string" && rs.trim() !== "" && rs.toLowerCase() !== "ok") return rs;
+      return "complete";
+    }
+    if (typeof dataVal !== "object") return "complete";
+
+    const dataObj = dataVal as Record<string, unknown>;
     const ctx = dataObj.context as Record<string, unknown> | undefined;
     return (ctx?.status ?? dataObj.status ?? "complete") as string;
   };
@@ -1025,13 +1210,14 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
           if (probe.ok) {
             activePollUrl = candidate;
             const probePayload = await probe.json().catch(() => null);
+            const probeStatus = getStatus(probePayload);
             const probeOffers = extractRapidApiFlightOffers(probePayload);
-            console.log(`[searchFlightsMetasearch] Poll URL works, status: ${getStatus(probePayload)}, offers: ${probeOffers.length}`);
-            if (probeOffers.length > 0 || getStatus(probePayload) === "complete") {
-              payload = probePayload;
-              activePollUrl = null; // stop polling
-            } else {
-              payload = probePayload;
+            console.log(
+              `[searchFlightsMetasearch] Poll URL works, status: ${probeStatus}, offers: ${probeOffers.length}`,
+            );
+            payload = probePayload;
+            if (probeOffers.length > 0 || probeStatus === "complete" || probeStatus === "error") {
+              activePollUrl = null;
             }
             break;
           }
@@ -1055,12 +1241,15 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
 
       const pollPayload = await pollResponse.json().catch(() => null);
       const pollOffers = extractRapidApiFlightOffers(pollPayload);
-      console.log(`[searchFlightsMetasearch] Poll ${attempt} status: ${getStatus(pollPayload)}, offers: ${pollOffers.length}`);
+      const pollStatus = getStatus(pollPayload);
+      console.log(`[searchFlightsMetasearch] Poll ${attempt} status: ${pollStatus}, offers: ${pollOffers.length}`);
 
       payload = pollPayload;
-      if (pollOffers.length > 0 || getStatus(pollPayload) === "complete") break;
+      if (pollOffers.length > 0 || pollStatus === "complete" || pollStatus === "error") break;
     }
   }
+
+  logFlightResponseDebug(payload, "pre-extract");
 
   const list = extractRapidApiFlightOffers(payload);
   const route = {
