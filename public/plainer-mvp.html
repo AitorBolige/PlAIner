@@ -240,8 +240,8 @@ function IOSGlassPill(_ref2) {
       position: 'absolute',
       inset: 0,
       borderRadius: 9999,
-      backdropFilter: 'blur(12px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+        backdropFilter: 'blur(12px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(12px) saturate(180%)',
       background: dark ? 'rgba(120,120,128,0.28)' : 'rgba(255,255,255,0.5)'
     }
   }), /*#__PURE__*/React.createElement("div", {
@@ -338,8 +338,8 @@ function IOSNavBar(_ref3) {
     fill: muted
   })))), /*#__PURE__*/React.createElement("div", {
     style: {
-      padding: '0 16px',
-      fontFamily: '-apple-system, system-ui',
+        padding: '0 16px',
+        fontFamily: '-apple-system, system-ui',
       fontSize: 34,
       fontWeight: 700,
       lineHeight: '41px',
@@ -600,12 +600,12 @@ function IOSKeyboard(_ref7) {
         flex: flex ? 1 : undefined,
         width: w,
         minWidth: 0,
-        background: ret ? '#08f' : keyBg,
-        boxShadow: '0 1px 0 rgba(0,0,0,0.075)',
+      background: ret ? '#08f' : keyBg,
+      boxShadow: '0 1px 0 rgba(0,0,0,0.075)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: '-apple-system, "SF Compact", system-ui',
+      fontFamily: '-apple-system, "SF Compact", system-ui',
         fontSize: fs,
         fontWeight: 458,
         color: ret ? '#fff' : glyph
@@ -643,8 +643,8 @@ function IOSKeyboard(_ref7) {
       position: 'absolute',
       inset: 0,
       borderRadius: 27,
-      backdropFilter: 'blur(12px) saturate(180%)',
-      WebkitBackdropFilter: 'blur(12px) saturate(180%)',
+        backdropFilter: 'blur(12px) saturate(180%)',
+        WebkitBackdropFilter: 'blur(12px) saturate(180%)',
       background: dark ? 'rgba(120,120,128,0.14)' : 'rgba(255,255,255,0.25)'
     }
   }), /*#__PURE__*/React.createElement("div", {
@@ -653,7 +653,7 @@ function IOSKeyboard(_ref7) {
       inset: 0,
       borderRadius: 27,
       boxShadow: dark ? 'inset 1.5px 1.5px 1px rgba(255,255,255,0.15)' : 'inset 1.5px 1.5px 1px rgba(255,255,255,0.7), inset -1px -1px 1px rgba(255,255,255,0.4)',
-      border: dark ? '0.5px solid rgba(255,255,255,0.15)' : '0.5px solid rgba(0,0,0,0.06)',
+        border: dark ? '0.5px solid rgba(255,255,255,0.15)' : '0.5px solid rgba(0,0,0,0.06)',
       pointerEvents: 'none'
     }
   }), /*#__PURE__*/React.createElement("div", {
@@ -783,31 +783,31 @@ if (typeof document !== 'undefined' && !document.getElementById('dc-styles')) {
   const s = document.createElement('style');
   s.id = 'dc-styles';
   s.textContent = ['.dc-editable{cursor:text;outline:none;white-space:nowrap;border-radius:3px;padding:0 2px;margin:0 -2px}', '.dc-editable:focus{background:#fff;box-shadow:0 0 0 1.5px #c96442}', '[data-dc-slot]{transition:transform .18s cubic-bezier(.2,.7,.3,1)}', '[data-dc-slot].dc-dragging{transition:none;z-index:10;pointer-events:none}', '[data-dc-slot].dc-dragging .dc-card{box-shadow:0 12px 40px rgba(0,0,0,.25),0 0 0 2px #c96442;transform:scale(1.02)}', '.dc-card{transition:box-shadow .15s,transform .15s}', '.dc-card *{scrollbar-width:none}', '.dc-card *::-webkit-scrollbar{display:none}',
-  // Per-artboard header: grip + label on the left, delete/expand on the
-  // right. Single flex row; when the artboard's on-screen width is too
-  // narrow for both the label yields (ellipsis, then hidden entirely below
-  // ~4ch via the container query) and the buttons stay on the row.
+    // Per-artboard header: grip + label on the left, delete/expand on the
+    // right. Single flex row; when the artboard's on-screen width is too
+    // narrow for both the label yields (ellipsis, then hidden entirely below
+    // ~4ch via the container query) and the buttons stay on the row.
   '.dc-header{position:absolute;bottom:100%;left:-4px;margin-bottom:calc(4px * var(--dc-inv-zoom,1));z-index:2;', '  display:flex;align-items:center;container-type:inline-size}', '.dc-labelrow{display:flex;align-items:center;gap:4px;height:24px;flex:1 1 auto;min-width:0}', '.dc-grip{flex:0 0 auto;cursor:grab;display:flex;align-items:center;padding:5px 4px;border-radius:4px;transition:background .12s,opacity .12s}', '.dc-grip:hover{background:rgba(0,0,0,.08)}', '.dc-grip:active{cursor:grabbing}', '.dc-labeltext{flex:1 1 auto;min-width:0;cursor:pointer;border-radius:4px;padding:3px 6px;', '  display:flex;align-items:center;transition:background .12s;overflow:hidden}',
-  // Below ~4ch of label room: hide the label entirely, and drop the grip to
-  // hover-only (same reveal rule as .dc-btns) so a narrow header is clean
-  // until the card is moused.
+    // Below ~4ch of label room: hide the label entirely, and drop the grip to
+    // hover-only (same reveal rule as .dc-btns) so a narrow header is clean
+    // until the card is moused.
   '@container (max-width: 110px){', '  .dc-labeltext{display:none}', '  .dc-grip{opacity:0}', '  [data-dc-slot]:hover .dc-grip{opacity:1}', '}', '.dc-labeltext:hover{background:rgba(0,0,0,.05)}', '.dc-labeltext .dc-editable{overflow:hidden;text-overflow:ellipsis;max-width:100%}', '.dc-labeltext .dc-editable:focus{overflow:visible;text-overflow:clip}', '.dc-btns{flex:0 0 auto;margin-left:auto;display:flex;gap:2px;opacity:0;transition:opacity .12s}', '[data-dc-slot]:hover .dc-btns,.dc-btns:has(.dc-confirm){opacity:1}', '.dc-expand,.dc-delete{width:22px;height:22px;border-radius:5px;border:none;cursor:pointer;padding:0;', '  background:transparent;color:rgba(60,50,40,.7);display:flex;align-items:center;justify-content:center;', '  font:inherit;transition:background .12s,color .12s}', '.dc-expand:hover{background:rgba(0,0,0,.06);color:#2a251f}', '.dc-delete:hover{background:rgba(201,100,66,.12);color:#c96442}', '.dc-delete.dc-confirm{width:auto;padding:0 7px;gap:5px;background:#c96442;color:#fff;', '  font-size:12px;font-weight:500}', '.dc-delete.dc-confirm:hover{background:#b5563a}',
-  // Chrome (titles / labels / buttons) counter-scales against the viewport
-  // zoom so it stays a constant on-screen size. --dc-inv-zoom is set by
-  // DCViewport on every transform update and inherits to all descendants —
-  // any overlay inside the world (e.g. a TweaksPanel on an artboard) can use
-  // it the same way.
-  //
-  // The header uses transform:scale (out-of-flow, so layout impact doesn't
-  // matter) with its world-space width set to card-width / inv-zoom so that
-  // after counter-scaling its on-screen width exactly matches the card's —
-  // that's what lets the container query + text-overflow behave against the
-  // card's visible edge at every zoom level.
-  //
-  // The section head uses CSS zoom instead of transform so its layout box
-  // grows with the counter-scale, pushing the card row down — otherwise the
-  // constant-screen-size title would overflow into the (shrinking) world-
-  // space gap and overlap the artboard headers at low zoom.
+    // Chrome (titles / labels / buttons) counter-scales against the viewport
+    // zoom so it stays a constant on-screen size. --dc-inv-zoom is set by
+    // DCViewport on every transform update and inherits to all descendants —
+    // any overlay inside the world (e.g. a TweaksPanel on an artboard) can use
+    // it the same way.
+    //
+    // The header uses transform:scale (out-of-flow, so layout impact doesn't
+    // matter) with its world-space width set to card-width / inv-zoom so that
+    // after counter-scaling its on-screen width exactly matches the card's —
+    // that's what lets the container query + text-overflow behave against the
+    // card's visible edge at every zoom level.
+    //
+    // The section head uses CSS zoom instead of transform so its layout box
+    // grows with the counter-scale, pushing the card row down — otherwise the
+    // constant-screen-size title would overflow into the (shrinking) world-
+    // space gap and overlap the artboard headers at low zoom.
   '.dc-header{width:calc((100% + 4px) / var(--dc-inv-zoom,1));', '  transform:scale(var(--dc-inv-zoom,1));transform-origin:bottom left}', '.dc-sectionhead{zoom:var(--dc-inv-zoom,1)}'].join('\n');
   document.head.appendChild(s);
 }
@@ -851,8 +851,8 @@ function DesignCanvas(_ref9) {
   React.useEffect(() => {
     let off = false;
     fetch('./' + DC_STATE_FILE).then(r => r.ok ? r.json() : null).then(saved => {
-      if (off || !saved || !saved.sections) return;
-      skipNextWrite.current = true;
+        if (off || !saved || !saved.sections) return;
+        skipNextWrite.current = true;
       setState(s => ({
         ...s,
         sections: saved.sections
@@ -1222,13 +1222,13 @@ function DCViewport(_ref12) {
     style: {
       height: '100vh',
       width: '100vw',
-      background: DC.bg,
-      overflow: 'hidden',
-      overscrollBehavior: 'none',
-      touchAction: 'none',
-      position: 'relative',
-      fontFamily: DC.font,
-      boxSizing: 'border-box',
+        background: DC.bg,
+        overflow: 'hidden',
+        overscrollBehavior: 'none',
+        touchAction: 'none',
+        position: 'relative',
+        fontFamily: DC.font,
+        boxSizing: 'border-box',
       ...style
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -1237,11 +1237,11 @@ function DCViewport(_ref12) {
       position: 'absolute',
       top: 0,
       left: 0,
-      transformOrigin: '0 0',
-      willChange: 'transform',
+          transformOrigin: '0 0',
+          willChange: 'transform',
       width: 'max-content',
       minWidth: '100%',
-      minHeight: '100%',
+          minHeight: '100%',
       padding: '60px 0 80px'
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -2270,11 +2270,11 @@ const PlaceholderImg = _ref24 => {
       width: '100%',
       height,
       borderRadius: radius,
-      background: 'repeating-linear-gradient(135deg, #d8d3c9 0 8px, #cfc9bd 8px 16px)',
+    background: 'repeating-linear-gradient(135deg, #d8d3c9 0 8px, #cfc9bd 8px 16px)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontFamily: 'ui-monospace, "SF Mono", monospace',
+    fontFamily: 'ui-monospace, "SF Mono", monospace',
       fontSize: 11,
       color: 'rgba(40,30,20,0.55)',
       letterSpacing: '0.04em'
@@ -2681,10 +2681,10 @@ function Sheet(_ref28) {
       right: 0,
       bottom: 0,
       height,
-      background: '#fff',
+        background: '#fff',
       borderTopLeftRadius: 28,
       borderTopRightRadius: 28,
-      boxShadow: '0 -8px 40px rgba(0,0,0,0.18)',
+        boxShadow: '0 -8px 40px rgba(0,0,0,0.18)',
       display: 'flex',
       flexDirection: 'column',
       overflow: 'hidden'
@@ -2967,8 +2967,8 @@ function DestinationSheet(_ref34) {
       position: 'sticky',
       top: 0,
       zIndex: 10,
-      background: '#fff',
-      padding: '2px 20px 14px',
+        background: '#fff',
+        padding: '2px 20px 14px',
       boxShadow: '0 1px 0 var(--border)'
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -3068,8 +3068,8 @@ function DestinationSheet(_ref34) {
       paddingBottom: 1
     }
   }, DEST_CATEGORIES.map(c => {
-    const active = c.id === cat;
-    const Icon = CatIcons[c.icon];
+              const active = c.id === cat;
+              const Icon = CatIcons[c.icon];
     return /*#__PURE__*/React.createElement("button", {
       key: c.id,
       onClick: () => setCat(c.id),
@@ -3077,18 +3077,18 @@ function DestinationSheet(_ref34) {
       style: {
         flexShrink: 0,
         height: 34,
-        padding: '0 12px 0 10px',
-        borderRadius: 9999,
-        border: `1.5px solid ${active ? 'var(--green)' : 'var(--border)'}`,
-        background: active ? 'var(--green)' : '#fff',
-        color: active ? '#fff' : 'var(--text-muted)',
+                  padding: '0 12px 0 10px',
+                  borderRadius: 9999,
+                  border: `1.5px solid ${active ? 'var(--green)' : 'var(--border)'}`,
+                  background: active ? 'var(--green)' : '#fff',
+                  color: active ? '#fff' : 'var(--text-muted)',
         fontSize: 12.5,
         fontWeight: 600,
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
         gap: 6,
-        transition: 'all 200ms var(--ease)',
+                  transition: 'all 200ms var(--ease)',
         whiteSpace: 'nowrap'
       }
     }, /*#__PURE__*/React.createElement(Icon, {
@@ -3103,7 +3103,7 @@ function DestinationSheet(_ref34) {
     }
   }, bySearch ?
   /*#__PURE__*/
-  /* ── Search results ── */
+          /* ── Search results ── */
   React.createElement("div", {
     style: {
       padding: '6px 16px 0'
@@ -3215,7 +3215,7 @@ function DestinationSheet(_ref34) {
     }
   }, d.temp, " \xB7 ", d.tag))))) :
   /*#__PURE__*/
-  /* ── Browse mode ── */
+          /* ── Browse mode ── */
   React.createElement("div", {
     style: {
       padding: '18px 16px 0'
@@ -3295,10 +3295,10 @@ function DestinationSheet(_ref34) {
       right: 10,
       background: 'rgba(0,0,0,0.48)',
       backdropFilter: 'blur(10px)',
-      WebkitBackdropFilter: 'blur(10px)',
-      border: '1px solid rgba(255,255,255,0.15)',
+                          WebkitBackdropFilter: 'blur(10px)',
+                          border: '1px solid rgba(255,255,255,0.15)',
       padding: '3px 8px',
-      borderRadius: 9999,
+                              borderRadius: 9999,
       fontFamily: 'var(--font-display)',
       fontWeight: 700,
       fontSize: 10,
@@ -3316,7 +3316,7 @@ function DestinationSheet(_ref34) {
     style: {
       fontWeight: 800,
       fontSize: 16.5,
-      color: '#fff',
+                              color: '#fff',
       letterSpacing: '-0.03em',
       lineHeight: 1.05
     }
@@ -3436,7 +3436,7 @@ function DatesSheet(_ref36) {
       position: 'sticky',
       bottom: 0,
       background: '#fff',
-      padding: '12px 20px 22px',
+        padding: '12px 20px 22px',
       borderTop: '1px solid var(--border)'
     }
   }, days > 0 && /*#__PURE__*/React.createElement("div", {
@@ -3469,12 +3469,12 @@ function DatesSheet(_ref36) {
       width: '100%',
       height: 52,
       borderRadius: 9999,
-      background: start && end ? 'var(--green)' : 'var(--surface-2)',
-      color: start && end ? '#fff' : 'var(--text-faint)',
+            background: start && end ? 'var(--green)' : 'var(--surface-2)',
+            color: start && end ? '#fff' : 'var(--text-faint)',
       fontFamily: 'var(--font-display)',
       fontWeight: 700,
       fontSize: 15,
-      boxShadow: start && end ? 'var(--shadow-cta)' : 'none',
+            boxShadow: start && end ? 'var(--shadow-cta)' : 'none',
       cursor: start && end ? 'pointer' : 'not-allowed'
     }
   }, "Confirmar dates")));
@@ -3534,27 +3534,27 @@ function Month(_ref37) {
     if (!d) return /*#__PURE__*/React.createElement("div", {
       key: i
     });
-    const past = d < today;
-    const isStart = sameDay(d, start);
-    const isEnd = sameDay(d, end);
-    const ranged = inRange(d) && !isStart && !isEnd;
-    const isToday = sameDay(d, today);
+          const past = d < today;
+          const isStart = sameDay(d, start);
+          const isEnd = sameDay(d, end);
+          const ranged = inRange(d) && !isStart && !isEnd;
+          const isToday = sameDay(d, today);
     return /*#__PURE__*/React.createElement("button", {
       key: i,
       disabled: past,
       onClick: () => onDay(d),
       style: {
-        height: 40,
-        borderRadius: isStart ? '9999px 0 0 9999px' : isEnd ? '0 9999px 9999px 0' : ranged ? 0 : 9999,
+              height: 40,
+              borderRadius: isStart ? '9999px 0 0 9999px' : isEnd ? '0 9999px 9999px 0' : ranged ? 0 : 9999,
         background: isStart || isEnd ? 'var(--green)' : ranged ? 'rgba(13,158,122,0.12)' : 'transparent',
         color: past ? 'var(--text-faint)' : isStart || isEnd ? '#fff' : ranged ? 'var(--green-deep)' : 'var(--text)',
         fontSize: 14,
         fontWeight: isStart || isEnd || isToday ? 700 : 400,
         fontFamily: isStart || isEnd ? 'var(--font-display)' : 'inherit',
-        cursor: past ? 'not-allowed' : 'pointer',
+              cursor: past ? 'not-allowed' : 'pointer',
         border: isToday && !isStart && !isEnd ? '1.5px solid var(--green)' : 'none',
-        opacity: past ? 0.35 : 1,
-        transition: 'background 120ms',
+              opacity: past ? 0.35 : 1,
+              transition: 'background 120ms',
         position: 'relative'
       }
     }, d.getDate());
@@ -3590,20 +3590,20 @@ function TransportSheet(_ref38) {
       gap: 10
     }
   }, TRANSPORT.map(t => {
-    const Ic = ICONS[t.id];
-    const sel = picked === t.id;
+          const Ic = ICONS[t.id];
+          const sel = picked === t.id;
     return /*#__PURE__*/React.createElement("button", {
       key: t.id,
       onClick: () => setPicked(t.id),
       className: "pl-tap",
       style: {
-        position: 'relative',
-        padding: '14px 14px',
+              position: 'relative',
+              padding: '14px 14px',
         minHeight: 84,
         textAlign: 'left',
-        borderRadius: 18,
-        border: `2px solid ${sel ? 'var(--green)' : 'var(--border)'}`,
-        background: sel ? 'rgba(13,158,122,0.07)' : '#fff',
+              borderRadius: 18,
+              border: `2px solid ${sel ? 'var(--green)' : 'var(--border)'}`,
+              background: sel ? 'rgba(13,158,122,0.07)' : '#fff',
         transition: 'all 180ms var(--ease)'
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -3657,8 +3657,8 @@ function TransportSheet(_ref38) {
       width: '100%',
       height: 52,
       borderRadius: 9999,
-      background: picked ? 'var(--green)' : 'var(--surface-2)',
-      color: picked ? '#fff' : 'var(--text-faint)',
+            background: picked ? 'var(--green)' : 'var(--surface-2)',
+            color: picked ? '#fff' : 'var(--text-faint)',
       fontFamily: 'var(--font-display)',
       fontWeight: 700,
       fontSize: 15,
@@ -3791,8 +3791,8 @@ function BudgetSheet(_ref39) {
       marginTop: 10,
       padding: '5px 12px',
       borderRadius: 9999,
-      background: activeColor + '18',
-      border: `1px solid ${activeColor}33`,
+          background: activeColor + '18',
+          border: `1px solid ${activeColor}33`,
       transition: 'all 250ms var(--ease)'
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -3836,21 +3836,21 @@ function BudgetSheet(_ref39) {
     }
   }, zones.map((z, i) => {
     const segStart = i === 0 ? 0 : zoneBreaks[i - 1];
-    const segEnd = i === 3 ? 1 : zoneBreaks[i];
-    const segWidth = (segEnd - segStart) * 100;
-    const fillEnd = Math.min(activePct, segEnd);
-    const fillStart = Math.max(activePct > segStart ? segStart : 1, segStart);
-    const filled = activePct > segStart;
-    if (!filled) return null;
-    const fillWidth = (Math.min(activePct, segEnd) - segStart) / (segEnd - segStart) * segWidth;
+            const segEnd = i === 3 ? 1 : zoneBreaks[i];
+            const segWidth = (segEnd - segStart) * 100;
+            const fillEnd = Math.min(activePct, segEnd);
+            const fillStart = Math.max(activePct > segStart ? segStart : 1, segStart);
+            const filled = activePct > segStart;
+            if (!filled) return null;
+            const fillWidth = (Math.min(activePct, segEnd) - segStart) / (segEnd - segStart) * segWidth;
     return /*#__PURE__*/React.createElement("div", {
       key: i,
       style: {
         position: 'absolute',
         top: 0,
         height: '100%',
-        left: `${segStart * 100}%`,
-        width: `${Math.min(activePct - segStart, segEnd - segStart) * 100}%`,
+                left: `${segStart * 100}%`,
+                width: `${Math.min(activePct - segStart, segEnd - segStart) * 100}%`,
         background: z.color,
         borderRadius: 9999,
         transition: dragging ? 'none' : 'width 80ms'
@@ -3860,16 +3860,16 @@ function BudgetSheet(_ref39) {
     style: {
       position: 'absolute',
       top: '50%',
-      left: `${pct * 100}%`,
+            left: `${pct * 100}%`,
       width: 30,
       height: 30,
       borderRadius: 9999,
-      background: '#fff',
-      border: `3px solid ${activeColor}`,
-      transform: 'translate(-50%, -50%)',
-      boxShadow: `0 2px 12px ${activeColor}55, 0 0 0 ${dragging ? 5 : 0}px ${activeColor}22`,
-      transition: dragging ? 'box-shadow 100ms, border-color 200ms' : 'box-shadow 200ms, border-color 200ms',
-      cursor: 'grab',
+            background: '#fff',
+            border: `3px solid ${activeColor}`,
+            transform: 'translate(-50%, -50%)',
+            boxShadow: `0 2px 12px ${activeColor}55, 0 0 0 ${dragging ? 5 : 0}px ${activeColor}22`,
+            transition: dragging ? 'box-shadow 100ms, border-color 200ms' : 'box-shadow 200ms, border-color 200ms',
+            cursor: 'grab',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center'
@@ -3891,7 +3891,7 @@ function BudgetSheet(_ref39) {
       width: 2,
       height: 16,
       background: '#fff',
-      transform: 'translate(-50%, -50%)',
+              transform: 'translate(-50%, -50%)',
       borderRadius: 1,
       pointerEvents: 'none',
       opacity: activePct > b ? 0.6 : 0.35
@@ -3903,8 +3903,8 @@ function BudgetSheet(_ref39) {
     }
   }, zones.map((z, i) => {
     const start = i === 0 ? 0 : zoneBreaks[i - 1];
-    const end = i === 3 ? 1 : zoneBreaks[i];
-    const width = (end - start) * 100;
+            const end = i === 3 ? 1 : zoneBreaks[i];
+            const width = (end - start) * 100;
     return /*#__PURE__*/React.createElement("div", {
       key: i,
       style: {
@@ -3928,8 +3928,8 @@ function BudgetSheet(_ref39) {
       flex: 1,
       height: 34,
       borderRadius: 9999,
-      background: v === preset ? 'var(--text)' : 'var(--surface-2)',
-      color: v === preset ? '#fff' : 'var(--text-muted)',
+            background: v === preset ? 'var(--text)' : 'var(--surface-2)',
+            color: v === preset ? '#fff' : 'var(--text-muted)',
       fontSize: 12,
       fontWeight: 600,
       border: 'none',
@@ -3955,7 +3955,7 @@ function BudgetSheet(_ref39) {
       fontFamily: 'var(--font-display)',
       fontWeight: 700,
       fontSize: 15,
-      boxShadow: `0 4px 24px ${activeColor}55`,
+            boxShadow: `0 4px 24px ${activeColor}55`,
       border: 'none',
       cursor: 'pointer',
       transition: 'background 250ms, box-shadow 250ms'
@@ -4124,10 +4124,10 @@ function LoginScreen(_ref41) {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      position: 'relative',
-      height: '46%',
-      background: 'linear-gradient(160deg, #0D9E7A 0%, #1a6b9a 60%, #2D3561 100%)',
-      overflow: 'hidden',
+        position: 'relative',
+        height: '46%',
+        background: 'linear-gradient(160deg, #0D9E7A 0%, #1a6b9a 60%, #2D3561 100%)',
+        overflow: 'hidden',
       paddingTop: 54,
       paddingLeft: 24,
       paddingRight: 24,
@@ -4190,7 +4190,7 @@ function LoginScreen(_ref41) {
   }, "El teu pr\xF2xim viatge, a 3 minuts."))),
   React.createElement("div", {
     style: {
-      position: 'absolute', top: 'calc(46% - 24px)', left: 0, right: 0, bottom: 0,
+        position: 'absolute', top: 'calc(46% - 24px)', left: 0, right: 0, bottom: 0,
       background: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28,
       boxShadow: '0 -4px 24px rgba(0,0,0,0.08)', padding: '28px 24px 24px',
       display: 'flex', flexDirection: 'column', overflowY: 'auto'
@@ -4428,10 +4428,10 @@ function SearchScreen(_ref43) {
     className: 'pl-tap',
     onClick: () => setShowLogout(s => !s),
     style: {
-      width: 40, height: 40, borderRadius: 9999,
-      background: 'var(--green-subtle)', color: 'var(--green-deep)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15,
+            width: 40, height: 40, borderRadius: 9999,
+            background: 'var(--green-subtle)', color: 'var(--green-deep)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15,
       marginTop: 4, border: 'none', cursor: 'pointer'
     }
   }, ((user === null || user === void 0 ? void 0 : user.name) || 'J')[0]),
@@ -4478,11 +4478,11 @@ function SearchScreen(_ref43) {
     ))
   )), /*#__PURE__*/React.createElement("div", {
     style: {
-      margin: '0 16px',
+          margin: '0 16px',
       background: '#fff',
       borderRadius: 24,
-      boxShadow: 'var(--shadow-lg)',
-      border: '1px solid var(--border)',
+          boxShadow: 'var(--shadow-lg)',
+          border: '1px solid var(--border)',
       overflow: 'hidden'
     }
   }, /*#__PURE__*/React.createElement(Row, {
@@ -4618,18 +4618,18 @@ function SearchScreen(_ref43) {
       width: '100%',
       height: 58,
       borderRadius: 9999,
-      background: ready ? 'var(--green)' : 'var(--surface-2)',
-      color: ready ? '#fff' : 'var(--text-muted)',
+              background: ready ? 'var(--green)' : 'var(--surface-2)',
+              color: ready ? '#fff' : 'var(--text-muted)',
       fontFamily: 'var(--font-display)',
       fontWeight: 700,
       fontSize: 16,
-      letterSpacing: '-0.01em',
-      boxShadow: ready ? 'var(--shadow-cta)' : 'none',
+              letterSpacing: '-0.01em',
+              boxShadow: ready ? 'var(--shadow-cta)' : 'none',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       gap: 10,
-      cursor: ready ? 'pointer' : 'not-allowed',
+              cursor: ready ? 'pointer' : 'not-allowed',
       transition: 'all 220ms var(--ease)'
     }
   }, /*#__PURE__*/React.createElement(IcSparkles, {
@@ -4825,9 +4825,9 @@ function Row(_ref44) {
       marginTop: 2,
       fontSize: 15,
       fontWeight: value ? 600 : 400,
-      fontFamily: value ? 'var(--font-display)' : 'var(--font-body)',
-      color: value ? 'var(--text)' : 'var(--text-faint)',
-      letterSpacing: value ? '-0.01em' : 0,
+          fontFamily: value ? 'var(--font-display)' : 'var(--font-body)',
+          color: value ? 'var(--text)' : 'var(--text-faint)',
+          letterSpacing: value ? '-0.01em' : 0,
       display: 'flex',
       alignItems: 'center'
     }
@@ -4910,15 +4910,15 @@ function DestCard(_ref46) {
       border: 'none',
       width: '100%',
       boxShadow: hovered ? '0 16px 48px rgba(0,0,0,0.3)' : '0 4px 16px rgba(0,0,0,0.12)',
-      transform: hovered ? 'scale(1.012) translateY(-1px)' : 'scale(1)',
-      transition: 'box-shadow 280ms var(--ease), transform 280ms var(--ease)',
+        transform: hovered ? 'scale(1.012) translateY(-1px)' : 'scale(1)',
+        transition: 'box-shadow 280ms var(--ease), transform 280ms var(--ease)',
       display: 'block'
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
       position: 'absolute',
       inset: 0,
-      transform: hovered ? 'scale(1.06)' : 'scale(1)',
+        transform: hovered ? 'scale(1.06)' : 'scale(1)',
       transition: 'transform 500ms var(--ease)'
     }
   }, /*#__PURE__*/React.createElement(HeroImg, {
@@ -4936,10 +4936,10 @@ function DestCard(_ref46) {
       position: 'absolute',
       top: 10,
       right: 10,
-      background: 'rgba(0,0,0,0.45)',
-      backdropFilter: 'blur(10px)',
-      WebkitBackdropFilter: 'blur(10px)',
-      border: '1px solid rgba(255,255,255,0.2)',
+        background: 'rgba(0,0,0,0.45)',
+        backdropFilter: 'blur(10px)',
+        WebkitBackdropFilter: 'blur(10px)',
+        border: '1px solid rgba(255,255,255,0.2)',
       padding: '3px 8px',
       borderRadius: 9999,
       fontFamily: 'var(--font-display)',
@@ -4964,7 +4964,7 @@ function DestCard(_ref46) {
       color: '#fff',
       letterSpacing: '-0.03em',
       lineHeight: 1.1,
-      textShadow: '0 1px 8px rgba(0,0,0,0.5)',
+          textShadow: '0 1px 8px rgba(0,0,0,0.5)',
       marginBottom: 4
     }
   }, dest.city), /*#__PURE__*/React.createElement("div", {
@@ -4988,7 +4988,7 @@ function DestCard(_ref46) {
       whiteSpace: 'nowrap',
       padding: '2px 7px',
       borderRadius: 9999,
-      background: 'rgba(255,255,255,0.18)',
+            background: 'rgba(255,255,255,0.18)',
       color: '#fff'
     }
   }, dest.tag))));
@@ -5014,20 +5014,9 @@ window.SearchScreen = SearchScreen;
 function GeneratingScreen(_ref47) {
   var _params$destination, _params$destination2, _params$destination3, _params$destination4;
   let params = _ref47.params,
-    onDone = _ref47.onDone;
+    phase = _ref47.phase || 'idle';
   const steps = ['Cercant els millors vols disponibles...', 'Comparant hotels segons el teu pressupost...', 'Dissenyant el teu itinerari dia a dia...', 'Calculant el cost total real...'];
-  const _React$useState53 = React.useState(0),
-    _React$useState54 = _slicedToArray(_React$useState53, 2),
-    step = _React$useState54[0],
-    setStep = _React$useState54[1];
-  React.useEffect(() => {
-    if (step >= steps.length) {
-      const t = setTimeout(() => onDone && onDone(), 600);
-      return () => clearTimeout(t);
-    }
-    const t = setTimeout(() => setStep(step + 1), 1100);
-    return () => clearTimeout(t);
-  }, [step]);
+  var activeIdx = phase === 'refreshing' ? 1 : phase === 'fetching' ? 0 : 0;
   const cityImg = params === null || params === void 0 || (_params$destination = params.destination) === null || _params$destination === void 0 ? void 0 : _params$destination.img;
   return /*#__PURE__*/React.createElement("div", {
     className: "pl-app pl-fadein",
@@ -5087,9 +5076,9 @@ function GeneratingScreen(_ref47) {
       position: 'absolute',
       inset: 0,
       borderRadius: '50%',
-      borderTop: '2px solid #fff',
-      borderRight: '2px solid transparent',
-      borderBottom: '2px solid transparent',
+            borderTop: '2px solid #fff',
+            borderRight: '2px solid transparent',
+            borderBottom: '2px solid transparent',
       borderLeft: '2px solid transparent'
     }
   }), /*#__PURE__*/React.createElement("div", {
@@ -5123,7 +5112,7 @@ function GeneratingScreen(_ref47) {
       fontSize: 14,
       color: 'rgba(255,255,255,0.7)'
     }
-  }, "La IA est\xE0 treballant per tu. Uns 8 segons.")), /*#__PURE__*/React.createElement("div", {
+  }, "La IA est\xE0 treballant per tu. Connexi\xF3 amb vols i hotels en viu; el temps dep\xE8n de les APIs.")), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 36,
       display: 'flex',
@@ -5138,9 +5127,9 @@ function GeneratingScreen(_ref47) {
       gap: 12,
       padding: '12px 16px',
       borderRadius: 14,
-      background: 'rgba(255,255,255,0.08)',
-      border: '1px solid rgba(255,255,255,0.10)',
-      opacity: i > step ? 0.4 : 1,
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.10)',
+              opacity: i === activeIdx ? 1 : i === (activeIdx - 1 + steps.length) % steps.length ? 0.55 : 0.32,
       transition: 'opacity 300ms'
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -5148,22 +5137,19 @@ function GeneratingScreen(_ref47) {
       width: 22,
       height: 22,
       borderRadius: 9999,
-      background: i < step ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.18)',
-      color: i < step ? 'var(--green)' : 'rgba(255,255,255,0.7)',
+                background: i === activeIdx ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.18)',
+                color: i === activeIdx ? 'var(--green)' : 'rgba(255,255,255,0.7)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center'
     }
-  }, i < step ? /*#__PURE__*/React.createElement(IcCheck, {
-    size: 14,
-    stroke: 2.4
-  }) : i === step ? /*#__PURE__*/React.createElement("div", {
+  }, i === activeIdx ? /*#__PURE__*/React.createElement("div", {
     className: "pl-spin",
     style: {
       width: 12,
       height: 12,
       borderRadius: 9999,
-      border: '2px solid rgba(255,255,255,0.3)',
+                      border: '2px solid rgba(255,255,255,0.3)',
       borderTopColor: '#fff'
     }
   }) : /*#__PURE__*/React.createElement("div", {
@@ -5198,9 +5184,9 @@ function TripsScreen(_ref48) {
     filter = _React$useState56[0],
     setFilter = _React$useState56[1];
   const _React$useState57 = React.useState(() => {
-      const s = new Set();
+    const s = new Set();
       trips.forEach(t => t.favorite && s.add(t.id));
-      return s;
+    return s;
     }),
     _React$useState58 = _slicedToArray(_React$useState57, 2),
     favs = _React$useState58[0],
@@ -5300,21 +5286,21 @@ function TripsScreen(_ref48) {
       overflowX: 'auto'
     }
   }, tabs.map(t => {
-    const active = t.id === filter;
+            const active = t.id === filter;
     return /*#__PURE__*/React.createElement("button", {
       key: t.id,
       onClick: () => setFilter(t.id),
       className: "pl-tap",
       style: {
-        flexShrink: 0,
+                flexShrink: 0,
         padding: '8px 14px',
         borderRadius: 9999,
         fontSize: 13,
         fontWeight: 600,
-        background: active ? 'var(--text)' : 'var(--surface)',
-        color: active ? '#fff' : 'var(--text-muted)',
-        border: active ? '1px solid var(--text)' : '1px solid var(--border)',
-        transition: 'all 200ms var(--ease)',
+                background: active ? 'var(--text)' : 'var(--surface)',
+                color: active ? '#fff' : 'var(--text-muted)',
+                border: active ? '1px solid var(--text)' : '1px solid var(--border)',
+                transition: 'all 200ms var(--ease)',
         whiteSpace: 'nowrap'
       }
     }, t.label, " ", /*#__PURE__*/React.createElement("span", {
@@ -5412,7 +5398,7 @@ function TripCard(_ref49) {
       borderRadius: 9999,
       background: 'rgba(255,255,255,0.92)',
       backdropFilter: 'blur(4px)',
-      color: fav ? 'var(--coral)' : 'var(--text)',
+          color: fav ? 'var(--coral)' : 'var(--text)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center'
@@ -7002,7 +6988,17 @@ function PLAIerApp(_ref62) {
     _React$useState82 = _slicedToArray(_React$useState81, 2),
     offerLoading = _React$useState82[0],
     setOfferLoading = _React$useState82[1];
-  async function loadLiveOffers(params) {
+  const generationRunIdRef = React.useRef(0);
+  const _React$useStateGenPh = React.useState('idle'),
+    _React$useStateGenPh2 = _slicedToArray(_React$useStateGenPh, 2),
+    generatingPhase = _React$useStateGenPh2[0],
+    setGeneratingPhase = _React$useStateGenPh2[1];
+  async function loadLiveOffers(params, options) {
+    var forceRefresh = (options === null || options === void 0 ? void 0 : options.forceRefresh) === true;
+    var runId = (options === null || options === void 0 ? void 0 : options.runId) != null ? options.runId : null;
+    var isStale = function isStale() {
+      return runId != null && runId !== generationRunIdRef.current;
+    };
     var _params$destination5, _params$destination6, _params$destination7, _params$destination8, _params$destination9, _params$dates, _params$dates2;
     const destinationCity = (params === null || params === void 0 || (_params$destination5 = params.destination) === null || _params$destination5 === void 0 ? void 0 : _params$destination5.city) || (params === null || params === void 0 || (_params$destination6 = params.destination) === null || _params$destination6 === void 0 ? void 0 : _params$destination6.name) || (params === null || params === void 0 || (_params$destination7 = params.destination) === null || _params$destination7 === void 0 ? void 0 : _params$destination7.country) || 'Lisbon';
     const countryCode = (params === null || params === void 0 || (_params$destination8 = params.destination) === null || _params$destination8 === void 0 ? void 0 : _params$destination8.countryCode) || (params === null || params === void 0 || (_params$destination9 = params.destination) === null || _params$destination9 === void 0 ? void 0 : _params$destination9.country_code) || undefined;
@@ -7011,11 +7007,24 @@ function PLAIerApp(_ref62) {
     if (!destinationCity || !startDate || !endDate) {
       setOfferLoadError('No hi ha prou dades per carregar ofertes reals.');
       setOfferLoading(false);
+      setGeneratingPhase('idle');
       return;
     }
     setOfferLoading(true);
     setOfferLoadError(null);
     const requestedCurrency = String(params.currency || params.userCurrency || 'EUR').toUpperCase().slice(0, 3);
+    const refreshQuery = {
+      destination: destinationCity,
+      city: destinationCity,
+      countryCode: countryCode || undefined,
+      startDate: startDate.toISOString().slice(0, 10),
+      endDate: endDate.toISOString().slice(0, 10),
+      people: params.people || 2,
+      budgetMax: params.budget || 1200,
+      maxPrice: (params.maxPrice ?? params.budget) || 1200,
+      currency: requestedCurrency,
+      origin: params.origin || undefined
+    };
     const requestUrl = new URL('/api/travel-offers', window.location.origin);
     requestUrl.searchParams.set('destination', destinationCity);
     requestUrl.searchParams.set('city', destinationCity);
@@ -7028,55 +7037,101 @@ function PLAIerApp(_ref62) {
     requestUrl.searchParams.set('maxPrice', String((params.maxPrice ?? params.budget) || 1200));
     requestUrl.searchParams.set('currency', requestedCurrency);
     try {
-      const response = await fetch(requestUrl.toString());
-      const payload = await response.json().catch(() => null);
-      // If we have a cache with offers, use it
-      if (response.ok && payload !== null && payload !== void 0 && payload.cache && Array.isArray(payload.cache.offers) && payload.cache.offers.length > 0) {
-        setOfferSnapshot(payload.cache);
-        setOfferLoadError(null);
-      } else {
-        // No cached offers — trigger a refresh and retry
-        try {
-          const postRes = await fetch('/api/travel-offers/refresh', {
-            method: 'POST',
-            headers: {
-              'content-type': 'application/json'
-            },
-            body: JSON.stringify({
-              query: {
-                destination: destinationCity,
-                city: destinationCity,
-                countryCode: countryCode || undefined,
-                startDate: startDate.toISOString().slice(0, 10),
-                endDate: endDate.toISOString().slice(0, 10),
-                people: params.people || 2,
-                budgetMax: params.budget || 1200,
-                maxPrice: (params.maxPrice ?? params.budget) || 1200,
-                currency: requestedCurrency,
-                origin: params.origin || undefined
-              }
-            })
-          });
-          const postPayload = await postRes.json().catch(() => null);
-          if (postRes.ok && postPayload !== null && postPayload !== void 0 && postPayload.cache) {
-            setOfferSnapshot(postPayload.cache);
-            setOfferLoadError(null);
-          } else {
-            setOfferSnapshot(null);
-            setOfferLoadError((postPayload === null || postPayload === void 0 ? void 0 : postPayload.error) || 'No s\'han pogut carregar les ofertes reals.');
-          }
-        } catch (err) {
+      if (forceRefresh) {
+        setGeneratingPhase('refreshing');
+        var postResForce = await fetch('/api/travel-offers/refresh', {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            query: refreshQuery
+          })
+        });
+        if (isStale()) return;
+        var postPayloadForce = await postResForce.json().catch(() => null);
+        if (isStale()) return;
+        if (postResForce.ok && postPayloadForce !== null && postPayloadForce !== void 0 && postPayloadForce.cache) {
+          setOfferSnapshot(postPayloadForce.cache);
+          setOfferLoadError(null);
+        } else {
           setOfferSnapshot(null);
-          setOfferLoadError(err instanceof Error ? err.message : 'No s\'ha pogut connectar amb /api/travel-offers.');
+          setOfferLoadError((postPayloadForce === null || postPayloadForce === void 0 ? void 0 : postPayloadForce.error) || 'No s\'han pogut carregar les ofertes reals.');
+        }
+      } else {
+        setGeneratingPhase('fetching');
+        var response = await fetch(requestUrl.toString());
+        if (isStale()) return;
+        var payload = await response.json().catch(() => null);
+        if (isStale()) return;
+        if (response.ok && payload !== null && payload !== void 0 && payload.cache && Array.isArray(payload.cache.offers) && payload.cache.offers.length > 0) {
+          setOfferSnapshot(payload.cache);
+          setOfferLoadError(null);
+        } else {
+          setGeneratingPhase('refreshing');
+          try {
+            var postRes = await fetch('/api/travel-offers/refresh', {
+              method: 'POST',
+              headers: {
+                'content-type': 'application/json'
+              },
+              body: JSON.stringify({
+                query: refreshQuery
+              })
+            });
+            if (isStale()) return;
+            var postPayload = await postRes.json().catch(() => null);
+            if (isStale()) return;
+            if (postRes.ok && postPayload !== null && postPayload !== void 0 && postPayload.cache) {
+              setOfferSnapshot(postPayload.cache);
+              setOfferLoadError(null);
+            } else {
+              setOfferSnapshot(null);
+              setOfferLoadError((postPayload === null || postPayload === void 0 ? void 0 : postPayload.error) || 'No s\'han pogut carregar les ofertes reals.');
+            }
+          } catch (err) {
+            if (!isStale()) {
+              setOfferSnapshot(null);
+              setOfferLoadError(err instanceof Error ? err.message : 'No s\'ha pogut connectar amb /api/travel-offers.');
+            }
+          }
         }
       }
     } catch (error) {
-      setOfferSnapshot(null);
-      setOfferLoadError(error instanceof Error ? error.message : 'No s\'ha pogut connectar amb /api/travel-offers.');
+      if (!isStale()) {
+        setOfferSnapshot(null);
+        setOfferLoadError(error instanceof Error ? error.message : 'No s\'ha pogut connectar amb /api/travel-offers.');
+      }
     } finally {
-      setOfferLoading(false);
+      if (!isStale()) {
+        setOfferLoading(false);
+        setGeneratingPhase('idle');
+      }
     }
   }
+  React.useEffect(() => {
+    if (route !== 'generating' || pendingParams == null) return undefined;
+    var runId = ++generationRunIdRef.current;
+    var cancelled = false;
+    (async function () {
+      setGeneratingPhase('refreshing');
+      try {
+        await loadLiveOffers(pendingParams, {
+          forceRefresh: true,
+          runId: runId
+        });
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (!cancelled && runId === generationRunIdRef.current) {
+          setRoute('picker');
+        }
+      }
+    })();
+    return function () {
+      cancelled = true;
+    };
+  }, [route, pendingParams]);
   React.useEffect(() => {
     if (initialRoute !== 'login' && initialUser) {
       setUser(initialUser);
@@ -7113,11 +7168,7 @@ function PLAIerApp(_ref62) {
     }
   })), route === 'generating' && /*#__PURE__*/React.createElement(GeneratingScreen, {
     params: pendingParams,
-    onDone: () => {
-      const p = pendingParams;
-      void loadLiveOffers(p);
-      setRoute('picker');
-    }
+    phase: generatingPhase
   }), route === 'picker' && /*#__PURE__*/React.createElement(PickerScreen, {
     offerSnapshot: offerSnapshot,
     offerLoadError: offerLoadError,
@@ -7125,26 +7176,26 @@ function PLAIerApp(_ref62) {
     pendingParams: pendingParams,
     onBack: () => setRoute('search'),
     onConfirm: (flight, hotel, fav) => {
-      const p = pendingParams;
-      const newTrip = {
-        id: 't' + Date.now(),
-        destId: p.destination.id,
-        city: p.destination.city,
-        country: p.destination.country,
-        start: `${p.dates.start.getDate()} ${monthAbbr(p.dates.start)}`,
-        end: `${p.dates.end.getDate()} ${monthAbbr(p.dates.end)}`,
-        days: p.dates.days,
-        people: p.people,
-        total: Math.round(p.budget * p.people * 0.96),
-        status: 'upcoming',
+            const p = pendingParams;
+            const newTrip = {
+              id: 't' + Date.now(),
+              destId: p.destination.id,
+              city: p.destination.city,
+              country: p.destination.country,
+              start: `${p.dates.start.getDate()} ${monthAbbr(p.dates.start)}`,
+              end: `${p.dates.end.getDate()} ${monthAbbr(p.dates.end)}`,
+              days: p.dates.days,
+              people: p.people,
+              total: Math.round(p.budget * p.people * 0.96),
+              status: 'upcoming',
         favorite: Boolean(fav),
         img: p.destination.img
-      };
-      setTrips([newTrip, ...trips]);
+            };
+            setTrips([newTrip, ...trips]);
       setSlideDir('right');
-      setBottomTab('trips');
-      setRoute('trips');
-      setPendingParams(null);
+            setBottomTab('trips');
+            setRoute('trips');
+            setPendingParams(null);
     }
   }), route === 'trips' && /*#__PURE__*/React.createElement("div", {
     key: 'screen-trips',
@@ -7498,7 +7549,7 @@ function App() {
     width: '100%', maxWidth: 430, height: '100%',
     maxHeight: isMobile ? '100%' : 900, position: 'relative',
     overflow: 'hidden', borderRadius: isMobile ? 0 : 40,
-    boxShadow: isMobile ? 'none' : '0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)',
+        boxShadow: isMobile ? 'none' : '0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)',
     background: '#F4F1EC'
   };
 
@@ -7607,7 +7658,7 @@ function GeneratingFreeze() {
       fontSize: 14,
       color: 'rgba(255,255,255,0.7)'
     }
-  }, "La IA est\xE0 treballant per tu. Uns 8 segons.")), /*#__PURE__*/React.createElement("div", {
+  }, "La IA est\xE0 treballant per tu. Connexi\xF3 amb vols i hotels en viu; el temps dep\xE8n de les APIs.")), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 36,
       display: 'flex',
@@ -7634,8 +7685,8 @@ function GeneratingFreeze() {
       gap: 12,
       padding: '12px 16px',
       borderRadius: 14,
-      background: 'rgba(255,255,255,0.08)',
-      border: '1px solid rgba(255,255,255,0.10)',
+              background: 'rgba(255,255,255,0.08)',
+              border: '1px solid rgba(255,255,255,0.10)',
       opacity: row.state === 'pending' ? 0.4 : 1
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -7643,8 +7694,8 @@ function GeneratingFreeze() {
       width: 22,
       height: 22,
       borderRadius: 9999,
-      background: row.state === 'done' ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.18)',
-      color: row.state === 'done' ? 'var(--green)' : 'rgba(255,255,255,0.7)',
+                background: row.state === 'done' ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.18)',
+                color: row.state === 'done' ? 'var(--green)' : 'rgba(255,255,255,0.7)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center'

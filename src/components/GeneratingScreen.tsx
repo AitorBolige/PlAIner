@@ -15,14 +15,37 @@ const STEPS = [
 export function GeneratingScreen({
   destination,
   heroImage,
+  /** When provided, progress follows real work instead of a fixed timer (parent unmounts when done). */
+  blockingWork,
 }: {
   destination: string;
   heroImage?: string;
+  blockingWork?: Promise<unknown>;
 }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
+    if (blockingWork) {
+      const stepInterval = window.setInterval(() => {
+        setCurrentStep((i) => (i + 1) % STEPS.length);
+      }, 1500);
+      const progressInterval = window.setInterval(() => {
+        setProgress((p) => Math.min(p + 1.2, 92));
+      }, 100);
+      let cancelled = false;
+      blockingWork.finally(() => {
+        window.clearInterval(stepInterval);
+        window.clearInterval(progressInterval);
+        if (!cancelled) setProgress(100);
+      });
+      return () => {
+        cancelled = true;
+        window.clearInterval(stepInterval);
+        window.clearInterval(progressInterval);
+      };
+    }
+
     let elapsed = 0;
     const totalDuration = STEPS.reduce((sum, s) => sum + s.duration, 0);
 
@@ -43,7 +66,7 @@ export function GeneratingScreen({
       window.clearInterval(interval);
       window.clearTimeout(hardStop);
     };
-  }, []);
+  }, [blockingWork]);
 
   return (
     <div
@@ -117,7 +140,7 @@ export function GeneratingScreen({
         <div style={{ marginBottom: "24px" }}>
           {STEPS.map((step, i) => {
             const Icon = step.icon;
-            const isDone = i < currentStep;
+            const isDone = !blockingWork && i < currentStep;
             const isActive = i === currentStep;
             return (
               <div
@@ -217,7 +240,9 @@ export function GeneratingScreen({
           />
         </div>
         <p style={{ textAlign: "center", fontSize: "13px", color: "var(--text-faint)" }}>
-          Això pot trigar uns segons...
+          {blockingWork
+            ? "Connexió amb vols i hotels en viu; el temps depèn de les APIs."
+            : "Això pot trigar uns segons..."}
         </p>
       </div>
 

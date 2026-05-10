@@ -89,9 +89,9 @@ export async function searchHotelsApiDojo(
 
   const fallbackCurrency = String((params.currency || "EUR").toUpperCase()).slice(0, 3);
   const headers = {
-    "X-RapidAPI-Key": key,
-    "X-RapidAPI-Host": host,
-    accept: "application/json",
+      "X-RapidAPI-Key": key,
+      "X-RapidAPI-Host": host,
+      accept: "application/json",
   };
 
   // Step 1: locations/auto-complete → dest_id + dest_type
@@ -398,7 +398,7 @@ function trimSkyScraperSkyId(value: unknown): string | null {
 /** When autocomplete fails, use known-good place ids (same idea as the working commit). */
 function getAutocompleteFallbackPlaceId(iataCode: string): string | null {
   const k = iataCode.trim().toUpperCase();
-  const fallbacks: Record<string, string> = {
+    const fallbacks: Record<string, string> = {
     LHR: "LOND",
     JFK: "JFK",
     PARI: "PARI",
@@ -431,9 +431,9 @@ function getAutocompleteFallbackPlaceId(iataCode: string): string | null {
 async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | null> {
   const { host, key } = getRapidApiFlightConfig();
   const headers = {
-    "X-RapidAPI-Key": key,
-    "X-RapidAPI-Host": host,
-    accept: "application/json",
+        "X-RapidAPI-Key": key,
+        "X-RapidAPI-Host": host,
+        accept: "application/json",
   };
   const webPath = "/web/flights/auto-complete";
   let path = getFlightAutocompletePath();
@@ -507,8 +507,8 @@ async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | n
       }
 
       return getAutocompleteFallbackPlaceId(iataCode);
-    } catch (error) {
-      console.error(`[getEntityIdFromAutoComplete] Error:`, error);
+  } catch (error) {
+    console.error(`[getEntityIdFromAutoComplete] Error:`, error);
       return getAutocompleteFallbackPlaceId(iataCode);
     }
   }
@@ -520,34 +520,34 @@ async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | n
  * Flight-Sky / Sky Scraper `search-roundtrip`: `fromEntityId` and `toEntityId` from
  * autocomplete (plain sky segment ids such as `BCN`, `LOND`, as returned by the API).
  */
-function buildRapidApiFlightSearchUrlWithEntityIds(
+  function buildRapidApiFlightSearchUrlWithEntityIds(
   fromPlaceId: string,
   toPlaceId: string,
-  departureDate?: string,
-  returnDate?: string,
-  passengers: number = 1,
-  maxPrice?: number,
-  currency: string = "EUR",
-) {
-  const { host, path } = getRapidApiFlightConfig();
-  const searchParams = new URLSearchParams();
-  const curr = String(currency.toUpperCase()).slice(0, 3);
+    departureDate?: string,
+    returnDate?: string,
+    passengers: number = 1,
+    maxPrice?: number,
+    currency: string = "EUR",
+  ) {
+    const { host, path } = getRapidApiFlightConfig();
+    const searchParams = new URLSearchParams();
+    const curr = String(currency.toUpperCase()).slice(0, 3);
 
   searchParams.set("fromEntityId", fromPlaceId);
   searchParams.set("toEntityId", toPlaceId);
 
   if (departureDate) searchParams.set("departDate", departureDate);
   if (returnDate) searchParams.set("returnDate", returnDate);
-  searchParams.set("adults", String(passengers));
-  searchParams.set("currency", curr);
-  searchParams.set("limit", "20");
-  searchParams.set("sort", "price");
+    searchParams.set("adults", String(passengers));
+    searchParams.set("currency", curr);
+    searchParams.set("limit", "20");
+    searchParams.set("sort", "price");
   if (typeof maxPrice === "number" && Number.isFinite(maxPrice) && maxPrice > 0) {
     searchParams.set("priceTo", String(maxPrice));
   }
 
-  return `https://${host}${path}?${searchParams.toString()}`;
-}
+    return `https://${host}${path}?${searchParams.toString()}`;
+  }
 
 function rootHasFlightErrors(root: Record<string, unknown>): boolean {
   const errors = root.errors;
@@ -800,7 +800,7 @@ function resolveFlightDestinationIata(query: TravelOfferQuery) {
   const envDest = process.env.RAPIDAPI_FLIGHTS_DESTINATION_IATA?.trim().toUpperCase();
   if (envDest && envDest.length === 3) return envDest;
 
-  throw new Error(
+    throw new Error(
     `No flight destination IATA for "${query.city || query.destination}". Add it to the city map in travel-providers.ts.`,
   );
 }
@@ -1037,8 +1037,8 @@ function mapRapidApiFlightOffer(
   const title = airlineName
     ? `${airlineName} • ${route.originIata} to ${route.destinationIata}`
     : (typeof offer.title === "string" && offer.title) ||
-      (typeof offer.name === "string" && offer.name) ||
-      `${route.originIata} → ${route.destinationIata}`;
+    (typeof offer.name === "string" && offer.name) ||
+    `${route.originIata} → ${route.destinationIata}`;
 
   const safeFallback = buildSkyscannerSearchFallbackUrl(route, departureDate, returnDate);
   const directDeepLink = normalizeRapidApiBookingUrl(offer, "");
