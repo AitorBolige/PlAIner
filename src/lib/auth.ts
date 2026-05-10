@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 async function logLogin({
   userId,
@@ -16,7 +16,7 @@ async function logLogin({
   method: "credentials" | "google" | "facebook";
   success: boolean;
 }) {
-  await supabase.from("LoginEvent").insert({
+  await supabaseAdmin.from("LoginEvent").insert({
     id: crypto.randomUUID(),
     userId: userId ?? null,
     email,
@@ -59,7 +59,7 @@ export const authOptions: NextAuthOptions = {
         const password = credentials?.password ?? "";
         if (!email || !password) return null;
 
-        const { data: user } = await supabase
+        const { data: user } = await supabaseAdmin
           .from("User")
           .select("id, email, name, image, passwordHash")
           .eq("email", email)
@@ -91,7 +91,7 @@ export const authOptions: NextAuthOptions = {
             ? ((profile as { picture?: string }).picture ?? null)
             : ((profile as { picture?: { data?: { url?: string } } }).picture?.data?.url ?? null);
 
-        const { data: existing } = await supabase
+        const { data: existing } = await supabaseAdmin
           .from("User")
           .select("id")
           .eq("email", email)
@@ -100,14 +100,14 @@ export const authOptions: NextAuthOptions = {
         let userId: string;
         if (!existing) {
           userId = crypto.randomUUID();
-          await supabase.from("User").insert({ id: userId, email, name, image });
+          await supabaseAdmin.from("User").insert({ id: userId, email, name, image });
         } else {
           userId = existing.id;
-          await supabase.from("User").update({ name, image }).eq("id", userId);
+          await supabaseAdmin.from("User").update({ name, image }).eq("id", userId);
         }
         token.id = userId;
 
-        const { data: existingAccount } = await supabase
+        const { data: existingAccount } = await supabaseAdmin
           .from("Account")
           .select("id")
           .eq("provider", provider)
@@ -115,7 +115,7 @@ export const authOptions: NextAuthOptions = {
           .single();
 
         if (!existingAccount) {
-          await supabase.from("Account").insert({
+          await supabaseAdmin.from("Account").insert({
             id: crypto.randomUUID(),
             userId,
             type: "oauth",

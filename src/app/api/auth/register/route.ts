@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -15,7 +15,7 @@ export async function POST(req: Request) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseAdmin
       .from("User")
       .select("id")
       .eq("email", normalizedEmail)
@@ -27,7 +27,7 @@ export async function POST(req: Request) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    const { data: user, error } = await supabase
+    const { data: user, error } = await supabaseAdmin
       .from("User")
       .insert({
         id: crypto.randomUUID(),
@@ -39,11 +39,11 @@ export async function POST(req: Request) {
       .single();
 
     if (error) {
-      console.error("[register] supabase error:", error);
+      console.error("[register] supabaseAdmin error:", error);
       return NextResponse.json({ error: "Error en crear el compte." }, { status: 500 });
     }
 
-    await supabase.from("LoginEvent").insert({
+    await supabaseAdmin.from("LoginEvent").insert({
       id: crypto.randomUUID(),
       userId: user.id,
       email: normalizedEmail,

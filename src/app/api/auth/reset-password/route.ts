@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -13,7 +13,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "La contrasenya ha de tenir mínim 8 caràcters." }, { status: 400 });
     }
 
-    const { data: resetToken } = await supabase
+    const { data: resetToken } = await supabaseAdmin
       .from("PasswordResetToken")
       .select("id, userId, expires, used")
       .eq("token", token)
@@ -25,12 +25,12 @@ export async function POST(req: Request) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    await supabase
+    await supabaseAdmin
       .from("User")
       .update({ passwordHash })
       .eq("id", resetToken.userId);
 
-    await supabase
+    await supabaseAdmin
       .from("PasswordResetToken")
       .update({ used: true })
       .eq("id", resetToken.id);
