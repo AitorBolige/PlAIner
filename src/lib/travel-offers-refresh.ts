@@ -147,7 +147,7 @@ function findNearestHref(html: string, title: string) {
 
   const searchStart = Math.max(0, titleIndex - 2500);
   const fragment = html.slice(searchStart, titleIndex + title.length + 2500);
-  const hrefMatches = [...fragment.matchAll(/href=["']([^"']+)["']/gi)];
+  const hrefMatches = Array.from(fragment.matchAll(/href=["']([^"']+)["']/gi));
 
   if (hrefMatches.length === 0) return null;
 
@@ -268,7 +268,7 @@ function parseTrivagoOffers(
     if (!uniqueOffers.has(key)) uniqueOffers.set(key, offer);
   }
 
-  return [...uniqueOffers.values()];
+  return Array.from(uniqueOffers.values());
 }
 
 function isTrivagoSource(source: TravelSource) {

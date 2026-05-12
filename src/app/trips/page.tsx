@@ -737,7 +737,11 @@ export default function TripsPage() {
   const toggleFav = (id: string) => {
     setFavs((prev) => {
       const s = new Set(prev);
-      s.has(id) ? s.delete(id) : s.add(id);
+      if (s.has(id)) {
+        s.delete(id);
+      } else {
+        s.add(id);
+      }
       return s;
     });
   };

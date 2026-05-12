@@ -429,39 +429,6 @@ function getFlightAutocompletePath(): string {
   return "/flights/auto-complete";
 }
 
-function buildRapidApiFlightSearchUrl(params: MetasearchFlightParams) {
-  const { host, path } = getRapidApiFlightConfig();
-  const searchParams = new URLSearchParams();
-  const currency = String((params.currency || "EUR").toUpperCase()).slice(0, 3);
-
-  searchParams.set("origin", params.originIata);
-  searchParams.set("destination", params.destinationIata);
-  searchParams.set("fly_from", params.originIata);
-  searchParams.set("fly_to", params.destinationIata);
-  searchParams.set("originIataCode", params.originIata);
-  searchParams.set("destinationIataCode", params.destinationIata);
-  searchParams.set("date_from", params.departureDate ?? "");
-  searchParams.set("dateFrom", params.departureDate ?? "");
-  searchParams.set("departureDate", params.departureDate ?? "");
-  if (params.returnDate) {
-    searchParams.set("returnDate", params.returnDate);
-    searchParams.set("return_date", params.returnDate);
-  }
-  searchParams.set("adults", String(params.passengers ?? 1));
-  searchParams.set("passengers", String(params.passengers ?? 1));
-  searchParams.set("currency", currency);
-  searchParams.set("curr", currency);
-  searchParams.set("limit", "20");
-  searchParams.set("sort", "price");
-  searchParams.set("sortBy", "price");
-  if (typeof params.maxPrice === "number" && Number.isFinite(params.maxPrice)) {
-    searchParams.set("price_to", String(params.maxPrice));
-    searchParams.set("priceTo", String(params.maxPrice));
-  }
-
-  return `https://${host}${path}?${searchParams.toString()}`;
-}
-
 function trimSkyScraperSkyId(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const t = value.trim();
@@ -1594,21 +1561,6 @@ function filterOffersByMaxPrice(
     return offers.filter((o) => Number(o.price) <= Number(effectiveMax));
   }
   return offers;
-}
-
-function resolveDefaultOriginIata(query: TravelOfferQuery) {
-  const city = (query.city || query.destination).trim().toLowerCase();
-  const fallbackMap: Record<string, string> = {
-    lisbon: "BCN",
-    lisboa: "BCN",
-    madrid: "BCN",
-    barcelona: "LIS",
-    paris: "BCN",
-    rome: "BCN",
-    roma: "BCN",
-  };
-
-  return fallbackMap[city] ?? null;
 }
 
 const travelProviders = {
