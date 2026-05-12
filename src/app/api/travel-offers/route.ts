@@ -42,7 +42,11 @@ export async function GET(request: NextRequest) {
 
   if (!parsed.success) {
     return NextResponse.json(
-      { ok: false, error: "Invalid query parameters", issues: parsed.error.flatten() },
+      {
+        ok: false,
+        error: "Invalid query parameters",
+        issues: parsed.error.flatten(),
+      },
       { status: 400 },
     );
   }
@@ -78,15 +82,23 @@ export async function POST(request: NextRequest) {
 
   if (!parsed.success) {
     return NextResponse.json(
-      { ok: false, error: "Invalid request body", issues: parsed.error.flatten() },
+      {
+        ok: false,
+        error: "Invalid request body",
+        issues: parsed.error.flatten(),
+      },
       { status: 400 },
     );
   }
 
-  const snapshot = await upsertTravelSearchOffers(parsed.data.query, parsed.data.offers, {
-    providerSummary: parsed.data.providerSummary,
-    status: TravelRefreshRunStatus.SUCCESS,
-  });
+  const snapshot = await upsertTravelSearchOffers(
+    parsed.data.query,
+    parsed.data.offers,
+    {
+      providerSummary: parsed.data.providerSummary,
+      status: TravelRefreshRunStatus.SUCCESS,
+    },
+  );
 
   return NextResponse.json({
     ok: true,

@@ -147,13 +147,14 @@ export const DESTINATIONS: Destination[] = [
 
 export function getDestinationImage(
   cityName: string,
-  size: "card" | "hero" = "card"
+  size: "card" | "hero" = "card",
 ): string {
   const name = cityName.toLowerCase();
   const dest = DESTINATIONS.find(
-    (d) => d.city.toLowerCase().includes(name) || name.includes(d.city.toLowerCase())
+    (d) =>
+      d.city.toLowerCase().includes(name) ||
+      name.includes(d.city.toLowerCase()),
   );
   if (dest) return size === "hero" ? dest.heroImage : dest.cardImage;
   return "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=600&q=80&fit=crop&crop=center";
 }
-

@@ -36,16 +36,25 @@ export function DayMapMock({
   className,
 }: DayMapMockProps) {
   const day = React.useMemo(
-    () => days.slice().sort((a, b) => a.dayNumber - b.dayNumber).find((d) => d.dayNumber === dayNumber) ?? days[0],
-    [days, dayNumber]
+    () =>
+      days
+        .slice()
+        .sort((a, b) => a.dayNumber - b.dayNumber)
+        .find((d) => d.dayNumber === dayNumber) ?? days[0],
+    [days, dayNumber],
   );
 
-  const pts = React.useMemo(() => pointsForActivities(day.activities), [day.activities]);
+  const pts = React.useMemo(
+    () => pointsForActivities(day.activities),
+    [day.activities],
+  );
 
   const path = React.useMemo(() => {
     if (pts.length === 1) return `M ${pts[0].x} ${pts[0].y}`;
     return pts
-      .map((p, idx) => (idx === 0 ? `M ${p.x} ${p.y}` : `Q ${p.x} ${p.y - 18} ${p.x} ${p.y}`))
+      .map((p, idx) =>
+        idx === 0 ? `M ${p.x} ${p.y}` : `Q ${p.x} ${p.y - 18} ${p.x} ${p.y}`,
+      )
       .join(" ");
   }, [pts]);
 
@@ -66,7 +75,7 @@ export function DayMapMock({
                   "shrink-0 rounded-full border px-4 py-2 text-sm font-semibold",
                   active
                     ? "border-transparent bg-[color:color-mix(in_srgb,var(--color-primary)_18%,transparent)] text-[color:var(--color-primary)]"
-                    : "border-[color:var(--color-border)] bg-[color:var(--color-surface)] text-[color:var(--color-text-muted)] hover:bg-black/[0.03]"
+                    : "border-[color:var(--color-border)] bg-[color:var(--color-surface)] text-[color:var(--color-text-muted)] hover:bg-black/[0.03]",
                 )}
               >
                 Dia {d.dayNumber}
@@ -85,8 +94,18 @@ export function DayMapMock({
             role="img"
           >
             <defs>
-              <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
-                <path d="M 24 0 L 0 0 0 24" fill="none" stroke="rgba(20,24,24,0.06)" strokeWidth="1" />
+              <pattern
+                id="grid"
+                width="24"
+                height="24"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M 24 0 L 0 0 0 24"
+                  fill="none"
+                  stroke="rgba(20,24,24,0.06)"
+                  strokeWidth="1"
+                />
               </pattern>
             </defs>
 
@@ -111,12 +130,25 @@ export function DayMapMock({
 
             {pts.map((p) => (
               <g key={p.n}>
-                <ellipse cx={p.x} cy={p.y + 14} rx="13" ry="5" fill="rgba(20,24,24,0.12)" />
+                <ellipse
+                  cx={p.x}
+                  cy={p.y + 14}
+                  rx="13"
+                  ry="5"
+                  fill="rgba(20,24,24,0.12)"
+                />
                 <path
                   d={`M ${p.x} ${p.y} c 0 -10 16 -10 16 0 c 0 12 -16 26 -16 26 c 0 0 -16 -14 -16 -26 c 0 -10 16 -10 16 0 z`}
-                  fill={p.n === 2 ? "rgba(255,94,86,0.92)" : "rgba(10,163,127,0.92)"}
+                  fill={
+                    p.n === 2 ? "rgba(255,94,86,0.92)" : "rgba(10,163,127,0.92)"
+                  }
                 />
-                <circle cx={p.x} cy={p.y} r="10" fill="rgba(255,255,255,0.85)" />
+                <circle
+                  cx={p.x}
+                  cy={p.y}
+                  r="10"
+                  fill="rgba(255,255,255,0.85)"
+                />
                 <text
                   x={p.x}
                   y={p.y + 4}
@@ -148,4 +180,3 @@ export function DayMapMock({
     </div>
   );
 }
-

@@ -66,15 +66,30 @@ export const authOptions: NextAuthOptions = {
           .single();
 
         if (!user?.passwordHash) {
-          await logLogin({ userId: null, email, method: "credentials", success: false });
+          await logLogin({
+            userId: null,
+            email,
+            method: "credentials",
+            success: false,
+          });
           return null;
         }
 
         const ok = await bcrypt.compare(password, user.passwordHash);
-        await logLogin({ userId: user.id, email, method: "credentials", success: ok });
+        await logLogin({
+          userId: user.id,
+          email,
+          method: "credentials",
+          success: ok,
+        });
 
         if (!ok) return null;
-        return { id: user.id, email: user.email, name: user.name, image: user.image };
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        };
       },
     }),
   ],
@@ -82,14 +97,18 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account, profile }) {
       if (user) token.id = user.id;
 
-      if ((account?.provider === "google" || account?.provider === "facebook") && profile?.email) {
+      if (
+        (account?.provider === "google" || account?.provider === "facebook") &&
+        profile?.email
+      ) {
         const provider = account.provider as "google" | "facebook";
         const email = profile.email;
         const name = (profile as { name?: string }).name ?? null;
         const image =
           provider === "google"
             ? ((profile as { picture?: string }).picture ?? null)
-            : ((profile as { picture?: { data?: { url?: string } } }).picture?.data?.url ?? null);
+            : ((profile as { picture?: { data?: { url?: string } } }).picture
+                ?.data?.url ?? null);
 
         const { data: existing } = await supabaseAdmin
           .from("User")
@@ -100,10 +119,15 @@ export const authOptions: NextAuthOptions = {
         let userId: string;
         if (!existing) {
           userId = crypto.randomUUID();
-          await supabaseAdmin.from("User").insert({ id: userId, email, name, image });
+          await supabaseAdmin
+            .from("User")
+            .insert({ id: userId, email, name, image });
         } else {
           userId = existing.id;
-          await supabaseAdmin.from("User").update({ name, image }).eq("id", userId);
+          await supabaseAdmin
+            .from("User")
+            .update({ name, image })
+            .eq("id", userId);
         }
         token.id = userId;
 

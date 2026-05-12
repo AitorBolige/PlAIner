@@ -29,11 +29,10 @@ export function Chip({
         selected
           ? "border-transparent bg-[color:rgba(232,160,74,0.18)] text-[color:var(--color-text)]"
           : "border-[color:var(--color-border)] bg-[color:rgba(255,255,255,0.03)] text-[color:var(--color-text-muted)] hover:bg-[color:rgba(255,255,255,0.06)]",
-        className
+        className,
       )}
     >
       {label}
     </button>
   );
 }
-

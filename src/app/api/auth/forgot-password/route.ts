@@ -19,16 +19,21 @@ export async function POST(req: Request) {
       const token = crypto.randomUUID();
       const expires = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
-      const { error: insertErr } = await supabaseAdmin.from("PasswordResetToken").insert({
-        id: crypto.randomUUID(),
-        userId: user.id,
-        token,
-        expires,
-        used: false,
-      });
+      const { error: insertErr } = await supabaseAdmin
+        .from("PasswordResetToken")
+        .insert({
+          id: crypto.randomUUID(),
+          userId: user.id,
+          token,
+          expires,
+          used: false,
+        });
       if (insertErr) {
         console.error("[forgot-password] token insert error:", insertErr);
-        return NextResponse.json({ ok: false, error: "No s'ha pogut crear el token." }, { status: 500 });
+        return NextResponse.json(
+          { ok: false, error: "No s'ha pogut crear el token." },
+          { status: 500 },
+        );
       }
 
       const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${token}`;
@@ -55,7 +60,12 @@ export async function POST(req: Request) {
         // In dev/testing mode Resend only allows sending to your own email unless a domain is verified.
         // For local debugging we return the resetUrl so you can continue the flow without email delivery.
         if (process.env.NODE_ENV !== "production") {
-          return NextResponse.json({ ok: true, dev: true, resetUrl, resendError: sendRes.error });
+          return NextResponse.json({
+            ok: true,
+            dev: true,
+            resetUrl,
+            resendError: sendRes.error,
+          });
         }
         return NextResponse.json({ ok: true });
       }
@@ -65,6 +75,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("[forgot-password]", e);
-    return NextResponse.json({ ok: false, error: "Error intern del servidor." }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: "Error intern del servidor." },
+      { status: 500 },
+    );
   }
 }

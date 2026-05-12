@@ -50,7 +50,9 @@ export function TripCard({
   const onToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    await fetch(`/api/trips/${id}/favorite`, { method: "POST" }).catch(() => null);
+    await fetch(`/api/trips/${id}/favorite`, { method: "POST" }).catch(
+      () => null,
+    );
     router.refresh();
   };
 
@@ -63,7 +65,7 @@ export function TripCard({
         hover
         className={cn(
           "flex items-start justify-between gap-4 p-5",
-          "bg-[radial-gradient(900px_circle_at_15%_20%,rgba(10,163,127,0.10),transparent_55%)]"
+          "bg-[radial-gradient(900px_circle_at_15%_20%,rgba(10,163,127,0.10),transparent_55%)]",
         )}
       >
         <div className="min-w-0">
@@ -84,11 +86,13 @@ export function TripCard({
           <div className="flex items-center gap-2">
             <button
               type="button"
-              aria-label={isFavorite ? "Treure de favorits" : "Afegir a favorits"}
+              aria-label={
+                isFavorite ? "Treure de favorits" : "Afegir a favorits"
+              }
               onClick={onToggleFavorite}
               className={cn(
                 "inline-flex h-9 w-9 items-center justify-center rounded-full border border-[color:var(--color-border)] bg-[color:var(--color-surface)]",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)]"
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)]",
               )}
             >
               <Heart
@@ -96,7 +100,7 @@ export function TripCard({
                   "h-4 w-4",
                   isFavorite
                     ? "fill-[color:var(--color-primary)] text-[color:var(--color-primary)]"
-                    : "text-[color:var(--color-text-muted)]"
+                    : "text-[color:var(--color-text-muted)]",
                 )}
               />
             </button>
@@ -114,4 +118,3 @@ export function TripCard({
     </Link>
   );
 }
-

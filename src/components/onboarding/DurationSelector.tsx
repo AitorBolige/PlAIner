@@ -10,10 +10,30 @@ const options: Array<{
   description: string;
   icon: string;
 }> = [
-  { key: "2", title: "2 dies", description: "Fuga ràpida i intensa.", icon: "⚡" },
-  { key: "3-4", title: "3–4 dies", description: "Cap de setmana llarg.", icon: "🗓️" },
-  { key: "5-7", title: "5–7 dies", description: "Setmana completa.", icon: "🌍" },
-  { key: "7-14", title: "7–14 dies", description: "Desconnexió real.", icon: "🏝️" },
+  {
+    key: "2",
+    title: "2 dies",
+    description: "Fuga ràpida i intensa.",
+    icon: "⚡",
+  },
+  {
+    key: "3-4",
+    title: "3–4 dies",
+    description: "Cap de setmana llarg.",
+    icon: "🗓️",
+  },
+  {
+    key: "5-7",
+    title: "5–7 dies",
+    description: "Setmana completa.",
+    icon: "🌍",
+  },
+  {
+    key: "7-14",
+    title: "7–14 dies",
+    description: "Desconnexió real.",
+    icon: "🏝️",
+  },
   { key: "14+", title: "+14 dies", description: "Viatge a fons.", icon: "🧭" },
 ];
 
@@ -40,7 +60,7 @@ export function DurationSelector({ value, onChange }: DurationSelectorProps) {
                 "p-5",
                 selected
                   ? "border-[color:color-mix(in_srgb,var(--color-primary)_45%,transparent)] bg-[color:rgba(232,160,74,0.10)]"
-                  : ""
+                  : "",
               )}
             >
               <div className="flex items-center justify-between">
@@ -64,4 +84,3 @@ export function DurationSelector({ value, onChange }: DurationSelectorProps) {
     </div>
   );
 }
-

@@ -11,7 +11,13 @@ export interface ModalProps {
   className?: string;
 }
 
-export function Modal({ open, onClose, title, children, className }: ModalProps) {
+export function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  className,
+}: ModalProps) {
   React.useEffect(() => {
     if (!open) return;
     function onKeyDown(e: KeyboardEvent) {
@@ -39,7 +45,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
       <div
         className={cn(
           "relative w-full max-w-lg rounded-[var(--radius-xl)] border border-[color:var(--border)] bg-[color:var(--surface)] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.18)]",
-          className
+          className,
         )}
       >
         {title ? (
@@ -62,4 +68,3 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
     </div>
   );
 }
-

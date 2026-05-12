@@ -24,7 +24,15 @@ import {
   X,
 } from "lucide-react";
 
-import { budgetZone, DESTINATIONS, DEST_CATEGORIES, monthAbbr, TRANSPORT, type Destination, type Transport } from "@/lib/data";
+import {
+  budgetZone,
+  DESTINATIONS,
+  DEST_CATEGORIES,
+  monthAbbr,
+  TRANSPORT,
+  type Destination,
+  type Transport,
+} from "@/lib/data";
 
 type DatesValue = { start: Date; end: Date; days: number };
 
@@ -40,12 +48,25 @@ function HeroImg({ src, alt }: { src: string; alt: string }) {
     <img
       src={src}
       alt={alt}
-      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+      style={{
+        width: "100%",
+        height: "100%",
+        objectFit: "cover",
+        display: "block",
+      }}
     />
   );
 }
 
-function IconSquare({ bg, color, children }: { bg: string; color: string; children: React.ReactNode }) {
+function IconSquare({
+  bg,
+  color,
+  children,
+}: {
+  bg: string;
+  color: string;
+  children: React.ReactNode;
+}) {
   return (
     <div
       style={{
@@ -160,7 +181,14 @@ function Sheet({
               gap: 12,
             }}
           >
-            <div className="display" style={{ fontWeight: 800, fontSize: 18, letterSpacing: "-0.02em" }}>
+            <div
+              className="display"
+              style={{
+                fontWeight: 800,
+                fontSize: 18,
+                letterSpacing: "-0.02em",
+              }}
+            >
               {title}
             </div>
             <button
@@ -189,7 +217,17 @@ function Sheet({
 }
 
 function BottomTabs({ active }: { active: "search" | "trips" }) {
-  const Tab = ({ id, icon, label, href }: { id: "search" | "trips"; icon: React.ReactNode; label: string; href: string }) => {
+  const Tab = ({
+    id,
+    icon,
+    label,
+    href,
+  }: {
+    id: "search" | "trips";
+    icon: React.ReactNode;
+    label: string;
+    href: string;
+  }) => {
     const isActive = id === active;
     return (
       <Link
@@ -207,7 +245,15 @@ function BottomTabs({ active }: { active: "search" | "trips" }) {
         }}
       >
         {icon}
-        <span style={{ fontSize: 11, fontWeight: isActive ? 600 : 500, letterSpacing: "0.01em" }}>{label}</span>
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: isActive ? 600 : 500,
+            letterSpacing: "0.01em",
+          }}
+        >
+          {label}
+        </span>
         <span
           style={{
             width: 4,
@@ -239,7 +285,12 @@ function BottomTabs({ active }: { active: "search" | "trips" }) {
         margin: "0 auto",
       }}
     >
-      <Tab id="search" icon={<Search size={22} />} label="Cerca" href="/search" />
+      <Tab
+        id="search"
+        icon={<Search size={22} />}
+        label="Cerca"
+        href="/search"
+      />
       <Tab id="trips" icon={<Map size={22} />} label="Viatges" href="/trips" />
     </div>
   );
@@ -285,7 +336,11 @@ function Row({
         minHeight: 64,
         textAlign: "left",
         border: "none",
-        borderTop: first ? "none" : noBorder ? "none" : "1px solid var(--border)",
+        borderTop: first
+          ? "none"
+          : noBorder
+            ? "none"
+            : "1px solid var(--border)",
         background: "#fff",
       }}
     >
@@ -309,7 +364,16 @@ function Row({
           }}
         >
           {valueIcon}
-          <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{value || placeholder}</span>
+          <span
+            style={{
+              minWidth: 0,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {value || placeholder}
+          </span>
           {badge && (
             <span
               style={{
@@ -326,14 +390,28 @@ function Row({
             </span>
           )}
         </div>
-        {sub && <div style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 1 }}>{sub}</div>}
+        {sub && (
+          <div
+            style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 1 }}
+          >
+            {sub}
+          </div>
+        )}
       </div>
       <ChevronRight size={18} style={{ color: "var(--text-faint)" }} />
     </button>
   );
 }
 
-function CircBtn({ children, onClick, disabled }: { children: React.ReactNode; onClick: () => void; disabled?: boolean }) {
+function CircBtn({
+  children,
+  onClick,
+  disabled,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
   return (
     <button
       onClick={onClick}
@@ -358,7 +436,15 @@ function CircBtn({ children, onClick, disabled }: { children: React.ReactNode; o
   );
 }
 
-function DestCard({ dest, height, onClick }: { dest: Destination; height: number; onClick: () => void }) {
+function DestCard({
+  dest,
+  height,
+  onClick,
+}: {
+  dest: Destination;
+  height: number;
+  onClick: () => void;
+}) {
   const [hovered, setHovered] = React.useState(false);
   const tagBg =
     dest.tagColor === "gold"
@@ -382,7 +468,9 @@ function DestCard({ dest, height, onClick }: { dest: Destination; height: number
         textAlign: "left",
         border: "none",
         width: "100%",
-        boxShadow: hovered ? "0 16px 48px rgba(0,0,0,0.3)" : "0 4px 16px rgba(0,0,0,0.12)",
+        boxShadow: hovered
+          ? "0 16px 48px rgba(0,0,0,0.3)"
+          : "0 4px 16px rgba(0,0,0,0.12)",
         transform: hovered ? "scale(1.012) translateY(-1px)" : "scale(1)",
         transition: "box-shadow 280ms var(--ease), transform 280ms var(--ease)",
         display: "block",
@@ -402,7 +490,8 @@ function DestCard({ dest, height, onClick }: { dest: Destination; height: number
         style={{
           position: "absolute",
           inset: 0,
-          background: "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.78) 100%)",
+          background:
+            "linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.78) 100%)",
         }}
       />
       <div
@@ -441,8 +530,22 @@ function DestCard({ dest, height, onClick }: { dest: Destination; height: number
         >
           {dest.city}
         </div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", fontWeight: 500 }}>{dest.country}</span>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <span
+            style={{
+              fontSize: 11,
+              color: "rgba(255,255,255,0.65)",
+              fontWeight: 500,
+            }}
+          >
+            {dest.country}
+          </span>
           <span
             style={{
               fontSize: 9.5,
@@ -464,7 +567,15 @@ function DestCard({ dest, height, onClick }: { dest: Destination; height: number
   );
 }
 
-function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose: () => void; onSelect: (d: Destination) => void }) {
+function DestinationSheet({
+  open,
+  onClose,
+  onSelect,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSelect: (d: Destination) => void;
+}) {
   const [q, setQ] = React.useState("");
   const [cat, setCat] = React.useState("all");
   const inputRef = React.useRef<HTMLInputElement | null>(null);
@@ -475,17 +586,25 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
       setCat("all");
       return;
     }
-    const t = window.setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 320);
+    const t = window.setTimeout(
+      () => inputRef.current?.focus({ preventScroll: true }),
+      320,
+    );
     return () => window.clearTimeout(t);
   }, [open]);
 
   const bySearch = q
     ? DESTINATIONS.filter(
-        (d) => d.city.toLowerCase().includes(q.toLowerCase()) || d.country.toLowerCase().includes(q.toLowerCase()),
+        (d) =>
+          d.city.toLowerCase().includes(q.toLowerCase()) ||
+          d.country.toLowerCase().includes(q.toLowerCase()),
       )
     : null;
 
-  const byCat = cat === "all" ? DESTINATIONS : DESTINATIONS.filter((d) => d.cats && d.cats.includes(cat));
+  const byCat =
+    cat === "all"
+      ? DESTINATIONS
+      : DESTINATIONS.filter((d) => d.cats && d.cats.includes(cat));
   const featured = byCat[0];
   const grid = byCat.slice(1);
 
@@ -511,12 +630,34 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
           boxShadow: "0 1px 0 var(--border)",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 14,
+          }}
+        >
           <div>
-            <div className="micro" style={{ color: "var(--green)", letterSpacing: "0.1em", marginBottom: 3 }}>
+            <div
+              className="micro"
+              style={{
+                color: "var(--green)",
+                letterSpacing: "0.1em",
+                marginBottom: 3,
+              }}
+            >
               ON VOLS ANAR?
             </div>
-            <div className="display" style={{ fontWeight: 800, fontSize: 24, letterSpacing: "-0.03em", lineHeight: 1 }}>
+            <div
+              className="display"
+              style={{
+                fontWeight: 800,
+                fontSize: 24,
+                letterSpacing: "-0.03em",
+                lineHeight: 1,
+              }}
+            >
               Tria la destinació
             </div>
           </div>
@@ -553,13 +694,23 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
             border: "1.5px solid var(--border)",
           }}
         >
-          <Search size={17} style={{ color: "var(--text-muted)", flexShrink: 0 }} />
+          <Search
+            size={17}
+            style={{ color: "var(--text-muted)", flexShrink: 0 }}
+          />
           <input
             ref={inputRef}
             value={q}
             onChange={(e) => setQ(e.target.value)}
             placeholder="Barcelona, Tòquio, Dubai..."
-            style={{ flex: 1, border: "none", outline: "none", background: "transparent", fontSize: 14.5, color: "var(--text)" }}
+            style={{
+              flex: 1,
+              border: "none",
+              outline: "none",
+              background: "transparent",
+              fontSize: 14.5,
+              color: "var(--text)",
+            }}
           />
           {q && (
             <button
@@ -584,7 +735,16 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
         </div>
 
         {!q && (
-          <div className="pl-noscroll" style={{ display: "flex", gap: 6, overflowX: "auto", marginTop: 12, paddingBottom: 1 }}>
+          <div
+            className="pl-noscroll"
+            style={{
+              display: "flex",
+              gap: 6,
+              overflowX: "auto",
+              marginTop: 12,
+              paddingBottom: 1,
+            }}
+          >
             {DEST_CATEGORIES.map((c) => {
               const active = c.id === cat;
               return (
@@ -618,18 +778,50 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
         )}
       </div>
 
-      <div className="pl-noscroll" style={{ overflowY: "auto", flex: 1, paddingBottom: 32 }}>
+      <div
+        className="pl-noscroll"
+        style={{ overflowY: "auto", flex: 1, paddingBottom: 32 }}
+      >
         {bySearch ? (
           <div style={{ padding: "6px 16px 0" }}>
             {bySearch.length === 0 ? (
-              <div style={{ padding: "52px 24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
-                <div style={{ width: 60, height: 60, borderRadius: 9999, background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div
+                style={{
+                  padding: "52px 24px",
+                  textAlign: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: 12,
+                }}
+              >
+                <div
+                  style={{
+                    width: 60,
+                    height: 60,
+                    borderRadius: 9999,
+                    background: "var(--surface-2)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   <Search size={26} style={{ color: "var(--text-faint)" }} />
                 </div>
-                <div className="display" style={{ fontWeight: 700, fontSize: 17, color: "var(--text-muted)" }}>
+                <div
+                  className="display"
+                  style={{
+                    fontWeight: 700,
+                    fontSize: 17,
+                    color: "var(--text-muted)",
+                  }}
+                >
                   Sense resultats
                 </div>
-                <div style={{ fontSize: 13.5, color: "var(--text-faint)" }}>Prova amb &quot;{q.slice(0, 1).toUpperCase() + q.slice(1)}&quot;</div>
+                <div style={{ fontSize: 13.5, color: "var(--text-faint)" }}>
+                  Prova amb &quot;{q.slice(0, 1).toUpperCase() + q.slice(1)}
+                  &quot;
+                </div>
               </div>
             ) : (
               bySearch.map((d, i) => (
@@ -649,25 +841,65 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
                     border: "none",
                     background: "transparent",
                     textAlign: "left",
-                    borderBottom: i < bySearch.length - 1 ? "1px solid var(--border)" : "none",
+                    borderBottom:
+                      i < bySearch.length - 1
+                        ? "1px solid var(--border)"
+                        : "none",
                   }}
                 >
-                  <div style={{ width: 56, height: 56, borderRadius: 14, overflow: "hidden", flexShrink: 0, boxShadow: "0 2px 10px rgba(0,0,0,0.14)" }}>
+                  <div
+                    style={{
+                      width: 56,
+                      height: 56,
+                      borderRadius: 14,
+                      overflow: "hidden",
+                      flexShrink: 0,
+                      boxShadow: "0 2px 10px rgba(0,0,0,0.14)",
+                    }}
+                  >
                     <HeroImg src={d.img} alt={d.city} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="display" style={{ fontWeight: 700, fontSize: 16, letterSpacing: "-0.02em", color: "var(--text)" }}>
+                    <div
+                      className="display"
+                      style={{
+                        fontWeight: 700,
+                        fontSize: 16,
+                        letterSpacing: "-0.02em",
+                        color: "var(--text)",
+                      }}
+                    >
                       {d.city}
                     </div>
-                    <div style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 2 }}>
+                    <div
+                      style={{
+                        fontSize: 12.5,
+                        color: "var(--text-muted)",
+                        marginTop: 2,
+                      }}
+                    >
                       {d.country} · {d.hours}
                     </div>
                   </div>
                   <div style={{ textAlign: "right", flexShrink: 0 }}>
-                    <div className="display" style={{ fontWeight: 800, fontSize: 15, color: "var(--text)", letterSpacing: "-0.02em" }}>
+                    <div
+                      className="display"
+                      style={{
+                        fontWeight: 800,
+                        fontSize: 15,
+                        color: "var(--text)",
+                        letterSpacing: "-0.02em",
+                      }}
+                    >
                       des de {d.from}€
                     </div>
-                    <div style={{ fontSize: 11, color: "var(--text-faint)", marginTop: 2 }}>
+                    <div
+                      style={{
+                        fontSize: 11,
+                        color: "var(--text-faint)",
+                        marginTop: 2,
+                      }}
+                    >
                       {d.temp} · {d.tag}
                     </div>
                   </div>
@@ -680,11 +912,25 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
             {!featured ? null : (
               <>
                 <div style={{ marginBottom: 10 }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                    <div className="micro" style={{ color: "var(--green)", letterSpacing: "0.08em" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      marginBottom: 10,
+                    }}
+                  >
+                    <div
+                      className="micro"
+                      style={{ color: "var(--green)", letterSpacing: "0.08em" }}
+                    >
                       RECOMANAT PER A TU
                     </div>
-                    <span style={{ fontSize: 11.5, color: "var(--text-faint)" }}>{byCat.length} destins</span>
+                    <span
+                      style={{ fontSize: 11.5, color: "var(--text-faint)" }}
+                    >
+                      {byCat.length} destins
+                    </span>
                   </div>
                   <button
                     onClick={() => {
@@ -705,8 +951,25 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
                     }}
                   >
                     <HeroImg src={featured.img} alt={featured.city} />
-                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.85) 100%)" }} />
-                    <div style={{ position: "absolute", top: 14, left: 14, right: 14, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(to bottom, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,0.85) 100%)",
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: 14,
+                        left: 14,
+                        right: 14,
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                      }}
+                    >
                       <div
                         style={{
                           display: "inline-flex",
@@ -743,8 +1006,21 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
                         des de {featured.from}€
                       </div>
                     </div>
-                    <div style={{ position: "absolute", left: 16, bottom: 16, right: 16 }}>
-                      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+                    <div
+                      style={{
+                        position: "absolute",
+                        left: 16,
+                        bottom: 16,
+                        right: 16,
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "flex-end",
+                          justifyContent: "space-between",
+                        }}
+                      >
                         <div>
                           <div
                             className="display"
@@ -759,12 +1035,57 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
                           >
                             {featured.city}
                           </div>
-                          <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 5 }}>
-                            <span style={{ fontSize: 12.5, color: "rgba(255,255,255,0.78)", fontWeight: 500 }}>{featured.country}</span>
-                            <span style={{ width: 3, height: 3, borderRadius: 9999, background: "rgba(255,255,255,0.35)", display: "inline-block" }} />
-                            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.65)" }}>{featured.temp}</span>
-                            <span style={{ width: 3, height: 3, borderRadius: 9999, background: "rgba(255,255,255,0.35)", display: "inline-block" }} />
-                            <span style={{ fontSize: 12, color: "rgba(255,255,255,0.65)" }}>{featured.hours}</span>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                              marginTop: 5,
+                            }}
+                          >
+                            <span
+                              style={{
+                                fontSize: 12.5,
+                                color: "rgba(255,255,255,0.78)",
+                                fontWeight: 500,
+                              }}
+                            >
+                              {featured.country}
+                            </span>
+                            <span
+                              style={{
+                                width: 3,
+                                height: 3,
+                                borderRadius: 9999,
+                                background: "rgba(255,255,255,0.35)",
+                                display: "inline-block",
+                              }}
+                            />
+                            <span
+                              style={{
+                                fontSize: 12,
+                                color: "rgba(255,255,255,0.65)",
+                              }}
+                            >
+                              {featured.temp}
+                            </span>
+                            <span
+                              style={{
+                                width: 3,
+                                height: 3,
+                                borderRadius: 9999,
+                                background: "rgba(255,255,255,0.35)",
+                                display: "inline-block",
+                              }}
+                            />
+                            <span
+                              style={{
+                                fontSize: 12,
+                                color: "rgba(255,255,255,0.65)",
+                              }}
+                            >
+                              {featured.hours}
+                            </span>
                           </div>
                         </div>
                         <div
@@ -790,10 +1111,23 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
 
                 {grid.length > 0 && (
                   <>
-                    <div className="micro" style={{ color: "var(--text-muted)", margin: "18px 2px 12px", letterSpacing: "0.08em" }}>
+                    <div
+                      className="micro"
+                      style={{
+                        color: "var(--text-muted)",
+                        margin: "18px 2px 12px",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
                       MÉS DESTINS
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: 10,
+                      }}
+                    >
                       {grid.map((d) => {
                         const tagBg =
                           d.tagColor === "gold"
@@ -822,7 +1156,14 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
                             }}
                           >
                             <HeroImg src={d.img} alt={d.city} />
-                            <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.85) 100%)" }} />
+                            <div
+                              style={{
+                                position: "absolute",
+                                inset: 0,
+                                background:
+                                  "linear-gradient(to bottom, rgba(0,0,0,0.04) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.85) 100%)",
+                              }}
+                            />
                             <div
                               style={{
                                 position: "absolute",
@@ -842,15 +1183,67 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
                             >
                               des de {d.from}€
                             </div>
-                            <div style={{ position: "absolute", left: 11, bottom: 11, right: 11 }}>
-                              <div className="display" style={{ fontWeight: 800, fontSize: 16.5, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1.05 }}>
+                            <div
+                              style={{
+                                position: "absolute",
+                                left: 11,
+                                bottom: 11,
+                                right: 11,
+                              }}
+                            >
+                              <div
+                                className="display"
+                                style={{
+                                  fontWeight: 800,
+                                  fontSize: 16.5,
+                                  color: "#fff",
+                                  letterSpacing: "-0.03em",
+                                  lineHeight: 1.05,
+                                }}
+                              >
                                 {d.city}
                               </div>
-                              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 4 }}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.62)", fontWeight: 500 }}>{d.country}</span>
-                                  <span style={{ width: 2, height: 2, borderRadius: 9999, background: "rgba(255,255,255,0.3)", display: "inline-block" }} />
-                                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.55)" }}>{d.temp}</span>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "space-between",
+                                  marginTop: 4,
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 5,
+                                  }}
+                                >
+                                  <span
+                                    style={{
+                                      fontSize: 11,
+                                      color: "rgba(255,255,255,0.62)",
+                                      fontWeight: 500,
+                                    }}
+                                  >
+                                    {d.country}
+                                  </span>
+                                  <span
+                                    style={{
+                                      width: 2,
+                                      height: 2,
+                                      borderRadius: 9999,
+                                      background: "rgba(255,255,255,0.3)",
+                                      display: "inline-block",
+                                    }}
+                                  />
+                                  <span
+                                    style={{
+                                      fontSize: 11,
+                                      color: "rgba(255,255,255,0.55)",
+                                    }}
+                                  >
+                                    {d.temp}
+                                  </span>
                                 </div>
                                 <span
                                   style={{
@@ -883,7 +1276,17 @@ function DestinationSheet({ open, onClose, onSelect }: { open: boolean; onClose:
   );
 }
 
-function DatesSheet({ open, onClose, onConfirm, value }: { open: boolean; onClose: () => void; onConfirm: (v: DatesValue) => void; value: DatesValue | null }) {
+function DatesSheet({
+  open,
+  onClose,
+  onConfirm,
+  value,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: (v: DatesValue) => void;
+  value: DatesValue | null;
+}) {
   const today = React.useMemo(() => {
     const d = new Date();
     d.setHours(0, 0, 0, 0);
@@ -919,19 +1322,58 @@ function DatesSheet({ open, onClose, onConfirm, value }: { open: boolean; onClos
     setEnd(d);
   };
 
-  const days = start && end ? Math.round((end.getTime() - start.getTime()) / 86400000) + 1 : 0;
+  const days =
+    start && end
+      ? Math.round((end.getTime() - start.getTime()) / 86400000) + 1
+      : 0;
 
   return (
-    <Sheet open={open} onClose={onClose} title="Quan vols viatjar?" height="84%">
-      <div className="pl-noscroll" style={{ overflowY: "auto", flex: 1, padding: "0 16px 16px" }}>
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title="Quan vols viatjar?"
+      height="84%"
+    >
+      <div
+        className="pl-noscroll"
+        style={{ overflowY: "auto", flex: 1, padding: "0 16px 16px" }}
+      >
         {months.map((m) => (
-          <Month key={m.toISOString()} month={m} start={start} end={end} today={today} onDay={onDay} />
+          <Month
+            key={m.toISOString()}
+            month={m}
+            start={start}
+            end={end}
+            today={today}
+            onDay={onDay}
+          />
         ))}
       </div>
 
-      <div style={{ position: "sticky", bottom: 0, background: "#fff", padding: "12px 20px 22px", borderTop: "1px solid var(--border)" }}>
+      <div
+        style={{
+          position: "sticky",
+          bottom: 0,
+          background: "#fff",
+          padding: "12px 20px 22px",
+          borderTop: "1px solid var(--border)",
+        }}
+      >
         {days > 0 && (
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--green-subtle)", color: "var(--green-deep)", padding: "6px 12px", borderRadius: 9999, fontSize: 13, fontWeight: 700, marginBottom: 12 }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              background: "var(--green-subtle)",
+              color: "var(--green-deep)",
+              padding: "6px 12px",
+              borderRadius: 9999,
+              fontSize: 13,
+              fontWeight: 700,
+              marginBottom: 12,
+            }}
+          >
             <Check size={14} /> {days} dies
           </div>
         )}
@@ -964,29 +1406,73 @@ function DatesSheet({ open, onClose, onConfirm, value }: { open: boolean; onClos
   );
 }
 
-function Month({ month, start, end, today, onDay }: { month: Date; start: Date | null; end: Date | null; today: Date; onDay: (d: Date) => void }) {
-  const monthName = month.toLocaleDateString("ca", { month: "long", year: "numeric" });
+function Month({
+  month,
+  start,
+  end,
+  today,
+  onDay,
+}: {
+  month: Date;
+  start: Date | null;
+  end: Date | null;
+  today: Date;
+  onDay: (d: Date) => void;
+}) {
+  const monthName = month.toLocaleDateString("ca", {
+    month: "long",
+    year: "numeric",
+  });
   const firstDay = new Date(month.getFullYear(), month.getMonth(), 1);
   const lastDay = new Date(month.getFullYear(), month.getMonth() + 1, 0);
   const startWeekday = (firstDay.getDay() + 6) % 7;
   const cells: (Date | null)[] = [];
   for (let i = 0; i < startWeekday; i++) cells.push(null);
-  for (let d = 1; d <= lastDay.getDate(); d++) cells.push(new Date(month.getFullYear(), month.getMonth(), d));
+  for (let d = 1; d <= lastDay.getDate(); d++)
+    cells.push(new Date(month.getFullYear(), month.getMonth(), d));
 
-  const sameDay = (a: Date | null, b: Date | null) => !!a && !!b && a.toDateString() === b.toDateString();
+  const sameDay = (a: Date | null, b: Date | null) =>
+    !!a && !!b && a.toDateString() === b.toDateString();
   const inRange = (d: Date) => !!start && !!end && d >= start && d <= end;
 
   return (
     <div style={{ marginTop: 22 }}>
-      <div className="display" style={{ fontWeight: 800, fontSize: 16, padding: "0 4px 12px", textTransform: "capitalize", letterSpacing: "-0.02em", color: "var(--text)" }}>
+      <div
+        className="display"
+        style={{
+          fontWeight: 800,
+          fontSize: 16,
+          padding: "0 4px 12px",
+          textTransform: "capitalize",
+          letterSpacing: "-0.02em",
+          color: "var(--text)",
+        }}
+      >
         {monthName}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", fontSize: 10.5, color: "var(--text-faint)", textAlign: "center", padding: "0 2px 8px", fontWeight: 700, letterSpacing: "0.04em" }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(7,1fr)",
+          fontSize: 10.5,
+          color: "var(--text-faint)",
+          textAlign: "center",
+          padding: "0 2px 8px",
+          fontWeight: 700,
+          letterSpacing: "0.04em",
+        }}
+      >
         {["DL", "DT", "DC", "DJ", "DV", "DS", "DG"].map((d) => (
           <div key={d}>{d}</div>
         ))}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 1 }}>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(7,1fr)",
+          gap: 1,
+        }}
+      >
         {cells.map((d, i) => {
           if (!d) return <div key={i} />;
           const dd = new Date(d);
@@ -1004,14 +1490,35 @@ function Month({ month, start, end, today, onDay }: { month: Date; start: Date |
               className="pl-tap"
               style={{
                 height: 40,
-                borderRadius: isStart ? "9999px 0 0 9999px" : isEnd ? "0 9999px 9999px 0" : ranged ? 0 : 9999,
-                background: isStart || isEnd ? "var(--green)" : ranged ? "rgba(13,158,122,0.12)" : "transparent",
-                color: past ? "var(--text-faint)" : isStart || isEnd ? "#fff" : ranged ? "var(--green-deep)" : "var(--text)",
+                borderRadius: isStart
+                  ? "9999px 0 0 9999px"
+                  : isEnd
+                    ? "0 9999px 9999px 0"
+                    : ranged
+                      ? 0
+                      : 9999,
+                background:
+                  isStart || isEnd
+                    ? "var(--green)"
+                    : ranged
+                      ? "rgba(13,158,122,0.12)"
+                      : "transparent",
+                color: past
+                  ? "var(--text-faint)"
+                  : isStart || isEnd
+                    ? "#fff"
+                    : ranged
+                      ? "var(--green-deep)"
+                      : "var(--text)",
                 fontSize: 14,
                 fontWeight: isStart || isEnd || isToday ? 700 : 400,
-                fontFamily: isStart || isEnd ? "var(--font-display)" : "inherit",
+                fontFamily:
+                  isStart || isEnd ? "var(--font-display)" : "inherit",
                 cursor: past ? "not-allowed" : "pointer",
-                border: isToday && !isStart && !isEnd ? "1.5px solid var(--green)" : "none",
+                border:
+                  isToday && !isStart && !isEnd
+                    ? "1.5px solid var(--green)"
+                    : "none",
                 opacity: past ? 0.35 : 1,
                 transition: "background 120ms",
                 position: "relative",
@@ -1026,7 +1533,17 @@ function Month({ month, start, end, today, onDay }: { month: Date; start: Date |
   );
 }
 
-function TransportSheet({ open, onClose, onSelect, value }: { open: boolean; onClose: () => void; onSelect: (t: Transport) => void; value: Transport | null }) {
+function TransportSheet({
+  open,
+  onClose,
+  onSelect,
+  value,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onSelect: (t: Transport) => void;
+  value: Transport | null;
+}) {
   const [picked, setPicked] = React.useState<string | null>(value?.id ?? null);
   React.useEffect(() => {
     if (!open) return;
@@ -1042,7 +1559,14 @@ function TransportSheet({ open, onClose, onSelect, value }: { open: boolean; onC
 
   return (
     <Sheet open={open} onClose={onClose} title="Com vols anar?" height="62%">
-      <div style={{ padding: "16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+      <div
+        style={{
+          padding: "16px",
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: 10,
+        }}
+      >
         {TRANSPORT.map((t) => {
           const sel = picked === t.id;
           return (
@@ -1061,13 +1585,39 @@ function TransportSheet({ open, onClose, onSelect, value }: { open: boolean; onC
                 transition: "all 180ms var(--ease)",
               }}
             >
-              <div style={{ color: sel ? "var(--green)" : "var(--text)", marginBottom: 8 }}>{icons[t.id]}</div>
-              <div className="display" style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}>
+              <div
+                style={{
+                  color: sel ? "var(--green)" : "var(--text)",
+                  marginBottom: 8,
+                }}
+              >
+                {icons[t.id]}
+              </div>
+              <div
+                className="display"
+                style={{ fontWeight: 600, fontSize: 14, marginBottom: 2 }}
+              >
                 {t.label}
               </div>
-              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{t.sub}</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)" }}>
+                {t.sub}
+              </div>
               {sel && (
-                <div style={{ position: "absolute", top: 10, right: 10, width: 22, height: 22, borderRadius: 9999, background: "var(--green)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <div
+                  style={{
+                    position: "absolute",
+                    top: 10,
+                    right: 10,
+                    width: 22,
+                    height: 22,
+                    borderRadius: 9999,
+                    background: "var(--green)",
+                    color: "#fff",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
                   <Check size={14} />
                 </div>
               )}
@@ -1107,7 +1657,17 @@ function TransportSheet({ open, onClose, onSelect, value }: { open: boolean; onC
   );
 }
 
-function BudgetSheet({ open, onClose, onConfirm, value = 1200 }: { open: boolean; onClose: () => void; onConfirm: (v: number) => void; value?: number }) {
+function BudgetSheet({
+  open,
+  onClose,
+  onConfirm,
+  value = 1200,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onConfirm: (v: number) => void;
+  value?: number;
+}) {
   const [v, setV] = React.useState(value);
   const [dragging, setDragging] = React.useState(false);
   const trackRef = React.useRef<HTMLDivElement | null>(null);
@@ -1151,20 +1711,81 @@ function BudgetSheet({ open, onClose, onConfirm, value = 1200 }: { open: boolean
   };
 
   const zone = budgetZone(v);
-  const activeColor = zone.label === "Econòmic" ? "var(--blue)" : zone.label === "Equilibrat" ? "var(--green)" : zone.label === "Confortable" ? "var(--gold)" : "var(--green)";
+  const activeColor =
+    zone.label === "Econòmic"
+      ? "var(--blue)"
+      : zone.label === "Equilibrat"
+        ? "var(--green)"
+        : zone.label === "Confortable"
+          ? "var(--gold)"
+          : "var(--green)";
 
   return (
     <Sheet open={open} onClose={onClose} title="Quin pressupost?" height="76%">
       <div style={{ padding: "12px 24px 0", textAlign: "center" }}>
-        <div className="display" style={{ fontWeight: 800, fontSize: 64, color: "var(--text)", letterSpacing: "-0.05em", lineHeight: 1 }}>
+        <div
+          className="display"
+          style={{
+            fontWeight: 800,
+            fontSize: 64,
+            color: "var(--text)",
+            letterSpacing: "-0.05em",
+            lineHeight: 1,
+          }}
+        >
           {v.toLocaleString("ca")}
-          <span style={{ fontSize: 36, marginLeft: 4, letterSpacing: "-0.02em" }}> €</span>
+          <span
+            style={{ fontSize: 36, marginLeft: 4, letterSpacing: "-0.02em" }}
+          >
+            {" "}
+            €
+          </span>
         </div>
-        <div style={{ marginTop: 6, fontSize: 12.5, color: "var(--text-muted)", fontWeight: 500, letterSpacing: "0.01em" }}>per persona · tot inclòs</div>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 10, padding: "5px 12px", borderRadius: 9999, background: "rgba(13,158,122,0.10)", border: "1px solid rgba(13,158,122,0.20)" }}>
-          <div style={{ width: 6, height: 6, borderRadius: 9999, background: activeColor }} />
-          <span style={{ fontSize: 12, fontWeight: 700, color: activeColor, letterSpacing: "0.02em", textTransform: "uppercase" }}>{zone.label}</span>
-          <span style={{ fontSize: 12, color: "var(--text-muted)" }}>· {zone.sub}</span>
+        <div
+          style={{
+            marginTop: 6,
+            fontSize: 12.5,
+            color: "var(--text-muted)",
+            fontWeight: 500,
+            letterSpacing: "0.01em",
+          }}
+        >
+          per persona · tot inclòs
+        </div>
+        <div
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            marginTop: 10,
+            padding: "5px 12px",
+            borderRadius: 9999,
+            background: "rgba(13,158,122,0.10)",
+            border: "1px solid rgba(13,158,122,0.20)",
+          }}
+        >
+          <div
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: 9999,
+              background: activeColor,
+            }}
+          />
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: activeColor,
+              letterSpacing: "0.02em",
+              textTransform: "uppercase",
+            }}
+          >
+            {zone.label}
+          </span>
+          <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
+            · {zone.sub}
+          </span>
         </div>
       </div>
 
@@ -1175,9 +1796,28 @@ function BudgetSheet({ open, onClose, onConfirm, value = 1200 }: { open: boolean
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
-          style={{ position: "relative", height: 10, borderRadius: 9999, background: "var(--surface-2)", cursor: "pointer", touchAction: "none", userSelect: "none" }}
+          style={{
+            position: "relative",
+            height: 10,
+            borderRadius: 9999,
+            background: "var(--surface-2)",
+            cursor: "pointer",
+            touchAction: "none",
+            userSelect: "none",
+          }}
         >
-          <div style={{ position: "absolute", left: 0, top: 0, height: "100%", width: `${pct * 100}%`, background: "var(--green)", borderRadius: 9999, transition: dragging ? "none" : "width 80ms" }} />
+          <div
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              height: "100%",
+              width: `${pct * 100}%`,
+              background: "var(--green)",
+              borderRadius: 9999,
+              transition: dragging ? "none" : "width 80ms",
+            }}
+          />
           <div
             style={{
               position: "absolute",
@@ -1197,7 +1837,14 @@ function BudgetSheet({ open, onClose, onConfirm, value = 1200 }: { open: boolean
               justifyContent: "center",
             }}
           >
-            <div style={{ width: 8, height: 8, borderRadius: 9999, background: "var(--green)" }} />
+            <div
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 9999,
+                background: "var(--green)",
+              }}
+            />
           </div>
         </div>
       </div>
@@ -1261,19 +1908,33 @@ export default function SearchPage() {
   const userName = session?.user?.name || "Joana";
   const initial = (userName || "J")[0]?.toUpperCase() || "J";
 
-  const [destination, setDestination] = React.useState<Destination | null>(null);
+  const [destination, setDestination] = React.useState<Destination | null>(
+    null,
+  );
   const [dates, setDates] = React.useState<DatesValue | null>(null);
   const [transport, setTransport] = React.useState<Transport | null>(null);
   const [people, setPeople] = React.useState(2);
   const [budget, setBudget] = React.useState(1200);
-  const [openSheet, setOpenSheet] = React.useState<null | "dest" | "dates" | "transport" | "budget">(null);
+  const [openSheet, setOpenSheet] = React.useState<
+    null | "dest" | "dates" | "transport" | "budget"
+  >(null);
 
   const ready = !!(destination && dates);
   const transportIcon =
-    transport?.id === "plane" ? <Plane size={16} style={{ marginRight: 6, color: "var(--coral)" }} /> : transport?.id === "train" ? <Train size={16} style={{ marginRight: 6, color: "var(--coral)" }} /> : transport?.id === "bus" ? <Bus size={16} style={{ marginRight: 6, color: "var(--coral)" }} /> : transport?.id === "car" ? <Car size={16} style={{ marginRight: 6, color: "var(--coral)" }} /> : null;
+    transport?.id === "plane" ? (
+      <Plane size={16} style={{ marginRight: 6, color: "var(--coral)" }} />
+    ) : transport?.id === "train" ? (
+      <Train size={16} style={{ marginRight: 6, color: "var(--coral)" }} />
+    ) : transport?.id === "bus" ? (
+      <Bus size={16} style={{ marginRight: 6, color: "var(--coral)" }} />
+    ) : transport?.id === "car" ? (
+      <Car size={16} style={{ marginRight: 6, color: "var(--coral)" }} />
+    ) : null;
 
   const fmtDates =
-    dates?.start && dates?.end ? `${dates.start.getDate()} ${monthAbbr(dates.start)} – ${dates.end.getDate()} ${monthAbbr(dates.end)} · ${dates.days} dies` : null;
+    dates?.start && dates?.end
+      ? `${dates.start.getDate()} ${monthAbbr(dates.start)} – ${dates.end.getDate()} ${monthAbbr(dates.end)} · ${dates.days} dies`
+      : null;
 
   return (
     <div style={{ width: "100%", height: "100vh", overflow: "hidden" }}>
@@ -1289,18 +1950,54 @@ export default function SearchPage() {
           background: "var(--bg)",
         }}
       >
-        <div className="pl-noscroll" style={{ height: "100%", overflowY: "auto", paddingBottom: 100 }}>
-          <div style={{ padding: "54px 20px 0", display: "flex", alignItems: "flex-start", gap: 12 }}>
+        <div
+          className="pl-noscroll"
+          style={{ height: "100%", overflowY: "auto", paddingBottom: 100 }}
+        >
+          <div
+            style={{
+              padding: "54px 20px 0",
+              display: "flex",
+              alignItems: "flex-start",
+              gap: 12,
+            }}
+          >
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Bon dia, {userName}</div>
-              <div className="display" style={{ fontWeight: 800, fontSize: 34, letterSpacing: "-0.03em", marginTop: 4, lineHeight: 1.05 }}>
+              <div style={{ fontSize: 13, color: "var(--text-muted)" }}>
+                Bon dia, {userName}
+              </div>
+              <div
+                className="display"
+                style={{
+                  fontWeight: 800,
+                  fontSize: 34,
+                  letterSpacing: "-0.03em",
+                  marginTop: 4,
+                  lineHeight: 1.05,
+                }}
+              >
                 On anem?
               </div>
-              <div style={{ fontSize: 14, color: "var(--text-muted)", marginTop: 8, marginBottom: 22, maxWidth: 280 }}>
+              <div
+                style={{
+                  fontSize: 14,
+                  color: "var(--text-muted)",
+                  marginTop: 8,
+                  marginBottom: 22,
+                  maxWidth: 280,
+                }}
+              >
                 Configura el teu viatge i deixa que la IA faci la resta.
               </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 4 }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                marginTop: 4,
+              }}
+            >
               <button
                 onClick={() => signOut({ callbackUrl: "/auth/login" })}
                 className="pl-tap"
@@ -1381,24 +2078,50 @@ export default function SearchPage() {
               onClick={() => setOpenSheet("transport")}
             />
 
-            <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 16px", minHeight: 64, borderTop: "1px solid var(--border)" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "12px 16px",
+                minHeight: 64,
+                borderTop: "1px solid var(--border)",
+              }}
+            >
               <IconSquare color="var(--coral)" bg="var(--coral-subtle)">
                 <Users size={18} />
               </IconSquare>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div className="micro">PERSONES</div>
-                <div className="display" style={{ fontWeight: 600, fontSize: 15, marginTop: 2 }}>
+                <div
+                  className="display"
+                  style={{ fontWeight: 600, fontSize: 15, marginTop: 2 }}
+                >
                   {people} {people === 1 ? "persona" : "persones"}
                 </div>
               </div>
               <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                <CircBtn disabled={people <= 1} onClick={() => setPeople((p) => Math.max(1, p - 1))}>
+                <CircBtn
+                  disabled={people <= 1}
+                  onClick={() => setPeople((p) => Math.max(1, p - 1))}
+                >
                   <Minus size={16} />
                 </CircBtn>
-                <div className="display" style={{ fontWeight: 800, fontSize: 18, minWidth: 22, textAlign: "center" }}>
+                <div
+                  className="display"
+                  style={{
+                    fontWeight: 800,
+                    fontSize: 18,
+                    minWidth: 22,
+                    textAlign: "center",
+                  }}
+                >
                   {people}
                 </div>
-                <CircBtn disabled={people >= 12} onClick={() => setPeople((p) => Math.min(12, p + 1))}>
+                <CircBtn
+                  disabled={people >= 12}
+                  onClick={() => setPeople((p) => Math.min(12, p + 1))}
+                >
                   <Plus size={16} />
                 </CircBtn>
               </div>
@@ -1448,54 +2171,150 @@ export default function SearchPage() {
             </button>
           </div>
 
-          <div style={{ marginTop: 14, padding: "0 16px", display: "flex", flexWrap: "wrap", gap: 6, justifyContent: "center" }}>
+          <div
+            style={{
+              marginTop: 14,
+              padding: "0 16px",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 6,
+              justifyContent: "center",
+            }}
+          >
             <TrustBadge>Pressupost real</TrustBadge>
             <TrustBadge>Sense sorpreses</TrustBadge>
             <TrustBadge>Personalitzat per IA</TrustBadge>
           </div>
 
-          <div style={{ padding: "28px 20px 10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div
+            style={{
+              padding: "28px 20px 10px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
             <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <div className="micro" style={{ color: "var(--green)", letterSpacing: "0.1em" }}>
+              <div
+                className="micro"
+                style={{ color: "var(--green)", letterSpacing: "0.1em" }}
+              >
                 DESTINS POPULARS
               </div>
-              <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: "-0.025em", fontFamily: "var(--font-display)", lineHeight: 1 }}>
+              <div
+                style={{
+                  fontSize: 18,
+                  fontWeight: 800,
+                  letterSpacing: "-0.025em",
+                  fontFamily: "var(--font-display)",
+                  lineHeight: 1,
+                }}
+              >
                 On t&apos;agradaria anar?
               </div>
             </div>
-            <button className="pl-tap" style={{ fontSize: 12.5, color: "var(--green)", fontWeight: 700, background: "var(--green-subtle)", padding: "5px 12px", borderRadius: 9999, border: "none" }}>
+            <button
+              className="pl-tap"
+              style={{
+                fontSize: 12.5,
+                color: "var(--green)",
+                fontWeight: 700,
+                background: "var(--green-subtle)",
+                padding: "5px 12px",
+                borderRadius: 9999,
+                border: "none",
+              }}
+            >
               Veure tots
             </button>
           </div>
 
-          <div style={{ padding: "0 16px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            {[DESTINATIONS[1], DESTINATIONS[3], DESTINATIONS[2], DESTINATIONS[6], DESTINATIONS[7], DESTINATIONS[4]].filter(Boolean).map((d) => (
-              <DestCard
-                key={d.id}
-                dest={d}
-                height={158}
-                onClick={() => {
-                  setDestination(d);
-                }}
-              />
-            ))}
+          <div
+            style={{
+              padding: "0 16px",
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 10,
+            }}
+          >
+            {[
+              DESTINATIONS[1],
+              DESTINATIONS[3],
+              DESTINATIONS[2],
+              DESTINATIONS[6],
+              DESTINATIONS[7],
+              DESTINATIONS[4],
+            ]
+              .filter(Boolean)
+              .map((d) => (
+                <DestCard
+                  key={d.id}
+                  dest={d}
+                  height={158}
+                  onClick={() => {
+                    setDestination(d);
+                  }}
+                />
+              ))}
           </div>
 
           <div style={{ marginTop: 22, paddingLeft: 20 }}>
-            <div className="micro" style={{ marginBottom: 12, letterSpacing: "0.1em" }}>
+            <div
+              className="micro"
+              style={{ marginBottom: 12, letterSpacing: "0.1em" }}
+            >
               MÉS PER EXPLORAR
             </div>
-            <div className="pl-noscroll" style={{ display: "flex", gap: 10, overflowX: "auto", paddingRight: 20, paddingBottom: 6 }}>
+            <div
+              className="pl-noscroll"
+              style={{
+                display: "flex",
+                gap: 10,
+                overflowX: "auto",
+                paddingRight: 20,
+                paddingBottom: 6,
+              }}
+            >
               {DESTINATIONS.slice(5, 10).map((d) => (
                 <button
                   key={d.id}
                   onClick={() => setDestination(d)}
                   className="pl-tap"
-                  style={{ position: "relative", flex: "0 0 auto", width: 120, height: 90, borderRadius: 16, overflow: "hidden", background: "#111", border: "none", boxShadow: "0 4px 16px rgba(0,0,0,0.15)" }}
+                  style={{
+                    position: "relative",
+                    flex: "0 0 auto",
+                    width: 120,
+                    height: 90,
+                    borderRadius: 16,
+                    overflow: "hidden",
+                    background: "#111",
+                    border: "none",
+                    boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
+                  }}
                 >
                   <HeroImg src={d.img} alt={d.city} />
-                  <div style={{ position: "absolute", inset: 0, background: "linear-gradient(170deg, rgba(0,0,0,0) 25%, rgba(0,0,0,0.72) 100%)" }} />
-                  <div style={{ position: "absolute", left: 9, bottom: 7, right: 9, fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 13, color: "#fff", letterSpacing: "-0.02em", textShadow: "0 1px 6px rgba(0,0,0,0.3)" }}>
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        "linear-gradient(170deg, rgba(0,0,0,0) 25%, rgba(0,0,0,0.72) 100%)",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      left: 9,
+                      bottom: 7,
+                      right: 9,
+                      fontFamily: "var(--font-display)",
+                      fontWeight: 800,
+                      fontSize: 13,
+                      color: "#fff",
+                      letterSpacing: "-0.02em",
+                      textShadow: "0 1px 6px rgba(0,0,0,0.3)",
+                    }}
+                  >
                     {d.city}
                   </div>
                 </button>
@@ -1523,11 +2342,15 @@ export default function SearchPage() {
           value={transport}
           onSelect={(t) => setTransport(t)}
         />
-        <BudgetSheet open={openSheet === "budget"} onClose={() => setOpenSheet(null)} value={budget} onConfirm={(v) => setBudget(v)} />
+        <BudgetSheet
+          open={openSheet === "budget"}
+          onClose={() => setOpenSheet(null)}
+          value={budget}
+          onConfirm={(v) => setBudget(v)}
+        />
 
         <BottomTabs active="search" />
       </div>
     </div>
   );
 }
-

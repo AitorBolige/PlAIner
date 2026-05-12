@@ -15,9 +15,14 @@ export default function RootLayout({
   return (
     <html lang="ca">
       <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1"
+        />
       </head>
-      <body style={{ margin: 0, padding: 0, width: '100vw', minHeight: '100vh' }}>
+      <body
+        style={{ margin: 0, padding: 0, width: "100vw", minHeight: "100vh" }}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>

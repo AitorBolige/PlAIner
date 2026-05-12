@@ -64,7 +64,9 @@ export function BottomTabBar() {
               href={t.href}
               className={cn(
                 "flex flex-col items-center justify-center gap-1 rounded-[var(--radius-lg)] px-2 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)]",
-                active ? "text-[color:var(--green)]" : "text-[color:var(--text-muted)]"
+                active
+                  ? "text-[color:var(--green)]"
+                  : "text-[color:var(--text-muted)]",
               )}
             >
               <t.Icon className={cn("h-5 w-5", active ? "" : "opacity-90")} />
@@ -78,4 +80,3 @@ export function BottomTabBar() {
     </nav>
   );
 }
-

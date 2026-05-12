@@ -89,7 +89,10 @@ export function GeneratingScreen({
           fill
           priority
           sizes="100vw"
-          style={{ objectFit: "cover", animation: "slowZoom 8s ease-out forwards" }}
+          style={{
+            objectFit: "cover",
+            animation: "slowZoom 8s ease-out forwards",
+          }}
         />
         <div
           style={{
@@ -100,7 +103,14 @@ export function GeneratingScreen({
           }}
         />
 
-        <div style={{ position: "absolute", bottom: "32px", left: "24px", right: "24px" }}>
+        <div
+          style={{
+            position: "absolute",
+            bottom: "32px",
+            left: "24px",
+            right: "24px",
+          }}
+        >
           <p
             style={{
               fontSize: "13px",
@@ -200,7 +210,9 @@ export function GeneratingScreen({
                   {step.text}
                 </p>
                 {isActive ? (
-                  <div style={{ marginLeft: "auto", display: "flex", gap: "3px" }}>
+                  <div
+                    style={{ marginLeft: "auto", display: "flex", gap: "3px" }}
+                  >
                     {[0, 1, 2].map((d) => (
                       <div
                         key={d}
@@ -239,7 +251,13 @@ export function GeneratingScreen({
             }}
           />
         </div>
-        <p style={{ textAlign: "center", fontSize: "13px", color: "var(--text-faint)" }}>
+        <p
+          style={{
+            textAlign: "center",
+            fontSize: "13px",
+            color: "var(--text-faint)",
+          }}
+        >
           {blockingWork
             ? "Connexió amb vols i hotels en viu; el temps depèn de les APIs."
             : "Això pot trigar uns segons..."}
@@ -259,4 +277,3 @@ export function GeneratingScreen({
     </div>
   );
 }
-

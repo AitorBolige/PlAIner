@@ -7,17 +7,17 @@ export interface PageWrapperProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
 }
 
-export function PageWrapper({ className, children, ...props }: PageWrapperProps) {
+export function PageWrapper({
+  className,
+  children,
+  ...props
+}: PageWrapperProps) {
   return (
     <div
-      className={cn(
-        "mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8",
-        className
-      )}
+      className={cn("mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8", className)}
       {...props}
     >
       {children}
     </div>
   );
 }
-

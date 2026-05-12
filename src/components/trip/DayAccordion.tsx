@@ -67,7 +67,7 @@ export function DayAccordion({ days }: DayAccordionProps) {
                 <ChevronDown
                   className={cn(
                     "h-5 w-5 flex-shrink-0 transition-transform duration-300 ease-[var(--ease-out-premium)]",
-                    isOpen ? "rotate-180" : ""
+                    isOpen ? "rotate-180" : "",
                   )}
                   aria-hidden="true"
                 />
@@ -121,4 +121,3 @@ export function DayAccordion({ days }: DayAccordionProps) {
     </div>
   );
 }
-

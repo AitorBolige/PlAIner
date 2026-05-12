@@ -67,15 +67,38 @@ function ResetPasswordForm() {
     return (
       <div style={{ textAlign: "center", padding: "16px 0" }}>
         <div style={{ fontSize: "48px", marginBottom: "16px" }}>✅</div>
-        <h2 style={{ fontFamily: "var(--font-display)", fontSize: "20px", fontWeight: 700, color: "var(--text)", marginBottom: "8px" }}>
+        <h2
+          style={{
+            fontFamily: "var(--font-display)",
+            fontSize: "20px",
+            fontWeight: 700,
+            color: "var(--text)",
+            marginBottom: "8px",
+          }}
+        >
           Contrasenya actualitzada
         </h2>
-        <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "24px" }}>
+        <p
+          style={{
+            fontSize: "14px",
+            color: "var(--text-muted)",
+            marginBottom: "24px",
+          }}
+        >
           Ja pots iniciar sessió amb la teva nova contrasenya.
         </p>
         <Link
           href="/auth/login"
-          style={{ display: "inline-block", padding: "14px 32px", background: "var(--green)", color: "#fff", borderRadius: "var(--r-pill)", fontWeight: 700, textDecoration: "none", fontSize: "15px" }}
+          style={{
+            display: "inline-block",
+            padding: "14px 32px",
+            background: "var(--green)",
+            color: "#fff",
+            borderRadius: "var(--r-pill)",
+            fontWeight: 700,
+            textDecoration: "none",
+            fontSize: "15px",
+          }}
         >
           Anar al login →
         </Link>
@@ -86,10 +109,24 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <div style={{ textAlign: "center", padding: "16px 0" }}>
-        <p style={{ fontSize: "14px", color: "rgba(240,90,53,0.95)", marginBottom: "16px" }}>
+        <p
+          style={{
+            fontSize: "14px",
+            color: "rgba(240,90,53,0.95)",
+            marginBottom: "16px",
+          }}
+        >
           L&apos;enllaç no és vàlid.
         </p>
-        <Link href="/auth/forgot-password" style={{ color: "var(--green)", fontWeight: 600, textDecoration: "none", fontSize: "14px" }}>
+        <Link
+          href="/auth/forgot-password"
+          style={{
+            color: "var(--green)",
+            fontWeight: 600,
+            textDecoration: "none",
+            fontSize: "14px",
+          }}
+        >
           Sol·licitar un nou link
         </Link>
       </div>
@@ -98,20 +135,54 @@ function ResetPasswordForm() {
 
   return (
     <>
-      <h2 style={{ fontFamily: "var(--font-display)", fontSize: "20px", fontWeight: 700, color: "var(--text)", letterSpacing: "-0.02em", marginBottom: "6px" }}>
+      <h2
+        style={{
+          fontFamily: "var(--font-display)",
+          fontSize: "20px",
+          fontWeight: 700,
+          color: "var(--text)",
+          letterSpacing: "-0.02em",
+          marginBottom: "6px",
+        }}
+      >
         Crea una nova contrasenya
       </h2>
-      <p style={{ fontSize: "14px", color: "var(--text-muted)", marginBottom: "24px" }}>
+      <p
+        style={{
+          fontSize: "14px",
+          color: "var(--text-muted)",
+          marginBottom: "24px",
+        }}
+      >
         Ha de tenir mínim 8 caràcters.
       </p>
 
       <form onSubmit={onSubmit}>
         <div style={{ marginBottom: "14px" }}>
-          <label style={{ display: "block", fontSize: "11px", fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "6px" }}>
+          <label
+            style={{
+              display: "block",
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "0.07em",
+              textTransform: "uppercase",
+              color: "var(--text-muted)",
+              marginBottom: "6px",
+            }}
+          >
             Nova contrasenya
           </label>
           <div style={{ position: "relative" }}>
-            <Lock size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--text-faint)" }} />
+            <Lock
+              size={16}
+              style={{
+                position: "absolute",
+                left: "14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--text-faint)",
+              }}
+            />
             <input
               type={showPass ? "text" : "password"}
               value={password}
@@ -120,21 +191,57 @@ function ResetPasswordForm() {
               autoComplete="new-password"
               required
               style={inputStyle}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "var(--green)")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+              onFocus={(e) =>
+                (e.currentTarget.style.borderColor = "var(--green)")
+              }
+              onBlur={(e) =>
+                (e.currentTarget.style.borderColor = "var(--border)")
+              }
             />
-            <button type="button" onClick={() => setShowPass((p) => !p)} style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-faint)", padding: "4px" }}>
+            <button
+              type="button"
+              onClick={() => setShowPass((p) => !p)}
+              style={{
+                position: "absolute",
+                right: "12px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                color: "var(--text-faint)",
+                padding: "4px",
+              }}
+            >
               {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>
           </div>
         </div>
 
         <div style={{ marginBottom: "20px" }}>
-          <label style={{ display: "block", fontSize: "11px", fontWeight: 600, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-muted)", marginBottom: "6px" }}>
+          <label
+            style={{
+              display: "block",
+              fontSize: "11px",
+              fontWeight: 600,
+              letterSpacing: "0.07em",
+              textTransform: "uppercase",
+              color: "var(--text-muted)",
+              marginBottom: "6px",
+            }}
+          >
             Confirmar contrasenya
           </label>
           <div style={{ position: "relative" }}>
-            <Lock size={16} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: "var(--text-faint)" }} />
+            <Lock
+              size={16}
+              style={{
+                position: "absolute",
+                left: "14px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--text-faint)",
+              }}
+            />
             <input
               type={showPass ? "text" : "password"}
               value={confirm}
@@ -143,20 +250,47 @@ function ResetPasswordForm() {
               autoComplete="new-password"
               required
               style={{ ...inputStyle, paddingRight: "14px" }}
-              onFocus={(e) => (e.currentTarget.style.borderColor = "var(--green)")}
-              onBlur={(e) => (e.currentTarget.style.borderColor = "var(--border)")}
+              onFocus={(e) =>
+                (e.currentTarget.style.borderColor = "var(--green)")
+              }
+              onBlur={(e) =>
+                (e.currentTarget.style.borderColor = "var(--border)")
+              }
             />
           </div>
         </div>
 
         {error && (
-          <p style={{ fontSize: "13px", color: "rgba(240,90,53,0.95)", marginBottom: 12 }}>{error}</p>
+          <p
+            style={{
+              fontSize: "13px",
+              color: "rgba(240,90,53,0.95)",
+              marginBottom: 12,
+            }}
+          >
+            {error}
+          </p>
         )}
 
         <button
           type="submit"
           disabled={loading}
-          style={{ width: "100%", height: "52px", background: "var(--green)", color: "#fff", border: "none", borderRadius: "var(--r-pill)", fontSize: "15px", fontWeight: 700, fontFamily: "var(--font-display)", letterSpacing: "-0.01em", boxShadow: "var(--shadow-cta)", transition: "var(--t)", cursor: "pointer", opacity: loading ? 0.8 : 1 }}
+          style={{
+            width: "100%",
+            height: "52px",
+            background: "var(--green)",
+            color: "#fff",
+            border: "none",
+            borderRadius: "var(--r-pill)",
+            fontSize: "15px",
+            fontWeight: 700,
+            fontFamily: "var(--font-display)",
+            letterSpacing: "-0.01em",
+            boxShadow: "var(--shadow-cta)",
+            transition: "var(--t)",
+            cursor: "pointer",
+            opacity: loading ? 0.8 : 1,
+          }}
         >
           {loading ? "Guardant…" : "Guardar nova contrasenya"}
         </button>
@@ -172,7 +306,8 @@ export default function ResetPasswordPage() {
         style={{
           height: "32vh",
           minHeight: "200px",
-          background: "linear-gradient(160deg, #0D9E7A 0%, #1a6b9a 60%, #2D3561 100%)",
+          background:
+            "linear-gradient(160deg, #0D9E7A 0%, #1a6b9a 60%, #2D3561 100%)",
           position: "relative",
           overflow: "hidden",
           borderRadius: "0 0 32px 32px",
@@ -183,12 +318,29 @@ export default function ResetPasswordPage() {
         }}
       >
         <div style={{ position: "relative" }}>
-          <span style={{ fontFamily: "var(--font-display)", fontSize: "22px", fontWeight: 800, letterSpacing: "-0.03em", color: "#fff" }}>
+          <span
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "22px",
+              fontWeight: 800,
+              letterSpacing: "-0.03em",
+              color: "#fff",
+            }}
+          >
             PL<span style={{ color: "rgba(255,255,255,0.55)" }}>AI</span>ner
           </span>
         </div>
         <div style={{ position: "relative" }}>
-          <h1 style={{ fontFamily: "var(--font-display)", fontSize: "28px", fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1.1 }}>
+          <h1
+            style={{
+              fontFamily: "var(--font-display)",
+              fontSize: "28px",
+              fontWeight: 800,
+              color: "#fff",
+              letterSpacing: "-0.03em",
+              lineHeight: 1.1,
+            }}
+          >
             Nova contrasenya.
           </h1>
         </div>
@@ -206,7 +358,13 @@ export default function ResetPasswordPage() {
           border: "1px solid var(--border)",
         }}
       >
-        <React.Suspense fallback={<p style={{ color: "var(--text-muted)", fontSize: 14 }}>Carregant…</p>}>
+        <React.Suspense
+          fallback={
+            <p style={{ color: "var(--text-muted)", fontSize: 14 }}>
+              Carregant…
+            </p>
+          }
+        >
           <ResetPasswordForm />
         </React.Suspense>
       </div>

@@ -6,7 +6,10 @@ import {
   travelOfferQuerySchema,
   upsertTravelSearchOffers,
 } from "@/lib/travel-offers";
-import { searchFlightsMetasearchForQuery, searchHotelsApiDojo } from "@/lib/travel-providers";
+import {
+  searchFlightsMetasearchForQuery,
+  searchHotelsApiDojo,
+} from "@/lib/travel-providers";
 
 type SourceKind = "hotel" | "transport";
 
@@ -42,7 +45,9 @@ function getTemplateVariables(query: TravelOfferQuery) {
     citySlug: slugify(city),
     countryCode: query.countryCode ?? "",
     countrySlug: query.countryCode ? slugify(query.countryCode) : "",
-    startDate: query.startDate ? query.startDate.toISOString().slice(0, 10) : "",
+    startDate: query.startDate
+      ? query.startDate.toISOString().slice(0, 10)
+      : "",
     endDate: query.endDate ? query.endDate.toISOString().slice(0, 10) : "",
     people: String(query.people),
     budgetMax: String(query.budgetMax ?? ""),
@@ -72,7 +77,10 @@ function stripHtmlTags(html: string) {
     .replace(/<script[\s\S]*?<\/script>/gi, "\n")
     .replace(/<style[\s\S]*?<\/style>/gi, "\n")
     .replace(/<noscript[\s\S]*?<\/noscript>/gi, "\n")
-    .replace(/<(?:br|\/p|\/div|\/li|\/section|\/article|\/h1|\/h2|\/h3|\/h4|\/h5|\/h6|\/tr|\/td|\/th|\/ul|\/ol)>/gi, "\n")
+    .replace(
+      /<(?:br|\/p|\/div|\/li|\/section|\/article|\/h1|\/h2|\/h3|\/h4|\/h5|\/h6|\/tr|\/td|\/th|\/ul|\/ol)>/gi,
+      "\n",
+    )
     .replace(/<[^>]+>/g, " ")
     .replace(/&nbsp;/gi, " ")
     .replace(/&amp;/gi, "&")
@@ -88,10 +96,15 @@ function stripHtmlTags(html: string) {
 function isLikelyTrivagoTitleLine(line: string) {
   if (!line) return false;
   if (/^https?:\/\//i.test(line)) return false;
-  if (/\b(Hotels in|Price range|Frequently Asked Questions|Additional Links|More Top Destinations|Top Destinations|City Districts|Points of Interest|Other stays in|Show more|Add to favourites|Share|Let’s talk cookies|Cookie preferences|The prices and availability|We compare hotel prices|Search simply|Compare confidently|Save big|Hotel search)\b/i.test(line)) {
+  if (
+    /\b(Hotels in|Price range|Frequently Asked Questions|Additional Links|More Top Destinations|Top Destinations|City Districts|Points of Interest|Other stays in|Show more|Add to favourites|Share|Let’s talk cookies|Cookie preferences|The prices and availability|We compare hotel prices|Search simply|Compare confidently|Save big|Hotel search)\b/i.test(
+      line,
+    )
+  ) {
     return false;
   }
-  if (/\b(From\s*€|ratings?|km to|sites?|night|per night)\b/i.test(line)) return false;
+  if (/\b(From\s*€|ratings?|km to|sites?|night|per night)\b/i.test(line))
+    return false;
   if (line.length < 3 || line.length > 120) return false;
   return /[A-Za-zÀ-ÿ]/.test(line) && !/^\d/.test(line);
 }
@@ -105,11 +118,15 @@ function parsePriceFromBlock(block: string) {
 }
 
 function parseRatingFromBlock(block: string) {
-  const match = block.match(/\b([0-9](?:\.[0-9])?)\s*(?:Excellent|Very good|Good|Average|Fair)?\s*(?:\(([\d,]+)\s*ratings?\))?/i);
+  const match = block.match(
+    /\b([0-9](?:\.[0-9])?)\s*(?:Excellent|Very good|Good|Average|Fair)?\s*(?:\(([\d,]+)\s*ratings?\))?/i,
+  );
   if (!match) return {};
 
   const rating = Number.parseFloat(match[1]);
-  const reviewCount = match[2] ? Number.parseInt(match[2].replace(/,/g, ""), 10) : undefined;
+  const reviewCount = match[2]
+    ? Number.parseInt(match[2].replace(/,/g, ""), 10)
+    : undefined;
 
   return {
     rating: Number.isFinite(rating) ? rating : undefined,
@@ -118,7 +135,9 @@ function parseRatingFromBlock(block: string) {
 }
 
 function parseAvailabilityText(block: string) {
-  const match = block.match(/([0-9.]+\s*km to [^\n]+?)(?=\s+From\s*€|\s+Share|\s+Add to favourites|$)/i);
+  const match = block.match(
+    /([0-9.]+\s*km to [^\n]+?)(?=\s+From\s*€|\s+Share|\s+Add to favourites|$)/i,
+  );
   return match?.[1]?.trim() ?? undefined;
 }
 
@@ -145,14 +164,17 @@ function findImageUrlAroundTitle(html: string, title: string) {
 
   const searchStart = Math.max(0, titleIndex - 3500);
   const fragment = html.slice(searchStart, titleIndex + title.length + 1000);
-  const imgMatch = fragment.match(/<img[^>]+(?:src|data-src)=["']([^"']+)["']/i);
+  const imgMatch = fragment.match(
+    /<img[^>]+(?:src|data-src)=["']([^"']+)["']/i,
+  );
   return imgMatch?.[1] ?? null;
 }
 
 function normalizeAbsoluteUrl(candidate: string, baseUrl: string) {
   try {
     const url = new URL(candidate, baseUrl);
-    if (url.protocol === "http:" || url.protocol === "https:") return url.toString();
+    if (url.protocol === "http:" || url.protocol === "https:")
+      return url.toString();
   } catch {
     return null;
   }
@@ -173,7 +195,10 @@ function buildFallbackTrivagoBookingUrl(title: string, sourceUrl: string) {
   return `${fallbackBase}/oar/${slugify(title)}`;
 }
 
-function parseTrivagoOffers(html: string, sourceUrl: string): ParsedTrivagoOffer[] {
+function parseTrivagoOffers(
+  html: string,
+  sourceUrl: string,
+): ParsedTrivagoOffer[] {
   const text = stripHtmlTags(html);
   const lines = text
     .split("\n")
@@ -186,7 +211,11 @@ function parseTrivagoOffers(html: string, sourceUrl: string): ParsedTrivagoOffer
     if (!/From\s*€/i.test(lines[index])) continue;
 
     let titleIndex = -1;
-    for (let cursor = Math.max(0, index - 8); cursor >= Math.max(0, index - 5); cursor -= 1) {
+    for (
+      let cursor = Math.max(0, index - 8);
+      cursor >= Math.max(0, index - 5);
+      cursor -= 1
+    ) {
       if (isLikelyTrivagoTitleLine(lines[cursor])) {
         titleIndex = cursor;
         break;
@@ -196,7 +225,9 @@ function parseTrivagoOffers(html: string, sourceUrl: string): ParsedTrivagoOffer
     if (titleIndex < 0) continue;
 
     const title = lines[titleIndex];
-    const block = lines.slice(titleIndex, Math.min(lines.length, index + 1)).join(" \n ");
+    const block = lines
+      .slice(titleIndex, Math.min(lines.length, index + 1))
+      .join(" \n ");
     const price = parsePriceFromBlock(block);
 
     if (price === null) continue;
@@ -204,7 +235,9 @@ function parseTrivagoOffers(html: string, sourceUrl: string): ParsedTrivagoOffer
     const { rating, reviewCount } = parseRatingFromBlock(block);
     const availabilityText = parseAvailabilityText(block);
     const bookingHref = findNearestHref(html, title);
-    const bookingUrl = bookingHref ? normalizeAbsoluteUrl(bookingHref, sourceUrl) ?? null : null;
+    const bookingUrl = bookingHref
+      ? (normalizeAbsoluteUrl(bookingHref, sourceUrl) ?? null)
+      : null;
 
     offers.push({
       type: "hotel",
@@ -213,7 +246,8 @@ function parseTrivagoOffers(html: string, sourceUrl: string): ParsedTrivagoOffer
       description: availabilityText,
       price,
       currency: "EUR",
-      bookingUrl: bookingUrl ?? buildFallbackTrivagoBookingUrl(title, sourceUrl),
+      bookingUrl:
+        bookingUrl ?? buildFallbackTrivagoBookingUrl(title, sourceUrl),
       sourceUrl,
       imageUrl: findImageUrlAroundTitle(html, title) ?? undefined,
       rating,
@@ -238,7 +272,9 @@ function parseTrivagoOffers(html: string, sourceUrl: string): ParsedTrivagoOffer
 }
 
 function isTrivagoSource(source: TravelSource) {
-  return /trivago\./i.test(source.urlTemplate) || /trivago\./i.test(source.name);
+  return (
+    /trivago\./i.test(source.urlTemplate) || /trivago\./i.test(source.name)
+  );
 }
 
 function getConfiguredSources(query: TravelOfferQuery): TravelSource[] {
@@ -246,13 +282,29 @@ function getConfiguredSources(query: TravelOfferQuery): TravelSource[] {
   const transportUrl = process.env.TRAVEL_TRANSPORT_SCRAPE_URL;
 
   return [
-    hotelUrl ? { kind: "hotel", name: "hotel-source", urlTemplate: buildUrl(hotelUrl, query) } : null,
-    transportUrl ? { kind: "transport", name: "transport-source", urlTemplate: buildUrl(transportUrl, query) } : null,
+    hotelUrl
+      ? {
+          kind: "hotel",
+          name: "hotel-source",
+          urlTemplate: buildUrl(hotelUrl, query),
+        }
+      : null,
+    transportUrl
+      ? {
+          kind: "transport",
+          name: "transport-source",
+          urlTemplate: buildUrl(transportUrl, query),
+        }
+      : null,
   ].filter(Boolean) as TravelSource[];
 }
 
 function parseJsonLd(html: string) {
-  const scripts = [...html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+  const scripts = [
+    ...html.matchAll(
+      /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,
+    ),
+  ];
   const parsed: unknown[] = [];
 
   for (const match of scripts) {
@@ -273,7 +325,11 @@ function parseJsonLd(html: string) {
 
 function getText(value: unknown) {
   if (typeof value === "string") return value.trim();
-  if (Array.isArray(value)) return value.filter((item) => typeof item === "string").join(" ").trim();
+  if (Array.isArray(value))
+    return value
+      .filter((item) => typeof item === "string")
+      .join(" ")
+      .trim();
   return "";
 }
 
@@ -283,13 +339,27 @@ function getImageUrl(value: unknown) {
   return undefined;
 }
 
-function toOffer(value: Record<string, unknown>, kind: SourceKind, provider: string, rank: number): TravelOfferInput | null {
+function toOffer(
+  value: Record<string, unknown>,
+  kind: SourceKind,
+  provider: string,
+  rank: number,
+): TravelOfferInput | null {
   const name = getText(value.name ?? value.title ?? value.headline);
-  const url = typeof value.url === "string" ? value.url : typeof value.sameAs === "string" ? value.sameAs : undefined;
+  const url =
+    typeof value.url === "string"
+      ? value.url
+      : typeof value.sameAs === "string"
+        ? value.sameAs
+        : undefined;
   const priceValue =
     (typeof value.price === "number" ? value.price : Number.NaN) ||
-    (typeof value.price === "string" ? Number.parseFloat(value.price) : Number.NaN) ||
-    (typeof value.lowPrice === "string" ? Number.parseFloat(value.lowPrice) : Number.NaN);
+    (typeof value.price === "string"
+      ? Number.parseFloat(value.price)
+      : Number.NaN) ||
+    (typeof value.lowPrice === "string"
+      ? Number.parseFloat(value.lowPrice)
+      : Number.NaN);
 
   if (!name || !url || Number.isNaN(priceValue)) return null;
 
@@ -299,24 +369,33 @@ function toOffer(value: Record<string, unknown>, kind: SourceKind, provider: str
     title: name,
     description: getText(value.description),
     price: priceValue,
-    currency: typeof value.priceCurrency === "string" ? value.priceCurrency : "EUR",
+    currency:
+      typeof value.priceCurrency === "string" ? value.priceCurrency : "EUR",
     bookingUrl: url,
     sourceUrl: url,
     imageUrl: getImageUrl(value.image),
     rating: typeof value.rating === "number" ? value.rating : undefined,
-    reviewCount: typeof value.reviewCount === "number" ? value.reviewCount : undefined,
+    reviewCount:
+      typeof value.reviewCount === "number" ? value.reviewCount : undefined,
     availabilityText: getText(value.availability),
     metadata: value,
     rank,
   };
 }
 
-function collectOffersFromJsonLd(data: unknown, kind: SourceKind, provider: string, rankBase = 0): TravelOfferInput[] {
+function collectOffersFromJsonLd(
+  data: unknown,
+  kind: SourceKind,
+  provider: string,
+  rankBase = 0,
+): TravelOfferInput[] {
   const offers: TravelOfferInput[] = [];
 
   if (Array.isArray(data)) {
     data.forEach((item, index) => {
-      offers.push(...collectOffersFromJsonLd(item, kind, provider, rankBase + index));
+      offers.push(
+        ...collectOffersFromJsonLd(item, kind, provider, rankBase + index),
+      );
     });
     return offers;
   }
@@ -325,21 +404,49 @@ function collectOffersFromJsonLd(data: unknown, kind: SourceKind, provider: stri
 
   const value = data as Record<string, unknown>;
   const type = value["@type"];
-  const typeName = Array.isArray(type) ? type.map(String) : [String(type ?? "")];
+  const typeName = Array.isArray(type)
+    ? type.map(String)
+    : [String(type ?? "")];
 
-  if (typeName.some((entry) => ["Offer", "Hotel", "LodgingBusiness", "Product", "BusTrip", "TrainTrip", "Flight"].includes(entry))) {
+  if (
+    typeName.some((entry) =>
+      [
+        "Offer",
+        "Hotel",
+        "LodgingBusiness",
+        "Product",
+        "BusTrip",
+        "TrainTrip",
+        "Flight",
+      ].includes(entry),
+    )
+  ) {
     const offer = toOffer(value, kind, provider, rankBase);
     if (offer) offers.push(offer);
   }
 
   if (value.offers && typeof value.offers === "object") {
-    offers.push(...collectOffersFromJsonLd(value.offers, kind, provider, rankBase + offers.length));
+    offers.push(
+      ...collectOffersFromJsonLd(
+        value.offers,
+        kind,
+        provider,
+        rankBase + offers.length,
+      ),
+    );
   }
 
   if (Array.isArray(value.itemListElement)) {
     value.itemListElement.forEach((entry, index) => {
       if (entry && typeof entry === "object" && "item" in entry) {
-        offers.push(...collectOffersFromJsonLd((entry as Record<string, unknown>).item, kind, provider, rankBase + index));
+        offers.push(
+          ...collectOffersFromJsonLd(
+            (entry as Record<string, unknown>).item,
+            kind,
+            provider,
+            rankBase + index,
+          ),
+        );
       }
     });
   }
@@ -350,7 +457,10 @@ function collectOffersFromJsonLd(data: unknown, kind: SourceKind, provider: stri
 function buildFallbackOffers(query: TravelOfferQuery): TravelOfferInput[] {
   const city = query.city ?? query.destination;
   const hotelPrice = Math.max(90, Math.round((query.budgetMax ?? 180) * 0.58));
-  const transportPrice = Math.max(35, Math.round((query.budgetMax ?? 180) * 0.24));
+  const transportPrice = Math.max(
+    35,
+    Math.round((query.budgetMax ?? 180) * 0.24),
+  );
 
   return [
     {
@@ -406,7 +516,9 @@ async function scrapeSource(source: TravelSource) {
   }
 
   const jsonLd = parseJsonLd(html);
-  return jsonLd.flatMap((entry, index) => collectOffersFromJsonLd(entry, source.kind, source.name, index));
+  return jsonLd.flatMap((entry, index) =>
+    collectOffersFromJsonLd(entry, source.kind, source.name, index),
+  );
 }
 
 export async function refreshTravelOffers(query: TravelOfferQuery) {
@@ -442,22 +554,29 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
         hotelHandledViaApi = true;
       }
     } catch (error) {
-      errors.push(`Hotels API: ${error instanceof Error ? error.message : String(error)}`);
+      errors.push(
+        `Hotels API: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   // 2. Flights via RapidAPI metasearch (always attempted when credentials present)
   const hasFlightCreds = Boolean(
-    (process.env.RAPIDAPI_FLIGHTS_HOST?.trim() || process.env.RAPIDAPI_HOST?.trim()) &&
-    (process.env.RAPIDAPI_FLIGHTS_KEY?.trim() || process.env.RAPIDAPI_KEY?.trim()),
+    (process.env.RAPIDAPI_FLIGHTS_HOST?.trim() ||
+      process.env.RAPIDAPI_HOST?.trim()) &&
+    (process.env.RAPIDAPI_FLIGHTS_KEY?.trim() ||
+      process.env.RAPIDAPI_KEY?.trim()),
   );
 
   if (hasFlightCreds) {
     try {
-      const flightOffers = await searchFlightsMetasearchForQuery(normalizedQuery);
+      const flightOffers =
+        await searchFlightsMetasearchForQuery(normalizedQuery);
       if (flightOffers.length > 0) collected.push(...flightOffers);
     } catch (error) {
-      errors.push(`Flights API: ${error instanceof Error ? error.message : String(error)}`);
+      errors.push(
+        `Flights API: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -474,17 +593,25 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
 
   // 4. Fallback only if nothing was collected at all
   if (collected.length === 0) {
-    return upsertTravelSearchOffers(normalizedQuery, buildFallbackOffers(normalizedQuery), {
-      providerSummary: errors.length > 0
-        ? `No results from APIs (${errors.join(" | ")}); using demo fallback.`
-        : "No results from any source; using demo fallback.",
-      status: errors.length > 0 ? TravelRefreshRunStatus.ERROR : TravelRefreshRunStatus.SUCCESS,
-      errorMessage: errors.length > 0 ? errors.join(" | ") : undefined,
-    });
+    return upsertTravelSearchOffers(
+      normalizedQuery,
+      buildFallbackOffers(normalizedQuery),
+      {
+        providerSummary:
+          errors.length > 0
+            ? `No results from APIs (${errors.join(" | ")}); using demo fallback.`
+            : "No results from any source; using demo fallback.",
+        status:
+          errors.length > 0
+            ? TravelRefreshRunStatus.ERROR
+            : TravelRefreshRunStatus.SUCCESS,
+        errorMessage: errors.length > 0 ? errors.join(" | ") : undefined,
+      },
+    );
   }
 
   return upsertTravelSearchOffers(normalizedQuery, collected, {
-    providerSummary: `${collected.length} offers collected (hotels: ${collected.filter(o => o.type === "hotel").length}, flights: ${collected.filter(o => o.type === "transport").length}).`,
+    providerSummary: `${collected.length} offers collected (hotels: ${collected.filter((o) => o.type === "hotel").length}, flights: ${collected.filter((o) => o.type === "transport").length}).`,
     status: TravelRefreshRunStatus.SUCCESS,
   });
 }

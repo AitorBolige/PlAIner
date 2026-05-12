@@ -5,7 +5,7 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
 if (!supabaseUrl || !serviceRoleKey) {
   throw new Error(
-    "Missing Supabase admin env: set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (server only; never use NEXT_PUBLIC_ for the service role key)."
+    "Missing Supabase admin env: set NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY (server only; never use NEXT_PUBLIC_ for the service role key).",
   );
 }
 

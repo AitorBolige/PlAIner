@@ -18,7 +18,10 @@ function assertRefreshSecret(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   if (!assertRefreshSecret(request)) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 },
+    );
   }
 
   const body = await request.json().catch(() => null);
@@ -26,7 +29,11 @@ export async function POST(request: NextRequest) {
 
   if (!parsed.success) {
     return NextResponse.json(
-      { ok: false, error: "Invalid request body", issues: parsed.error.flatten() },
+      {
+        ok: false,
+        error: "Invalid request body",
+        issues: parsed.error.flatten(),
+      },
       { status: 400 },
     );
   }

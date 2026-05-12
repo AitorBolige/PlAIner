@@ -16,7 +16,10 @@ export function TopBar() {
   return (
     <header className="sticky top-0 z-40 border-b border-[color:var(--border)] bg-[color:rgba(244,241,236,0.88)] backdrop-blur-xl md:hidden">
       <div className="mx-auto flex h-14 w-full max-w-md items-center justify-between px-4">
-        <div className="text-sm font-semibold tracking-tight" style={{ fontFamily: "var(--font-display)" }}>
+        <div
+          className="text-sm font-semibold tracking-tight"
+          style={{ fontFamily: "var(--font-display)" }}
+        >
           PLAIner
         </div>
         <Link
@@ -25,7 +28,7 @@ export function TopBar() {
           className={cn(
             "inline-flex h-10 w-10 items-center justify-center rounded-full border bg-white/70",
             "border-[color:var(--border-md)] text-[color:var(--text)]",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--green)]"
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--green)]",
           )}
         >
           <Home className="h-5 w-5" />
@@ -34,4 +37,3 @@ export function TopBar() {
     </header>
   );
 }
-

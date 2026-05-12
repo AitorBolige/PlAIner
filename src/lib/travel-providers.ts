@@ -18,7 +18,7 @@ const EUR_RATES: Record<string, number> = {
   JPY: 1 / 163,
   AUD: 0.61,
   CAD: 0.68,
-  SGD: 0.70,
+  SGD: 0.7,
   MXN: 1 / 20,
   BRL: 1 / 6,
   ISK: 1 / 150,
@@ -56,7 +56,9 @@ type FlightRouteContext = {
   routeLabel: string;
 };
 
-export function resolveMetasearchFlightRoute(query: TravelOfferQuery): FlightRouteContext {
+export function resolveMetasearchFlightRoute(
+  query: TravelOfferQuery,
+): FlightRouteContext {
   const destinationIata = resolveFlightDestinationIata(query);
   const originIata = resolveFlightOriginIata(query);
 
@@ -84,14 +86,18 @@ export async function searchHotelsApiDojo(
   const host = process.env.RAPIDAPI_HOST?.trim();
   const key = process.env.RAPIDAPI_KEY?.trim();
   if (!host || !key) {
-    throw new Error("APIDojo hotel search not configured (RAPIDAPI_HOST / RAPIDAPI_KEY)");
+    throw new Error(
+      "APIDojo hotel search not configured (RAPIDAPI_HOST / RAPIDAPI_KEY)",
+    );
   }
 
-  const fallbackCurrency = String((params.currency || "EUR").toUpperCase()).slice(0, 3);
+  const fallbackCurrency = String(
+    (params.currency || "EUR").toUpperCase(),
+  ).slice(0, 3);
   const headers = {
-      "X-RapidAPI-Key": key,
-      "X-RapidAPI-Host": host,
-      accept: "application/json",
+    "X-RapidAPI-Key": key,
+    "X-RapidAPI-Host": host,
+    accept: "application/json",
   };
 
   // Step 1: locations/auto-complete → dest_id + dest_type
@@ -103,7 +109,10 @@ export async function searchHotelsApiDojo(
 
   if (!acRes.ok) {
     const text = await acRes.text().catch(() => "");
-    console.error(`[searchHotelsApiDojo] Auto-complete error body:`, text.slice(0, 600));
+    console.error(
+      `[searchHotelsApiDojo] Auto-complete error body:`,
+      text.slice(0, 600),
+    );
     return [];
   }
 
@@ -111,11 +120,13 @@ export async function searchHotelsApiDojo(
   const rows: Array<Record<string, unknown>> = Array.isArray(acPayload)
     ? (acPayload as Array<Record<string, unknown>>)
     : Array.isArray((acPayload as { data?: unknown })?.data)
-      ? ((acPayload as { data: Array<Record<string, unknown>> }).data)
+      ? (acPayload as { data: Array<Record<string, unknown>> }).data
       : [];
 
   if (rows.length === 0) {
-    console.warn(`[searchHotelsApiDojo] No auto-complete rows for "${params.query}"`);
+    console.warn(
+      `[searchHotelsApiDojo] No auto-complete rows for "${params.query}"`,
+    );
     return [];
   }
 
@@ -127,15 +138,21 @@ export async function searchHotelsApiDojo(
     return (preferredTypes.has(tb) ? 1 : 0) - (preferredTypes.has(ta) ? 1 : 0);
   });
 
-  const first = ranked.find((row) => row.dest_id != null && row.dest_type != null);
+  const first = ranked.find(
+    (row) => row.dest_id != null && row.dest_type != null,
+  );
   if (!first) {
-    console.warn(`[searchHotelsApiDojo] No row with dest_id/dest_type for "${params.query}"`);
+    console.warn(
+      `[searchHotelsApiDojo] No row with dest_id/dest_type for "${params.query}"`,
+    );
     return [];
   }
 
   const destId = String(first.dest_id);
   const destType = String(first.dest_type);
-  console.log(`[searchHotelsApiDojo] Resolved dest_id=${destId} dest_type=${destType} for "${params.query}"`);
+  console.log(
+    `[searchHotelsApiDojo] Resolved dest_id=${destId} dest_type=${destType} for "${params.query}"`,
+  );
 
   // Step 2: properties/list
   const search = new URLSearchParams();
@@ -162,11 +179,17 @@ export async function searchHotelsApiDojo(
 
   if (!sRes.ok) {
     const text = await sRes.text().catch(() => "");
-    console.error(`[searchHotelsApiDojo] Search error body:`, text.slice(0, 600));
+    console.error(
+      `[searchHotelsApiDojo] Search error body:`,
+      text.slice(0, 600),
+    );
     throw new Error(`APIDojo properties/list responded ${sRes.status}`);
   }
 
-  const sPayload = (await sRes.json().catch(() => null)) as Record<string, unknown> | null;
+  const sPayload = (await sRes.json().catch(() => null)) as Record<
+    string,
+    unknown
+  > | null;
   if (sPayload && typeof sPayload === "object") {
     console.log(
       `[searchHotelsApiDojo] Top-level keys: ${Object.keys(sPayload).join(", ")}`,
@@ -174,7 +197,8 @@ export async function searchHotelsApiDojo(
   }
 
   if (sPayload && typeof sPayload === "object") {
-    const msg = typeof sPayload.message === "string" ? sPayload.message.trim() : "";
+    const msg =
+      typeof sPayload.message === "string" ? sPayload.message.trim() : "";
     const resultArr = sPayload.result;
     const resultsArr = sPayload.results;
     const hasUsableList =
@@ -183,7 +207,9 @@ export async function searchHotelsApiDojo(
     if (msg && !hasUsableList) {
       const code = sPayload.code;
       const codeHint =
-        typeof code === "number" && code === 429 ? " (possible rate limit)" : "";
+        typeof code === "number" && code === 429
+          ? " (possible rate limit)"
+          : "";
       console.error(
         `[searchHotelsApiDojo] properties/list API error:${codeHint} code=${JSON.stringify(code)} message=${msg}`,
       );
@@ -207,7 +233,11 @@ export async function searchHotelsApiDojo(
     .map((item, idx) => mapApiDojoHotelOffer(item, idx, fallbackCurrency))
     .filter((o): o is TravelOfferInput => o !== null);
 
-  if (typeof params.maxPrice === "number" && Number.isFinite(params.maxPrice) && params.maxPrice > 0) {
+  if (
+    typeof params.maxPrice === "number" &&
+    Number.isFinite(params.maxPrice) &&
+    params.maxPrice > 0
+  ) {
     return offers.filter((o) => o.price <= (params.maxPrice as number));
   }
   return offers;
@@ -219,27 +249,49 @@ function mapApiDojoHotelOffer(
   fallbackCurrency: string,
 ): TravelOfferInput | null {
   const title =
-    pickFirstString([item.hotel_name, item.name, item.title, item.property_name]) ??
-    String(item.hotel_id ?? `Hotel ${index}`);
+    pickFirstString([
+      item.hotel_name,
+      item.name,
+      item.title,
+      item.property_name,
+    ]) ?? String(item.hotel_id ?? `Hotel ${index}`);
 
-  const priceBreakdown = item.price_breakdown as Record<string, unknown> | undefined;
-  const grossPrice = priceBreakdown?.gross_price as Record<string, unknown> | number | undefined;
-  const allInclusive = priceBreakdown?.all_inclusive_price as Record<string, unknown> | number | undefined;
+  const priceBreakdown = item.price_breakdown as
+    | Record<string, unknown>
+    | undefined;
+  const grossPrice = priceBreakdown?.gross_price as
+    | Record<string, unknown>
+    | number
+    | undefined;
+  const allInclusive = priceBreakdown?.all_inclusive_price as
+    | Record<string, unknown>
+    | number
+    | undefined;
 
   const priceCandidates: Array<unknown> = [
     item.min_total_price,
     item.minTotalPrice,
-    typeof grossPrice === "number" ? grossPrice : (grossPrice as Record<string, unknown> | undefined)?.value,
-    typeof allInclusive === "number" ? allInclusive : (allInclusive as Record<string, unknown> | undefined)?.value,
-    item.composite_price_breakdown && typeof item.composite_price_breakdown === "object"
-      ? (item.composite_price_breakdown as Record<string, unknown>).gross_amount_per_night
+    typeof grossPrice === "number"
+      ? grossPrice
+      : (grossPrice as Record<string, unknown> | undefined)?.value,
+    typeof allInclusive === "number"
+      ? allInclusive
+      : (allInclusive as Record<string, unknown> | undefined)?.value,
+    item.composite_price_breakdown &&
+    typeof item.composite_price_breakdown === "object"
+      ? (item.composite_price_breakdown as Record<string, unknown>)
+          .gross_amount_per_night
       : undefined,
     item.price,
     item.total_price,
   ];
   let price = 0;
   for (const c of priceCandidates) {
-    const n = Number(typeof c === "object" && c && "value" in c ? (c as { value: unknown }).value : c);
+    const n = Number(
+      typeof c === "object" && c && "value" in c
+        ? (c as { value: unknown }).value
+        : c,
+    );
     if (Number.isFinite(n) && n > 0) {
       price = n;
       break;
@@ -252,13 +304,20 @@ function mapApiDojoHotelOffer(
       item.currency_code,
       item.currency,
       typeof grossPrice === "object" && grossPrice
-        ? ((grossPrice as Record<string, unknown>).currency as string | undefined)
+        ? ((grossPrice as Record<string, unknown>).currency as
+            | string
+            | undefined)
         : undefined,
       fallbackCurrency,
     ]) ?? fallbackCurrency;
 
   const bookingUrl =
-    pickFirstString([item.url, item.url_original, item.product_url, item.hotel_url]) ??
+    pickFirstString([
+      item.url,
+      item.url_original,
+      item.product_url,
+      item.hotel_url,
+    ]) ??
     `https://www.booking.com/hotel/${encodeURIComponent(String(item.hotel_id ?? title))}`;
 
   const imageUrl = pickFirstString([
@@ -269,12 +328,15 @@ function mapApiDojoHotelOffer(
     Array.isArray(item.photos) && item.photos.length > 0
       ? typeof item.photos[0] === "string"
         ? (item.photos[0] as string)
-        : ((item.photos[0] as Record<string, unknown>)?.url as string | undefined)
+        : ((item.photos[0] as Record<string, unknown>)?.url as
+            | string
+            | undefined)
       : undefined,
   ]);
 
   const ratingRaw = item.review_score ?? item.reviewScore ?? item.rating;
-  const ratingNumber = typeof ratingRaw === "number" ? ratingRaw : Number(ratingRaw);
+  const ratingNumber =
+    typeof ratingRaw === "number" ? ratingRaw : Number(ratingRaw);
   // APIDojo uses a 0-10 scale; project schema caps rating at 0-5.
   const rating =
     Number.isFinite(ratingNumber) && ratingNumber > 0
@@ -282,7 +344,9 @@ function mapApiDojoHotelOffer(
       : undefined;
 
   const reviewCountRaw = item.review_nr ?? item.reviewNr ?? item.review_count;
-  const reviewCount = Number.isFinite(Number(reviewCountRaw)) ? Number(reviewCountRaw) : undefined;
+  const reviewCount = Number.isFinite(Number(reviewCountRaw))
+    ? Number(reviewCountRaw)
+    : undefined;
 
   const description =
     pickFirstString([
@@ -296,8 +360,10 @@ function mapApiDojoHotelOffer(
   const availabilityText =
     pickFirstString([
       item.unit_configuration_label,
-      item.matching_units_configuration && typeof item.matching_units_configuration === "object"
-        ? ((item.matching_units_configuration as Record<string, unknown>).label as string | undefined)
+      item.matching_units_configuration &&
+      typeof item.matching_units_configuration === "object"
+        ? ((item.matching_units_configuration as Record<string, unknown>)
+            .label as string | undefined)
         : undefined,
       typeof item.distance_to_cc === "number"
         ? `${(item.distance_to_cc as number).toFixed(1)} km from center`
@@ -326,11 +392,18 @@ function mapApiDojoHotelOffer(
 }
 
 function getRapidApiFlightConfig() {
-  const host = process.env.RAPIDAPI_FLIGHTS_HOST?.trim() || process.env.RAPIDAPI_HOST?.trim();
-  const key = process.env.RAPIDAPI_FLIGHTS_KEY?.trim() || process.env.RAPIDAPI_KEY?.trim();
-  const path = process.env.RAPIDAPI_FLIGHTS_PATH?.trim() || "/flights/search-roundtrip";
+  const host =
+    process.env.RAPIDAPI_FLIGHTS_HOST?.trim() ||
+    process.env.RAPIDAPI_HOST?.trim();
+  const key =
+    process.env.RAPIDAPI_FLIGHTS_KEY?.trim() ||
+    process.env.RAPIDAPI_KEY?.trim();
+  const path =
+    process.env.RAPIDAPI_FLIGHTS_PATH?.trim() || "/flights/search-roundtrip";
   if (!host || !key) {
-    throw new Error("RapidAPI flight metasearch not configured (RAPIDAPI_FLIGHTS_HOST / RAPIDAPI_FLIGHTS_KEY)");
+    throw new Error(
+      "RapidAPI flight metasearch not configured (RAPIDAPI_FLIGHTS_HOST / RAPIDAPI_FLIGHTS_KEY)",
+    );
   }
   return { host, key, path: path.startsWith("/") ? path : `/${path}` };
 }
@@ -398,7 +471,7 @@ function trimSkyScraperSkyId(value: unknown): string | null {
 /** When autocomplete fails, use known-good place ids (same idea as the working commit). */
 function getAutocompleteFallbackPlaceId(iataCode: string): string | null {
   const k = iataCode.trim().toUpperCase();
-    const fallbacks: Record<string, string> = {
+  const fallbacks: Record<string, string> = {
     LHR: "LOND",
     JFK: "JFK",
     PARI: "PARI",
@@ -428,12 +501,14 @@ function getAutocompleteFallbackPlaceId(iataCode: string): string | null {
  * On HTTP 400 or empty `data`, retries once with `/web/flights/auto-complete` if needed.
  * On failure after retries, falls back to `getAutocompleteFallbackPlaceId` when defined.
  */
-async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | null> {
+async function getEntityIdFromAutoComplete(
+  iataCode: string,
+): Promise<string | null> {
   const { host, key } = getRapidApiFlightConfig();
   const headers = {
-        "X-RapidAPI-Key": key,
-        "X-RapidAPI-Host": host,
-        accept: "application/json",
+    "X-RapidAPI-Key": key,
+    "X-RapidAPI-Host": host,
+    accept: "application/json",
   };
   const webPath = "/web/flights/auto-complete";
   let path = getFlightAutocompletePath();
@@ -446,7 +521,9 @@ async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | n
       if (!row || typeof row !== "object") continue;
       const item = row as Record<string, unknown>;
       const navigation = item.navigation as Record<string, unknown> | undefined;
-      const flight = navigation?.relevantFlightParams as Record<string, unknown> | undefined;
+      const flight = navigation?.relevantFlightParams as
+        | Record<string, unknown>
+        | undefined;
 
       const skyRaw =
         trimSkyScraperSkyId(item.skyId) ||
@@ -457,21 +534,28 @@ async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | n
         return skyRaw;
       }
 
-      const legacyRaw = flight?.entityId ?? navigation?.entityId ?? item.entityId;
+      const legacyRaw =
+        flight?.entityId ?? navigation?.entityId ?? item.entityId;
       const legacy =
-        legacyRaw !== undefined && legacyRaw !== null ? String(legacyRaw).trim() : "";
+        legacyRaw !== undefined && legacyRaw !== null
+          ? String(legacyRaw).trim()
+          : "";
       if (legacy && !/^\d+$/.test(legacy)) {
         return legacy;
       }
     }
 
-    console.warn(`[getEntityIdFromAutoComplete] No usable place id (skyId or entityId) for ${iataCode}`);
+    console.warn(
+      `[getEntityIdFromAutoComplete] No usable place id (skyId or entityId) for ${iataCode}`,
+    );
     return null;
   };
 
   for (let attempt = 0; attempt < 2; attempt++) {
     const url = `https://${host}${path}?query=${encodeURIComponent(iataCode)}`;
-    console.log(`[getEntityIdFromAutoComplete] Fetching for ${iataCode} path=${path}`);
+    console.log(
+      `[getEntityIdFromAutoComplete] Fetching for ${iataCode} path=${path}`,
+    );
 
     try {
       const response = await fetch(url, { headers });
@@ -483,7 +567,9 @@ async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | n
           body.slice(0, 800),
         );
         if (response.status === 400 && path !== webPath && attempt === 0) {
-          console.warn(`[getEntityIdFromAutoComplete] Retrying with ${webPath}`);
+          console.warn(
+            `[getEntityIdFromAutoComplete] Retrying with ${webPath}`,
+          );
           path = webPath;
           continue;
         }
@@ -497,9 +583,13 @@ async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | n
       const results = payload.data;
       const emptyData = !Array.isArray(results) || results.length === 0;
       if (emptyData) {
-        console.warn(`[getEntityIdFromAutoComplete] No data[] for ${iataCode} (path=${path})`);
+        console.warn(
+          `[getEntityIdFromAutoComplete] No data[] for ${iataCode} (path=${path})`,
+        );
         if (path !== webPath && attempt === 0) {
-          console.warn(`[getEntityIdFromAutoComplete] Retrying with ${webPath}`);
+          console.warn(
+            `[getEntityIdFromAutoComplete] Retrying with ${webPath}`,
+          );
           path = webPath;
           continue;
         }
@@ -507,8 +597,8 @@ async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | n
       }
 
       return getAutocompleteFallbackPlaceId(iataCode);
-  } catch (error) {
-    console.error(`[getEntityIdFromAutoComplete] Error:`, error);
+    } catch (error) {
+      console.error(`[getEntityIdFromAutoComplete] Error:`, error);
       return getAutocompleteFallbackPlaceId(iataCode);
     }
   }
@@ -520,39 +610,44 @@ async function getEntityIdFromAutoComplete(iataCode: string): Promise<string | n
  * Flight-Sky / Sky Scraper `search-roundtrip`: `fromEntityId` and `toEntityId` from
  * autocomplete (plain sky segment ids such as `BCN`, `LOND`, as returned by the API).
  */
-  function buildRapidApiFlightSearchUrlWithEntityIds(
+function buildRapidApiFlightSearchUrlWithEntityIds(
   fromPlaceId: string,
   toPlaceId: string,
-    departureDate?: string,
-    returnDate?: string,
-    passengers: number = 1,
-    maxPrice?: number,
-    currency: string = "EUR",
-  ) {
-    const { host, path } = getRapidApiFlightConfig();
-    const searchParams = new URLSearchParams();
-    const curr = String(currency.toUpperCase()).slice(0, 3);
+  departureDate?: string,
+  returnDate?: string,
+  passengers: number = 1,
+  maxPrice?: number,
+  currency: string = "EUR",
+) {
+  const { host, path } = getRapidApiFlightConfig();
+  const searchParams = new URLSearchParams();
+  const curr = String(currency.toUpperCase()).slice(0, 3);
 
   searchParams.set("fromEntityId", fromPlaceId);
   searchParams.set("toEntityId", toPlaceId);
 
   if (departureDate) searchParams.set("departDate", departureDate);
   if (returnDate) searchParams.set("returnDate", returnDate);
-    searchParams.set("adults", String(passengers));
-    searchParams.set("currency", curr);
-    searchParams.set("limit", "20");
-    searchParams.set("sort", "price");
-  if (typeof maxPrice === "number" && Number.isFinite(maxPrice) && maxPrice > 0) {
+  searchParams.set("adults", String(passengers));
+  searchParams.set("currency", curr);
+  searchParams.set("limit", "20");
+  searchParams.set("sort", "price");
+  if (
+    typeof maxPrice === "number" &&
+    Number.isFinite(maxPrice) &&
+    maxPrice > 0
+  ) {
     searchParams.set("priceTo", String(maxPrice));
   }
 
-    return `https://${host}${path}?${searchParams.toString()}`;
-  }
+  return `https://${host}${path}?${searchParams.toString()}`;
+}
 
 function rootHasFlightErrors(root: Record<string, unknown>): boolean {
   const errors = root.errors;
   if (Array.isArray(errors)) return errors.length > 0;
-  if (errors && typeof errors === "object") return Object.keys(errors as Record<string, unknown>).length > 0;
+  if (errors && typeof errors === "object")
+    return Object.keys(errors as Record<string, unknown>).length > 0;
   return false;
 }
 
@@ -572,11 +667,16 @@ function logFlightResponseDebug(payload: unknown, phase: string): void {
     "data === undefined:",
     root.data === undefined,
   );
-  if ("status" in root) console.log(`[Flight Debug] ${phase} root status:`, root.status);
-  if ("message" in root) console.log(`[Flight Debug] ${phase} message:`, root.message);
+  if ("status" in root)
+    console.log(`[Flight Debug] ${phase} root status:`, root.status);
+  if ("message" in root)
+    console.log(`[Flight Debug] ${phase} message:`, root.message);
   if ("errors" in root) {
     const s = JSON.stringify(root.errors);
-    console.log(`[Flight Debug] ${phase} errors:`, s.length > 2500 ? `${s.slice(0, 2500)}…` : s);
+    console.log(
+      `[Flight Debug] ${phase} errors:`,
+      s.length > 2500 ? `${s.slice(0, 2500)}…` : s,
+    );
   }
   const dataVal = root.data;
   if (dataVal && typeof dataVal === "object" && !Array.isArray(dataVal)) {
@@ -584,10 +684,18 @@ function logFlightResponseDebug(payload: unknown, phase: string): void {
     console.log(`[Flight Debug] ${phase} Data keys:`, Object.keys(d));
     if ("itineraries" in d) {
       const itin = d.itineraries;
-      console.log(`[Flight Debug] ${phase} itineraries type:`, typeof itin, "isArray:", Array.isArray(itin));
+      console.log(
+        `[Flight Debug] ${phase} itineraries type:`,
+        typeof itin,
+        "isArray:",
+        Array.isArray(itin),
+      );
     }
   } else if (Array.isArray(dataVal)) {
-    console.log(`[Flight Debug] ${phase} data is array, length:`, dataVal.length);
+    console.log(
+      `[Flight Debug] ${phase} data is array, length:`,
+      dataVal.length,
+    );
   }
 }
 
@@ -595,7 +703,9 @@ function logFlightResponseDebug(payload: unknown, phase: string): void {
  * Shallow scan of root / nested `data` (legacy metasearch shapes). Used when bucket
  * extraction returns nothing but the payload still contains a list somewhere.
  */
-function extractRapidApiFlightOffersBroadShallow(value: Record<string, unknown>): Array<unknown> {
+function extractRapidApiFlightOffersBroadShallow(
+  value: Record<string, unknown>,
+): Array<unknown> {
   const candidates: Array<unknown> = [
     value.data,
     value.result,
@@ -610,7 +720,13 @@ function extractRapidApiFlightOffersBroadShallow(value: Record<string, unknown>)
     if (Array.isArray(candidate)) return candidate;
     if (candidate && typeof candidate === "object") {
       const nested = candidate as Record<string, unknown>;
-      const nestedCandidates = [nested.data, nested.itineraries, nested.flights, nested.offers, nested.items];
+      const nestedCandidates = [
+        nested.data,
+        nested.itineraries,
+        nested.flights,
+        nested.offers,
+        nested.items,
+      ];
       for (const nestedCandidate of nestedCandidates) {
         if (Array.isArray(nestedCandidate)) return nestedCandidate;
       }
@@ -627,9 +743,13 @@ function extractRapidApiFlightOffers(payload: unknown): Array<unknown> {
   // flights-sky: data.itineraries.buckets[].items (primary structure)
   const dataObj = root.data as Record<string, unknown> | undefined;
   if (dataObj && typeof dataObj === "object") {
-    const itineraries = dataObj.itineraries as Record<string, unknown> | undefined;
+    const itineraries = dataObj.itineraries as
+      | Record<string, unknown>
+      | undefined;
     if (itineraries && typeof itineraries === "object") {
-      const buckets = itineraries.buckets as Array<Record<string, unknown>> | undefined;
+      const buckets = itineraries.buckets as
+        | Array<Record<string, unknown>>
+        | undefined;
       if (Array.isArray(buckets) && buckets.length > 0) {
         const items: unknown[] = [];
         for (const bucket of buckets) {
@@ -638,20 +758,32 @@ function extractRapidApiFlightOffers(payload: unknown): Array<unknown> {
         if (items.length > 0) return items;
       }
       // results fallback
-      if (Array.isArray(itineraries.results) && (itineraries.results as unknown[]).length > 0) {
+      if (
+        Array.isArray(itineraries.results) &&
+        (itineraries.results as unknown[]).length > 0
+      ) {
         return itineraries.results as unknown[];
       }
       // Some flights-sky variants return data.itineraries as a plain array
-      if (Array.isArray(itineraries) && (itineraries as unknown as unknown[]).length > 0) {
+      if (
+        Array.isArray(itineraries) &&
+        (itineraries as unknown as unknown[]).length > 0
+      ) {
         return itineraries as unknown as unknown[];
       }
     }
     // data.flights[] (alternative flights-sky shape)
-    if (Array.isArray(dataObj.flights) && (dataObj.flights as unknown[]).length > 0) {
+    if (
+      Array.isArray(dataObj.flights) &&
+      (dataObj.flights as unknown[]).length > 0
+    ) {
       return dataObj.flights as unknown[];
     }
     // data.results[]
-    if (Array.isArray(dataObj.results) && (dataObj.results as unknown[]).length > 0) {
+    if (
+      Array.isArray(dataObj.results) &&
+      (dataObj.results as unknown[]).length > 0
+    ) {
       return dataObj.results as unknown[];
     }
     // flat data array
@@ -659,7 +791,14 @@ function extractRapidApiFlightOffers(payload: unknown): Array<unknown> {
   }
 
   // Generic fallbacks on root
-  for (const key of ["result", "results", "itineraries", "flights", "offers", "items"] as const) {
+  for (const key of [
+    "result",
+    "results",
+    "itineraries",
+    "flights",
+    "offers",
+    "items",
+  ] as const) {
     const val = root[key];
     if (Array.isArray(val) && val.length > 0) return val;
   }
@@ -679,7 +818,8 @@ function resolveFlightOriginIata(query: TravelOfferQuery) {
   const explicit = query.origin?.trim().toUpperCase();
   if (explicit && explicit.length === 3) return explicit;
 
-  const envOrigin = process.env.RAPIDAPI_FLIGHTS_ORIGIN_IATA?.trim().toUpperCase();
+  const envOrigin =
+    process.env.RAPIDAPI_FLIGHTS_ORIGIN_IATA?.trim().toUpperCase();
   if (envOrigin && envOrigin.length === 3) return envOrigin;
 
   // Default origin is Barcelona; avoid origin === destination
@@ -688,14 +828,20 @@ function resolveFlightOriginIata(query: TravelOfferQuery) {
 }
 
 function resolveFlightDestinationIata(query: TravelOfferQuery) {
-  const city = (query.city || query.destination).trim().toLowerCase()
-    .normalize("NFD").replace(/[̀-ͯ]/g, ""); // strip accents
+  const city = (query.city || query.destination)
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, ""); // strip accents
   const cityMap: Record<string, string> = {
     // Iberian Peninsula
-    lisbon: "LIS", lisboa: "LIS", lisbonne: "LIS",
+    lisbon: "LIS",
+    lisboa: "LIS",
+    lisbonne: "LIS",
     madrid: "MAD",
     barcelona: "BCN",
-    seville: "SVQ", sevilla: "SVQ",
+    seville: "SVQ",
+    sevilla: "SVQ",
     valencia: "VLC",
     bilbao: "BIO",
     malaga: "AGP",
@@ -708,11 +854,19 @@ function resolveFlightDestinationIata(query: TravelOfferQuery) {
     marseille: "MRS",
     bordeaux: "BOD",
     // Italy
-    rome: "FCO", roma: "FCO",
-    milan: "MXP", mila: "MXP", milano: "MXP",
-    florence: "FLR", firenze: "FLR",
-    venice: "VCE", venecia: "VCE", venezia: "VCE",
-    naples: "NAP", napoles: "NAP", napoli: "NAP",
+    rome: "FCO",
+    roma: "FCO",
+    milan: "MXP",
+    mila: "MXP",
+    milano: "MXP",
+    florence: "FLR",
+    firenze: "FLR",
+    venice: "VCE",
+    venecia: "VCE",
+    venezia: "VCE",
+    naples: "NAP",
+    napoles: "NAP",
+    napoli: "NAP",
     // UK
     london: "LHR",
     edinburgh: "EDI",
@@ -720,28 +874,45 @@ function resolveFlightDestinationIata(query: TravelOfferQuery) {
     // Central Europe
     amsterdam: "AMS",
     berlin: "BER",
-    munich: "MUC", munic: "MUC", munchen: "MUC",
+    munich: "MUC",
+    munic: "MUC",
+    munchen: "MUC",
     frankfurt: "FRA",
     hamburg: "HAM",
-    vienna: "VIE", viena: "VIE", wien: "VIE",
-    zurich: "ZRH", zuric: "ZRH",
-    geneva: "GVA", ginebra: "GVA",
-    brussels: "BRU", brusel: "BRU", bruxelles: "BRU",
+    vienna: "VIE",
+    viena: "VIE",
+    wien: "VIE",
+    zurich: "ZRH",
+    zuric: "ZRH",
+    geneva: "GVA",
+    ginebra: "GVA",
+    brussels: "BRU",
+    brusel: "BRU",
+    bruxelles: "BRU",
     // Eastern Europe
-    prague: "PRG", praga: "PRG",
+    prague: "PRG",
+    praga: "PRG",
     budapest: "BUD",
-    warsaw: "WAW", varsovia: "WAW",
-    krakow: "KRK", cracovia: "KRK",
-    bucharest: "OTP", bucarest: "OTP",
+    warsaw: "WAW",
+    varsovia: "WAW",
+    krakow: "KRK",
+    cracovia: "KRK",
+    bucharest: "OTP",
+    bucarest: "OTP",
     sofia: "SOF",
     // Scandinavia
-    copenhagen: "CPH", copenhaguen: "CPH", copenague: "CPH",
+    copenhagen: "CPH",
+    copenhaguen: "CPH",
+    copenague: "CPH",
     stockholm: "ARN",
     oslo: "OSL",
     helsinki: "HEL",
     // Mediterranean / Balkans
-    athens: "ATH", atenes: "ATH", atenas: "ATH",
-    istanbul: "IST", estambul: "IST",
+    athens: "ATH",
+    atenes: "ATH",
+    atenas: "ATH",
+    istanbul: "IST",
+    estambul: "IST",
     dubrovnik: "DBV",
     split: "SPU",
     thessaloniki: "SKG",
@@ -749,11 +920,15 @@ function resolveFlightDestinationIata(query: TravelOfferQuery) {
     dubai: "DXB",
     doha: "DOH",
     abu: "AUH",
-    marrakech: "RAK", marraquech: "RAK", marraqueix: "RAK",
+    marrakech: "RAK",
+    marraquech: "RAK",
+    marraqueix: "RAK",
     casablanca: "CMN",
-    cairo: "CAI", el: "CAI",
+    cairo: "CAI",
+    el: "CAI",
     // Asia
-    tokyo: "HND", tokio: "HND",
+    tokyo: "HND",
+    tokio: "HND",
     osaka: "KIX",
     kyoto: "ITM",
     bangkok: "BKK",
@@ -762,12 +937,14 @@ function resolveFlightDestinationIata(query: TravelOfferQuery) {
     bali: "DPS",
     hong: "HKG",
     seoul: "ICN",
-    beijing: "PEK", pekin: "PEK",
+    beijing: "PEK",
+    pekin: "PEK",
     shanghai: "PVG",
     delhi: "DEL",
     mumbai: "BOM",
     // Americas
-    "new york": "JFK", nueva: "JFK",
+    "new york": "JFK",
+    nueva: "JFK",
     "los angeles": "LAX",
     miami: "MIA",
     cancun: "CUN",
@@ -797,10 +974,11 @@ function resolveFlightDestinationIata(query: TravelOfferQuery) {
   }
 
   // Last resort: use env override or throw
-  const envDest = process.env.RAPIDAPI_FLIGHTS_DESTINATION_IATA?.trim().toUpperCase();
+  const envDest =
+    process.env.RAPIDAPI_FLIGHTS_DESTINATION_IATA?.trim().toUpperCase();
   if (envDest && envDest.length === 3) return envDest;
 
-    throw new Error(
+  throw new Error(
     `No flight destination IATA for "${query.city || query.destination}". Add it to the city map in travel-providers.ts.`,
   );
 }
@@ -818,7 +996,10 @@ function pickFirstString(values: Array<unknown>): string | null {
  * URLs frequently route through the Skyscanner redirect that triggers the
  * reCAPTCHA / "bad authentication" wall. Prefer agent items first.
  */
-function normalizeRapidApiBookingUrl(offer: Record<string, unknown>, fallbackUrl: string) {
+function normalizeRapidApiBookingUrl(
+  offer: Record<string, unknown>,
+  fallbackUrl: string,
+) {
   const pricingOptions = Array.isArray(offer.pricing_options)
     ? (offer.pricing_options as Array<Record<string, unknown>>)
     : Array.isArray(offer.pricingOptions)
@@ -826,7 +1007,9 @@ function normalizeRapidApiBookingUrl(offer: Record<string, unknown>, fallbackUrl
       : [];
 
   for (const option of pricingOptions) {
-    const items = Array.isArray(option.items) ? (option.items as Array<Record<string, unknown>>) : [];
+    const items = Array.isArray(option.items)
+      ? (option.items as Array<Record<string, unknown>>)
+      : [];
     for (const item of items) {
       const candidate = pickFirstString([
         item.deep_link,
@@ -838,7 +1021,9 @@ function normalizeRapidApiBookingUrl(offer: Record<string, unknown>, fallbackUrl
       if (candidate) return candidate;
     }
 
-    const agents = Array.isArray(option.agents) ? (option.agents as Array<Record<string, unknown>>) : [];
+    const agents = Array.isArray(option.agents)
+      ? (option.agents as Array<Record<string, unknown>>)
+      : [];
     for (const agent of agents) {
       const candidate = pickFirstString([
         agent.deep_link,
@@ -851,7 +1036,9 @@ function normalizeRapidApiBookingUrl(offer: Record<string, unknown>, fallbackUrl
     }
   }
 
-  const agents = Array.isArray(offer.agents) ? (offer.agents as Array<Record<string, unknown>>) : [];
+  const agents = Array.isArray(offer.agents)
+    ? (offer.agents as Array<Record<string, unknown>>)
+    : [];
   for (const agent of agents) {
     const candidate = pickFirstString([
       agent.deep_link,
@@ -888,7 +1075,13 @@ function parseFlightPriceCandidate(value: unknown): number {
   }
   if (value && typeof value === "object") {
     const obj = value as Record<string, unknown>;
-    const candidates = [obj.raw, obj.amount, obj.value, obj.total, obj.formatted];
+    const candidates = [
+      obj.raw,
+      obj.amount,
+      obj.value,
+      obj.total,
+      obj.formatted,
+    ];
     for (const c of candidates) {
       const n = parseFlightPriceCandidate(c);
       if (Number.isFinite(n) && n > 0) return n;
@@ -941,8 +1134,10 @@ function buildSkyscannerSearchFallbackUrl(
   const dep = toSkyscannerYyMmDd(departureDate);
   const ret = toSkyscannerYyMmDd(returnDate);
 
-  if (dep && ret) return `https://www.skyscanner.net/transport/flights/${from}/${to}/${dep}/${ret}/`;
-  if (dep) return `https://www.skyscanner.net/transport/flights/${from}/${to}/${dep}/`;
+  if (dep && ret)
+    return `https://www.skyscanner.net/transport/flights/${from}/${to}/${dep}/${ret}/`;
+  if (dep)
+    return `https://www.skyscanner.net/transport/flights/${from}/${to}/${dep}/`;
   return `https://www.skyscanner.net/transport/flights/${from}/${to}/`;
 }
 
@@ -962,7 +1157,8 @@ function pickIsoTimeHHmm(value: unknown): string | null {
 }
 
 function formatDurationLabel(minutes: number | null): string | null {
-  if (typeof minutes !== "number" || !Number.isFinite(minutes) || minutes <= 0) return null;
+  if (typeof minutes !== "number" || !Number.isFinite(minutes) || minutes <= 0)
+    return null;
   const hours = Math.floor(minutes / 60);
   const mins = minutes % 60;
   if (hours > 0 && mins > 0) return `${hours}h ${mins}m`;
@@ -975,36 +1171,59 @@ function summarizeFlightLeg(leg: unknown): FlightLegSummary | null {
   const l = leg as Record<string, unknown>;
 
   const carriers = l.carriers as Record<string, unknown> | undefined;
-  const marketingArr = (carriers?.marketing ?? l.marketingCarrier ?? l.marketing_carriers) as
-    | Array<Record<string, unknown>>
-    | undefined;
-  const firstMarketing = Array.isArray(marketingArr) ? marketingArr[0] : undefined;
+  const marketingArr = (carriers?.marketing ??
+    l.marketingCarrier ??
+    l.marketing_carriers) as Array<Record<string, unknown>> | undefined;
+  const firstMarketing = Array.isArray(marketingArr)
+    ? marketingArr[0]
+    : undefined;
   const airlineName =
     (typeof firstMarketing?.name === "string" && firstMarketing.name) ||
     (typeof l.airlineName === "string" && l.airlineName) ||
     null;
   const airlineCode =
-    (typeof firstMarketing?.alternate_id === "string" && firstMarketing.alternate_id) ||
+    (typeof firstMarketing?.alternate_id === "string" &&
+      firstMarketing.alternate_id) ||
     (typeof firstMarketing?.code === "string" && firstMarketing.code) ||
     (typeof l.airlineCode === "string" && l.airlineCode) ||
     null;
 
-  const departureTime = pickIsoTimeHHmm(l.departure ?? l.departureTime ?? l.departure_at);
-  const arrivalTime = pickIsoTimeHHmm(l.arrival ?? l.arrivalTime ?? l.arrival_at);
+  const departureTime = pickIsoTimeHHmm(
+    l.departure ?? l.departureTime ?? l.departure_at,
+  );
+  const arrivalTime = pickIsoTimeHHmm(
+    l.arrival ?? l.arrivalTime ?? l.arrival_at,
+  );
 
-  const durationRaw = l.durationInMinutes ?? l.duration_in_minutes ?? l.duration;
+  const durationRaw =
+    l.durationInMinutes ?? l.duration_in_minutes ?? l.duration;
   const durationMinutes =
-    typeof durationRaw === "number" && Number.isFinite(durationRaw) ? durationRaw : null;
+    typeof durationRaw === "number" && Number.isFinite(durationRaw)
+      ? durationRaw
+      : null;
 
   const stopCountRaw = l.stopCount ?? l.stop_count ?? l.stops;
-  const stops = typeof stopCountRaw === "number" && Number.isFinite(stopCountRaw) ? stopCountRaw : null;
+  const stops =
+    typeof stopCountRaw === "number" && Number.isFinite(stopCountRaw)
+      ? stopCountRaw
+      : null;
 
-  return { airlineName, airlineCode, departureTime, arrivalTime, durationMinutes, stops };
+  return {
+    airlineName,
+    airlineCode,
+    departureTime,
+    arrivalTime,
+    durationMinutes,
+    stops,
+  };
 }
 
 function formatLegInline(leg: FlightLegSummary | null): string | null {
   if (!leg) return null;
-  const range = leg.departureTime && leg.arrivalTime ? `${leg.departureTime} - ${leg.arrivalTime}` : null;
+  const range =
+    leg.departureTime && leg.arrivalTime
+      ? `${leg.departureTime} - ${leg.arrivalTime}`
+      : null;
   const duration = formatDurationLabel(leg.durationMinutes);
   if (range && duration) return `${range} (${duration})`;
   return range ?? duration ?? null;
@@ -1019,9 +1238,17 @@ function mapRapidApiFlightOffer(
   departureDate?: string,
   returnDate?: string,
 ): TravelOfferInput | null {
-  const effectiveMaxPrice = typeof maxPrice === "number" && Number.isFinite(maxPrice) ? maxPrice : undefined;
+  const effectiveMaxPrice =
+    typeof maxPrice === "number" && Number.isFinite(maxPrice)
+      ? maxPrice
+      : undefined;
   const price = extractFlightPrice(offer);
-  if (typeof effectiveMaxPrice === "number" && effectiveMaxPrice > 0 && Number.isFinite(price) && price > effectiveMaxPrice) {
+  if (
+    typeof effectiveMaxPrice === "number" &&
+    effectiveMaxPrice > 0 &&
+    Number.isFinite(price) &&
+    price > effectiveMaxPrice
+  ) {
     return null;
   }
 
@@ -1037,32 +1264,47 @@ function mapRapidApiFlightOffer(
   const title = airlineName
     ? `${airlineName} • ${route.originIata} to ${route.destinationIata}`
     : (typeof offer.title === "string" && offer.title) ||
-    (typeof offer.name === "string" && offer.name) ||
-    `${route.originIata} → ${route.destinationIata}`;
+      (typeof offer.name === "string" && offer.name) ||
+      `${route.originIata} → ${route.destinationIata}`;
 
-  const safeFallback = buildSkyscannerSearchFallbackUrl(route, departureDate, returnDate);
+  const safeFallback = buildSkyscannerSearchFallbackUrl(
+    route,
+    departureDate,
+    returnDate,
+  );
   const directDeepLink = normalizeRapidApiBookingUrl(offer, "");
-  const bookingUrl = directDeepLink && /^https?:\/\//i.test(directDeepLink) ? directDeepLink : safeFallback;
+  const bookingUrl =
+    directDeepLink && /^https?:\/\//i.test(directDeepLink)
+      ? directDeepLink
+      : safeFallback;
 
   const outboundLabel = formatLegInline(outbound);
   const inboundLabel = formatLegInline(inbound);
-  const stopsTotal =
-    (outbound?.stops ?? 0) + (inbound?.stops ?? 0);
+  const stopsTotal = (outbound?.stops ?? 0) + (inbound?.stops ?? 0);
 
   const descriptionSegments: string[] = [];
   if (outboundLabel) descriptionSegments.push(`Outbound: ${outboundLabel}`);
   if (inboundLabel) descriptionSegments.push(`Return: ${inboundLabel}`);
-  if (stopsTotal > 0) descriptionSegments.push(`${stopsTotal} stop${stopsTotal === 1 ? "" : "s"}`);
+  if (stopsTotal > 0)
+    descriptionSegments.push(
+      `${stopsTotal} stop${stopsTotal === 1 ? "" : "s"}`,
+    );
 
   const description =
     descriptionSegments.length > 0
       ? descriptionSegments.join(" | ")
-      : (typeof offer.airline === "string" ? offer.airline : undefined);
+      : typeof offer.airline === "string"
+        ? offer.airline
+        : undefined;
 
   const availabilityText =
     (typeof offer.availabilityText === "string" && offer.availabilityText) ||
-    formatDurationLabel((outbound?.durationMinutes ?? 0) + (inbound?.durationMinutes ?? 0)) ||
-    (typeof offer.availableSeats === "number" ? `${offer.availableSeats} seats` : undefined) ||
+    formatDurationLabel(
+      (outbound?.durationMinutes ?? 0) + (inbound?.durationMinutes ?? 0),
+    ) ||
+    (typeof offer.availableSeats === "number"
+      ? `${offer.availableSeats} seats`
+      : undefined) ||
     (typeof offer.duration === "string" ? offer.duration : undefined);
 
   return {
@@ -1074,8 +1316,9 @@ function mapRapidApiFlightOffer(
     currency: String(
       (typeof offer.currency === "string" && offer.currency) ||
         (typeof offer.currencyCode === "string" && offer.currencyCode) ||
-        (offer.price && typeof offer.price === "object" &&
-          typeof (offer.price as Record<string, unknown>).currency === "string"
+        (offer.price &&
+        typeof offer.price === "object" &&
+        typeof (offer.price as Record<string, unknown>).currency === "string"
           ? ((offer.price as Record<string, unknown>).currency as string)
           : "") ||
         currency,
@@ -1098,12 +1341,16 @@ function mapRapidApiFlightOffer(
  * The provider host/path are configurable via `RAPIDAPI_FLIGHTS_HOST` and `RAPIDAPI_FLIGHTS_PATH`.
  * `RAPIDAPI_FLIGHTS_KEY` is preferred, with `RAPIDAPI_KEY` as fallback.
  */
-export async function searchFlightsMetasearch(params: MetasearchFlightParams): Promise<TravelOfferInput[]> {
+export async function searchFlightsMetasearch(
+  params: MetasearchFlightParams,
+): Promise<TravelOfferInput[]> {
   const fromId = await getEntityIdFromAutoComplete(params.originIata);
   const toId = await getEntityIdFromAutoComplete(params.destinationIata);
 
   if (!fromId || !toId) {
-    console.warn(`[searchFlightsMetasearch] Could not resolve place ids for search.`);
+    console.warn(
+      `[searchFlightsMetasearch] Could not resolve place ids for search.`,
+    );
     return [];
   }
 
@@ -1138,7 +1385,9 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
   if (!response.ok) {
     const text = await response.text().catch(() => "");
     console.error(`[searchFlightsMetasearch] Error response: ${text}`);
-    throw new Error(`RapidAPI flight search responded ${response.status}: ${text}`);
+    throw new Error(
+      `RapidAPI flight search responded ${response.status}: ${text}`,
+    );
   }
 
   let payload = await response.json().catch(() => null);
@@ -1150,7 +1399,9 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
     const root = p as Record<string, unknown>;
     const dataObj = root.data as Record<string, unknown> | undefined;
     if (!dataObj) return null;
-    const ctx = (dataObj.context ?? dataObj.itineraries) as Record<string, unknown> | undefined;
+    const ctx = (dataObj.context ?? dataObj.itineraries) as
+      | Record<string, unknown>
+      | undefined;
     const sessionId = ctx?.sessionId ?? dataObj.sessionId ?? root.sessionId;
     return typeof sessionId === "string" ? sessionId : null;
   };
@@ -1163,7 +1414,12 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
     const dataVal = root.data;
     if (dataVal === null || dataVal === undefined) {
       const rs = root.status;
-      if (typeof rs === "string" && rs.trim() !== "" && rs.toLowerCase() !== "ok") return rs;
+      if (
+        typeof rs === "string" &&
+        rs.trim() !== "" &&
+        rs.toLowerCase() !== "ok"
+      )
+        return rs;
       return "complete";
     }
     if (typeof dataVal !== "object") return "complete";
@@ -1175,7 +1431,9 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
 
   const sessionId = getSessionId(payload);
   const initialStatus = getStatus(payload);
-  console.log(`[searchFlightsMetasearch] Initial status: ${initialStatus}, sessionId: ${sessionId}`);
+  console.log(
+    `[searchFlightsMetasearch] Initial status: ${initialStatus}, sessionId: ${sessionId}`,
+  );
 
   if (initialStatus === "incomplete" && sessionId) {
     // The flights-sky API uses a polling pattern: re-call the same search endpoint
@@ -1203,9 +1461,15 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
       // On first attempt, discover which poll URL works
       if (attempt === 1) {
         for (const candidate of pollUrls) {
-          console.log(`[searchFlightsMetasearch] Trying poll URL: ${candidate}`);
+          console.log(
+            `[searchFlightsMetasearch] Trying poll URL: ${candidate}`,
+          );
           const probe = await fetch(candidate, {
-            headers: { "X-RapidAPI-Key": key, "X-RapidAPI-Host": host, accept: "application/json" },
+            headers: {
+              "X-RapidAPI-Key": key,
+              "X-RapidAPI-Host": host,
+              accept: "application/json",
+            },
           });
           if (probe.ok) {
             activePollUrl = candidate;
@@ -1216,12 +1480,18 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
               `[searchFlightsMetasearch] Poll URL works, status: ${probeStatus}, offers: ${probeOffers.length}`,
             );
             payload = probePayload;
-            if (probeOffers.length > 0 || probeStatus === "complete" || probeStatus === "error") {
+            if (
+              probeOffers.length > 0 ||
+              probeStatus === "complete" ||
+              probeStatus === "error"
+            ) {
               activePollUrl = null;
             }
             break;
           }
-          console.warn(`[searchFlightsMetasearch] Poll URL returned ${probe.status}: ${candidate}`);
+          console.warn(
+            `[searchFlightsMetasearch] Poll URL returned ${probe.status}: ${candidate}`,
+          );
         }
         if (!activePollUrl) break; // already got results or no URL works
         continue;
@@ -1229,23 +1499,38 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
 
       if (!activePollUrl) break;
 
-      console.log(`[searchFlightsMetasearch] Polling attempt ${attempt}/${MAX_POLLS}`);
+      console.log(
+        `[searchFlightsMetasearch] Polling attempt ${attempt}/${MAX_POLLS}`,
+      );
       const pollResponse = await fetch(activePollUrl, {
-        headers: { "X-RapidAPI-Key": key, "X-RapidAPI-Host": host, accept: "application/json" },
+        headers: {
+          "X-RapidAPI-Key": key,
+          "X-RapidAPI-Host": host,
+          accept: "application/json",
+        },
       });
 
       if (!pollResponse.ok) {
-        console.warn(`[searchFlightsMetasearch] Poll ${attempt} returned ${pollResponse.status}, stopping`);
+        console.warn(
+          `[searchFlightsMetasearch] Poll ${attempt} returned ${pollResponse.status}, stopping`,
+        );
         break;
       }
 
       const pollPayload = await pollResponse.json().catch(() => null);
       const pollOffers = extractRapidApiFlightOffers(pollPayload);
       const pollStatus = getStatus(pollPayload);
-      console.log(`[searchFlightsMetasearch] Poll ${attempt} status: ${pollStatus}, offers: ${pollOffers.length}`);
+      console.log(
+        `[searchFlightsMetasearch] Poll ${attempt} status: ${pollStatus}, offers: ${pollOffers.length}`,
+      );
 
       payload = pollPayload;
-      if (pollOffers.length > 0 || pollStatus === "complete" || pollStatus === "error") break;
+      if (
+        pollOffers.length > 0 ||
+        pollStatus === "complete" ||
+        pollStatus === "error"
+      )
+        break;
     }
   }
 
@@ -1278,14 +1563,19 @@ export async function searchFlightsMetasearch(params: MetasearchFlightParams): P
     .filter((offer): offer is TravelOfferInput => Boolean(offer));
 }
 
-
-export async function searchFlightsMetasearchForQuery(query: TravelOfferQuery): Promise<TravelOfferInput[]> {
+export async function searchFlightsMetasearchForQuery(
+  query: TravelOfferQuery,
+): Promise<TravelOfferInput[]> {
   const route = resolveMetasearchFlightRoute(query);
   const offers = await searchFlightsMetasearch({
     originIata: route.originIata,
     destinationIata: route.destinationIata,
-    departureDate: query.startDate ? query.startDate.toISOString().slice(0, 10) : undefined,
-    returnDate: query.endDate ? query.endDate.toISOString().slice(0, 10) : undefined,
+    departureDate: query.startDate
+      ? query.startDate.toISOString().slice(0, 10)
+      : undefined,
+    returnDate: query.endDate
+      ? query.endDate.toISOString().slice(0, 10)
+      : undefined,
     passengers: query.people ?? 1,
     maxPrice: query.maxPrice ?? query.budgetMax ?? undefined,
     currency: query.currency,
@@ -1295,7 +1585,10 @@ export async function searchFlightsMetasearchForQuery(query: TravelOfferQuery): 
 }
 
 // Helper to filter flights by max price
-function filterOffersByMaxPrice(offers: TravelOfferInput[], query?: TravelOfferQuery) {
+function filterOffersByMaxPrice(
+  offers: TravelOfferInput[],
+  query?: TravelOfferQuery,
+) {
   const effectiveMax = query?.maxPrice ?? query?.budgetMax;
   if (effectiveMax && Number.isFinite(Number(effectiveMax))) {
     return offers.filter((o) => Number(o.price) <= Number(effectiveMax));
