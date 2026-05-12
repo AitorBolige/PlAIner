@@ -6515,7 +6515,10 @@ function LiveOffersPreview(_ref61) {
       fontSize: 13.5,
       color: 'var(--text-muted)'
     }
-  }, "No hem trobat vols disponibles ara mateix per aquesta combinaci\xF3 de dates i destinaci\xF3.") : /*#__PURE__*/React.createElement(OffersSection, {
+  }, "No hem trobat vols disponibles ara mateix per aquesta combinaci\xF3 de dates i destinaci\xF3.", /*#__PURE__*/React.createElement("button", {
+    onClick: function() { setCurrentStep('hotels'); onStepChange && onStepChange('hotels'); },
+    style: { marginTop: 14, width: '100%', height: 48, borderRadius: 9999, background: 'var(--green)', color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer' }
+  }, "Continua sense vol →")) : /*#__PURE__*/React.createElement(OffersSection, {
     title: "Vols disponibles",
     accent: "var(--coral)",
     count: flights.length,
@@ -6525,7 +6528,7 @@ function LiveOffersPreview(_ref61) {
     offer: offer,
     pickMode: true,
     onPick: handlePickFlight
-  })))), currentStep === 'hotels' && selectedFlight && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+  })))), currentStep === 'hotels' && /*#__PURE__*/React.createElement(React.Fragment, null, selectedFlight && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 12,
       padding: 12,
@@ -6569,7 +6572,7 @@ function LiveOffersPreview(_ref61) {
     offer: offer,
     pickMode: true,
     onPick: handlePickHotel
-  })))), currentStep === 'summary' && selectedFlight && selectedHotel && /*#__PURE__*/React.createElement("div", {
+  })))), currentStep === 'summary' && selectedHotel && /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
@@ -6624,10 +6627,10 @@ function LiveOffersPreview(_ref61) {
     style: {
       color: 'var(--coral)'
     }
-  }, "VOL"), /*#__PURE__*/React.createElement(FlightOfferCard, {
+  }, "VOL"), selectedFlight ? /*#__PURE__*/React.createElement(FlightOfferCard, {
     offer: selectedFlight,
     pickMode: false
-  }), /*#__PURE__*/React.createElement("div", {
+  }) : /*#__PURE__*/React.createElement("div", { style: { padding: '10px 14px', borderRadius: 14, background: 'var(--surface-2)', fontSize: 13, color: 'var(--text-muted)' } }, "Sense vol seleccionat"), /*#__PURE__*/React.createElement("div", {
     className: "micro",
     style: {
       color: 'var(--green)'
@@ -6994,6 +6997,32 @@ function PLAIerApp(_ref62) {
     generatingPhase = _React$useStateGenPh2[0],
     setGeneratingPhase = _React$useStateGenPh2[1];
   async function loadLiveOffers(params, options) {
+    // ── MOCK MODE ── Retorna dades simulades sense consumir les APIs externes
+    const USE_MOCK = true;
+    if (USE_MOCK) {
+      var _runId = (options === null || options === void 0 ? void 0 : options.runId) != null ? options.runId : null;
+      setOfferLoading(true);
+      setOfferLoadError(null);
+      await new Promise(r => setTimeout(r, 600));
+      if (_runId != null && _runId !== generationRunIdRef.current) return;
+      const dest = (params === null || params === void 0 ? void 0 : params.destination) || {};
+      const city = dest.city || dest.name || 'Destí';
+      setOfferSnapshot({
+        search: { destination: city, city, refreshedAt: new Date().toISOString() },
+        offers: [
+          { id: 'mock-fl-1', type: 'TRANSPORT', title: 'BCN → ROM · Vueling', description: 'Vueling · 2h 05m · Directe', price: 89, currency: 'EUR', provider: 'Vueling', availabilityText: 'Directe' },
+          { id: 'mock-fl-2', type: 'TRANSPORT', title: 'BCN → ROM · Ryanair', description: 'Ryanair · 2h 10m · Directe', price: 72, currency: 'EUR', provider: 'Ryanair', availabilityText: 'Directe' },
+          { id: 'mock-fl-3', type: 'TRANSPORT', title: 'BCN → ROM · Iberia', description: 'Iberia · 3h 20m · 1 escala', price: 105, currency: 'EUR', provider: 'Iberia', availabilityText: '1 escala' },
+          { id: 'mock-ht-1', type: 'HOTEL', title: 'Hotel Roma Centro ★★★★', description: 'Habitació doble · Esmorzar inclòs · Centre històric', price: 110, currency: 'EUR', provider: 'Booking.com', imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=75&fit=crop' },
+          { id: 'mock-ht-2', type: 'HOTEL', title: 'Trastevere Boutique Hotel ★★★', description: 'Habitació doble · Trastevere · Wifi gratuït', price: 85, currency: 'EUR', provider: 'Booking.com', imageUrl: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&q=75&fit=crop' },
+          { id: 'mock-ht-3', type: 'HOTEL', title: 'Colosseo Suites ★★★★★', description: 'Suite deluxe · Vista Colosseu · Spa inclòs', price: 220, currency: 'EUR', provider: 'Booking.com', imageUrl: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&q=75&fit=crop' },
+        ]
+      });
+      setOfferLoading(false);
+      setGeneratingPhase('idle');
+      return;
+    }
+    // ── FI MOCK MODE ──
     var forceRefresh = (options === null || options === void 0 ? void 0 : options.forceRefresh) === true;
     var runId = (options === null || options === void 0 ? void 0 : options.runId) != null ? options.runId : null;
     var isStale = function isStale() {
