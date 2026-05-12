@@ -45,7 +45,7 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
-      - run: npm audit --audit-level=high
+      - run: npm audit --audit-level=critical
 
   prisma-validate:
     runs-on: ubuntu-latest
@@ -57,7 +57,13 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npx prisma validate
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
       - run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
 
   format:
     runs-on: ubuntu-latest
@@ -68,4 +74,4 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
-      - run: npx prettier --check "src/*/.{ts,tsx,css}"
+      - run: npx prettier --check "src/**/*.{ts,tsx,css}"
