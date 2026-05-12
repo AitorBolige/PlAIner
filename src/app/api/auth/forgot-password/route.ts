@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const { email } = await req.json();
     if (!email) return NextResponse.json({ ok: true });
 
-    const { data: user } = await supabaseAdmin
+    const { data: user } = await getSupabaseAdmin()
       .from("User")
       .select("id, email")
       .eq("email", email.toLowerCase().trim())
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       const token = crypto.randomUUID();
       const expires = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
-      const { error: insertErr } = await supabaseAdmin
+      const { error: insertErr } = await getSupabaseAdmin()
         .from("PasswordResetToken")
         .insert({
           id: crypto.randomUUID(),

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { data: resetToken } = await supabaseAdmin
+    const { data: resetToken } = await getSupabaseAdmin()
       .from("PasswordResetToken")
       .select("id, userId, expires, used")
       .eq("token", token)
@@ -38,12 +38,12 @@ export async function POST(req: Request) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    await supabaseAdmin
+    await getSupabaseAdmin()
       .from("User")
       .update({ passwordHash })
       .eq("id", resetToken.userId);
 
-    await supabaseAdmin
+    await getSupabaseAdmin()
       .from("PasswordResetToken")
       .update({ used: true })
       .eq("id", resetToken.id);

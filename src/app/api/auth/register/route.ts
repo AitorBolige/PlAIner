@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 export async function POST(req: Request) {
   try {
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
     const normalizedEmail = email.toLowerCase().trim();
 
-    const { data: existing } = await supabaseAdmin
+    const { data: existing } = await getSupabaseAdmin()
       .from("User")
       .select("id")
       .eq("email", normalizedEmail)
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 
     const passwordHash = await bcrypt.hash(password, 12);
 
-    const { data: user, error } = await supabaseAdmin
+    const { data: user, error } = await getSupabaseAdmin()
       .from("User")
       .insert({
         id: crypto.randomUUID(),
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
       );
     }
 
-    await supabaseAdmin.from("LoginEvent").insert({
+    await getSupabaseAdmin().from("LoginEvent").insert({
       id: crypto.randomUUID(),
       userId: user.id,
       email: normalizedEmail,
