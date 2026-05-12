@@ -16,13 +16,15 @@ async function logLogin({
   method: "credentials" | "google" | "facebook";
   success: boolean;
 }) {
-  await getSupabaseAdmin().from("LoginEvent").insert({
-    id: crypto.randomUUID(),
-    userId: userId ?? null,
-    email,
-    method,
-    success,
-  });
+  await getSupabaseAdmin()
+    .from("LoginEvent")
+    .insert({
+      id: crypto.randomUUID(),
+      userId: userId ?? null,
+      email,
+      method,
+      success,
+    });
 }
 
 export const authOptions: NextAuthOptions = {
@@ -139,19 +141,21 @@ export const authOptions: NextAuthOptions = {
           .single();
 
         if (!existingAccount) {
-          await getSupabaseAdmin().from("Account").insert({
-            id: crypto.randomUUID(),
-            userId,
-            type: "oauth",
-            provider,
-            providerAccountId: account.providerAccountId,
-            access_token: account.access_token ?? null,
-            refresh_token: account.refresh_token ?? null,
-            expires_at: account.expires_at ?? null,
-            token_type: account.token_type ?? null,
-            scope: account.scope ?? null,
-            id_token: account.id_token ?? null,
-          });
+          await getSupabaseAdmin()
+            .from("Account")
+            .insert({
+              id: crypto.randomUUID(),
+              userId,
+              type: "oauth",
+              provider,
+              providerAccountId: account.providerAccountId,
+              access_token: account.access_token ?? null,
+              refresh_token: account.refresh_token ?? null,
+              expires_at: account.expires_at ?? null,
+              token_type: account.token_type ?? null,
+              scope: account.scope ?? null,
+              id_token: account.id_token ?? null,
+            });
         }
 
         await logLogin({ userId, email, method: provider, success: true });
