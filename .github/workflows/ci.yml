@@ -85,12 +85,12 @@ jobs:
         with:
           fetch-depth: 0
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.organization=abolige
-            -Dsonar.projectKey=abolige_PlAIner
+            -Dsonar.organization=aitorbolige
+            -Dsonar.projectKey=AitorBolige_PlAIner
             -Dsonar.sources=src
             -Dsonar.exclusions=**/node_modules/**,**/.next/**
