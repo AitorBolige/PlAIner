@@ -253,6 +253,9 @@ export function BuilderView({
                 <div
                   key={flight.id}
                   onClick={() => setStep("hotel")}
+                  onKeyDown={(e) => e.key === "Enter" && setStep("hotel")}
+                  role="button"
+                  tabIndex={0}
                   className="pl-tap"
                   style={{
                     background: "var(--surface)",
@@ -325,6 +328,9 @@ export function BuilderView({
                 <div
                   key={hotel.id}
                   onClick={() => setStep("summary")}
+                  onKeyDown={(e) => e.key === "Enter" && setStep("summary")}
+                  role="button"
+                  tabIndex={0}
                   className="pl-tap"
                   style={{
                     background: "var(--surface)",
