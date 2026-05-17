@@ -10,7 +10,13 @@ export interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
   size?: number;
 }
 
-export function Avatar({ className, name, src, size = 40, ...props }: AvatarProps) {
+export function Avatar({
+  className,
+  name,
+  src,
+  size = 40,
+  ...props
+}: AvatarProps) {
   const initials =
     name
       ?.split(" ")
@@ -23,7 +29,7 @@ export function Avatar({ className, name, src, size = 40, ...props }: AvatarProp
     <div
       className={cn(
         "relative overflow-hidden rounded-full border border-[color:var(--color-border)] bg-[color:rgba(255,255,255,0.04)]",
-        className
+        className,
       )}
       style={{ width: size, height: size }}
       {...props}
@@ -38,4 +44,3 @@ export function Avatar({ className, name, src, size = 40, ...props }: AvatarProp
     </div>
   );
 }
-

@@ -59,7 +59,6 @@ export const useOnboardingStore = create<OnboardingState>()(
           duration: null,
         }),
     }),
-    { name: "plainer_onboarding_v1" }
-  )
+    { name: "plainer_onboarding_v1" },
+  ),
 );
-

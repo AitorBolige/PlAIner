@@ -1,4 +1,9 @@
-import { Prisma, TravelOfferType, TravelRefreshRunStatus, TravelSearchStatus } from "@prisma/client";
+import {
+  Prisma,
+  TravelOfferType,
+  TravelRefreshRunStatus,
+  TravelSearchStatus,
+} from "@prisma/client";
 import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
@@ -18,15 +23,17 @@ const baseQuerySchema = z.object({
   currency: z.string().trim().length(3).default("EUR"),
 });
 
-export const travelOfferQuerySchema = baseQuerySchema.superRefine((query, ctx) => {
-  if (query.startDate && query.endDate && query.endDate < query.startDate) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["endDate"],
-      message: "endDate must be on or after startDate",
-    });
-  }
-});
+export const travelOfferQuerySchema = baseQuerySchema.superRefine(
+  (query, ctx) => {
+    if (query.startDate && query.endDate && query.endDate < query.startDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["endDate"],
+        message: "endDate must be on or after startDate",
+      });
+    }
+  },
+);
 
 export const travelOfferSchema = z.object({
   type: offerTypeSchema,
@@ -94,7 +101,9 @@ export function buildTravelSearchCacheKey(query: TravelOfferQuery) {
     origin: query.origin?.trim().toUpperCase() ?? null,
     city: query.city?.trim().toLowerCase() ?? null,
     countryCode: query.countryCode?.trim().toUpperCase() ?? null,
-    startDate: query.startDate ? query.startDate.toISOString().slice(0, 10) : null,
+    startDate: query.startDate
+      ? query.startDate.toISOString().slice(0, 10)
+      : null,
     endDate: query.endDate ? query.endDate.toISOString().slice(0, 10) : null,
     people: query.people,
     budgetMax: query.budgetMax ?? null,
@@ -103,7 +112,9 @@ export function buildTravelSearchCacheKey(query: TravelOfferQuery) {
   });
 }
 
-export function serializeTravelSearchQuery(query: TravelOfferQuery): Prisma.JsonObject {
+export function serializeTravelSearchQuery(
+  query: TravelOfferQuery,
+): Prisma.JsonObject {
   return {
     destination: query.destination.trim(),
     origin: query.origin?.trim() ?? null,
@@ -168,7 +179,8 @@ function toSearchSnapshot(
     search: search
       ? {
           ...search,
-          isStale: !search.expiresAt || search.expiresAt.getTime() <= Date.now(),
+          isStale:
+            !search.expiresAt || search.expiresAt.getTime() <= Date.now(),
         }
       : null,
     offers,
@@ -197,9 +209,9 @@ export async function getTravelSearchSnapshot(query: TravelOfferQuery) {
           startDate: search.startDate,
           endDate: search.endDate,
           people: search.people,
-            budgetMax: search.budgetMax,
-            origin: search.origin ?? null,
-            maxPrice: search.maxPrice ?? null,
+          budgetMax: search.budgetMax,
+          origin: search.origin ?? null,
+          maxPrice: search.maxPrice ?? null,
           currency: search.currency,
           status: search.status,
           refreshedAt: search.refreshedAt,
@@ -242,7 +254,10 @@ export async function upsertTravelSearchOffers(
         budgetMax: normalizedQuery.budgetMax ?? null,
         maxPrice: normalizedQuery.maxPrice ?? null,
         currency: normalizedQuery.currency.toUpperCase(),
-        status: status === TravelRefreshRunStatus.ERROR ? TravelSearchStatus.ERROR : TravelSearchStatus.READY,
+        status:
+          status === TravelRefreshRunStatus.ERROR
+            ? TravelSearchStatus.ERROR
+            : TravelSearchStatus.READY,
         refreshedAt: now,
         expiresAt,
       },
@@ -257,7 +272,10 @@ export async function upsertTravelSearchOffers(
         budgetMax: normalizedQuery.budgetMax ?? null,
         maxPrice: normalizedQuery.maxPrice ?? null,
         currency: normalizedQuery.currency.toUpperCase(),
-        status: status === TravelRefreshRunStatus.ERROR ? TravelSearchStatus.ERROR : TravelSearchStatus.READY,
+        status:
+          status === TravelRefreshRunStatus.ERROR
+            ? TravelSearchStatus.ERROR
+            : TravelSearchStatus.READY,
         refreshedAt: now,
         expiresAt,
       },

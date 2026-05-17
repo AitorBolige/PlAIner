@@ -3,8 +3,10 @@
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
-export interface InputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size"> {
+export interface InputProps extends Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "size"
+> {
   label?: string;
   error?: string;
   rightSlot?: React.ReactNode;
@@ -45,7 +47,7 @@ export function Input({
             error
               ? "border-[color:rgba(255,120,120,0.35)] focus:border-[color:rgba(255,120,120,0.55)] focus:ring-[color:rgba(255,120,120,0.22)]"
               : "",
-            className
+            className,
           )}
           {...props}
         />
@@ -68,4 +70,3 @@ export function Input({
     </div>
   );
 }
-

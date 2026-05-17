@@ -9,7 +9,7 @@ if (!supabaseUrl || !supabaseKey) {
       ? " NEXT_PUBLIC_SUPABASE_ANON_KEY is empty — copy the anon public key from Supabase Dashboard → Settings → API."
       : "";
   throw new Error(
-    `Missing Supabase environment variables in .env.local: Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.${hint}`
+    `Missing Supabase environment variables in .env.local: Check NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.${hint}`,
   );
 }
 

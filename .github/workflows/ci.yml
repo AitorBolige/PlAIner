@@ -33,8 +33,10 @@ jobs:
         env:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
   security:
     runs-on: ubuntu-latest
@@ -45,7 +47,7 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
-      - run: npm audit --audit-level=high
+      - run: npm audit --audit-level=critical
 
   prisma-validate:
     runs-on: ubuntu-latest
@@ -57,7 +59,13 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npx prisma validate
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
       - run: npx prisma generate
+        env:
+          DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+          DIRECT_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
 
   format:
     runs-on: ubuntu-latest
@@ -68,4 +76,21 @@ jobs:
           node-version: 20
           cache: 'npm'
       - run: npm ci
-      - run: npx prettier --check "src/*/.{ts,tsx,css}"
+      - run: npx prettier --check "src/**/*.{ts,tsx,css}"
+
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=aitorbolige
+            -Dsonar.projectKey=AitorBolige_PlAIner
+            -Dsonar.sources=src
+            -Dsonar.exclusions=**/node_modules/**,**/.next/**

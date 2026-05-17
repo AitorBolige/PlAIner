@@ -1,15 +1,17 @@
 import { NextResponse } from "next/server";
 import { Resend } from "resend";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 export async function POST(req: Request) {
   try {
     const { email } = await req.json();
     if (!email) return NextResponse.json({ ok: true });
 
-    const { data: user } = await supabaseAdmin
+    const { data: user } = await getSupabaseAdmin()
       .from("User")
       .select("id, email")
       .eq("email", email.toLowerCase().trim())
@@ -19,21 +21,26 @@ export async function POST(req: Request) {
       const token = crypto.randomUUID();
       const expires = new Date(Date.now() + 60 * 60 * 1000).toISOString();
 
-      const { error: insertErr } = await supabaseAdmin.from("PasswordResetToken").insert({
-        id: crypto.randomUUID(),
-        userId: user.id,
-        token,
-        expires,
-        used: false,
-      });
+      const { error: insertErr } = await getSupabaseAdmin()
+        .from("PasswordResetToken")
+        .insert({
+          id: crypto.randomUUID(),
+          userId: user.id,
+          token,
+          expires,
+          used: false,
+        });
       if (insertErr) {
         console.error("[forgot-password] token insert error:", insertErr);
-        return NextResponse.json({ ok: false, error: "No s'ha pogut crear el token." }, { status: 500 });
+        return NextResponse.json(
+          { ok: false, error: "No s'ha pogut crear el token." },
+          { status: 500 },
+        );
       }
 
       const resetUrl = `${process.env.NEXTAUTH_URL}/auth/reset-password?token=${token}`;
 
-      const sendRes = await resend.emails.send({
+      const sendRes = await getResend().emails.send({
         from: process.env.RESEND_FROM_EMAIL ?? "onboarding@resend.dev",
         to: user.email,
         subject: "Restableix la teva contrasenya · PlAIner",
@@ -55,7 +62,12 @@ export async function POST(req: Request) {
         // In dev/testing mode Resend only allows sending to your own email unless a domain is verified.
         // For local debugging we return the resetUrl so you can continue the flow without email delivery.
         if (process.env.NODE_ENV !== "production") {
-          return NextResponse.json({ ok: true, dev: true, resetUrl, resendError: sendRes.error });
+          return NextResponse.json({
+            ok: true,
+            dev: true,
+            resetUrl,
+            resendError: sendRes.error,
+          });
         }
         return NextResponse.json({ ok: true });
       }
@@ -65,6 +77,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("[forgot-password]", e);
-    return NextResponse.json({ ok: false, error: "Error intern del servidor." }, { status: 500 });
+    return NextResponse.json(
+      { ok: false, error: "Error intern del servidor." },
+      { status: 500 },
+    );
   }
 }

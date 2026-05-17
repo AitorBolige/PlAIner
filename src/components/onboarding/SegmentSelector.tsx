@@ -15,7 +15,8 @@ const segments: Segment[] = [
   {
     key: "youth",
     title: "Jove explorador",
-    description: "Ritme intens, experiències memorables, pressupost optimitzat.",
+    description:
+      "Ritme intens, experiències memorables, pressupost optimitzat.",
     icon: "🧳",
   },
   {
@@ -55,7 +56,7 @@ export function SegmentSelector({ value, onChange }: SegmentSelectorProps) {
                 "flex items-start gap-4 p-5",
                 selected
                   ? "border-[color:color-mix(in_srgb,var(--color-primary)_45%,transparent)] bg-[color:rgba(232,160,74,0.10)]"
-                  : ""
+                  : "",
               )}
             >
               <div className="flex h-12 w-12 items-center justify-center rounded-[var(--radius-lg)] border border-[color:var(--color-border)] bg-white/5 text-xl">
@@ -76,4 +77,3 @@ export function SegmentSelector({ value, onChange }: SegmentSelectorProps) {
     </div>
   );
 }
-

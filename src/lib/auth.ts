@@ -3,7 +3,7 @@ import GoogleProvider from "next-auth/providers/google";
 import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { supabaseAdmin } from "@/lib/supabase-admin";
+import { getSupabaseAdmin } from "@/lib/supabase-admin";
 
 async function logLogin({
   userId,
@@ -16,13 +16,15 @@ async function logLogin({
   method: "credentials" | "google" | "facebook";
   success: boolean;
 }) {
-  await supabaseAdmin.from("LoginEvent").insert({
-    id: crypto.randomUUID(),
-    userId: userId ?? null,
-    email,
-    method,
-    success,
-  });
+  await getSupabaseAdmin()
+    .from("LoginEvent")
+    .insert({
+      id: crypto.randomUUID(),
+      userId: userId ?? null,
+      email,
+      method,
+      success,
+    });
 }
 
 export const authOptions: NextAuthOptions = {
@@ -59,22 +61,37 @@ export const authOptions: NextAuthOptions = {
         const password = credentials?.password ?? "";
         if (!email || !password) return null;
 
-        const { data: user } = await supabaseAdmin
+        const { data: user } = await getSupabaseAdmin()
           .from("User")
           .select("id, email, name, image, passwordHash")
           .eq("email", email)
           .single();
 
         if (!user?.passwordHash) {
-          await logLogin({ userId: null, email, method: "credentials", success: false });
+          await logLogin({
+            userId: null,
+            email,
+            method: "credentials",
+            success: false,
+          });
           return null;
         }
 
         const ok = await bcrypt.compare(password, user.passwordHash);
-        await logLogin({ userId: user.id, email, method: "credentials", success: ok });
+        await logLogin({
+          userId: user.id,
+          email,
+          method: "credentials",
+          success: ok,
+        });
 
         if (!ok) return null;
-        return { id: user.id, email: user.email, name: user.name, image: user.image };
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          image: user.image,
+        };
       },
     }),
   ],
@@ -82,16 +99,20 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account, profile }) {
       if (user) token.id = user.id;
 
-      if ((account?.provider === "google" || account?.provider === "facebook") && profile?.email) {
+      if (
+        (account?.provider === "google" || account?.provider === "facebook") &&
+        profile?.email
+      ) {
         const provider = account.provider as "google" | "facebook";
         const email = profile.email;
         const name = (profile as { name?: string }).name ?? null;
         const image =
           provider === "google"
             ? ((profile as { picture?: string }).picture ?? null)
-            : ((profile as { picture?: { data?: { url?: string } } }).picture?.data?.url ?? null);
+            : ((profile as { picture?: { data?: { url?: string } } }).picture
+                ?.data?.url ?? null);
 
-        const { data: existing } = await supabaseAdmin
+        const { data: existing } = await getSupabaseAdmin()
           .from("User")
           .select("id")
           .eq("email", email)
@@ -100,14 +121,19 @@ export const authOptions: NextAuthOptions = {
         let userId: string;
         if (!existing) {
           userId = crypto.randomUUID();
-          await supabaseAdmin.from("User").insert({ id: userId, email, name, image });
+          await getSupabaseAdmin()
+            .from("User")
+            .insert({ id: userId, email, name, image });
         } else {
           userId = existing.id;
-          await supabaseAdmin.from("User").update({ name, image }).eq("id", userId);
+          await getSupabaseAdmin()
+            .from("User")
+            .update({ name, image })
+            .eq("id", userId);
         }
         token.id = userId;
 
-        const { data: existingAccount } = await supabaseAdmin
+        const { data: existingAccount } = await getSupabaseAdmin()
           .from("Account")
           .select("id")
           .eq("provider", provider)
@@ -115,19 +141,21 @@ export const authOptions: NextAuthOptions = {
           .single();
 
         if (!existingAccount) {
-          await supabaseAdmin.from("Account").insert({
-            id: crypto.randomUUID(),
-            userId,
-            type: "oauth",
-            provider,
-            providerAccountId: account.providerAccountId,
-            access_token: account.access_token ?? null,
-            refresh_token: account.refresh_token ?? null,
-            expires_at: account.expires_at ?? null,
-            token_type: account.token_type ?? null,
-            scope: account.scope ?? null,
-            id_token: account.id_token ?? null,
-          });
+          await getSupabaseAdmin()
+            .from("Account")
+            .insert({
+              id: crypto.randomUUID(),
+              userId,
+              type: "oauth",
+              provider,
+              providerAccountId: account.providerAccountId,
+              access_token: account.access_token ?? null,
+              refresh_token: account.refresh_token ?? null,
+              expires_at: account.expires_at ?? null,
+              token_type: account.token_type ?? null,
+              scope: account.scope ?? null,
+              id_token: account.id_token ?? null,
+            });
         }
 
         await logLogin({ userId, email, method: provider, success: true });

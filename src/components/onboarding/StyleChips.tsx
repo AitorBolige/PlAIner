@@ -33,4 +33,3 @@ export function StyleChips({ value, onToggle }: StyleChipsProps) {
     </div>
   );
 }
-

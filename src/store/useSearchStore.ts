@@ -33,7 +33,6 @@ export const useSearchStore = create<SearchState>()(
       setPeople: (v) => set({ people: v }),
       setBudgetMax: (v) => set({ budgetMax: v }),
     }),
-    { name: "plainer_search_v1" }
-  )
+    { name: "plainer_search_v1" },
+  ),
 );
-

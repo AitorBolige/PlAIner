@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   html, body { margin: 0; padding: 0; background: #f0eee9; font-family: 'Inter', system-ui, sans-serif; }
   body { width: 100vw; height: 100vh; overflow: hidden; }
@@ -60,6 +62,12 @@
   .pl-float-1 { animation: pl-float 8s ease-in-out infinite; }
   .pl-float-2 { animation: pl-float 11s ease-in-out infinite reverse; }
   .pl-float-3 { animation: pl-float 14s ease-in-out infinite; }
+  @keyframes pl-map-pulse { 0% { transform: scale(0.6); opacity: 0.6; } 70% { opacity: 0; } 100% { transform: scale(2.4); opacity: 0; } }
+  .pl-map-pulse-ring { animation: pl-map-pulse 2.4s var(--ease) infinite; }
+  .pl-mapbox-wrap .leaflet-control-attribution { display: none !important; }
+  .pl-mapbox-wrap .leaflet-container { background: #EDEAE4; font-family: var(--font-body); outline: none; }
+  .pl-mapbox-wrap .leaflet-pane { z-index: 1; }
+  .pl-map-vehicle { display: flex; align-items: center; justify-content: center; transition: transform 80ms linear; }
 </style>
 </head>
 <body>
@@ -5008,6 +5016,363 @@ function monthAbbr(d) {
 }
 window.SearchScreen = SearchScreen;
 
+// === Mapbox — coordenades, helpers i component de mapa premium ===
+const CITY_COORDS = {
+  barcelona: [2.1734, 41.3851], bcn: [2.1734, 41.3851],
+  lisboa: [-9.1393, 38.7223], lisbon: [-9.1393, 38.7223], lis: [-9.1393, 38.7223],
+  roma: [12.4964, 41.9028], rome: [12.4964, 41.9028], fco: [12.4964, 41.9028],
+  paris: [2.3522, 48.8566], cdg: [2.3522, 48.8566],
+  istanbul: [28.9784, 41.0082], ist: [28.9784, 41.0082],
+  copenhaguen: [12.5683, 55.6761], copenhagen: [12.5683, 55.6761], cph: [12.5683, 55.6761],
+  atenes: [23.7275, 37.9838], athens: [23.7275, 37.9838], ath: [23.7275, 37.9838],
+  marraqueix: [-7.9811, 31.6295], marrakech: [-7.9811, 31.6295], rak: [-7.9811, 31.6295],
+  toquio: [139.6917, 35.6895], tokyo: [139.6917, 35.6895], hnd: [139.6917, 35.6895],
+  reykjavik: [-21.9426, 64.1466], kef: [-21.9426, 64.1466],
+  dubai: [55.2708, 25.2048], dxb: [55.2708, 25.2048],
+  miami: [-80.1918, 25.7617], mia: [-80.1918, 25.7617],
+  madrid: [-3.7038, 40.4168], mad: [-3.7038, 40.4168],
+  'new york': [-74.0060, 40.7128], 'nova york': [-74.0060, 40.7128], jfk: [-74.0060, 40.7128],
+  denpasar: [115.1889, -8.4095], bali: [115.1889, -8.4095], dps: [115.1889, -8.4095],
+};
+function normCity(s) {
+  return String(s || '').toLowerCase().trim()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+function cityCoords(input) {
+  if (!input) return null;
+  if (Array.isArray(input) && input.length === 2) return input;
+  if (typeof input === 'object') input = input.city || input.name || input.code || '';
+  const key = normCity(input);
+  if (CITY_COORDS[key]) return CITY_COORDS[key];
+  const hit = Object.keys(CITY_COORDS).find(k => key && (key.includes(k) || k.includes(key)));
+  return hit ? CITY_COORDS[hit] : null;
+}
+// Arc quadràtic entre dos punts [lng,lat] per a una línia de ruta elegant.
+function arcPoints(a, b, n) {
+  n = n || 64;
+  const dx = b[0] - a[0], dy = b[1] - a[1];
+  const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+  const curve = dist * 0.18;
+  const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2;
+  const cx = mx - (dy / dist) * curve, cy = my + (dx / dist) * curve;
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n, u = 1 - t;
+    pts.push([u * u * a[0] + 2 * u * t * cx + t * t * b[0], u * u * a[1] + 2 * u * t * cy + t * t * b[1]]);
+  }
+  return pts;
+}
+// Distància gran cercle (km) entre dos punts [lng,lat].
+function haversineKm(a, b) {
+  const R = 6371, rad = Math.PI / 180;
+  const dLat = (b[1] - a[1]) * rad, dLon = (b[0] - a[0]) * rad;
+  const s = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(a[1] * rad) * Math.cos(b[1] * rad) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+}
+function fmtDur(mins) {
+  mins = Math.max(0, Math.round(mins));
+  const h = Math.floor(mins / 60), m = mins % 60;
+  if (h <= 0) return m + ' min';
+  return h + 'h' + (m > 0 ? ' ' + m + 'm' : '');
+}
+// Estima distància + durada segons el transport. Retorna Promise.
+function estimateRoute(transportId, oc, dc) {
+  const straight = haversineKm(oc, dc);
+  if (transportId === 'plane') {
+    return Promise.resolve({
+      geometry: arcPoints(oc, dc, 96),
+      distanceKm: straight,
+      durationMin: straight / 780 * 60 + 75,
+      mode: 'arc',
+    });
+  }
+  const profile = 'driving';
+  const url = 'https://router.project-osrm.org/route/v1/' + profile + '/' +
+    oc[0] + ',' + oc[1] + ';' + dc[0] + ',' + dc[1] + '?overview=full&geometries=geojson';
+  return fetch(url).then(r => r.ok ? r.json() : null).then(data => {
+    const rt = data && data.routes && data.routes[0];
+    if (!rt) throw new Error('no route');
+    const roadKm = rt.distance / 1000;
+    const speed = transportId === 'train' ? 115 : transportId === 'bus' ? 68 : null;
+    const durationMin = speed ? roadKm / speed * 60 : rt.duration / 60;
+    return { geometry: rt.geometry.coordinates, distanceKm: roadKm, durationMin: durationMin, mode: 'road' };
+  }).catch(() => ({
+    geometry: arcPoints(oc, dc, 96),
+    distanceKm: straight,
+    durationMin: straight / (transportId === 'train' ? 115 : 65) * 60,
+    mode: 'arc',
+  }));
+}
+
+// SVG dels vehicles (paths Lucide) per al marcador animat.
+const VEHICLE_SVG = {
+  plane: '<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>',
+  train: '<rect x="4" y="3" width="16" height="16" rx="2"/><path d="M4 11h16"/><path d="M12 3v8"/><path d="m8 19-2 3"/><path d="m18 22-2-3"/><path d="M8 15h.01"/><path d="M16 15h.01"/>',
+  bus: '<path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.6"/><path d="M18 18h3s.8-1.7.8-2.8c0-.4-.1-.8-.2-1.2l-1.4-5C20.1 6.8 19.1 6 18 6H4a2 2 0 0 0-2 2v10h3"/><circle cx="7" cy="18" r="2"/><path d="M9 18h5"/><circle cx="16" cy="18" r="2"/>',
+  ferry: '<path d="M22 18H2a4 4 0 0 0 4 4h12a4 4 0 0 0 4-4Z"/><path d="M21 14 10 2 3 14h18Z"/><path d="M10 2v16"/>',
+  car: '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>',
+};
+
+// PremiumMap — mapa real (Leaflet + OpenStreetMap/Carto) amb ruta i vehicle animat.
+// props: origin, destination (string|coord), height, showRoute, vehicle, accent, dark
+function PremiumMap(_refMap) {
+  const origin = _refMap.origin, destination = _refMap.destination;
+  const height = _refMap.height || 180;
+  const showRoute = !!_refMap.showRoute;
+  const accent = _refMap.accent || '#0D9E7A';
+  const dark = !!_refMap.dark;
+  const vehicle = _refMap.vehicle || 'plane';
+  const containerRef = React.useRef(null);
+  const mapRef = React.useRef(null);
+  const [failed, setFailed] = React.useState(false);
+  React.useEffect(() => {
+    let cancelled = false;
+    let rafId = null;
+    let map = null;
+    function start() {
+      if (cancelled) return;
+      const L = window.L;
+      if (!L || !containerRef.current) { setFailed(true); return; }
+      const oc = cityCoords(origin);
+      const dc = cityCoords(destination);
+      const focus = dc || oc;
+      if (!focus) { setFailed(true); return; }
+      try {
+        map = L.map(containerRef.current, {
+          zoomControl: false, attributionControl: false,
+          dragging: false, scrollWheelZoom: false, doubleClickZoom: false,
+          boxZoom: false, keyboard: false, touchZoom: false, zoomSnap: 0.25,
+        });
+      } catch (e) { setFailed(true); return; }
+      mapRef.current = map;
+      L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/' + (dark ? 'dark_all' : 'rastertiles/voyager') + '/{z}/{x}/{y}{r}.png',
+        { subdomains: 'abcd', maxZoom: 19 }
+      ).addTo(map);
+
+      const dotIcon = (color, ring) => L.divIcon({
+        className: '', iconSize: [16, 16], iconAnchor: [8, 8],
+        html: '<div style="position:relative;width:16px;height:16px;">' +
+          (ring ? '<div class="pl-map-pulse-ring" style="position:absolute;inset:-5px;border-radius:9999px;background:' + color + ';"></div>' : '') +
+          '<div style="position:absolute;inset:0;border-radius:9999px;background:' + color +
+          ';border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.35);"></div></div>',
+      });
+
+      if (showRoute && oc && dc) {
+        const arc = arcPoints(oc, dc, 96).map(p => [p[1], p[0]]);
+        L.polyline(arc, { color: accent, weight: 9, opacity: 0.16, lineCap: 'round' }).addTo(map);
+        L.polyline(arc, { color: accent, weight: 3, opacity: 0.95, lineCap: 'round', dashArray: vehicle === 'plane' ? '1 7' : null }).addTo(map);
+        L.marker([oc[1], oc[0]], { icon: dotIcon('#18160F', false) }).addTo(map);
+        L.marker([dc[1], dc[0]], { icon: dotIcon(accent, true) }).addTo(map);
+        map.fitBounds(L.latLngBounds(arc), { padding: [38, 38], animate: false });
+
+        const vSvg = VEHICLE_SVG[vehicle] || VEHICLE_SVG.plane;
+        const vehHtml = '<div class="pl-map-vehicle" style="width:38px;height:38px;border-radius:9999px;' +
+          'background:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.30);">' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="' + accent +
+          '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + vSvg + '</svg></div>';
+        const veh = L.marker(arc[0], {
+          icon: L.divIcon({ className: '', iconSize: [38, 38], iconAnchor: [19, 19], html: vehHtml }),
+          zIndexOffset: 1000,
+        }).addTo(map);
+        const vehEl = veh.getElement();
+        const inner = vehEl ? vehEl.querySelector('.pl-map-vehicle') : null;
+
+        const DURATION = 7000;
+        let startT = null;
+        const tick = (ts) => {
+          if (cancelled || !mapRef.current) return;
+          if (startT == null) startT = ts;
+          const prog = ((ts - startT) % DURATION) / DURATION;
+          const fidx = prog * (arc.length - 1);
+          const idx = Math.min(arc.length - 1, Math.floor(fidx));
+          veh.setLatLng(arc[idx]);
+          if (inner && vehicle === 'plane') {
+            const a = arc[idx], b = arc[Math.min(arc.length - 1, idx + 1)];
+            const ang = Math.atan2(b[1] - a[1], b[0] - a[0]) * 180 / Math.PI;
+            inner.style.transform = 'rotate(' + (ang + 45) + 'deg)';
+          }
+          rafId = requestAnimationFrame(tick);
+        };
+        rafId = requestAnimationFrame(tick);
+      } else {
+        map.setView([focus[1], focus[0]], 11);
+        L.marker([focus[1], focus[0]], { icon: dotIcon(accent, true) }).addTo(map);
+      }
+      setTimeout(() => { if (!cancelled && map) try { map.invalidateSize(); } catch (e) {} }, 120);
+    }
+    if (window.L) start();
+    else {
+      let tries = 0;
+      const iv = setInterval(() => {
+        tries += 1;
+        if (window.L) { clearInterval(iv); start(); }
+        else if (tries > 40) { clearInterval(iv); setFailed(true); }
+      }, 100);
+    }
+    return () => {
+      cancelled = true;
+      if (rafId) cancelAnimationFrame(rafId);
+      if (mapRef.current) { try { mapRef.current.remove(); } catch (e) {} mapRef.current = null; }
+    };
+  }, [origin && (origin.city || origin), destination && (destination.city || destination), showRoute, vehicle, dark]);
+
+  if (failed) {
+    return /*#__PURE__*/React.createElement('div', {
+      style: { width: '100%', height: height, borderRadius: 18,
+        background: dark ? 'linear-gradient(135deg,#1a1f2e,#2D3561)' : 'linear-gradient(135deg,#E4E0D8,#EDEAE4)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: dark ? 'rgba(255,255,255,0.6)' : 'var(--text-faint)', fontSize: 12.5, fontWeight: 600 }
+    }, /*#__PURE__*/React.createElement(IcMapPin, { size: 18, style: { marginRight: 6 } }), 'Mapa no disponible');
+  }
+  return /*#__PURE__*/React.createElement('div', {
+    className: 'pl-mapbox-wrap',
+    style: { position: 'relative', width: '100%', height: height, borderRadius: 18, overflow: 'hidden',
+      boxShadow: dark ? 'inset 0 0 0 1px rgba(255,255,255,0.08)' : 'inset 0 0 0 1px var(--border)' }
+  }, /*#__PURE__*/React.createElement('div', { ref: containerRef, style: { position: 'absolute', inset: 0 } }),
+    /*#__PURE__*/React.createElement('div', { style: { position: 'absolute', inset: 0, pointerEvents: 'none',
+      boxShadow: dark ? 'inset 0 -40px 60px -30px rgba(0,0,0,0.6)' : 'inset 0 -30px 50px -30px rgba(0,0,0,0.18)' } }));
+}
+
+// RouteModal — vista de ruta real a pantalla completa (estil Google Maps).
+function RouteModal(_refRM) {
+  const open = !!_refRM.open, onClose = _refRM.onClose;
+  const origin = _refRM.origin, destination = _refRM.destination;
+  const transportId = _refRM.transportId || 'plane';
+  const vehicle = _refRM.vehicle || transportId;
+  const accent = _refRM.accent || '#0D9E7A';
+  const label = _refRM.label || 'Ruta';
+  const containerRef = React.useRef(null);
+  const mapRef = React.useRef(null);
+  const [route, setRoute] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!open) return undefined;
+    let cancelled = false, rafId = null;
+    setLoading(true); setRoute(null); setError(false);
+    const oc = cityCoords(origin), dc = cityCoords(destination);
+    if (!oc || !dc || !window.L) { setLoading(false); setError(true); return undefined; }
+    estimateRoute(transportId, oc, dc).then(res => {
+      if (cancelled) return;
+      setRoute(res); setLoading(false);
+      setTimeout(() => {
+        if (cancelled || !containerRef.current) return;
+        const L = window.L;
+        const map = L.map(containerRef.current, { zoomControl: true, attributionControl: false });
+        mapRef.current = map;
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+          { subdomains: 'abcd', maxZoom: 19 }).addTo(map);
+        const geo = res.geometry.map(p => [p[1], p[0]]);
+        L.polyline(geo, { color: accent, weight: 10, opacity: 0.16, lineCap: 'round' }).addTo(map);
+        L.polyline(geo, { color: accent, weight: 4, opacity: 0.95, lineCap: 'round' }).addTo(map);
+        const dotIcon = (color, ring) => L.divIcon({
+          className: '', iconSize: [18, 18], iconAnchor: [9, 9],
+          html: '<div style="position:relative;width:18px;height:18px;">' +
+            (ring ? '<div class="pl-map-pulse-ring" style="position:absolute;inset:-5px;border-radius:9999px;background:' + color + ';"></div>' : '') +
+            '<div style="position:absolute;inset:0;border-radius:9999px;background:' + color +
+            ';border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.35);"></div></div>',
+        });
+        L.marker([oc[1], oc[0]], { icon: dotIcon('#18160F', false) }).addTo(map);
+        L.marker([dc[1], dc[0]], { icon: dotIcon(accent, true) }).addTo(map);
+        const vSvg = VEHICLE_SVG[vehicle] || VEHICLE_SVG.plane;
+        const veh = L.marker(geo[0], {
+          icon: L.divIcon({ className: '', iconSize: [40, 40], iconAnchor: [20, 20],
+            html: '<div class="pl-map-vehicle" style="width:40px;height:40px;border-radius:9999px;background:#fff;' +
+              'box-shadow:0 4px 14px rgba(0,0,0,0.30);"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="' +
+              accent + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + vSvg + '</svg></div>' }),
+          zIndexOffset: 1000,
+        }).addTo(map);
+        map.fitBounds(L.latLngBounds(geo), { padding: [60, 60], animate: false });
+        const DURATION = 9000;
+        let startT = null;
+        const tick = (ts) => {
+          if (cancelled || !mapRef.current) return;
+          if (startT == null) startT = ts;
+          const prog = ((ts - startT) % DURATION) / DURATION;
+          const idx = Math.min(geo.length - 1, Math.floor(prog * (geo.length - 1)));
+          veh.setLatLng(geo[idx]);
+          rafId = requestAnimationFrame(tick);
+        };
+        rafId = requestAnimationFrame(tick);
+        setTimeout(() => { if (!cancelled && mapRef.current) try { mapRef.current.invalidateSize(); } catch (e) {} }, 150);
+      }, 50);
+    });
+    return () => {
+      cancelled = true;
+      if (rafId) cancelAnimationFrame(rafId);
+      if (mapRef.current) { try { mapRef.current.remove(); } catch (e) {} mapRef.current = null; }
+    };
+  }, [open, origin && (origin.city || origin), destination && (destination.city || destination), transportId]);
+
+  if (!open) return null;
+  const oc = cityCoords(origin), dc = cityCoords(destination);
+  const gmMode = transportId === 'car' ? 'driving' : transportId === 'plane' ? '' : 'transit';
+  const gmUrl = oc && dc
+    ? 'https://www.google.com/maps/dir/?api=1&origin=' + oc[1] + ',' + oc[0] +
+      '&destination=' + dc[1] + ',' + dc[0] + (gmMode ? '&travelmode=' + gmMode : '')
+    : null;
+  const originName = (origin && (origin.city || origin.name)) || String(origin || 'Origen');
+  const destName = (destination && (destination.city || destination.name)) || 'Destí';
+
+  return ReactDOM.createPortal(/*#__PURE__*/React.createElement('div', {
+    style: { position: 'fixed', inset: 0, zIndex: 9999, background: 'var(--bg)', display: 'flex',
+      flexDirection: 'column', maxWidth: 430, margin: '0 auto' }
+  },
+    /*#__PURE__*/React.createElement('div', {
+      style: { display: 'flex', alignItems: 'center', gap: 12, padding: '54px 18px 14px',
+        background: 'var(--bg)', borderBottom: '1px solid var(--border)', flexShrink: 0 }
+    },
+      /*#__PURE__*/React.createElement('button', {
+        className: 'pl-tap', onClick: onClose,
+        style: { width: 36, height: 36, borderRadius: 9999, background: 'var(--surface-2)',
+          border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }
+      }, /*#__PURE__*/React.createElement(IcArrowLeft, { size: 18 })),
+      /*#__PURE__*/React.createElement('div', { style: { flex: 1, minWidth: 0 } },
+        /*#__PURE__*/React.createElement('div', { className: 'micro', style: { color: accent } }, label.toUpperCase()),
+        /*#__PURE__*/React.createElement('div', {
+          style: { fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 17, letterSpacing: '-0.02em',
+            whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }
+        }, originName + '  →  ' + destName))),
+    /*#__PURE__*/React.createElement('div', { className: 'pl-mapbox-wrap', style: { position: 'relative', flex: 1 } },
+      /*#__PURE__*/React.createElement('div', { ref: containerRef, style: { position: 'absolute', inset: 0 } }),
+      (loading || error) && /*#__PURE__*/React.createElement('div', {
+        style: { position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center',
+          justifyContent: 'center', gap: 12, background: 'var(--surface-2)', color: 'var(--text-muted)' }
+      }, error
+        ? /*#__PURE__*/React.createElement('span', { style: { fontSize: 13, fontWeight: 600 } }, 'No hem pogut calcular la ruta')
+        : /*#__PURE__*/React.createElement(React.Fragment, null,
+            /*#__PURE__*/React.createElement('div', { className: 'pl-spin',
+              style: { width: 26, height: 26, borderRadius: 9999, border: '3px solid var(--surface-3)', borderTopColor: accent } }),
+            /*#__PURE__*/React.createElement('span', { style: { fontSize: 13, fontWeight: 600 } }, 'Calculant la ruta real…')))),
+    /*#__PURE__*/React.createElement('div', {
+      style: { flexShrink: 0, padding: '16px 18px 26px', background: '#fff', borderTop: '1px solid var(--border)' }
+    },
+      /*#__PURE__*/React.createElement('div', { style: { display: 'flex', gap: 12 } },
+        /*#__PURE__*/React.createElement('div', { style: { flex: 1 } },
+          /*#__PURE__*/React.createElement('div', { className: 'micro' }, 'Durada estimada'),
+          /*#__PURE__*/React.createElement('div', {
+            className: 'display', style: { fontWeight: 800, fontSize: 24, letterSpacing: '-0.03em', marginTop: 2, color: accent }
+          }, route ? fmtDur(route.durationMin) : '—')),
+        /*#__PURE__*/React.createElement('div', { style: { width: 1, background: 'var(--border)' } }),
+        /*#__PURE__*/React.createElement('div', { style: { flex: 1, paddingLeft: 12 } },
+          /*#__PURE__*/React.createElement('div', { className: 'micro' }, 'Distància'),
+          /*#__PURE__*/React.createElement('div', {
+            className: 'display', style: { fontWeight: 800, fontSize: 24, letterSpacing: '-0.03em', marginTop: 2 }
+          }, route ? Math.round(route.distanceKm).toLocaleString('ca') + ' km' : '—'))),
+      /*#__PURE__*/React.createElement('div', {
+        style: { fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }
+      }, route && route.mode === 'arc' ? 'Estimació en línia directa · pot variar' : 'Ruta real per carretera · el temps pot variar'),
+      gmUrl && /*#__PURE__*/React.createElement('a', {
+        href: gmUrl, target: '_blank', rel: 'noreferrer', className: 'pl-tap',
+        style: { marginTop: 14, height: 50, borderRadius: 14, background: accent, color: '#fff',
+          fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14, textDecoration: 'none',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }
+      }, /*#__PURE__*/React.createElement(IcMapPin, { size: 16 }), 'Obrir a Google Maps'))), document.body);
+}
+
 // === screen-trips.jsx ===
 // PLAIner — Pantalla 3: Mis Viajes + Generating screen + Trip Detail
 
@@ -5076,9 +5441,9 @@ function GeneratingScreen(_ref47) {
       position: 'absolute',
       inset: 0,
       borderRadius: '50%',
-            borderTop: '2px solid #fff',
-            borderRight: '2px solid transparent',
-            borderBottom: '2px solid transparent',
+      borderTop: '2px solid #fff',
+      borderRight: '2px solid transparent',
+      borderBottom: '2px solid transparent',
       borderLeft: '2px solid transparent'
     }
   }), /*#__PURE__*/React.createElement("div", {
@@ -6011,11 +6376,22 @@ function HotelOfferCard(_ref58) {
     }
   }, "Obrir reserva de l'hotel \u2192")) : null));
 }
+const TRANSPORT_CARD_META = {
+  plane: { Icon: IcPlane, accent: 'var(--coral)', subtle: 'rgba(240,90,53,0.10)', label: 'vol' },
+  train: { Icon: IcTrain, accent: 'var(--blue)', subtle: 'rgba(59,135,232,0.10)', label: 'tren' },
+  bus: { Icon: IcBus, accent: 'var(--green)', subtle: 'rgba(13,158,122,0.10)', label: 'bus' },
+  ferry: { Icon: IcBus, accent: 'var(--green)', subtle: 'rgba(13,158,122,0.10)', label: 'ferri' },
+  car: { Icon: IcCar, accent: 'var(--gold)', subtle: 'rgba(200,134,10,0.10)', label: 'ruta' },
+};
 function FlightOfferCard(_ref59) {
   let offer = _ref59.offer,
     pickMode = _ref59.pickMode,
     onPick = _ref59.onPick;
   const showPick = Boolean(pickMode);
+  const kind = offer.transportKind || _ref59.transportId || 'plane';
+  const tm = TRANSPORT_CARD_META[kind] || TRANSPORT_CARD_META.plane;
+  const TIcon = tm.Icon;
+  const accentCol = tm.accent;
   const desc = offer.description || offer.availabilityText || '';
   // parse route from title like "BCN → LIS · Ryanair"
   const routeMatch = (offer.title || '').match(/([A-Z]{3})\s*[→>]\s*([A-Z]{3})/);
@@ -6055,16 +6431,16 @@ function FlightOfferCard(_ref59) {
       width: 38,
       height: 38,
       borderRadius: 10,
-      background: 'rgba(240,90,53,0.10)',
+      background: tm.subtle,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       flexShrink: 0
     }
-  }, /*#__PURE__*/React.createElement(IcPlane, {
+  }, /*#__PURE__*/React.createElement(TIcon, {
     size: 18,
     style: {
-      color: 'var(--coral)'
+      color: accentCol
     }
   })), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -6091,10 +6467,10 @@ function FlightOfferCard(_ref59) {
       fontSize: 18,
       letterSpacing: '-0.02em'
     }
-  }, originCode), /*#__PURE__*/React.createElement(IcPlane, {
+  }, originCode), /*#__PURE__*/React.createElement(TIcon, {
     size: 14,
     style: {
-      color: 'var(--coral)',
+      color: accentCol,
       opacity: 0.8
     }
   }), /*#__PURE__*/React.createElement("span", {
@@ -6115,7 +6491,7 @@ function FlightOfferCard(_ref59) {
       fontWeight: 900,
       fontSize: 22,
       lineHeight: 1,
-      color: 'var(--coral)'
+      color: accentCol
     }
   }, formatMoney(offer.price, offer.currency)), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -6123,7 +6499,7 @@ function FlightOfferCard(_ref59) {
       color: 'var(--text-muted)',
       marginTop: 2
     }
-  }, "anada i tornada"))), (duration || stops) && /*#__PURE__*/React.createElement("div", {
+  }, kind === 'plane' ? "anada i tornada" : "per persona"))), (duration || stops) && /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '0 16px 12px',
       display: 'flex',
@@ -6163,14 +6539,14 @@ function FlightOfferCard(_ref59) {
       flex: 1,
       padding: '11px 0',
       borderRadius: 14,
-      background: 'var(--coral)',
+      background: accentCol,
       color: '#fff',
       fontSize: 13.5,
       fontWeight: 800,
       border: 'none',
       cursor: 'pointer'
     }
-  }, "Seleccionar vol"), offer.bookingUrl && /*#__PURE__*/React.createElement("a", {
+  }, "Seleccionar " + tm.label), offer.bookingUrl && /*#__PURE__*/React.createElement("a", {
     href: offer.bookingUrl,
     target: "_blank",
     rel: "noreferrer",
@@ -6201,13 +6577,13 @@ function FlightOfferCard(_ref59) {
       gap: 6,
       padding: '10px 0',
       borderRadius: 14,
-      background: 'rgba(240,90,53,0.08)',
-      color: 'var(--coral)',
+      background: tm.subtle,
+      color: accentCol,
       fontSize: 13,
       fontWeight: 700,
       textDecoration: 'none'
     }
-  }, "Obrir reserva del vol \u2192")) : null);
+  }, "Obrir reserva \u2192")) : null);
 }
 function formatMoney(price, currency) {
   const value = Number(price) || 0;
@@ -6226,7 +6602,7 @@ function TravelBasketStepDots(_ref60) {
   let step = _ref60.step;
   const steps = [{
     id: 'flights',
-    label: 'Vol'
+    label: _ref60.firstLabel || 'Vol'
   }, {
     id: 'hotels',
     label: 'Hotel'
@@ -6312,6 +6688,19 @@ function LiveOffersPreview(_ref61) {
     return t === 'HOTEL' || t === 'ACCOMMODATION';
   });
   const flights = offers.filter(offer => String(offer.type || '').toUpperCase() === 'TRANSPORT');
+  const transportId = (pendingParams && pendingParams.transport && pendingParams.transport.id)
+    || (offerSnapshot && offerSnapshot.search && offerSnapshot.search.transportId)
+    || 'plane';
+  const TRANSPORT_META = {
+    plane: { stepLabel: 'Vol', pickTitle: 'Tria el teu vol', emptyTitle: 'No hem trobat vols disponibles ara mateix per aquesta combinació de dates i destinació.', accent: 'var(--coral)', accentHex: '#F05A35', Icon: IcPlane },
+    train: { stepLabel: 'Tren', pickTitle: 'Tria el teu tren', emptyTitle: 'No hem trobat trens disponibles ara mateix per aquesta combinació de dates i destinació.', accent: 'var(--blue)', accentHex: '#3B87E8', Icon: IcTrain },
+    bus: { stepLabel: 'Bus / Ferri', pickTitle: 'Tria el teu bus o ferri', emptyTitle: 'No hem trobat bus ni ferri disponibles ara mateix per aquesta combinació de dates i destinació.', accent: 'var(--green)', accentHex: '#0D9E7A', Icon: IcBus },
+    car: { stepLabel: 'Ruta', pickTitle: 'La teva ruta en cotxe', emptyTitle: '', accent: 'var(--gold)', accentHex: '#C8860A', Icon: IcCar },
+  };
+  const tMeta = TRANSPORT_META[transportId] || TRANSPORT_META.plane;
+  const isCar = transportId === 'car';
+  const _rmState = React.useState(false);
+  const routeOpen = _rmState[0], setRouteOpen = _rmState[1];
   const isLoading = Boolean(offerLoading);
   const hasError = Boolean(offerLoadError);
   const _React$useState59 = React.useState('flights'),
@@ -6328,10 +6717,10 @@ function LiveOffersPreview(_ref61) {
     setSelectedHotel = _React$useState64[1];
   const resetBasketSignature = `${(offerSnapshot === null || offerSnapshot === void 0 || (_offerSnapshot$search = offerSnapshot.search) === null || _offerSnapshot$search === void 0 ? void 0 : _offerSnapshot$search.destination) || ''}|${(offerSnapshot === null || offerSnapshot === void 0 || (_offerSnapshot$search2 = offerSnapshot.search) === null || _offerSnapshot$search2 === void 0 ? void 0 : _offerSnapshot$search2.city) || ''}|${(offerSnapshot === null || offerSnapshot === void 0 || (_offerSnapshot$search3 = offerSnapshot.search) === null || _offerSnapshot$search3 === void 0 ? void 0 : _offerSnapshot$search3.id) || ''}|${(offerSnapshot === null || offerSnapshot === void 0 || (_offerSnapshot$search4 = offerSnapshot.search) === null || _offerSnapshot$search4 === void 0 ? void 0 : _offerSnapshot$search4.refreshedAt) || ''}|${offers.length}`;
   React.useEffect(() => {
-    setCurrentStep('flights');
+    setCurrentStep(isCar ? 'hotels' : 'flights');
     setSelectedFlight(null);
     setSelectedHotel(null);
-  }, [resetBasketSignature]);
+  }, [resetBasketSignature, isCar]);
   const handlePickFlight = offer => {
     setSelectedFlight(offer);
     setSelectedHotel(null);
@@ -6347,6 +6736,7 @@ function LiveOffersPreview(_ref61) {
   };
   const handleBack = () => {
     if (currentStep === 'hotels') {
+      if (isCar) return;
       setCurrentStep('flights');
       setSelectedFlight(null);
       setSelectedHotel(null);
@@ -6357,8 +6747,8 @@ function LiveOffersPreview(_ref61) {
       setSelectedHotel(null);
     }
   };
-  const showBack = currentStep !== 'flights';
-  const sectionTitle = currentStep === 'flights' ? 'Tria el teu vol' : currentStep === 'hotels' ? 'Tria el teu allotjament' : 'Itinerari desat a la teva selecció';
+  const showBack = isCar ? currentStep === 'summary' : currentStep !== 'flights';
+  const sectionTitle = currentStep === 'flights' ? tMeta.pickTitle : currentStep === 'hotels' ? 'Tria el teu allotjament' : 'Itinerari desat a la teva selecció';
   if (isLoading) {
     return /*#__PURE__*/React.createElement("div", {
       style: {
@@ -6383,7 +6773,8 @@ function LiveOffersPreview(_ref61) {
         marginBottom: 6
       }
     }, "CONSTRUEIX EL VIATGE"), /*#__PURE__*/React.createElement(TravelBasketStepDots, {
-      step: "flights"
+      step: "flights",
+      firstLabel: tMeta.stepLabel
     })), /*#__PURE__*/React.createElement("div", {
       style: {
         padding: 16,
@@ -6500,7 +6891,8 @@ function LiveOffersPreview(_ref61) {
       backdropFilter: 'blur(8px)'
     }
   }, "\u2190 Enrere") : null), /*#__PURE__*/React.createElement(TravelBasketStepDots, {
-    step: currentStep
+    step: currentStep,
+    firstLabel: tMeta.stepLabel
   })), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: 16,
@@ -6515,17 +6907,22 @@ function LiveOffersPreview(_ref61) {
       fontSize: 13.5,
       color: 'var(--text-muted)'
     }
-  }, "No hem trobat vols disponibles ara mateix per aquesta combinaci\xF3 de dates i destinaci\xF3.") : /*#__PURE__*/React.createElement(OffersSection, {
-    title: "Vols disponibles",
-    accent: "var(--coral)",
+  }, tMeta.emptyTitle, /*#__PURE__*/React.createElement("button", {
+    onClick: function() { setCurrentStep('hotels'); onStepChange && onStepChange('hotels'); },
+    style: { marginTop: 14, width: '100%', height: 48, borderRadius: 9999, background: 'var(--green)', color: '#fff', fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer' }
+  }, "Continua sense " + tMeta.stepLabel.toLowerCase() + " →")) : /*#__PURE__*/React.createElement(OffersSection, {
+    title: tMeta.stepLabel + " disponibles",
+    accent: tMeta.accent,
     count: flights.length,
-    emptyText: "Sense vols ara mateix."
+    emptyText: "Sense opcions ara mateix."
   }, flights.map((offer, index) => /*#__PURE__*/React.createElement(FlightOfferCard, {
     key: `${offer.id || offer.title || 'flight'}-${index}`,
     offer: offer,
     pickMode: true,
+    accent: tMeta.accent,
+    transportId: transportId,
     onPick: handlePickFlight
-  })))), currentStep === 'hotels' && selectedFlight && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+  })))), currentStep === 'hotels' && /*#__PURE__*/React.createElement(React.Fragment, null, selectedFlight && /*#__PURE__*/React.createElement("div", {
     style: {
       marginBottom: 12,
       padding: 12,
@@ -6536,9 +6933,9 @@ function LiveOffersPreview(_ref61) {
   }, /*#__PURE__*/React.createElement("div", {
     className: "micro",
     style: {
-      color: 'var(--coral)'
+      color: tMeta.accent
     }
-  }, "VOL TRIAT"), /*#__PURE__*/React.createElement("div", {
+  }, tMeta.stepLabel.toUpperCase() + " TRIAT"), /*#__PURE__*/React.createElement("div", {
     style: {
       marginTop: 6,
       fontWeight: 700,
@@ -6569,7 +6966,7 @@ function LiveOffersPreview(_ref61) {
     offer: offer,
     pickMode: true,
     onPick: handlePickHotel
-  })))), currentStep === 'summary' && selectedFlight && selectedHotel && /*#__PURE__*/React.createElement("div", {
+  })))), currentStep === 'summary' && selectedHotel && /*#__PURE__*/React.createElement("div", {
     style: {
       display: 'flex',
       flexDirection: 'column',
@@ -6619,15 +7016,60 @@ function LiveOffersPreview(_ref61) {
       color: 'var(--text-muted)',
       marginTop: 1
     }
-  }, "Revisa i reserva directament als prove\xEFdors")))), /*#__PURE__*/React.createElement("div", {
+  }, "Revisa i reserva directament als prove\xEFdors")))),
+  /*#__PURE__*/React.createElement("div", {
+    className: "micro",
+    style: { color: tMeta.accent }
+  }, "RUTA DEL VIATGE"),
+  /*#__PURE__*/React.createElement("div", {
+    onClick: () => setRouteOpen(true),
+    className: "pl-tap",
+    style: { position: 'relative', borderRadius: 18, overflow: 'hidden', cursor: 'pointer' }
+  },
+    /*#__PURE__*/React.createElement(PremiumMap, {
+      origin: (pendingParams && pendingParams.origin) || 'BCN',
+      destination: (pendingParams && pendingParams.destination) || null,
+      showRoute: true,
+      accent: tMeta.accentHex,
+      vehicle: (selectedFlight && selectedFlight.transportKind) || (isCar ? 'car' : transportId),
+      height: 168
+    }),
+    /*#__PURE__*/React.createElement("div", {
+      style: { position: 'absolute', left: 12, bottom: 12, display: 'flex', alignItems: 'center', gap: 8,
+        background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(8px)', padding: '7px 12px',
+        borderRadius: 9999, boxShadow: '0 2px 10px rgba(0,0,0,0.12)' }
+    },
+      /*#__PURE__*/React.createElement(tMeta.Icon, { size: 15, style: { color: tMeta.accent } }),
+      /*#__PURE__*/React.createElement("span", { style: { fontSize: 12.5, fontWeight: 700, color: 'var(--text)' } },
+        String((pendingParams && pendingParams.origin) || 'BCN').toUpperCase() + '  →  ' +
+        ((pendingParams && pendingParams.destination && (pendingParams.destination.city || pendingParams.destination.name)) || 'Destí'))),
+    /*#__PURE__*/React.createElement("div", {
+      style: { position: 'absolute', right: 12, top: 12, display: 'flex', alignItems: 'center', gap: 6,
+        background: tMeta.accentHex, color: '#fff', padding: '6px 11px', borderRadius: 9999,
+        fontSize: 11.5, fontWeight: 700, boxShadow: '0 2px 10px rgba(0,0,0,0.2)' }
+    },
+      /*#__PURE__*/React.createElement(IcMapPin, { size: 13 }),
+      "Veure ruta")),
+  routeOpen && /*#__PURE__*/React.createElement(RouteModal, {
+    open: routeOpen,
+    onClose: () => setRouteOpen(false),
+    origin: (pendingParams && pendingParams.origin) || 'BCN',
+    destination: (pendingParams && pendingParams.destination) || null,
+    transportId: transportId,
+    vehicle: (selectedFlight && selectedFlight.transportKind) || (isCar ? 'car' : transportId),
+    accent: tMeta.accentHex,
+    label: 'Ruta · ' + tMeta.stepLabel
+  }),
+  /*#__PURE__*/React.createElement("div", {
     className: "micro",
     style: {
-      color: 'var(--coral)'
+      color: tMeta.accent
     }
-  }, "VOL"), /*#__PURE__*/React.createElement(FlightOfferCard, {
+  }, tMeta.stepLabel.toUpperCase()), selectedFlight ? /*#__PURE__*/React.createElement(FlightOfferCard, {
     offer: selectedFlight,
-    pickMode: false
-  }), /*#__PURE__*/React.createElement("div", {
+    pickMode: false,
+    transportId: transportId
+  }) : /*#__PURE__*/React.createElement("div", { style: { padding: '12px 14px', borderRadius: 14, background: 'var(--surface-2)', fontSize: 13, color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: 8 } }, /*#__PURE__*/React.createElement(tMeta.Icon, { size: 16 }), isCar ? "Viatge amb cotxe propi" : "Sense " + tMeta.stepLabel.toLowerCase() + " seleccionat"), /*#__PURE__*/React.createElement("div", {
     className: "micro",
     style: {
       color: 'var(--green)'
@@ -6661,9 +7103,9 @@ function LiveOffersPreview(_ref61) {
       fontWeight: 700,
       letterSpacing: '0.08em',
       textTransform: 'uppercase',
-      color: 'var(--coral)'
+      color: tMeta.accent
     }
-  }, "Vol"), /*#__PURE__*/React.createElement("div", {
+  }, tMeta.stepLabel), /*#__PURE__*/React.createElement("div", {
     className: "display",
     style: {
       fontWeight: 800,
@@ -6671,7 +7113,7 @@ function LiveOffersPreview(_ref61) {
       marginTop: 3,
       letterSpacing: '-0.02em'
     }
-  }, formatMoney(selectedFlight.price, selectedFlight.currency)), /*#__PURE__*/React.createElement("div", {
+  }, selectedFlight ? formatMoney(selectedFlight.price, selectedFlight.currency) : '—'), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 11,
       color: 'var(--text-muted)',
@@ -6994,6 +7436,52 @@ function PLAIerApp(_ref62) {
     generatingPhase = _React$useStateGenPh2[0],
     setGeneratingPhase = _React$useStateGenPh2[1];
   async function loadLiveOffers(params, options) {
+    // ── MOCK MODE ── Retorna dades simulades sense consumir les APIs externes
+    const USE_MOCK = true;
+    if (USE_MOCK) {
+      var _runId = (options === null || options === void 0 ? void 0 : options.runId) != null ? options.runId : null;
+      setOfferLoading(true);
+      setOfferLoadError(null);
+      await new Promise(r => setTimeout(r, 600));
+      if (_runId != null && _runId !== generationRunIdRef.current) return;
+      const dest = (params === null || params === void 0 ? void 0 : params.destination) || {};
+      const city = dest.city || dest.name || 'Destí';
+      const originLabel = String((params && params.origin) || 'BCN').toUpperCase().slice(0, 3);
+      const destLabel = String(city).toUpperCase().slice(0, 3).replace(/[^A-Z]/g, 'X');
+      const route = originLabel + ' → ' + destLabel;
+      const transportId = (params && params.transport && params.transport.id) || 'plane';
+      const TRANSPORT_MOCKS = {
+        plane: [
+          { id: 'mk-fl-1', type: 'TRANSPORT', transportKind: 'plane', title: route + ' · Vueling', description: 'Vueling · 2h 05m · Directe', price: 89, currency: 'EUR', provider: 'Vueling', availabilityText: 'Directe' },
+          { id: 'mk-fl-2', type: 'TRANSPORT', transportKind: 'plane', title: route + ' · Ryanair', description: 'Ryanair · 2h 10m · Directe', price: 72, currency: 'EUR', provider: 'Ryanair', availabilityText: 'Directe' },
+          { id: 'mk-fl-3', type: 'TRANSPORT', transportKind: 'plane', title: route + ' · Iberia', description: 'Iberia · 3h 20m · 1 escala', price: 105, currency: 'EUR', provider: 'Iberia', availabilityText: '1 escala' },
+        ],
+        train: [
+          { id: 'mk-tr-1', type: 'TRANSPORT', transportKind: 'train', title: route + ' · Renfe AVE', description: 'Renfe · 6h 30m · Directe', price: 79, currency: 'EUR', provider: 'Renfe', availabilityText: 'Directe' },
+          { id: 'mk-tr-2', type: 'TRANSPORT', transportKind: 'train', title: route + ' · Ouigo', description: 'Ouigo · 7h 10m · 1 transbord', price: 49, currency: 'EUR', provider: 'Ouigo', availabilityText: '1 transbord' },
+          { id: 'mk-tr-3', type: 'TRANSPORT', transportKind: 'train', title: route + ' · TGV InOui', description: 'TGV InOui · 6h 55m · Directe', price: 95, currency: 'EUR', provider: 'TGV InOui', availabilityText: 'Directe' },
+        ],
+        bus: [
+          { id: 'mk-bs-1', type: 'TRANSPORT', transportKind: 'bus', title: route + ' · FlixBus', description: 'FlixBus · 14h 20m · Directe', price: 39, currency: 'EUR', provider: 'FlixBus', availabilityText: 'Directe' },
+          { id: 'mk-bs-2', type: 'TRANSPORT', transportKind: 'bus', title: route + ' · ALSA', description: 'ALSA · 15h 05m · 1 parada', price: 34, currency: 'EUR', provider: 'ALSA', availabilityText: '1 parada' },
+          { id: 'mk-bs-3', type: 'TRANSPORT', transportKind: 'ferry', title: route + ' · Grimaldi Ferri', description: 'Grimaldi Lines · 20h · Cabina inclosa', price: 68, currency: 'EUR', provider: 'Grimaldi Lines', availabilityText: 'Ferri nocturn' },
+        ],
+        car: [],
+      };
+      const transportOffers = TRANSPORT_MOCKS[transportId] || TRANSPORT_MOCKS.plane;
+      setOfferSnapshot({
+        search: { destination: city, city, transportId: transportId, origin: originLabel, refreshedAt: new Date().toISOString() },
+        offers: transportOffers.concat([
+          { id: 'mk-ht-1', type: 'HOTEL', title: 'Hotel ' + city + ' Centro ★★★★', description: 'Habitació doble · Esmorzar inclòs · Centre històric', price: 110, currency: 'EUR', provider: 'Booking.com', imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=75&fit=crop' },
+          { id: 'mk-ht-2', type: 'HOTEL', title: 'Boutique Hotel ' + city + ' ★★★', description: 'Habitació doble · Barri històric · Wifi gratuït', price: 85, currency: 'EUR', provider: 'Booking.com', imageUrl: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&q=75&fit=crop' },
+          { id: 'mk-ht-3', type: 'HOTEL', title: city + ' Luxury Suites ★★★★★', description: 'Suite deluxe · Vistes panoràmiques · Spa inclòs', price: 220, currency: 'EUR', provider: 'Booking.com', imageUrl: 'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&q=75&fit=crop' },
+        ])
+      });
+      setOfferLoading(false);
+      setGeneratingPhase('idle');
+      return;
+    }
+    // ── FI MOCK MODE ──
     var forceRefresh = (options === null || options === void 0 ? void 0 : options.forceRefresh) === true;
     var runId = (options === null || options === void 0 ? void 0 : options.runId) != null ? options.runId : null;
     var isStale = function isStale() {

@@ -42,7 +42,7 @@ export function Navbar() {
         "sticky top-0 z-40 w-full transition-all duration-300 ease-[var(--ease-out-premium)]",
         scrolled
           ? "border-b border-[color:var(--color-border)] bg-[color:rgba(12,14,15,0.72)] backdrop-blur-xl"
-          : "bg-transparent"
+          : "bg-transparent",
       )}
     >
       <PageWrapper className="flex h-16 items-center justify-between">
@@ -119,4 +119,3 @@ export function Navbar() {
     </header>
   );
 }
-

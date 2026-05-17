@@ -32,9 +32,13 @@ const fadeUp = {
   },
 };
 
-export function SurpriseReveal({ destination, days, onSeeBudget }: SurpriseRevealProps) {
+export function SurpriseReveal({
+  destination,
+  days,
+  onSeeBudget,
+}: SurpriseRevealProps) {
   const [phase, setPhase] = React.useState<"countdown" | "reveal" | "done">(
-    "countdown"
+    "countdown",
   );
   const [count, setCount] = React.useState(3);
   const [revealIndex, setRevealIndex] = React.useState(0);
@@ -123,7 +127,8 @@ export function SurpriseReveal({ destination, days, onSeeBudget }: SurpriseRevea
                 {destination}
               </div>
               <div className="mt-3 text-sm text-[color:var(--color-text-muted)]">
-                Ja ho tens tot a punt. Mira el pressupost i reserva quan vulguis.
+                Ja ho tens tot a punt. Mira el pressupost i reserva quan
+                vulguis.
               </div>
               <div className="mt-8">
                 <Button size="lg" onClick={onSeeBudget}>
@@ -137,4 +142,3 @@ export function SurpriseReveal({ destination, days, onSeeBudget }: SurpriseRevea
     </Card>
   );
 }
-

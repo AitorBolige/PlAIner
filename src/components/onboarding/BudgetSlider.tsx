@@ -43,7 +43,8 @@ export function BudgetSlider({ value, onChange }: BudgetSliderProps) {
             value={String(value)}
             onChange={(e) => {
               const next = Number(e.target.value.replaceAll(".", ""));
-              if (Number.isFinite(next)) onChange(Math.min(5000, Math.max(200, next)));
+              if (Number.isFinite(next))
+                onChange(Math.min(5000, Math.max(200, next)));
             }}
           />
         </div>
@@ -67,4 +68,3 @@ export function BudgetSlider({ value, onChange }: BudgetSliderProps) {
     </div>
   );
 }
-

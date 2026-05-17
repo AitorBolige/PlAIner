@@ -16,10 +16,9 @@ export function Spinner({ className, size = "md", ...props }: SpinnerProps) {
       className={cn(
         dims,
         "animate-spin rounded-full border border-white/20 border-t-white/70",
-        className
+        className,
       )}
       {...props}
     />
   );
 }
-
