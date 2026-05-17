@@ -282,7 +282,12 @@ function OnboardingInner() {
           </div>
 
           <div style={{ marginBottom: "18px" }}>
-            <label style={labelStyle}>Avatar (URL) <span style={{ textTransform: "none", opacity: 0.7 }}>(Opcional)</span></label>
+            <label style={labelStyle}>
+              Avatar (URL){" "}
+              <span style={{ textTransform: "none", opacity: 0.7 }}>
+                (Opcional)
+              </span>
+            </label>
             <div style={{ position: "relative" }}>
               <Camera
                 size={16}

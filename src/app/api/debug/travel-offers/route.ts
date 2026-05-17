@@ -4,10 +4,15 @@ import { refreshTravelOffers } from "@/lib/travel-offers-refresh";
 export async function GET(request: Request) {
   try {
     const searchParams = new URL(request.url).searchParams;
-    
+
     // Default to Lisbon if no params provided
-    const startDateStr = searchParams.get("startDate") || new Date().toISOString().split("T")[0];
-    const endDateStr = searchParams.get("endDate") || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+    const startDateStr =
+      searchParams.get("startDate") || new Date().toISOString().split("T")[0];
+    const endDateStr =
+      searchParams.get("endDate") ||
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        .toISOString()
+        .split("T")[0];
     const query = {
       destination: searchParams.get("destination") || "Lisbon",
       city: searchParams.get("city") || "Lisbon",
@@ -46,7 +51,7 @@ export async function GET(request: Request) {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

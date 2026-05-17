@@ -4,28 +4,15 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const {
-      userId,
-      nickname,
-      age,
-      gender,
-      nationality,
-      hobbies,
-      avatar,
-    } = body ?? {};
+    const { userId, nickname, age, gender, nationality, hobbies, avatar } =
+      body ?? {};
 
     if (!userId) {
-      return NextResponse.json(
-        { error: "Falta l'usuari." },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Falta l'usuari." }, { status: 400 });
     }
 
     if (!Number.isFinite(age)) {
-      return NextResponse.json(
-        { error: "Edat invàlida." },
-        { status: 400 },
-      );
+      return NextResponse.json({ error: "Edat invàlida." }, { status: 400 });
     }
 
     try {

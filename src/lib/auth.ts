@@ -101,15 +101,16 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user, account, profile, trigger, session }) {
       if (trigger === "update" && session) {
-        if (session.onboarded !== undefined) token.onboarded = session.onboarded;
+        if (session.onboarded !== undefined)
+          token.onboarded = session.onboarded;
         if (session.nickname !== undefined) token.nickname = session.nickname;
         if (session.image !== undefined) token.image = session.image;
       }
       if (user) {
         token.id = user.id;
-        if ('onboarded' in user) token.onboarded = user.onboarded;
-        if ('nickname' in user) token.nickname = user.nickname;
-        if ('image' in user) token.image = user.image;
+        if ("onboarded" in user) token.onboarded = user.onboarded;
+        if ("nickname" in user) token.nickname = user.nickname;
+        if ("image" in user) token.image = user.image;
       }
 
       if (
@@ -127,21 +128,21 @@ export const authOptions: NextAuthOptions = {
 
         const existing = await prisma.user.findUnique({
           where: { email },
-          select: { id: true, ageGroup: true, nickname: true, image: true }
+          select: { id: true, ageGroup: true, nickname: true, image: true },
         });
 
         let userId: string;
         if (!existing) {
           userId = crypto.randomUUID();
           await prisma.user.create({
-            data: { id: userId, email, name, image }
+            data: { id: userId, email, name, image },
           });
           token.onboarded = false;
         } else {
           userId = existing.id;
           await prisma.user.update({
             where: { id: userId },
-            data: { name, image }
+            data: { name, image },
           });
           token.onboarded = !!existing.ageGroup;
           token.nickname = existing.nickname;

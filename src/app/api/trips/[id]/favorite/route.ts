@@ -12,7 +12,10 @@ type RouteContext = { params: Promise<{ id: string }> };
 export async function POST(_request: NextRequest, context: RouteContext) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 },
+    );
   }
 
   const { id } = await context.params;
@@ -23,10 +26,16 @@ export async function POST(_request: NextRequest, context: RouteContext) {
   });
 
   if (!trip) {
-    return NextResponse.json({ ok: false, error: "Trip not found" }, { status: 404 });
+    return NextResponse.json(
+      { ok: false, error: "Trip not found" },
+      { status: 404 },
+    );
   }
   if (trip.userId !== session.user.id) {
-    return NextResponse.json({ ok: false, error: "Forbidden" }, { status: 403 });
+    return NextResponse.json(
+      { ok: false, error: "Forbidden" },
+      { status: 403 },
+    );
   }
 
   const updated = await prisma.trip.update({

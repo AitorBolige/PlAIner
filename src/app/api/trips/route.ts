@@ -29,7 +29,10 @@ const createTripSchema = z.object({
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 },
+    );
   }
 
   const trips = await prisma.trip.findMany({
@@ -57,7 +60,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
-    return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 },
+    );
   }
 
   const body = await request.json().catch(() => null);
@@ -65,7 +71,11 @@ export async function POST(request: NextRequest) {
 
   if (!parsed.success) {
     return NextResponse.json(
-      { ok: false, error: "Invalid request body", issues: parsed.error.flatten() },
+      {
+        ok: false,
+        error: "Invalid request body",
+        issues: parsed.error.flatten(),
+      },
       { status: 400 },
     );
   }
