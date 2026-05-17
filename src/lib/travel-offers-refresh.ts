@@ -300,6 +300,7 @@ function getConfiguredSources(query: TravelOfferQuery): TravelSource[] {
 }
 
 function parseJsonLd(html: string) {
+  const scripts = Array.from(html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi));
   const scripts = [
     ...html.matchAll(
       /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi,

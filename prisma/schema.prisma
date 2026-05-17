@@ -53,8 +53,11 @@ model Trip {
   userId         String
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   destination    String
+  country        String?
+  imageUrl       String?
   startDate      DateTime
   endDate        DateTime
+  people         Int       @default(2)
   totalCost      Float
   flightCost     Float
   hotelCost      Float
@@ -63,8 +66,13 @@ model Trip {
   status         String    @default("draft") // draft | confirmed | completed
   isSurprise     Boolean   @default(false)
   isFavorite     Boolean   @default(false)
+  searchId       String?
+  search         TravelSearch? @relation(fields: [searchId], references: [id], onDelete: SetNull)
   days           Day[]
   createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+
+  @@index([userId, createdAt])
 }
 
 model TravelSearch {
@@ -85,6 +93,7 @@ model TravelSearch {
   expiresAt    DateTime?
   offers       TravelOffer[]
   refreshRuns  TravelRefreshRun[]
+  trips        Trip[]
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
 

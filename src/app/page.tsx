@@ -4,5 +4,5 @@ import { authOptions } from "@/lib/auth";
 
 export default async function Home() {
   const session = await getServerSession(authOptions);
-  redirect(session ? "/plainer-mvp.html" : "/auth/login");
+  redirect(session ? "/search" : "/auth/login");
 }
