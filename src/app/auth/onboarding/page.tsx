@@ -2,10 +2,12 @@
 
 import * as React from "react";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Camera, User } from "lucide-react";
 
 export default function OnboardingPage() {
   const searchParams = useSearchParams();
+  const { update } = useSession();
   const userId = searchParams.get("user") ?? "";
 
   const [nickname, setNickname] = React.useState("");
@@ -63,8 +65,9 @@ export default function OnboardingPage() {
     }
 
     setSuccess(true);
+    await update({ onboarded: true, nickname, image: avatar });
     setTimeout(() => {
-      window.location.href = "/auth/login?registered=1";
+      window.location.href = "/";
     }, 1200);
   }
 
@@ -271,7 +274,7 @@ export default function OnboardingPage() {
           </div>
 
           <div style={{ marginBottom: "18px" }}>
-            <label style={labelStyle}>Avatar (URL)</label>
+            <label style={labelStyle}>Avatar (URL) <span style={{ textTransform: "none", opacity: 0.7 }}>(Opcional)</span></label>
             <div style={{ position: "relative" }}>
               <Camera
                 size={16}

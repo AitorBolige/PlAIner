@@ -4,6 +4,7 @@ import FacebookProvider from "next-auth/providers/facebook";
 import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { prisma } from "@/lib/prisma";
 
 async function logLogin({
   userId,
@@ -63,7 +64,7 @@ export const authOptions: NextAuthOptions = {
 
         const { data: user } = await getSupabaseAdmin()
           .from("User")
-          .select("id, email, name, image, passwordHash")
+          .select("id, email, name, image, passwordHash, ageGroup, nickname")
           .eq("email", email)
           .single();
 
@@ -91,13 +92,25 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           image: user.image,
+          nickname: user.nickname,
+          onboarded: !!user.ageGroup,
         };
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account, profile }) {
-      if (user) token.id = user.id;
+    async jwt({ token, user, account, profile, trigger, session }) {
+      if (trigger === "update" && session) {
+        if (session.onboarded !== undefined) token.onboarded = session.onboarded;
+        if (session.nickname !== undefined) token.nickname = session.nickname;
+        if (session.image !== undefined) token.image = session.image;
+      }
+      if (user) {
+        token.id = user.id;
+        if ('onboarded' in user) token.onboarded = user.onboarded;
+        if ('nickname' in user) token.nickname = user.nickname;
+        if ('image' in user) token.image = user.image;
+      }
 
       if (
         (account?.provider === "google" || account?.provider === "facebook") &&
@@ -112,24 +125,27 @@ export const authOptions: NextAuthOptions = {
             : ((profile as { picture?: { data?: { url?: string } } }).picture
                 ?.data?.url ?? null);
 
-        const { data: existing } = await getSupabaseAdmin()
-          .from("User")
-          .select("id")
-          .eq("email", email)
-          .single();
+        const existing = await prisma.user.findUnique({
+          where: { email },
+          select: { id: true, ageGroup: true, nickname: true, image: true }
+        });
 
         let userId: string;
         if (!existing) {
           userId = crypto.randomUUID();
-          await getSupabaseAdmin()
-            .from("User")
-            .insert({ id: userId, email, name, image });
+          await prisma.user.create({
+            data: { id: userId, email, name, image }
+          });
+          token.onboarded = false;
         } else {
           userId = existing.id;
-          await getSupabaseAdmin()
-            .from("User")
-            .update({ name, image })
-            .eq("id", userId);
+          await prisma.user.update({
+            where: { id: userId },
+            data: { name, image }
+          });
+          token.onboarded = !!existing.ageGroup;
+          token.nickname = existing.nickname;
+          if (existing.image) token.image = existing.image;
         }
         token.id = userId;
 
@@ -164,7 +180,12 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     session({ session, token }) {
-      if (session.user && token.id) session.user.id = token.id as string;
+      if (session.user && token.id) {
+        session.user.id = token.id as string;
+        (session.user as any).onboarded = token.onboarded;
+        (session.user as any).nickname = token.nickname;
+        if (token.image) session.user.image = token.image as string;
+      }
       return session;
     },
   },

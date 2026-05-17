@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getSupabaseAdmin } from "@/lib/supabase-admin";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
@@ -28,22 +28,22 @@ export async function POST(req: Request) {
       );
     }
 
-    const { error } = await getSupabaseAdmin()
-      .from("User")
-      .update({
-        nickname,
-        age,
-        gender,
-        nationality,
-        hobbies,
-        avatar,
-      })
-      .eq("id", userId);
-
-    if (error) {
-      console.error("[onboarding] supabaseAdmin error:", error);
+    try {
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          nickname,
+          age,
+          gender,
+          nationality,
+          hobbies,
+          image: avatar || undefined, // Map avatar to image column
+        },
+      });
+    } catch (dbError) {
+      console.error("[onboarding] Prisma update error:", dbError);
       return NextResponse.json(
-        { error: "No hem pogut guardar l'onboarding." },
+        { error: "No hem pogut guardar l'onboarding en la base de dades." },
         { status: 500 },
       );
     }
