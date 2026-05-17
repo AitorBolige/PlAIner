@@ -5988,7 +5988,8 @@ function EmptyState(_ref51) {
 }
 function BottomTabs(_ref52) {
   let tab = _ref52.tab,
-    onTab = _ref52.onTab;
+    onTab = _ref52.onTab,
+    user = _ref52.user;
   const TABS = [
     {
       id: 'search',
@@ -6015,6 +6016,23 @@ function BottomTabs(_ref52) {
         React.createElement('circle',{cx:12,cy:9,r:2.5,stroke:'#A0998E',strokeWidth:1.5,fill:'none'})
       ),
     },
+    {
+      id: 'settings',
+      label: 'Perfil',
+      iconActive: user && user.image ? 
+        React.createElement('img', { src: user.image, style: { width: 24, height: 24, borderRadius: 12, border: '2px solid var(--green)', objectFit: 'cover' } }) :
+        React.createElement('svg', { width: 26, height: 26, viewBox: '0 0 24 24', fill: 'none' },
+          React.createElement('circle', { cx: 12, cy: 8, r: 4, fill: 'var(--green)', opacity: 0.18 }),
+          React.createElement('circle', { cx: 12, cy: 8, r: 4, stroke: 'var(--green)', strokeWidth: 2, fill: 'none' }),
+          React.createElement('path', { d: 'M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2', stroke: 'var(--green)', strokeWidth: 2, strokeLinecap: 'round', fill: 'none' })
+        ),
+      iconInactive: user && user.image ?
+        React.createElement('img', { src: user.image, style: { width: 24, height: 24, borderRadius: 12, border: '1px solid #A0998E', objectFit: 'cover', opacity: 0.8 } }) :
+        React.createElement('svg', { width: 26, height: 26, viewBox: '0 0 24 24', fill: 'none' },
+          React.createElement('circle', { cx: 12, cy: 8, r: 4, stroke: '#A0998E', strokeWidth: 1.7, fill: 'none' }),
+          React.createElement('path', { d: 'M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2', stroke: '#A0998E', strokeWidth: 1.7, strokeLinecap: 'round', fill: 'none' })
+        ),
+    },
   ];
   return React.createElement('div', {
     style: {
@@ -6031,16 +6049,27 @@ function BottomTabs(_ref52) {
         display: 'flex',
         height: 56,
         paddingBottom: 2,
+        justifyContent: 'space-evenly',
+        alignItems: 'center',
+        margin: '0 auto',
+        maxWidth: 300,
       }
     },
       TABS.map(t => {
         const active = t.id === tab;
         return React.createElement('button', {
           key: t.id,
-          onClick: () => onTab && onTab(t.id),
+          onClick: () => {
+            if (t.id === 'settings') {
+              window.location.href = '/settings';
+            } else {
+              onTab && onTab(t.id);
+            }
+          },
           className: 'pl-tap',
           style: {
             flex: 1,
+            maxWidth: 100,
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -7874,7 +7903,8 @@ function PLAIerApp(_ref62) {
   },
   route !== 'login' && route !== 'generating' && /*#__PURE__*/React.createElement(BottomTabs, {
     tab: bottomTab,
-    onTab: navigateTab
+    onTab: navigateTab,
+    user: user
   }),
   route === 'search' && /*#__PURE__*/React.createElement("div", {
     key: 'screen-search',
@@ -8233,6 +8263,9 @@ function App() {
     background: '#F4F1EC'
   };
 
+  const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const tabParam = urlParams ? (urlParams.get('tab') || 'search') : 'search';
+
   return React.createElement("div", {
     style: {
       width:'100vw', height:'100vh', overflow:'hidden',
@@ -8252,7 +8285,7 @@ function App() {
               borderBottom:'3px solid transparent', borderLeft:'3px solid transparent'
             }})
           )
-        : React.createElement(PLAIerApp, { initialRoute: 'search', initialUser })
+        : React.createElement(PLAIerApp, { initialRoute: tabParam, initialTab: tabParam, initialUser })
     )
   );
 }

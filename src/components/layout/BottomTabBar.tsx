@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Compass, Heart, Home, Plane, User } from "lucide-react";
+import { Compass, Heart, Home, Plane, Settings } from "lucide-react";
 
 import { cn } from "@/lib/cn";
 
@@ -39,10 +39,10 @@ const tabs: Tab[] = [
     matches: (p) => p.startsWith("/favorites"),
   },
   {
-    href: "/profile",
-    label: "Perfil",
-    Icon: User,
-    matches: (p) => p.startsWith("/profile"),
+    href: "/settings",
+    label: "Ajustaments",
+    Icon: Settings,
+    matches: (p) => p.startsWith("/settings"),
   },
 ];
 
