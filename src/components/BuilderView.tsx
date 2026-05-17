@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { ArrowLeft, Bookmark, Check, Loader2 } from "lucide-react";
-import { Destination } from "@/lib/destinations";
+import type { Destination } from "@/lib/data";
 
 export type BuilderStep = "flight" | "hotel" | "summary";
 
@@ -12,15 +12,12 @@ interface BuilderViewProps {
   budget: number;
   people: number;
   onBack: () => void;
-  onComplete: (tripData: any) => Promise<void>;
+  onComplete: (tripData: Record<string, unknown>) => Promise<void>;
 }
 
 export function BuilderView({ destination, dates, budget, people, onBack, onComplete }: BuilderViewProps) {
   const [step, setStep] = React.useState<BuilderStep>("flight");
   const [saving, setSaving] = React.useState(false);
-
-  // Mocks
-  const hasFlights = false; // As requested, show the empty state for flights
 
   const totalBudget = budget * people;
 
@@ -30,7 +27,7 @@ export function BuilderView({ destination, dates, budget, people, onBack, onComp
       await onComplete({
         destination: destination.city,
         country: destination.country,
-        imageUrl: destination.img || destination.heroImage,
+        imageUrl: destination.img,
         startDate: dates.start.toISOString(),
         endDate: dates.end.toISOString(),
         people,

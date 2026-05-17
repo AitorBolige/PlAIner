@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Camera, User } from "lucide-react";
 
-export default function OnboardingPage() {
+function OnboardingInner() {
   const searchParams = useSearchParams();
   const { update } = useSession();
   const userId = searchParams.get("user") ?? "";
@@ -96,11 +96,19 @@ export default function OnboardingPage() {
   };
 
   return (
-    <div>
+    <div
+      style={{
+        height: "100%",
+        overflowY: "auto",
+        WebkitOverflowScrolling: "touch",
+        background: "var(--bg)",
+      }}
+    >
       <div
         style={{
           height: "32vh",
           minHeight: "200px",
+          flexShrink: 0,
           background:
             "linear-gradient(160deg, #0D9E7A 0%, #1a6b9a 60%, #2D3561 100%)",
           position: "relative",
@@ -354,5 +362,13 @@ export default function OnboardingPage() {
         </form>
       </div>
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <OnboardingInner />
+    </React.Suspense>
   );
 }

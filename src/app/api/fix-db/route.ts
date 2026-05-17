@@ -10,8 +10,9 @@ export async function GET() {
     await prisma.$executeRawUnsafe(`ALTER TABLE "User" ADD COLUMN IF NOT EXISTS "hobbies" TEXT;`);
     
     return NextResponse.json({ success: true, message: "Columns added successfully!" });
-  } catch (e: any) {
+  } catch (e) {
     console.error(e);
-    return NextResponse.json({ error: e.message }, { status: 500 });
+    const message = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

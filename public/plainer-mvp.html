@@ -3397,7 +3397,8 @@ function DatesSheet(_ref36) {
     onClose = _ref36.onClose,
     onConfirm = _ref36.onConfirm,
     value = _ref36.value;
-  const today = new Date(2026, 4, 1); // May 1 2026
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // data actual real (es recalcula cada obertura)
   const _React$useState15 = React.useState(value !== null && value !== void 0 && value.startISO ? new Date(value.startISO) : null),
     _React$useState16 = _slicedToArray(_React$useState15, 2),
     start = _React$useState16[0],
@@ -4442,7 +4443,7 @@ function SearchScreen(_ref43) {
             fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: 15,
       marginTop: 4, border: 'none', cursor: 'pointer'
     }
-  }, ((user === null || user === void 0 ? void 0 : user.name) || 'J')[0]),
+  }, user && user.image ? React.createElement("img", { src: user.image, alt: "Avatar", style: { width: '100%', height: '100%', borderRadius: 9999, objectFit: 'cover' } }) : ((user === null || user === void 0 ? void 0 : user.name) || 'J')[0]),
     showLogout && React.createElement(React.Fragment, null,
       React.createElement("div", {
         onClick: () => setShowLogout(false),
@@ -5563,10 +5564,18 @@ function TripsScreen(_ref48) {
     fav: trips.filter(t => favs.has(t.id)).length
   };
   const visible = trips.filter(t => filter === 'all' ? true : filter === 'upcoming' ? t.status === 'upcoming' : filter === 'past' ? t.status === 'past' : filter === 'fav' ? favs.has(t.id) : true);
+  // Sincronitza els favorits quan els viatges es carreguen de la BD.
+  React.useEffect(() => {
+    const s = new Set();
+    trips.forEach(t => t.favorite && s.add(t.id));
+    setFavs(s);
+  }, [trips]);
   const toggleFav = id => {
     const s = new Set(favs);
     s.has(id) ? s.delete(id) : s.add(id);
     setFavs(s);
+    // Persisteix el favorit a la BD.
+    fetch('/api/trips/' + id + '/favorite', { method: 'POST' }).catch(() => {});
   };
   const tabs = [{
     id: 'all',
@@ -7380,6 +7389,26 @@ function ItinerarySection({pendingParams}) {
 // PLAIner — App router (in-app state machine)
 // Manages: route ('login' | 'search' | 'generating' | 'trips' | 'detail'), user, trips
 
+// Converteix una fila Trip de la BD al format intern de la UI.
+function dbTripToLocal(t) {
+  const s = new Date(t.startDate), e = new Date(t.endDate);
+  const days = Math.max(1, Math.round((e.getTime() - s.getTime()) / 86400000) + 1);
+  return {
+    id: t.id,
+    destId: t.searchId || '',
+    city: t.destination,
+    country: t.country || '',
+    start: s.getDate() + ' ' + monthAbbr(s),
+    end: e.getDate() + ' ' + monthAbbr(e),
+    days: days,
+    people: t.people || 2,
+    total: Math.round(t.totalCost || 0),
+    status: t.status === 'completed' ? 'past' : 'upcoming',
+    favorite: !!t.isFavorite,
+    img: t.imageUrl || '',
+  };
+}
+
 function PLAIerApp(_ref62) {
   let initialRoute = _ref62.initialRoute === void 0 ? 'login' : _ref62.initialRoute,
     initialTab = _ref62.initialTab === void 0 ? 'search' : _ref62.initialTab,
@@ -7397,6 +7426,18 @@ function PLAIerApp(_ref62) {
     _React$useState70 = _slicedToArray(_React$useState69, 2),
     trips = _React$useState70[0],
     setTrips = _React$useState70[1];
+  // Carrega els viatges desats de l'usuari des de la BD.
+  React.useEffect(() => {
+    let cancelled = false;
+    fetch('/api/trips')
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        if (cancelled || !data || !data.ok || !Array.isArray(data.trips)) return;
+        setTrips(data.trips.map(dbTripToLocal));
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
   const _React$useState71 = React.useState(null),
     _React$useState72 = _slicedToArray(_React$useState71, 2),
     pendingParams = _React$useState72[0],
@@ -7665,25 +7706,59 @@ function PLAIerApp(_ref62) {
     onBack: () => setRoute('search'),
     onConfirm: (flight, hotel, fav) => {
             const p = pendingParams;
+            const people = p.people || 2;
+            const total = Math.round(p.budget * people * 0.96);
+            const tempId = 't' + Date.now();
             const newTrip = {
-              id: 't' + Date.now(),
+              id: tempId,
               destId: p.destination.id,
               city: p.destination.city,
               country: p.destination.country,
               start: `${p.dates.start.getDate()} ${monthAbbr(p.dates.start)}`,
               end: `${p.dates.end.getDate()} ${monthAbbr(p.dates.end)}`,
               days: p.dates.days,
-              people: p.people,
-              total: Math.round(p.budget * p.people * 0.96),
+              people: people,
+              total: total,
               status: 'upcoming',
         favorite: Boolean(fav),
         img: p.destination.img
             };
-            setTrips([newTrip, ...trips]);
+            setTrips(prev => [newTrip, ...prev]);
       setSlideDir('right');
             setBottomTab('trips');
             setRoute('trips');
             setPendingParams(null);
+            // Desa el viatge a la BD (per compte d'usuari).
+            const body = {
+              destination: p.destination.city,
+              country: p.destination.country || undefined,
+              imageUrl: p.destination.img || undefined,
+              startDate: p.dates.start.toISOString(),
+              endDate: p.dates.end.toISOString(),
+              people: people,
+              totalCost: total,
+              flightCost: flight ? Math.round((flight.price || 0) * people) : 0,
+              hotelCost: hotel ? Math.round(hotel.price || 0) : 0,
+              activitiesCost: 0,
+              dailyCost: Math.round(total / Math.max(1, p.dates.days)),
+              status: 'confirmed',
+              isSurprise: false,
+            };
+            fetch('/api/trips', {
+              method: 'POST',
+              headers: { 'content-type': 'application/json' },
+              body: JSON.stringify(body),
+            })
+              .then(r => (r.ok ? r.json() : null))
+              .then(data => {
+                if (!data || !data.ok || !data.trip) return;
+                const saved = dbTripToLocal(data.trip);
+                setTrips(prev => prev.map(t => (t.id === tempId ? saved : t)));
+                if (fav) {
+                  fetch('/api/trips/' + data.trip.id + '/favorite', { method: 'POST' }).catch(() => {});
+                }
+              })
+              .catch(() => {});
     }
   }), route === 'trips' && /*#__PURE__*/React.createElement("div", {
     key: 'screen-trips',
@@ -8021,7 +8096,10 @@ function App() {
       .then(r => r.json())
       .then(data => {
         if (data && data.user) {
-          setInitialUser({ name: data.user.name || data.user.email });
+          setInitialUser({
+            name: data.user.nickname || data.user.name || data.user.email,
+            image: data.user.image || null,
+          });
           setSessionChecked(true);
         } else {
           // No session — redirect to the real login page

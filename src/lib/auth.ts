@@ -182,8 +182,8 @@ export const authOptions: NextAuthOptions = {
     session({ session, token }) {
       if (session.user && token.id) {
         session.user.id = token.id as string;
-        (session.user as any).onboarded = token.onboarded;
-        (session.user as any).nickname = token.nickname;
+        session.user.onboarded = token.onboarded as boolean | undefined;
+        session.user.nickname = token.nickname as string | null | undefined;
         if (token.image) session.user.image = token.image as string;
       }
       return session;

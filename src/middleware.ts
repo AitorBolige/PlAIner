@@ -9,11 +9,15 @@ export async function middleware(req: NextRequest) {
   const isOnboarding = req.nextUrl.pathname.startsWith("/auth/onboarding");
 
   if (token) {
-    if (!token.onboarded && !isOnboarding && !isAuthPage) {
-      return NextResponse.redirect(new URL(`/auth/onboarding?user=${token.id}`, req.url));
-    }
-    // If they are on auth pages but already logged in and onboarded, redirect to home
-    if (token.onboarded && isAuthPage && !req.nextUrl.pathname.startsWith("/auth/signout")) {
+    // L'onboarding NOMÉS es mostra a usuaris nous (via el redirect del registre).
+    // Els usuaris ja existents a la BD entren directament, sense onboarding.
+    // Si ja estan loguejats i visiten login/registre, els portem a l'app;
+    // es permet /auth/onboarding perquè un usuari nou el pugui completar.
+    if (
+      isAuthPage &&
+      !isOnboarding &&
+      !req.nextUrl.pathname.startsWith("/auth/signout")
+    ) {
       return NextResponse.redirect(new URL("/", req.url));
     }
   } else {

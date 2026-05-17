@@ -57,17 +57,17 @@ function LoginPageInner() {
   const [passFocus, setPassFocus] = React.useState(false);
 
   React.useEffect(() => {
-    if (status === "authenticated") router.replace("/search");
+    if (status === "authenticated") router.replace("/plainer-mvp.html");
   }, [status, router]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setLoading(true);
-    const res = await signIn("credentials", { email, password, redirect: false, callbackUrl: "/search" });
+    const res = await signIn("credentials", { email, password, redirect: false, callbackUrl: "/plainer-mvp.html" });
     setLoading(false);
     if (!res?.ok) { setError("Email o contrasenya incorrectes."); return; }
-    window.location.href = res.url ?? "/search";
+    window.location.href = res.url ?? "/plainer-mvp.html";
   }
 
   return (
@@ -161,11 +161,11 @@ function LoginPageInner() {
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-            <button type="button" onClick={() => signIn("google", { callbackUrl: "/search" })} className="pl-tap"
+            <button type="button" onClick={() => signIn("google", { callbackUrl: "/plainer-mvp.html" })} className="pl-tap"
               style={{ width: '100%', height: 46, background: 'var(--surface)', color: 'var(--text)', border: '1.5px solid var(--border-md)', borderRadius: 'var(--r-pill)', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer' }}>
               <GoogleIcon /> Continua amb Google
             </button>
-            <button type="button" onClick={() => signIn("facebook", { callbackUrl: "/search" })} className="pl-tap"
+            <button type="button" onClick={() => signIn("facebook", { callbackUrl: "/plainer-mvp.html" })} className="pl-tap"
               style={{ width: '100%', height: 46, background: '#1877F2', color: '#fff', border: 'none', borderRadius: 'var(--r-pill)', fontSize: 14, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, cursor: 'pointer' }}>
               <FacebookIcon /> Continua amb Facebook
             </button>

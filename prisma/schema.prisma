@@ -40,6 +40,13 @@ model User {
   budgetMax     Int?
   preferredDuration String?
 
+  // Onboarding fields
+  nickname      String?
+  age           Int?
+  gender        String?
+  nationality   String?
+  hobbies       String?
+
   createdAt     DateTime  @default(now())
 
   trips          Trip[]
