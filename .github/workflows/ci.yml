@@ -77,3 +77,20 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npx prettier --check "src/**/*.{ts,tsx,css}"
+
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=abolige
+            -Dsonar.projectKey=abolige_PlAIner
+            -Dsonar.sources=src
+            -Dsonar.exclusions=**/node_modules/**,**/.next/**
