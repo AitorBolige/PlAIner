@@ -42,8 +42,13 @@ export default function RegisterPage() {
       return;
     }
 
-    // Redirect to login with success message
-    window.location.href = "/auth/login?registered=1";
+    const data = await res.json();
+    if (!data?.id) {
+      setError("No hem pogut crear el teu perfil d'onboarding.");
+      return;
+    }
+
+    window.location.href = `/auth/onboarding?user=${data.id}`;
   }
 
   const inputStyle: React.CSSProperties = {
