@@ -4372,6 +4372,10 @@ function SearchScreen(_ref43) {
     _React$useState48 = _slicedToArray(_React$useState47, 2),
     budget = _React$useState48[0],
     setBudget = _React$useState48[1];
+  const _React$useStatePrefs = React.useState(''),
+    _React$useStatePrefs2 = _slicedToArray(_React$useStatePrefs, 2),
+    travelPreferences = _React$useStatePrefs2[0],
+    setTravelPreferences = _React$useStatePrefs2[1];
   const _React$useState49 = React.useState(null),
     _React$useState50 = _slicedToArray(_React$useState49, 2),
     openSheet = _React$useState50[0],
@@ -4607,7 +4611,50 @@ function SearchScreen(_ref43) {
     badge: budget ? budgetZone(budget).label : null,
     onClick: () => setOpenSheet('budget'),
     noBorder: true
-  })), /*#__PURE__*/React.createElement("div", {
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      padding: '12px 16px 14px',
+      borderTop: '1px solid var(--border)'
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "micro"
+  }, "PREFER\xC8NCIES"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: 'var(--text-muted)',
+      marginTop: 4,
+      marginBottom: 8
+    }
+  }, "Opcional \u2014 personalitza restaurants i activitats"), /*#__PURE__*/React.createElement("textarea", {
+    value: travelPreferences,
+    onChange: function(e) {
+      setTravelPreferences(e.target.value);
+    },
+    maxLength: 280,
+    rows: 3,
+    placeholder: "Som un parell veg\xE0, ens agrada l'art underground i la techno\u2026",
+    style: {
+      width: '100%',
+      boxSizing: 'border-box',
+      border: '1px solid var(--border)',
+      borderRadius: 12,
+      padding: '10px 12px',
+      fontSize: 14,
+      lineHeight: 1.45,
+      color: 'var(--text)',
+      background: 'var(--surface-2)',
+      resize: 'none',
+      outline: 'none',
+      fontFamily: 'inherit'
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: 'var(--text-muted)',
+      textAlign: 'right',
+      marginTop: 6
+    }
+  }, travelPreferences.length, " / 280"))), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '16px 16px 0'
     }
@@ -4620,7 +4667,8 @@ function SearchScreen(_ref43) {
       people,
       budget,
       origin,
-      maxPrice: budget
+      maxPrice: budget,
+      travelPreferences: travelPreferences.trim()
     }),
     className: "pl-tap",
     style: {
@@ -5706,6 +5754,7 @@ function TripCard(_ref49) {
     fav = _ref49.fav,
     onFav = _ref49.onFav,
     onOpen = _ref49.onOpen;
+  const cardTotal = tripGrandTotal(trip);
   const statusBadge = trip.status === 'upcoming' ? {
     bg: 'rgba(59,135,232,0.95)',
     label: 'Pròximament'
@@ -5821,7 +5870,28 @@ function TripCard(_ref49) {
     icon: /*#__PURE__*/React.createElement(IcUsers, {
       size: 15
     })
-  }, trip.people, " persones")), /*#__PURE__*/React.createElement("div", {
+  }, trip.people, " persones"), [{
+    ic: /*#__PURE__*/React.createElement(IcPlane, { size: 12 }),
+    l: 'Vol',
+    v: trip.flightCost || 0
+  }, {
+    ic: /*#__PURE__*/React.createElement(IcMapPin, { size: 12 }),
+    l: 'Hotel',
+    v: trip.hotelCost || 0
+  }, {
+    ic: /*#__PURE__*/React.createElement(IcSparkles, { size: 12 }),
+    l: 'Activitats',
+    v: trip.activitiesCost || 0
+  }].map(function(row, i) {
+    return /*#__PURE__*/React.createElement("div", {
+      key: i,
+      style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: 12, color: 'var(--text-muted)' }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: { display: 'inline-flex', alignItems: 'center', gap: 4 }
+    }, row.ic, " ", row.l), /*#__PURE__*/React.createElement("span", {
+      style: { fontWeight: 600, color: 'var(--text)' }
+    }, row.v.toLocaleString('ca'), " \u20AC"));
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
       textAlign: 'right'
     }
@@ -5835,7 +5905,7 @@ function TripCard(_ref49) {
       letterSpacing: '-0.025em',
       marginTop: 2
     }
-  }, trip.total.toLocaleString('ca'), " \u20AC"), /*#__PURE__*/React.createElement("div", {
+  }, cardTotal.toLocaleString('ca'), " \u20AC"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
       color: 'var(--green)',
@@ -6724,11 +6794,25 @@ function LiveOffersPreview(_ref61) {
     _React$useState64 = _slicedToArray(_React$useState63, 2),
     selectedHotel = _React$useState64[0],
     setSelectedHotel = _React$useState64[1];
+  const _React$useStateItin = React.useState(null),
+    _React$useStateItin2 = _slicedToArray(_React$useStateItin, 2),
+    itineraryData = _React$useStateItin2[0],
+    setItineraryData = _React$useStateItin2[1];
+  const _React$useStateItinLoad = React.useState(false),
+    _React$useStateItinLoad2 = _slicedToArray(_React$useStateItinLoad, 2),
+    itineraryLoading = _React$useStateItinLoad2[0],
+    setItineraryLoading = _React$useStateItinLoad2[1];
+  const handleItineraryChange = React.useCallback(function(data, loading) {
+    setItineraryData(data);
+    setItineraryLoading(loading);
+  }, []);
   const resetBasketSignature = `${(offerSnapshot === null || offerSnapshot === void 0 || (_offerSnapshot$search = offerSnapshot.search) === null || _offerSnapshot$search === void 0 ? void 0 : _offerSnapshot$search.destination) || ''}|${(offerSnapshot === null || offerSnapshot === void 0 || (_offerSnapshot$search2 = offerSnapshot.search) === null || _offerSnapshot$search2 === void 0 ? void 0 : _offerSnapshot$search2.city) || ''}|${(offerSnapshot === null || offerSnapshot === void 0 || (_offerSnapshot$search3 = offerSnapshot.search) === null || _offerSnapshot$search3 === void 0 ? void 0 : _offerSnapshot$search3.id) || ''}|${(offerSnapshot === null || offerSnapshot === void 0 || (_offerSnapshot$search4 = offerSnapshot.search) === null || _offerSnapshot$search4 === void 0 ? void 0 : _offerSnapshot$search4.refreshedAt) || ''}|${offers.length}`;
   React.useEffect(() => {
     setCurrentStep(isCar ? 'hotels' : 'flights');
     setSelectedFlight(null);
     setSelectedHotel(null);
+    setItineraryData(null);
+    setItineraryLoading(false);
   }, [resetBasketSignature, isCar]);
   const handlePickFlight = offer => {
     setSelectedFlight(offer);
@@ -6758,6 +6842,10 @@ function LiveOffersPreview(_ref61) {
   };
   const showBack = isCar ? currentStep === 'summary' : currentStep !== 'flights';
   const sectionTitle = currentStep === 'flights' ? tMeta.pickTitle : currentStep === 'hotels' ? 'Tria el teu allotjament' : 'Itinerari desat a la teva selecció';
+  const summaryPeople = pendingParams && pendingParams.people ? pendingParams.people : 2;
+  const summaryCosts = currentStep === 'summary' && selectedHotel
+    ? computeCostBreakdown(selectedFlight, selectedHotel, itineraryData, summaryPeople)
+    : null;
   if (isLoading) {
     return /*#__PURE__*/React.createElement("div", {
       style: {
@@ -7090,85 +7178,19 @@ function LiveOffersPreview(_ref61) {
     className: "micro",
     style: { color: 'var(--green)', marginTop: 4 }
   }, "ITINERARI"), /*#__PURE__*/React.createElement(ItinerarySection, {
-    pendingParams: pendingParams
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      padding: '12px 14px',
-      borderRadius: 16,
-      background: '#fff',
-      border: '1px solid var(--border)',
-      display: 'flex',
-      gap: 12
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      textAlign: 'center',
-      padding: '8px 0'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10.5,
-      fontWeight: 700,
-      letterSpacing: '0.08em',
-      textTransform: 'uppercase',
-      color: tMeta.accent
-    }
-  }, tMeta.stepLabel), /*#__PURE__*/React.createElement("div", {
-    className: "display",
-    style: {
-      fontWeight: 800,
-      fontSize: 18,
-      marginTop: 3,
-      letterSpacing: '-0.02em'
-    }
-  }, selectedFlight ? formatMoney(selectedFlight.price, selectedFlight.currency) : '—'), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: 'var(--text-muted)',
-      marginTop: 1
-    }
-  }, "per persona")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 1,
-      background: 'var(--border)',
-      alignSelf: 'stretch'
-    }
-  }), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      textAlign: 'center',
-      padding: '8px 0'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 10.5,
-      fontWeight: 700,
-      letterSpacing: '0.08em',
-      textTransform: 'uppercase',
-      color: 'var(--green)'
-    }
-  }, "Hotel"), /*#__PURE__*/React.createElement("div", {
-    className: "display",
-    style: {
-      fontWeight: 800,
-      fontSize: 18,
-      marginTop: 3,
-      letterSpacing: '-0.02em'
-    }
-  }, formatMoney(selectedHotel.price, selectedHotel.currency)), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 11,
-      color: 'var(--text-muted)',
-      marginTop: 1
-    }
-  }, "estada completa"))),
+    pendingParams: pendingParams,
+    selectedFlight: selectedFlight,
+    selectedHotel: selectedHotel,
+    itineraryData: itineraryData,
+    itineraryLoading: itineraryLoading,
+    onItineraryChange: handleItineraryChange
+  }), summaryCosts && renderLiveSummaryCosts(summaryCosts, tMeta, itineraryLoading, summaryPeople),
   /*#__PURE__*/React.createElement("div", {
     style: { display:'flex', gap:10, marginTop:4 }
   },
     /*#__PURE__*/React.createElement("button", {
       className:'pl-tap',
-      onClick: () => onConfirm && onConfirm(selectedFlight, selectedHotel, false),
+      onClick: () => onConfirm && onConfirm(selectedFlight, selectedHotel, false, itineraryData),
       style:{
         flex:1, height:52, borderRadius:14,
         background:'var(--green)', color:'#fff',
@@ -7292,64 +7314,232 @@ function SaveTripBar({onConfirm}) {
 }
 
 // === ItinerarySection ===
-const SLOT_ICONS = {
-  morning:   React.createElement('svg',{width:16,height:16,viewBox:'0 0 24 24',fill:'none',stroke:'#F59E0B',strokeWidth:2,strokeLinecap:'round'}, React.createElement('circle',{cx:12,cy:12,r:4}), React.createElement('line',{x1:12,y1:2,x2:12,y2:4}), React.createElement('line',{x1:12,y1:20,x2:12,y2:22}), React.createElement('line',{x1:2,y1:12,x2:4,y2:12}), React.createElement('line',{x1:20,y1:12,x2:22,y2:12})),
-  afternoon: React.createElement('svg',{width:16,height:16,viewBox:'0 0 24 24',fill:'none',stroke:'#3B82F6',strokeWidth:2,strokeLinecap:'round'}, React.createElement('circle',{cx:12,cy:12,r:5}), React.createElement('path',{d:'M3 12h1M20 12h1M12 3v1M12 20v1'})),
-  evening:   React.createElement('svg',{width:16,height:16,viewBox:'0 0 24 24',fill:'none',stroke:'#8B5CF6',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round'}, React.createElement('path',{d:'M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z'})),
+const ITIN_SLOT_ICONS = {
+  morning_activity:   React.createElement('svg',{width:16,height:16,viewBox:'0 0 24 24',fill:'none',stroke:'#F59E0B',strokeWidth:2,strokeLinecap:'round'}, React.createElement('circle',{cx:12,cy:12,r:4}), React.createElement('line',{x1:12,y1:2,x2:12,y2:4}), React.createElement('line',{x1:12,y1:20,x2:12,y2:22}), React.createElement('line',{x1:2,y1:12,x2:4,y2:12}), React.createElement('line',{x1:20,y1:12,x2:22,y2:12})),
+  lunch_restaurant:   React.createElement('svg',{width:16,height:16,viewBox:'0 0 24 24',fill:'none',stroke:'#EA580C',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round'}, React.createElement('path',{d:'M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2'}), React.createElement('path',{d:'M7 2v20'}), React.createElement('path',{d:'M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3Zm0 0v7'})),
+  afternoon_activity: React.createElement('svg',{width:16,height:16,viewBox:'0 0 24 24',fill:'none',stroke:'#3B82F6',strokeWidth:2,strokeLinecap:'round'}, React.createElement('circle',{cx:12,cy:12,r:5}), React.createElement('path',{d:'M3 12h1M20 12h1M12 3v1M12 20v1'})),
+  dinner_restaurant:  React.createElement('svg',{width:16,height:16,viewBox:'0 0 24 24',fill:'none',stroke:'#8B5CF6',strokeWidth:2,strokeLinecap:'round',strokeLinejoin:'round'}, React.createElement('path',{d:'M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z'})),
 };
-const SLOT_LABELS = { morning:'Matí', afternoon:'Tarda', evening:'Nit' };
-const SLOT_COLORS = { morning:'#FEF3C7', afternoon:'#DBEAFE', evening:'#EDE9FE' };
-const SLOT_TEXT   = { morning:'#92400E', afternoon:'#1E40AF', evening:'#5B21B6' };
+const ITIN_SLOT_LABELS = { morning_activity:'Matí', lunch_restaurant:'Dinar', afternoon_activity:'Tarda', dinner_restaurant:'Sopar' };
+const ITIN_SLOT_COLORS = { morning_activity:'#FEF3C7', lunch_restaurant:'#FFEDD5', afternoon_activity:'#DBEAFE', dinner_restaurant:'#EDE9FE' };
+const ITIN_SLOT_TEXT   = { morning_activity:'#92400E', lunch_restaurant:'#9A3412', afternoon_activity:'#1E40AF', dinner_restaurant:'#5B21B6' };
+const ITIN_SLOT_KEYS = ['morning_activity','lunch_restaurant','afternoon_activity','dinner_restaurant'];
 
-function ItinerarySection({pendingParams}) {
-  const [itinerary, setItinerary] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
+function formatItineraryDate(startDateStr, dayNumber) {
+  const start = new Date(startDateStr + 'T12:00:00');
+  start.setDate(start.getDate() + dayNumber - 1);
+  return start.toLocaleDateString('ca-ES', { weekday: 'long', day: 'numeric', month: 'long' });
+}
+
+function renderItineraryPlaceName(item, nameStyle) {
+  const style = nameStyle || { fontWeight: 700, fontSize: 13.5, letterSpacing: '-0.01em', marginBottom: 3 };
+  const mapsUrl = item && item.Maps_url;
+  if (mapsUrl) {
+    return React.createElement('a', {
+      href: mapsUrl,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+      style: { ...style, color: 'var(--green-deep)', textDecoration: 'none' },
+    }, item.name);
+  }
+  return React.createElement('div', { style: style }, item.name);
+}
+
+function renderItineraryCost(item) {
+  if (!item || !(item.estimated_cost_eur > 0)) return null;
+  return React.createElement('span', {
+    style: { fontSize: 11, color: 'var(--text-muted)', marginLeft: 'auto' },
+  }, 'Cost: ~' + item.estimated_cost_eur + '€');
+}
+
+function sumItineraryCostClient(itinerary) {
+  if (!itinerary || !itinerary.days) return 0;
+  var total = 0;
+  itinerary.days.forEach(function(day) {
+    ITIN_SLOT_KEYS.forEach(function(key) {
+      var slot = day[key];
+      if (slot && slot.estimated_cost_eur > 0) total += slot.estimated_cost_eur;
+    });
+  });
+  return Math.round(total);
+}
+
+function computeRemainingActivitiesBudget(pendingParams, flight, hotel) {
+  var people = (pendingParams && pendingParams.people) || 2;
+  var totalBudget = Math.round(((pendingParams && pendingParams.budget) || 0) * people);
+  var flightCost = flight ? Math.round((flight.price || 0) * people) : 0;
+  var hotelCost = hotel ? Math.round(hotel.price || 0) : 0;
+  return Math.max(0, totalBudget - flightCost - hotelCost);
+}
+
+function computeCostBreakdown(flight, hotel, itinerary, people) {
+  var flightCost = flight ? Math.round((flight.price || 0) * (people || 1)) : 0;
+  var hotelCost = hotel ? Math.round(hotel.price || 0) : 0;
+  var activitiesCost = itinerary ? sumItineraryCostClient(itinerary) : 0;
+  var grandTotal = flightCost + hotelCost + activitiesCost;
+  return { flightCost: flightCost, hotelCost: hotelCost, activitiesCost: activitiesCost, grandTotal: grandTotal };
+}
+
+function tripGrandTotal(trip) {
+  var f = trip.flightCost || 0;
+  var h = trip.hotelCost || 0;
+  var a = trip.activitiesCost || 0;
+  var sum = f + h + a;
+  return sum > 0 ? sum : (trip.total || 0);
+}
+
+function renderCostBreakdownGrid(costs, transportLabel) {
+  var total = costs.grandTotal || 1;
+  var items = [
+    { ic: React.createElement(IcPlane, { size: 14 }), c: 'var(--coral)', l: transportLabel || 'Transport', v: costs.flightCost },
+    { ic: React.createElement(IcMapPin, { size: 14 }), c: 'var(--green)', l: 'Allotjament', v: costs.hotelCost },
+    { ic: React.createElement(IcSparkles, { size: 14 }), c: 'var(--gold)', l: 'Activitats i gastronomia', v: costs.activitiesCost },
+  ];
+  return React.createElement('div', {
+    style: { display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginTop: 12 },
+  }, items.map(function(b, i) {
+    var pct = total > 0 ? Math.round((b.v / total) * 100) : 0;
+    return React.createElement('div', {
+      key: i,
+      style: { background: 'var(--surface-2)', padding: '10px 10px', borderRadius: 12 },
+    },
+      React.createElement('span', {
+        style: { color: b.c, display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, fontWeight: 600 },
+      }, b.ic, ' ', b.l),
+      React.createElement('div', {
+        className: 'display',
+        style: { fontWeight: 700, fontSize: 16, marginTop: 4, letterSpacing: '-0.015em' },
+      }, b.v.toLocaleString('ca'), ' €'),
+      total > 0 && React.createElement('div', { style: { fontSize: 10, color: 'var(--text-muted)', marginTop: 2 } }, pct + '%')
+    );
+  }));
+}
+
+function renderCostBreakdownList(costs, tMeta, itineraryLoading, people) {
+  var transportLabel = tMeta && tMeta.stepLabel ? tMeta.stepLabel : 'Transport';
+  var actAmount = itineraryLoading ? '—' : (costs.activitiesCost.toLocaleString('ca') + ' €');
+  return React.createElement('div', { style: { display: 'flex', flexDirection: 'column', gap: 8, marginTop: 4 } },
+    React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 13 } },
+      React.createElement('span', { style: { color: 'var(--text-muted)' } }, '✈️ ', transportLabel),
+      React.createElement('span', { style: { fontWeight: 700 } }, costs.flightCost.toLocaleString('ca'), ' €')
+    ),
+    people > 1 && React.createElement('div', { style: { fontSize: 11, color: 'var(--text-faint)', marginTop: -4, marginLeft: 2 } },
+      '× ', people, ' persones'
+    ),
+    React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 13 } },
+      React.createElement('span', { style: { color: 'var(--text-muted)' } }, '🏨 Hotel'),
+      React.createElement('span', { style: { fontWeight: 700 } }, costs.hotelCost.toLocaleString('ca'), ' €')
+    ),
+    React.createElement('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 13 } },
+      React.createElement('span', { style: { color: 'var(--text-muted)' } }, '🗺️ Activitats i gastronomia'),
+      React.createElement('span', { style: { fontWeight: 700 } }, actAmount)
+    ),
+    React.createElement('div', {
+      style: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 8, paddingTop: 10, borderTop: '1px solid var(--border)' },
+    },
+      React.createElement('span', { style: { fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 15 } }, 'Total del viatge'),
+      React.createElement('span', { style: { fontWeight: 800, fontFamily: 'var(--font-display)', fontSize: 18, color: 'var(--green-deep)' } },
+        costs.grandTotal.toLocaleString('ca'), ' €'
+      )
+    )
+  );
+}
+
+function renderLiveSummaryCosts(costs, tMeta, itineraryLoading, people) {
+  return React.createElement('div', {
+    style: { padding: '14px 16px', borderRadius: 16, background: '#fff', border: '1px solid var(--border)' },
+  },
+    React.createElement('div', { className: 'micro', style: { color: 'var(--green)', marginBottom: 4 } }, 'RESUM DE COSTOS'),
+    renderCostBreakdownGrid(costs, tMeta && tMeta.stepLabel),
+    renderCostBreakdownList(costs, tMeta, itineraryLoading, people)
+  );
+}
+
+function ItinerarySection({pendingParams, selectedFlight, selectedHotel, itineraryData, itineraryLoading, onItineraryChange}) {
+  const [startDateStr, setStartDateStr] = React.useState('');
   const [openDay, setOpenDay] = React.useState(0);
 
   React.useEffect(() => {
     if (!pendingParams) return;
     const city = pendingParams.destination?.city || pendingParams.destination?.name || '';
-    const days = pendingParams.dates?.days || 3;
+    if (!city) return;
     const startDate = pendingParams.dates?.start
       ? pendingParams.dates.start.toISOString().slice(0,10)
       : new Date().toISOString().slice(0,10);
-    setLoading(true);
-    fetch(`/api/itinerary?city=${encodeURIComponent(city)}&days=${days}&startDate=${startDate}`)
-      .then(r => r.json())
-      .then(d => { if (d.ok) setItinerary(d.itinerary); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [pendingParams?.destination?.city, pendingParams?.dates?.days]);
+    const endDate = pendingParams.dates?.end
+      ? pendingParams.dates.end.toISOString().slice(0,10)
+      : startDate;
+    const people = pendingParams.people || 2;
+    const remainingBudget = computeRemainingActivitiesBudget(pendingParams, selectedFlight, selectedHotel);
+    setStartDateStr(startDate);
+    onItineraryChange && onItineraryChange(null, true);
+    fetch('/api/itinerary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        destination: city,
+        startDate: startDate,
+        endDate: endDate,
+        people: people,
+        remainingBudget: remainingBudget,
+        preferences: (pendingParams.travelPreferences || '').trim()
+      }),
+    })
+      .then(r => r.json().then(d => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (ok && d.days) onItineraryChange && onItineraryChange(d, false);
+        else onItineraryChange && onItineraryChange(null, false);
+      })
+      .catch(() => onItineraryChange && onItineraryChange(null, false));
+  }, [
+    pendingParams?.destination?.city,
+    pendingParams?.destination?.name,
+    pendingParams?.dates?.start,
+    pendingParams?.dates?.end,
+    pendingParams?.dates?.days,
+    pendingParams?.people,
+    pendingParams?.budget,
+    selectedFlight?.price,
+    selectedFlight?.id,
+    selectedHotel?.price,
+    selectedHotel?.id,
+    pendingParams?.travelPreferences,
+  ]);
+
+  const loading = itineraryLoading;
 
   if (loading) return React.createElement('div', {style:{padding:'24px 0',display:'flex',flexDirection:'column',alignItems:'center',gap:10}},
     React.createElement('div',{style:{width:32,height:32,borderRadius:9999,border:'3px solid var(--green)',borderTopColor:'transparent',animation:'pl-spin 0.85s linear infinite'}}),
     React.createElement('span',{style:{fontSize:13,color:'var(--text-muted)'}}, 'Preparant el teu itinerari...')
   );
 
-  if (!itinerary?.length) return null;
+  const days = itineraryData?.days;
+  if (!days?.length) return null;
 
   return React.createElement('div',{style:{display:'flex',flexDirection:'column',gap:0}},
-    React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:14}},
+    React.createElement('div',{style:{display:'flex',alignItems:'center',gap:8,marginBottom:6}},
       React.createElement('svg',{width:18,height:18,viewBox:'0 0 24 24',fill:'none',stroke:'var(--green)',strokeWidth:2.2,strokeLinecap:'round',strokeLinejoin:'round'},
         React.createElement('path',{d:'M3 12h1M20 12h1M12 3v1M12 20v1M5.636 5.636l.707.707M17.657 17.657l.707.707M5.636 18.364l.707-.707M17.657 6.343l.707-.707'}),
         React.createElement('circle',{cx:12,cy:12,r:4})
       ),
       React.createElement('span',{style:{fontFamily:'var(--font-display)',fontWeight:800,fontSize:15,letterSpacing:'-0.01em'}},'Itinerari dia a dia'),
-      React.createElement('span',{style:{marginLeft:'auto',fontSize:11,color:'var(--text-muted)',fontWeight:500}}, itinerary.length + ' dies')
+      React.createElement('span',{style:{marginLeft:'auto',fontSize:11,color:'var(--text-muted)',fontWeight:500}}, days.length + ' dies')
     ),
-    itinerary.map((day, di) => {
+    itineraryData.trip_title && React.createElement('div',{style:{fontSize:13,color:'var(--text-muted)',marginBottom:14,lineHeight:1.4}}, itineraryData.trip_title),
+    days.map((day, di) => {
       const isOpen = openDay === di;
-      return React.createElement('div',{key:day.day,style:{marginBottom:8}},
+      const dateLabel = startDateStr ? formatItineraryDate(startDateStr, day.day_number) : ('Dia ' + day.day_number);
+      return React.createElement('div',{key:day.day_number,style:{marginBottom:8}},
         React.createElement('button',{
           className:'pl-tap',
           onClick:()=>setOpenDay(isOpen ? -1 : di),
           style:{width:'100%',background:'#fff',border:'1px solid var(--border)',borderRadius:16,padding:'13px 16px',display:'flex',alignItems:'center',gap:12,textAlign:'left'}
         },
           React.createElement('div',{style:{width:36,height:36,borderRadius:12,background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}},
-            React.createElement('span',{style:{color:'#fff',fontFamily:'var(--font-display)',fontWeight:800,fontSize:15}}, day.day)
+            React.createElement('span',{style:{color:'#fff',fontFamily:'var(--font-display)',fontWeight:800,fontSize:15}}, day.day_number)
           ),
           React.createElement('div',{style:{flex:1,minWidth:0}},
-            React.createElement('div',{style:{fontWeight:700,fontSize:14,letterSpacing:'-0.01em'}}, day.date),
+            React.createElement('div',{style:{fontWeight:700,fontSize:14,letterSpacing:'-0.01em'}}, dateLabel),
             React.createElement('div',{style:{fontSize:12,color:'var(--text-muted)',marginTop:1}}, day.theme)
           ),
           React.createElement('svg',{width:16,height:16,viewBox:'0 0 24 24',fill:'none',stroke:'var(--text-muted)',strokeWidth:2,strokeLinecap:'round',style:{transform:isOpen?'rotate(180deg)':'rotate(0)',transition:'transform 0.2s ease',flexShrink:0}},
@@ -7357,25 +7547,23 @@ function ItinerarySection({pendingParams}) {
           )
         ),
         isOpen && React.createElement('div',{style:{borderRadius:'0 0 16px 16px',border:'1px solid var(--border)',borderTop:'none',background:'#fff',padding:'4px 12px 12px',display:'flex',flexDirection:'column',gap:8,marginTop:-8,paddingTop:12}},
-          ['morning','afternoon','evening'].map(slot => {
-            const act = day[slot];
-            if (!act) return null;
-            return React.createElement('div',{key:slot,style:{display:'flex',gap:12,alignItems:'flex-start',padding:'10px 12px',borderRadius:12,background:'var(--surface-2)'}},
-              React.createElement('div',{style:{flexShrink:0,width:28,height:28,borderRadius:9,background:SLOT_COLORS[slot],display:'flex',alignItems:'center',justifyContent:'center'}},
-                SLOT_ICONS[slot]
+          ITIN_SLOT_KEYS.map(slotKey => {
+            const item = day[slotKey];
+            if (!item) return null;
+            const isRestaurant = slotKey === 'lunch_restaurant' || slotKey === 'dinner_restaurant';
+            return React.createElement('div',{key:slotKey,style:{display:'flex',gap:12,alignItems:'flex-start',padding:'10px 12px',borderRadius:12,background:'var(--surface-2)'}},
+              React.createElement('div',{style:{flexShrink:0,width:28,height:28,borderRadius:9,background:ITIN_SLOT_COLORS[slotKey],display:'flex',alignItems:'center',justifyContent:'center'}},
+                ITIN_SLOT_ICONS[slotKey]
               ),
               React.createElement('div',{style:{flex:1,minWidth:0}},
                 React.createElement('div',{style:{display:'flex',alignItems:'center',gap:6,marginBottom:2}},
-                  React.createElement('span',{style:{fontSize:10,fontWeight:700,letterSpacing:'0.06em',textTransform:'uppercase',color:SLOT_TEXT[slot],background:SLOT_COLORS[slot],padding:'2px 6px',borderRadius:6}}, SLOT_LABELS[slot]),
-                  act.duration && React.createElement('span',{style:{fontSize:11,color:'var(--text-muted)'}}, '· '+act.duration),
-                  act.price != null && act.price > 0 && React.createElement('span',{style:{fontSize:11,color:'var(--text-muted)',marginLeft:'auto'}},'~'+act.price+'€')
+                  React.createElement('span',{style:{fontSize:10,fontWeight:700,letterSpacing:'0.06em',textTransform:'uppercase',color:ITIN_SLOT_TEXT[slotKey],background:ITIN_SLOT_COLORS[slotKey],padding:'2px 6px',borderRadius:6}}, ITIN_SLOT_LABELS[slotKey]),
+                  renderItineraryCost(item)
                 ),
-                React.createElement('div',{style:{fontWeight:700,fontSize:13.5,letterSpacing:'-0.01em',marginBottom:3}}, act.name),
-                act.description && React.createElement('div',{style:{fontSize:12,color:'var(--text-muted)',lineHeight:1.4}}, act.description),
-                act.rating && React.createElement('div',{style:{display:'flex',alignItems:'center',gap:3,marginTop:4}},
-                  React.createElement('svg',{width:11,height:11,viewBox:'0 0 24 24',fill:'#F59E0B',stroke:'none'}, React.createElement('polygon',{points:'12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'})),
-                  React.createElement('span',{style:{fontSize:11,fontWeight:600,color:'#92400E'}}, act.rating.toFixed(1))
-                )
+                renderItineraryPlaceName(item),
+                isRestaurant
+                  ? item.cuisine && React.createElement('div',{style:{fontSize:12,color:'var(--text-muted)',lineHeight:1.4}}, item.cuisine)
+                  : item.description && React.createElement('div',{style:{fontSize:12,color:'var(--text-muted)',lineHeight:1.4}}, item.description)
               )
             );
           })
@@ -7393,7 +7581,10 @@ function ItinerarySection({pendingParams}) {
 function dbTripToLocal(t) {
   const s = new Date(t.startDate), e = new Date(t.endDate);
   const days = Math.max(1, Math.round((e.getTime() - s.getTime()) / 86400000) + 1);
-  return {
+  const flightCost = Math.round(t.flightCost || 0);
+  const hotelCost = Math.round(t.hotelCost || 0);
+  const activitiesCost = Math.round(t.activitiesCost || 0);
+  const local = {
     id: t.id,
     destId: t.searchId || '',
     city: t.destination,
@@ -7402,11 +7593,16 @@ function dbTripToLocal(t) {
     end: e.getDate() + ' ' + monthAbbr(e),
     days: days,
     people: t.people || 2,
-    total: Math.round(t.totalCost || 0),
+    flightCost: flightCost,
+    hotelCost: hotelCost,
+    activitiesCost: activitiesCost,
+    total: tripGrandTotal({ flightCost: flightCost, hotelCost: hotelCost, activitiesCost: activitiesCost, total: Math.round(t.totalCost || 0) }),
     status: t.status === 'completed' ? 'past' : 'upcoming',
     favorite: !!t.isFavorite,
     img: t.imageUrl || '',
+    itinerary: t.itinerary || null,
   };
+  return local;
 }
 
 function PLAIerApp(_ref62) {
@@ -7704,10 +7900,10 @@ function PLAIerApp(_ref62) {
     offerLoading: offerLoading,
     pendingParams: pendingParams,
     onBack: () => setRoute('search'),
-    onConfirm: (flight, hotel, fav) => {
+    onConfirm: (flight, hotel, fav, itinerary) => {
             const p = pendingParams;
             const people = p.people || 2;
-            const total = Math.round(p.budget * people * 0.96);
+            const costs = computeCostBreakdown(flight, hotel, itinerary, people);
             const tempId = 't' + Date.now();
             const newTrip = {
               id: tempId,
@@ -7718,10 +7914,14 @@ function PLAIerApp(_ref62) {
               end: `${p.dates.end.getDate()} ${monthAbbr(p.dates.end)}`,
               days: p.dates.days,
               people: people,
-              total: total,
+              flightCost: costs.flightCost,
+              hotelCost: costs.hotelCost,
+              activitiesCost: costs.activitiesCost,
+              total: costs.grandTotal,
               status: 'upcoming',
         favorite: Boolean(fav),
-        img: p.destination.img
+        img: p.destination.img,
+        itinerary: itinerary || null
             };
             setTrips(prev => [newTrip, ...prev]);
       setSlideDir('right');
@@ -7736,13 +7936,14 @@ function PLAIerApp(_ref62) {
               startDate: p.dates.start.toISOString(),
               endDate: p.dates.end.toISOString(),
               people: people,
-              totalCost: total,
-              flightCost: flight ? Math.round((flight.price || 0) * people) : 0,
-              hotelCost: hotel ? Math.round(hotel.price || 0) : 0,
-              activitiesCost: 0,
-              dailyCost: Math.round(total / Math.max(1, p.dates.days)),
+              totalCost: costs.grandTotal,
+              flightCost: costs.flightCost,
+              hotelCost: costs.hotelCost,
+              activitiesCost: costs.activitiesCost,
+              dailyCost: Math.round(costs.grandTotal / Math.max(1, p.dates.days)),
               status: 'confirmed',
               isSurprise: false,
+              itinerary: itinerary || undefined,
             };
             fetch('/api/trips', {
               method: 'POST',
@@ -7789,41 +7990,64 @@ function PLAIerApp(_ref62) {
   }));
 }
 
+function renderTripDetailItinerary(trip) {
+  const itinerary = trip.itinerary;
+  if (!itinerary || !itinerary.days || !itinerary.days.length) {
+    return React.createElement('div', {
+      style: { padding: 16, borderRadius: 16, background: 'var(--surface-2)', fontSize: 13, color: 'var(--text-muted)', textAlign: 'center' },
+    }, 'Itinerari no disponible');
+  }
+  return React.createElement(React.Fragment, null,
+    itinerary.trip_title && React.createElement('div', {
+      style: { fontSize: 13, color: 'var(--text-muted)', marginBottom: 12, lineHeight: 1.4 },
+    }, itinerary.trip_title),
+    itinerary.days.map(function(day) {
+      return React.createElement('div', {
+        key: day.day_number,
+        style: { marginBottom: 12, padding: 14, background: '#fff', borderRadius: 16, border: '1px solid var(--border)' },
+      },
+        React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } },
+          React.createElement('div', {
+            style: { width: 36, height: 36, borderRadius: 12, background: 'var(--green)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15 },
+          }, day.day_number),
+          React.createElement('div', { style: { fontWeight: 700, fontSize: 14 } }, day.theme)
+        ),
+        ITIN_SLOT_KEYS.map(function(slotKey) {
+          const item = day[slotKey];
+          if (!item) return null;
+          const isRestaurant = slotKey === 'lunch_restaurant' || slotKey === 'dinner_restaurant';
+          return React.createElement('div', {
+            key: slotKey,
+            style: { display: 'flex', gap: 10, alignItems: 'flex-start', padding: '8px 0', borderTop: '1px solid var(--border)' },
+          },
+            React.createElement('span', {
+              style: { fontSize: 10, fontWeight: 700, letterSpacing: '0.06em', textTransform: 'uppercase', color: ITIN_SLOT_TEXT[slotKey], minWidth: 52 },
+            }, ITIN_SLOT_LABELS[slotKey]),
+            React.createElement('div', { style: { flex: 1, minWidth: 0 } },
+              renderItineraryPlaceName(item, { fontWeight: 600, fontSize: 13.5, marginBottom: 2 }),
+              isRestaurant
+                ? item.cuisine && React.createElement('div', { style: { fontSize: 12, color: 'var(--text-muted)' } }, item.cuisine)
+                : item.description && React.createElement('div', { style: { fontSize: 12, color: 'var(--text-muted)' } }, item.description),
+              item.estimated_cost_eur > 0 && React.createElement('div', { style: { fontSize: 11, color: 'var(--text-muted)', marginTop: 4 } }, 'Cost: ~' + item.estimated_cost_eur + '€')
+            )
+          );
+        })
+      );
+    })
+  );
+}
+
 // Lightweight detail screen — bonus polish
 function TripDetail(_ref63) {
   let trip = _ref63.trip,
     onBack = _ref63.onBack;
-  const items = [{
-    day: 'Dia 1',
-    title: 'Arribada + tarda lliure',
-    sub: 'Vol AF1234 · 12:40',
-    price: 220
-  }, {
-    day: 'Dia 2',
-    title: 'Tour pel centre històric',
-    sub: 'Inclou guia local · 4h',
-    price: 38
-  }, {
-    day: 'Dia 3',
-    title: 'Excursió costanera',
-    sub: 'Bus + dinar inclòs',
-    price: 65
-  }, {
-    day: 'Dia 4',
-    title: 'Dia gastronòmic',
-    sub: 'Tast a 3 llocs · vespre',
-    price: 72
-  }, {
-    day: 'Dia 5',
-    title: 'Museu + temps lliure',
-    sub: 'Entrada + audioguia',
-    price: 24
-  }, {
-    day: 'Dia 6',
-    title: 'Tornada',
-    sub: 'Vol AF5678 · 18:10',
-    price: 240
-  }];
+  const detailTotal = tripGrandTotal(trip);
+  const detailCosts = {
+    flightCost: trip.flightCost || 0,
+    hotelCost: trip.hotelCost || 0,
+    activitiesCost: trip.activitiesCost || 0,
+    grandTotal: detailTotal
+  };
   return /*#__PURE__*/React.createElement("div", {
     className: "pl-app pl-fadein",
     style: {
@@ -7930,13 +8154,13 @@ function TripDetail(_ref63) {
       letterSpacing: '-0.03em',
       marginTop: 2
     }
-  }, trip.total.toLocaleString('ca'), " \u20AC"), /*#__PURE__*/React.createElement("div", {
+  }, detailTotal.toLocaleString('ca'), " \u20AC"), /*#__PURE__*/React.createElement("div", {
     style: {
       fontSize: 12,
       color: 'var(--text-muted)',
       marginTop: 2
     }
-  }, Math.round(trip.total / trip.people).toLocaleString('ca'), " \u20AC per persona")), /*#__PURE__*/React.createElement("span", {
+  }, Math.round(detailTotal / Math.max(1, trip.people)).toLocaleString('ca'), " \u20AC per persona")), /*#__PURE__*/React.createElement("span", {
     style: {
       background: 'var(--green-subtle)',
       color: 'var(--green-deep)',
@@ -7945,59 +8169,7 @@ function TripDetail(_ref63) {
       fontSize: 11.5,
       fontWeight: 700
     }
-  }, "Equilibrat")), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3,1fr)',
-      gap: 8,
-      marginTop: 16
-    }
-  }, [{
-    ic: /*#__PURE__*/React.createElement(IcPlane, {
-      size: 14
-    }),
-    c: 'var(--coral)',
-    l: 'Transport',
-    v: 460
-  }, {
-    ic: /*#__PURE__*/React.createElement(IcMapPin, {
-      size: 14
-    }),
-    c: 'var(--green)',
-    l: 'Allotjament',
-    v: 540
-  }, {
-    ic: /*#__PURE__*/React.createElement(IcSparkles, {
-      size: 14
-    }),
-    c: 'var(--gold)',
-    l: 'Activitats',
-    v: 148
-  }].map((b, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
-    style: {
-      background: 'var(--surface-2)',
-      padding: '10px 10px',
-      borderRadius: 12
-    }
-  }, /*#__PURE__*/React.createElement("span", {
-    style: {
-      color: b.c,
-      display: 'inline-flex',
-      alignItems: 'center',
-      gap: 4,
-      fontSize: 11,
-      fontWeight: 600
-    }
-  }, b.ic, " ", b.l), /*#__PURE__*/React.createElement("div", {
-    className: "display",
-    style: {
-      fontWeight: 700,
-      fontSize: 16,
-      marginTop: 4,
-      letterSpacing: '-0.015em'
-    }
-  }, b.v, " \u20AC")))))), /*#__PURE__*/React.createElement("div", {
+  }, "Equilibrat")), renderCostBreakdownGrid(detailCosts, 'Transport')), /*#__PURE__*/React.createElement("div", {
     style: {
       padding: '28px 20px 0'
     }
@@ -8006,65 +8178,7 @@ function TripDetail(_ref63) {
     style: {
       marginBottom: 12
     }
-  }, "ITINERARI"), /*#__PURE__*/React.createElement("div", {
-    style: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: 10
-    }
-  }, items.map((it, i) => /*#__PURE__*/React.createElement("div", {
-    key: i,
-    style: {
-      display: 'flex',
-      gap: 12,
-      alignItems: 'flex-start',
-      padding: 14,
-      background: '#fff',
-      borderRadius: 16,
-      border: '1px solid var(--border)'
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    style: {
-      width: 44,
-      height: 44,
-      borderRadius: 12,
-      background: 'var(--green-subtle)',
-      color: 'var(--green)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'var(--font-display)',
-      fontWeight: 800,
-      fontSize: 12,
-      flexShrink: 0,
-      lineHeight: 1,
-      padding: 4,
-      textAlign: 'center'
-    }
-  }, it.day), /*#__PURE__*/React.createElement("div", {
-    style: {
-      flex: 1,
-      minWidth: 0
-    }
-  }, /*#__PURE__*/React.createElement("div", {
-    className: "display",
-    style: {
-      fontWeight: 600,
-      fontSize: 14.5
-    }
-  }, it.title), /*#__PURE__*/React.createElement("div", {
-    style: {
-      fontSize: 12.5,
-      color: 'var(--text-muted)',
-      marginTop: 2
-    }
-  }, it.sub)), /*#__PURE__*/React.createElement("div", {
-    className: "display",
-    style: {
-      fontWeight: 700,
-      fontSize: 14
-    }
-  }, it.price, " \u20AC"))))), ));
+  }, "ITINERARI"), renderTripDetailItinerary(trip)), )));
 }
 window.PLAIerApp = PLAIerApp;
 window.TripDetail = TripDetail;

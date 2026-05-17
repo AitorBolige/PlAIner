@@ -172,6 +172,7 @@ model Activity {
   cost        Float
   category    String?
   imageUrl    String?
+  mapsUrl     String?
   order       Int
 
   @@index([dayId, order])
