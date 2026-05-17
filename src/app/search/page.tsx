@@ -6,11 +6,13 @@ import { useRouter } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import {
   ArrowRight,
+  Bookmark,
   Bus,
   Calendar,
   Car,
   Check,
   ChevronRight,
+  Loader2,
   Map,
   MapPin,
   Minus,
@@ -23,6 +25,7 @@ import {
   Wallet,
   X,
 } from "lucide-react";
+import { BuilderView } from "@/components/BuilderView";
 
 import { budgetZone, DESTINATIONS, DEST_CATEGORIES, monthAbbr, TRANSPORT, type Destination, type Transport } from "@/lib/data";
 
@@ -1256,10 +1259,12 @@ function BudgetSheet({ open, onClose, onConfirm, value = 1200 }: { open: boolean
 export default function SearchPage() {
   useAppShellBody();
   const router = useRouter();
-  const { data: session } = useSession();
-
-  const userName = session?.user?.name || "Joana";
-  const initial = (userName || "J")[0]?.toUpperCase() || "J";
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      router.push("/auth/login");
+    },
+  });
 
   const [destination, setDestination] = React.useState<Destination | null>(null);
   const [dates, setDates] = React.useState<DatesValue | null>(null);
@@ -1267,6 +1272,16 @@ export default function SearchPage() {
   const [people, setPeople] = React.useState(2);
   const [budget, setBudget] = React.useState(1200);
   const [openSheet, setOpenSheet] = React.useState<null | "dest" | "dates" | "transport" | "budget">(null);
+  const [saving, setSaving] = React.useState(false);
+  const [isBuilding, setIsBuilding] = React.useState(false);
+
+  // Si aún está cargando la sesión, mostramos un estado de carga (DESPUÉS de todos los hooks)
+  if (status === "loading") {
+    return <div style={{ width: "100%", height: "100vh", background: "var(--bg)" }} />;
+  }
+
+  const userName = session?.user?.name || session?.user?.email?.split("@")[0] || "Usuari";
+  const initial = (userName)[0]?.toUpperCase() || "U";
 
   const ready = !!(destination && dates);
   const transportIcon =
@@ -1274,6 +1289,37 @@ export default function SearchPage() {
 
   const fmtDates =
     dates?.start && dates?.end ? `${dates.start.getDate()} ${monthAbbr(dates.start)} – ${dates.end.getDate()} ${monthAbbr(dates.end)} · ${dates.days} dies` : null;
+
+  if (isBuilding && destination && dates) {
+    return (
+      <BuilderView
+        destination={destination}
+        dates={dates}
+        budget={budget}
+        people={people}
+        onBack={() => setIsBuilding(false)}
+        onComplete={async (body) => {
+          try {
+            const res = await fetch("/api/trips", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(body),
+            });
+            if (res.ok) {
+              router.push("/trips");
+            } else {
+              const errorData = await res.text();
+              console.error("API error response:", errorData);
+              alert("Error guardant el viatge. Torna-ho a provar.\n" + errorData);
+            }
+          } catch (e) {
+            console.error("Network error:", e);
+            alert("Error de connexió. Torna-ho a provar.");
+          }
+        }}
+      />
+    );
+  }
 
   return (
     <div style={{ width: "100%", height: "100vh", overflow: "hidden" }}>
@@ -1417,10 +1463,12 @@ export default function SearchPage() {
             />
           </div>
 
-          <div style={{ padding: "16px 16px 0" }}>
+        <div style={{ padding: "16px 16px 0" }}>
             <button
               disabled={!ready}
-              onClick={() => ready && router.push("/trips")}
+              onClick={() => {
+                if (ready) setIsBuilding(true);
+              }}
               className="pl-tap"
               style={{
                 width: "100%",

@@ -6,12 +6,14 @@ export async function GET(request: Request) {
     const searchParams = new URL(request.url).searchParams;
     
     // Default to Lisbon if no params provided
+    const startDateStr = searchParams.get("startDate") || new Date().toISOString().split("T")[0];
+    const endDateStr = searchParams.get("endDate") || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
     const query = {
       destination: searchParams.get("destination") || "Lisbon",
       city: searchParams.get("city") || "Lisbon",
       countryCode: searchParams.get("countryCode") || "PT",
-      startDate: searchParams.get("startDate") || new Date().toISOString().split("T")[0],
-      endDate: searchParams.get("endDate") || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+      startDate: new Date(startDateStr),
+      endDate: new Date(endDateStr),
       people: parseInt(searchParams.get("people") || "2"),
       budgetMax: parseInt(searchParams.get("budgetMax") || "500"),
       currency: searchParams.get("currency") || "EUR",

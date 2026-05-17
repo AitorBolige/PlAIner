@@ -3,11 +3,39 @@
 import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Calendar, Heart, Map, MapPin, Plus, Sparkles, Users } from "lucide-react";
+import { ArrowLeft, Calendar, Heart, Loader2, Map, MapPin, Plus, Sparkles, Trash2, Users } from "lucide-react";
 import { signOut } from "next-auth/react";
 
-import { SAMPLE_TRIPS, type Trip } from "@/lib/data";
+import { getDestinationImage } from "@/lib/destinations";
 
+/* ── Types ── */
+type SavedTrip = {
+  id: string;
+  destination: string;
+  country: string | null;
+  imageUrl: string | null;
+  startDate: string;
+  endDate: string;
+  people: number;
+  totalCost: number;
+  flightCost: number;
+  hotelCost: number;
+  activitiesCost: number;
+  dailyCost: number;
+  status: string;
+  isFavorite: boolean;
+  isSurprise: boolean;
+  createdAt: string;
+  search?: {
+    id: string;
+    destination: string;
+    status: string;
+    refreshedAt: string | null;
+    expiresAt: string | null;
+  } | null;
+};
+
+/* ── Helpers ── */
 function useAppShellBody() {
   React.useEffect(() => {
     document.body.classList.add("app-shell");
@@ -15,59 +43,43 @@ function useAppShellBody() {
   }, []);
 }
 
+function fmtDate(iso: string) {
+  return new Date(iso).toLocaleDateString("ca-ES", { day: "2-digit", month: "short" });
+}
+
+function diffDays(start: string, end: string) {
+  return Math.max(1, Math.round((new Date(end).getTime() - new Date(start).getTime()) / 86_400_000));
+}
+
+function tripImage(trip: SavedTrip) {
+  return trip.imageUrl || getDestinationImage(trip.destination, "hero");
+}
+
 function HeroImg({ src, alt }: { src: string; alt: string }) {
   return <img src={src} alt={alt} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />;
 }
 
+/* ── Bottom Tabs ── */
 function BottomTabs({ active }: { active: "search" | "trips" }) {
   const Tab = ({ id, icon, label, href }: { id: "search" | "trips"; icon: React.ReactNode; label: string; href: string }) => {
     const isActive = id === active;
     return (
-      <Link
-        href={href}
-        className="pl-tap"
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 3,
-          color: isActive ? "var(--green)" : "var(--text-faint)",
-          padding: "8px 0",
-          textDecoration: "none",
-        }}
-      >
+      <Link href={href} className="pl-tap" style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: isActive ? "var(--green)" : "var(--text-faint)", padding: "8px 0", textDecoration: "none" }}>
         {icon}
         <span style={{ fontSize: 11, fontWeight: isActive ? 600 : 500, letterSpacing: "0.01em" }}>{label}</span>
         <span style={{ width: 4, height: 4, borderRadius: 9999, background: isActive ? "var(--green)" : "transparent", marginTop: 1 }} />
       </Link>
     );
   };
-
   return (
-    <div
-      style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        bottom: 0,
-        height: 78,
-        paddingBottom: 14,
-        background: "rgba(247,245,242,0.92)",
-        backdropFilter: "blur(16px)",
-        borderTop: "1px solid var(--border)",
-        display: "flex",
-        alignItems: "center",
-        maxWidth: 430,
-        margin: "0 auto",
-      }}
-    >
+    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 78, paddingBottom: 14, background: "rgba(247,245,242,0.92)", backdropFilter: "blur(16px)", borderTop: "1px solid var(--border)", display: "flex", alignItems: "center", maxWidth: 430, margin: "0 auto" }}>
       <Tab id="search" icon={<MapPin size={22} />} label="Cerca" href="/search" />
       <Tab id="trips" icon={<Map size={22} />} label="Viatges" href="/trips" />
     </div>
   );
 }
 
+/* ── Meta label ── */
 function Meta({ icon, children }: { icon: React.ReactNode; children: React.ReactNode }) {
   return (
     <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "var(--text-muted)" }}>
@@ -77,6 +89,7 @@ function Meta({ icon, children }: { icon: React.ReactNode; children: React.React
   );
 }
 
+/* ── Empty state ── */
 function EmptyState({ onAdd }: { onAdd: () => void }) {
   return (
     <div style={{ padding: "60px 24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -96,47 +109,64 @@ function EmptyState({ onAdd }: { onAdd: () => void }) {
   );
 }
 
-function TripCard({ trip, fav, onFav, onOpen }: { trip: Trip; fav: boolean; onFav: () => void; onOpen: () => void }) {
-  const statusBadge = trip.status === "upcoming" ? { bg: "rgba(59,135,232,0.95)", label: "Pròximament" } : { bg: "rgba(13,158,122,0.95)", label: "Completat" };
+/* ── Loading skeleton ── */
+function LoadingSkeleton() {
+  return (
+    <div style={{ padding: "60px 24px", textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+      <Loader2 size={32} style={{ color: "var(--green)", animation: "spin 1s linear infinite" }} />
+      <div style={{ fontSize: 14, color: "var(--text-muted)" }}>Carregant els teus viatges…</div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+    </div>
+  );
+}
+
+/* ── Trip Card ── */
+function TripCard({ trip, onFav, onOpen, onDelete }: { trip: SavedTrip; onFav: () => void; onOpen: () => void; onDelete: () => void }) {
+  const now = new Date();
+  const start = new Date(trip.startDate);
+  const end = new Date(trip.endDate);
+  const isUpcoming = start > now;
+  const statusBadge = isUpcoming
+    ? { bg: "rgba(59,135,232,0.95)", label: "Pròximament" }
+    : end < now
+      ? { bg: "rgba(13,158,122,0.95)", label: "Completat" }
+      : { bg: "rgba(200,134,10,0.95)", label: "En curs" };
+  const days = diffDays(trip.startDate, trip.endDate);
 
   return (
     <button onClick={onOpen} className="pl-tap" style={{ background: "#fff", borderRadius: 24, boxShadow: "var(--shadow-md)", border: "1px solid var(--border)", overflow: "hidden", textAlign: "left", width: "100%", padding: 0 }}>
       <div style={{ position: "relative", width: "100%", height: 160 }}>
-        <HeroImg src={trip.img} alt={trip.city} />
+        <HeroImg src={tripImage(trip)} alt={trip.destination} />
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0) 35%, rgba(0,0,0,0.55) 100%)" }} />
         <div style={{ position: "absolute", top: 12, left: 12 }}>
           <span style={{ background: statusBadge.bg, color: "#fff", padding: "4px 10px", borderRadius: 9999, fontSize: 11, fontWeight: 700, letterSpacing: "0.02em" }}>{statusBadge.label}</span>
         </div>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onFav();
-          }}
-          className="pl-tap"
-          style={{ position: "absolute", top: 10, right: 10, width: 36, height: 36, borderRadius: 9999, background: "rgba(255,255,255,0.92)", backdropFilter: "blur(4px)", color: fav ? "var(--coral)" : "var(--text)", display: "flex", alignItems: "center", justifyContent: "center", border: "none" }}
-          aria-label={fav ? "Treure de favorits" : "Afegir a favorits"}
-        >
-          <Heart size={18} fill={fav ? "currentColor" : "none"} />
-        </button>
+        <div style={{ position: "absolute", top: 10, right: 10, display: "flex", gap: 6 }}>
+          <button onClick={(e) => { e.stopPropagation(); onDelete(); }} className="pl-tap" style={{ width: 36, height: 36, borderRadius: 9999, background: "rgba(255,255,255,0.92)", backdropFilter: "blur(4px)", color: "var(--text-muted)", display: "flex", alignItems: "center", justifyContent: "center", border: "none" }} aria-label="Eliminar viatge">
+            <Trash2 size={16} />
+          </button>
+          <button onClick={(e) => { e.stopPropagation(); onFav(); }} className="pl-tap" style={{ width: 36, height: 36, borderRadius: 9999, background: "rgba(255,255,255,0.92)", backdropFilter: "blur(4px)", color: trip.isFavorite ? "var(--coral)" : "var(--text)", display: "flex", alignItems: "center", justifyContent: "center", border: "none" }} aria-label={trip.isFavorite ? "Treure de favorits" : "Afegir a favorits"}>
+            <Heart size={18} fill={trip.isFavorite ? "currentColor" : "none"} />
+          </button>
+        </div>
         <div style={{ position: "absolute", left: 14, bottom: 12 }}>
           <div className="display" style={{ fontWeight: 800, fontSize: 22, color: "#fff", letterSpacing: "-0.025em" }}>
-            {trip.city}
+            {trip.destination}
           </div>
-          <div style={{ fontSize: 12, color: "rgba(255,255,255,0.78)" }}>{trip.country}</div>
+          {trip.country && <div style={{ fontSize: 12, color: "rgba(255,255,255,0.78)" }}>{trip.country}</div>}
         </div>
       </div>
-
       <div style={{ padding: 16, display: "flex", alignItems: "flex-end", gap: 12 }}>
         <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
           <Meta icon={<Calendar size={15} />}>
-            {trip.start} – {trip.end} · {trip.days} dies
+            {fmtDate(trip.startDate)} – {fmtDate(trip.endDate)} · {days} dies
           </Meta>
           <Meta icon={<Users size={15} />}>{trip.people} persones</Meta>
         </div>
         <div style={{ textAlign: "right" }}>
           <div className="micro">COST TOTAL</div>
           <div className="display" style={{ fontWeight: 800, fontSize: 22, letterSpacing: "-0.025em", marginTop: 2 }}>
-            {trip.total.toLocaleString("ca")} €
+            {trip.totalCost.toLocaleString("ca")} €
           </div>
           <div style={{ fontSize: 12, color: "var(--green)", fontWeight: 600, marginTop: 4 }}>Veure detall →</div>
         </div>
@@ -145,33 +175,26 @@ function TripCard({ trip, fav, onFav, onOpen }: { trip: Trip; fav: boolean; onFa
   );
 }
 
-function TripDetail({ trip, onBack }: { trip: Trip; onBack: () => void }) {
-  const items = [
-    { day: "Dia 1", title: "Arribada + tarda lliure", sub: "Vol AF1234 · 12:40", price: 220 },
-    { day: "Dia 2", title: "Tour pel centre històric", sub: "Inclou guia local · 4h", price: 38 },
-    { day: "Dia 3", title: "Excursió costanera", sub: "Bus + dinar inclòs", price: 65 },
-    { day: "Dia 4", title: "Dia gastronòmic", sub: "Tast a 3 llocs · vespre", price: 72 },
-    { day: "Dia 5", title: "Museu + temps lliure", sub: "Entrada + audioguia", price: 24 },
-    { day: "Dia 6", title: "Tornada", sub: "Vol AF5678 · 18:10", price: 240 },
-  ];
+/* ── Trip Detail ── */
+function TripDetail({ trip, onBack }: { trip: SavedTrip; onBack: () => void }) {
+  const days = diffDays(trip.startDate, trip.endDate);
 
   return (
     <div className="pl-app pl-fadein" style={{ background: "var(--bg)", width: "100%", maxWidth: 430, height: "100%", margin: "0 auto", position: "relative", overflow: "hidden" }}>
       <div className="pl-noscroll" style={{ height: "100%", overflowY: "auto", paddingBottom: 40 }}>
         <div style={{ position: "relative", height: 280 }}>
-          <HeroImg src={trip.img} alt={trip.city} />
+          <HeroImg src={tripImage(trip)} alt={trip.destination} />
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0.7) 100%)" }} />
           <button onClick={onBack} className="pl-tap" style={{ position: "absolute", top: 54, left: 16, width: 40, height: 40, borderRadius: 9999, background: "rgba(255,255,255,0.95)", color: "var(--text)", display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(8px)", border: "none" }}>
             <ArrowLeft size={18} />
           </button>
-
           <div style={{ position: "absolute", left: 20, right: 20, bottom: 18, color: "#fff" }}>
-            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.78)", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>{trip.country}</div>
+            {trip.country && <div style={{ fontSize: 12, color: "rgba(255,255,255,0.78)", fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>{trip.country}</div>}
             <div className="display" style={{ fontWeight: 800, fontSize: 36, letterSpacing: "-0.03em", lineHeight: 1, marginTop: 4 }}>
-              {trip.city}
+              {trip.destination}
             </div>
             <div style={{ marginTop: 6, fontSize: 13.5, color: "rgba(255,255,255,0.85)" }}>
-              {trip.start} – {trip.end} · {trip.days} dies · {trip.people} persones
+              {fmtDate(trip.startDate)} – {fmtDate(trip.endDate)} · {days} dies · {trip.people} persones
             </div>
           </div>
         </div>
@@ -182,50 +205,26 @@ function TripDetail({ trip, onBack }: { trip: Trip; onBack: () => void }) {
               <div>
                 <div className="micro">COST TOTAL · TOT INCLÒS</div>
                 <div className="display" style={{ fontWeight: 800, fontSize: 32, letterSpacing: "-0.03em", marginTop: 2 }}>
-                  {trip.total.toLocaleString("ca")} €
+                  {trip.totalCost.toLocaleString("ca")} €
                 </div>
-                <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{Math.round(trip.total / trip.people).toLocaleString("ca")} € per persona</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{trip.people > 0 ? Math.round(trip.totalCost / trip.people).toLocaleString("ca") : trip.totalCost.toLocaleString("ca")} € per persona</div>
               </div>
-              <span style={{ background: "var(--green-subtle)", color: "var(--green-deep)", padding: "4px 10px", borderRadius: 9999, fontSize: 11.5, fontWeight: 700 }}>Equilibrat</span>
+              <span style={{ background: "var(--green-subtle)", color: "var(--green-deep)", padding: "4px 10px", borderRadius: 9999, fontSize: 11.5, fontWeight: 700 }}>Guardat</span>
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginTop: 16 }}>
               {[
-                { c: "var(--coral)", l: "Transport", v: 460 },
-                { c: "var(--green)", l: "Allotjament", v: 540 },
-                { c: "var(--gold)", l: "Activitats", v: 148 },
+                { c: "var(--coral)", l: "Transport", v: trip.flightCost },
+                { c: "var(--green)", l: "Allotjament", v: trip.hotelCost },
+                { c: "var(--gold)", l: "Activitats", v: trip.activitiesCost },
               ].map((b, i) => (
                 <div key={i} style={{ background: "var(--surface-2)", padding: "10px 10px", borderRadius: 12 }}>
                   <span style={{ color: b.c, display: "inline-flex", alignItems: "center", gap: 4, fontSize: 11, fontWeight: 600 }}>{b.l}</span>
                   <div className="display" style={{ fontWeight: 700, fontSize: 16, marginTop: 4, letterSpacing: "-0.015em" }}>
-                    {b.v} €
+                    {b.v.toLocaleString("ca")} €
                   </div>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-
-        <div style={{ padding: "28px 20px 0" }}>
-          <div className="micro" style={{ marginBottom: 12 }}>
-            ITINERARI
-          </div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {items.map((it, i) => (
-              <div key={i} style={{ display: "flex", gap: 12, alignItems: "flex-start", padding: 14, background: "#fff", borderRadius: 16, border: "1px solid var(--border)" }}>
-                <div style={{ width: 44, height: 44, borderRadius: 12, background: "var(--green-subtle)", color: "var(--green)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 12, flexShrink: 0, lineHeight: 1, padding: 4, textAlign: "center" }}>
-                  {it.day}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="display" style={{ fontWeight: 600, fontSize: 14.5 }}>
-                    {it.title}
-                  </div>
-                  <div style={{ fontSize: 12.5, color: "var(--text-muted)", marginTop: 2 }}>{it.sub}</div>
-                </div>
-                <div className="display" style={{ fontWeight: 700, fontSize: 14 }}>
-                  {it.price} €
-                </div>
-              </div>
-            ))}
           </div>
         </div>
 
@@ -240,43 +239,64 @@ function TripDetail({ trip, onBack }: { trip: Trip; onBack: () => void }) {
   );
 }
 
+/* ── Main Page ── */
 export default function TripsPage() {
   useAppShellBody();
   const router = useRouter();
 
-  const [trips] = React.useState<Trip[]>(SAMPLE_TRIPS);
-  const [openTrip, setOpenTrip] = React.useState<Trip | null>(null);
+  const [trips, setTrips] = React.useState<SavedTrip[]>([]);
+  const [loading, setLoading] = React.useState(true);
+  const [openTrip, setOpenTrip] = React.useState<SavedTrip | null>(null);
   const [filter, setFilter] = React.useState<"all" | "upcoming" | "past" | "fav">("all");
-  const [favs, setFavs] = React.useState<Set<string>>(() => {
-    const s = new Set<string>();
-    trips.forEach((t) => t.favorite && s.add(t.id));
-    return s;
-  });
 
-  const counts = React.useMemo(
-    () => ({
-      all: trips.length,
-      upcoming: trips.filter((t) => t.status === "upcoming").length,
-      past: trips.filter((t) => t.status === "past").length,
-      fav: trips.filter((t) => favs.has(t.id)).length,
-    }),
-    [trips, favs],
-  );
+  // Fetch trips from API
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/trips");
+        if (!res.ok) throw new Error("Failed to fetch");
+        const data = await res.json();
+        if (!cancelled && data.ok) setTrips(data.trips);
+      } catch {
+        // silently fail — user sees empty state
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
-  const visible = React.useMemo(
-    () =>
-      trips.filter((t) =>
-        filter === "all" ? true : filter === "upcoming" ? t.status === "upcoming" : filter === "past" ? t.status === "past" : filter === "fav" ? favs.has(t.id) : true,
-      ),
-    [trips, filter, favs],
-  );
+  const now = React.useMemo(() => new Date(), []);
 
-  const toggleFav = (id: string) => {
-    setFavs((prev) => {
-      const s = new Set(prev);
-      s.has(id) ? s.delete(id) : s.add(id);
-      return s;
-    });
+  const counts = React.useMemo(() => ({
+    all: trips.length,
+    upcoming: trips.filter((t) => new Date(t.startDate) > now).length,
+    past: trips.filter((t) => new Date(t.endDate) < now).length,
+    fav: trips.filter((t) => t.isFavorite).length,
+  }), [trips, now]);
+
+  const visible = React.useMemo(() =>
+    trips.filter((t) =>
+      filter === "all" ? true
+        : filter === "upcoming" ? new Date(t.startDate) > now
+          : filter === "past" ? new Date(t.endDate) < now
+            : filter === "fav" ? t.isFavorite
+              : true,
+    ),
+  [trips, filter, now]);
+
+  const toggleFav = async (id: string) => {
+    // Optimistic update
+    setTrips((prev) => prev.map((t) => t.id === id ? { ...t, isFavorite: !t.isFavorite } : t));
+    if (openTrip?.id === id) setOpenTrip((prev) => prev ? { ...prev, isFavorite: !prev.isFavorite } : null);
+    await fetch(`/api/trips/${id}/favorite`, { method: "POST" }).catch(() => null);
+  };
+
+  const deleteTrip = async (id: string) => {
+    if (!confirm("Segur que vols eliminar aquest viatge?")) return;
+    setTrips((prev) => prev.filter((t) => t.id !== id));
+    await fetch(`/api/trips/${id}`, { method: "DELETE" }).catch(() => null);
   };
 
   if (openTrip) {
@@ -305,23 +325,7 @@ export default function TripsPage() {
               </div>
               <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>{trips.length} viatges</div>
             </div>
-            <button
-              onClick={() => signOut({ callbackUrl: "/auth/login" })}
-              className="pl-tap"
-              style={{
-                height: 44,
-                padding: "0 12px",
-                borderRadius: 9999,
-                background: "rgba(255,255,255,0.72)",
-                border: "1px solid var(--border)",
-                boxShadow: "var(--shadow-sm)",
-                color: "var(--text-muted)",
-                fontWeight: 800,
-                fontSize: 12,
-                letterSpacing: "0.02em",
-                marginRight: 10,
-              }}
-            >
+            <button onClick={() => signOut({ callbackUrl: "/auth/login" })} className="pl-tap" style={{ height: 44, padding: "0 12px", borderRadius: 9999, background: "rgba(255,255,255,0.72)", border: "1px solid var(--border)", boxShadow: "var(--shadow-sm)", color: "var(--text-muted)", fontWeight: 800, fontSize: 12, letterSpacing: "0.02em", marginRight: 10 }}>
               Sortir
             </button>
             <button onClick={() => router.push("/search")} className="pl-tap" style={{ width: 44, height: 44, borderRadius: 9999, background: "var(--green)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "var(--shadow-cta)", border: "none" }}>
@@ -333,23 +337,7 @@ export default function TripsPage() {
             {tabs.map((t) => {
               const active = t.id === filter;
               return (
-                <button
-                  key={t.id}
-                  onClick={() => setFilter(t.id)}
-                  className="pl-tap"
-                  style={{
-                    flexShrink: 0,
-                    padding: "8px 14px",
-                    borderRadius: 9999,
-                    fontSize: 13,
-                    fontWeight: 600,
-                    background: active ? "var(--text)" : "var(--surface)",
-                    color: active ? "#fff" : "var(--text-muted)",
-                    border: active ? "1px solid var(--text)" : "1px solid var(--border)",
-                    transition: "all 200ms var(--ease)",
-                    whiteSpace: "nowrap",
-                  }}
-                >
+                <button key={t.id} onClick={() => setFilter(t.id)} className="pl-tap" style={{ flexShrink: 0, padding: "8px 14px", borderRadius: 9999, fontSize: 13, fontWeight: 600, background: active ? "var(--text)" : "var(--surface)", color: active ? "#fff" : "var(--text-muted)", border: active ? "1px solid var(--text)" : "1px solid var(--border)", transition: "all 200ms var(--ease)", whiteSpace: "nowrap" }}>
                   {t.label} <span style={{ opacity: 0.7, marginLeft: 4 }}>[{t.n}]</span>
                 </button>
               );
@@ -357,11 +345,19 @@ export default function TripsPage() {
           </div>
 
           <div style={{ marginTop: 20, padding: "0 16px", display: "flex", flexDirection: "column", gap: 14 }}>
-            {visible.length === 0 ? (
+            {loading ? (
+              <LoadingSkeleton />
+            ) : visible.length === 0 ? (
               <EmptyState onAdd={() => router.push("/search")} />
             ) : (
               visible.map((t) => (
-                <TripCard key={t.id} trip={t} fav={favs.has(t.id)} onFav={() => toggleFav(t.id)} onOpen={() => setOpenTrip(t)} />
+                <TripCard
+                  key={t.id}
+                  trip={t}
+                  onFav={() => toggleFav(t.id)}
+                  onOpen={() => setOpenTrip(t)}
+                  onDelete={() => deleteTrip(t.id)}
+                />
               ))
             )}
           </div>
@@ -372,4 +368,3 @@ export default function TripsPage() {
     </div>
   );
 }
-

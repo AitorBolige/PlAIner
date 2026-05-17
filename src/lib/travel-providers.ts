@@ -356,6 +356,7 @@ function getFlightAutocompletePath(): string {
   return "/flights/auto-complete";
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function buildRapidApiFlightSearchUrl(params: MetasearchFlightParams) {
   const { host, path } = getRapidApiFlightConfig();
   const searchParams = new URLSearchParams();
@@ -1303,6 +1304,7 @@ function filterOffersByMaxPrice(offers: TravelOfferInput[], query?: TravelOfferQ
   return offers;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function resolveDefaultOriginIata(query: TravelOfferQuery) {
   const city = (query.city || query.destination).trim().toLowerCase();
   const fallbackMap: Record<string, string> = {
