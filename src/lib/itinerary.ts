@@ -81,7 +81,8 @@ function isValidMapsUrl(v: unknown): boolean {
 }
 
 function coerceCost(v: unknown): number {
-  if (typeof v === "number" && Number.isFinite(v)) return Math.max(0, Math.round(v));
+  if (typeof v === "number" && Number.isFinite(v))
+    return Math.max(0, Math.round(v));
   if (typeof v === "string" && v.trim()) {
     const n = Number(v.replace(/[^\d.-]/g, ""));
     if (Number.isFinite(n)) return Math.max(0, Math.round(n));
@@ -154,7 +155,8 @@ function normalizeItineraryDay(
   const afternoon = normalizePlaceSlot(src.afternoon_activity, destination);
   const dinner = normalizePlaceSlot(src.dinner_restaurant, destination);
 
-  if (!morning?.description || typeof morning.description !== "string") return null;
+  if (!morning?.description || typeof morning.description !== "string")
+    return null;
   if (!lunch?.cuisine || typeof lunch.cuisine !== "string") return null;
   if (!afternoon?.description || typeof afternoon.description !== "string") {
     return null;
@@ -250,9 +252,11 @@ function describeSlotFailure(
   slot: unknown,
   kind: "activity" | "restaurant",
 ): string | null {
-  if (!slot || typeof slot !== "object") return `${slotKey} missing or not an object`;
+  if (!slot || typeof slot !== "object")
+    return `${slotKey} missing or not an object`;
   const o = slot as Record<string, unknown>;
-  if (typeof o.name !== "string" || !o.name.trim()) return `${slotKey}.name invalid`;
+  if (typeof o.name !== "string" || !o.name.trim())
+    return `${slotKey}.name invalid`;
   const cost = o.estimated_cost_eur;
   if (typeof cost !== "number" || !Number.isFinite(cost)) {
     return `${slotKey}.estimated_cost_eur invalid (got ${typeof cost})`;
@@ -283,7 +287,8 @@ export function validationFailureReason(
     const day = o.days[i];
     if (!day || typeof day !== "object") return `days[${i}] is not an object`;
     const d = day as Record<string, unknown>;
-    if (typeof d.day_number !== "number") return `days[${i}].day_number invalid`;
+    if (typeof d.day_number !== "number")
+      return `days[${i}].day_number invalid`;
     if (typeof d.theme !== "string") return `days[${i}].theme invalid`;
     const slots: [string, "activity" | "restaurant"][] = [
       ["morning_activity", "activity"],
@@ -361,7 +366,9 @@ Requirements:
   }`;
 }
 
-export function sumItineraryActivitiesCost(itinerary: ItineraryPayload): number {
+export function sumItineraryActivitiesCost(
+  itinerary: ItineraryPayload,
+): number {
   let total = 0;
   for (const day of itinerary.days) {
     for (const key of ITINERARY_SLOT_KEYS) {
@@ -434,10 +441,10 @@ export function prismaDaysToItinerary(
       .slice()
       .sort((a, b) => a.dayNumber - b.dayNumber)
       .map((day) => {
-        const sorted = day.activities
-          .slice()
-          .sort((a, b) => a.order - b.order);
-        const getSlot = (key: ItinerarySlotKey): ActivitySlot | RestaurantSlot => {
+        const sorted = day.activities.slice().sort((a, b) => a.order - b.order);
+        const getSlot = (
+          key: ItinerarySlotKey,
+        ): ActivitySlot | RestaurantSlot => {
           const act =
             sorted.find((a) => a.category === key) ??
             sorted[ITINERARY_SLOT_KEYS.indexOf(key)];

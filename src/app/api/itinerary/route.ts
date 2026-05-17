@@ -30,8 +30,15 @@ function geminiLog(message: string, data?: Record<string, unknown>) {
   }
 }
 
-function geminiError(message: string, err: unknown, data?: Record<string, unknown>) {
-  const base: Record<string, unknown> = { ...data, error: serializeGeminiError(err) };
+function geminiError(
+  message: string,
+  err: unknown,
+  data?: Record<string, unknown>,
+) {
+  const base: Record<string, unknown> = {
+    ...data,
+    error: serializeGeminiError(err),
+  };
   console.error(LOG_PREFIX, message, base);
 }
 
@@ -101,15 +108,16 @@ export async function POST(req: NextRequest) {
   const startDate = String(body.startDate ?? "").trim();
   const endDate = String(body.endDate ?? "").trim();
   const people = Number(body.people);
-  const remainingBudget = Number(
-    body.remainingBudget ?? body.budgetMax,
-  );
+  const remainingBudget = Number(body.remainingBudget ?? body.budgetMax);
   const preferences = sanitizeItineraryPreferences(
     body.preferences ?? body.travelPreferences,
   );
 
   if (!destination) {
-    geminiLog("validation failed", { requestId, reason: "destination required" });
+    geminiLog("validation failed", {
+      requestId,
+      reason: "destination required",
+    });
     return NextResponse.json(
       { error: "destination is required" },
       { status: 400 },
@@ -126,7 +134,11 @@ export async function POST(req: NextRequest) {
     );
   }
   if (!Number.isFinite(people) || people < 1) {
-    geminiLog("validation failed", { requestId, reason: "invalid people", people });
+    geminiLog("validation failed", {
+      requestId,
+      reason: "invalid people",
+      people,
+    });
     return NextResponse.json(
       { error: "people must be a positive number" },
       { status: 400 },
@@ -152,10 +164,7 @@ export async function POST(req: NextRequest) {
       startDate,
       endDate,
     });
-    return NextResponse.json(
-      { error: "Invalid date range" },
-      { status: 400 },
-    );
+    return NextResponse.json({ error: "Invalid date range" }, { status: 400 });
   }
   if (days > MAX_DAYS) {
     geminiLog("validation failed", {
@@ -272,7 +281,9 @@ export async function POST(req: NextRequest) {
         },
       );
       return NextResponse.json(
-        { error: "Generated itinerary exceeds the remaining activities budget" },
+        {
+          error: "Generated itinerary exceeds the remaining activities budget",
+        },
         { status: 502 },
       );
     }
@@ -288,7 +299,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(itinerary, { status: 200 });
   } catch (err: unknown) {
     const message =
-      err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
+      err instanceof Error
+        ? err.message.toLowerCase()
+        : String(err).toLowerCase();
     const isRateLimit =
       message.includes("429") ||
       message.includes("quota") ||
