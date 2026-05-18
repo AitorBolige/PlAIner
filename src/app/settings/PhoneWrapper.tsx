@@ -22,7 +22,8 @@ export function PhoneWrapper({ children }: { children: React.ReactNode }) {
           border-radius: 40px;
           overflow: hidden;
           position: relative;
-          background: #F4F1EC;
+          background: var(--bg);
+          transition: background 240ms var(--ease);
           box-shadow: 0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08);
         }
         @media (max-width: 500px) {

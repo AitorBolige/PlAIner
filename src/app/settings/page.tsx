@@ -45,46 +45,96 @@ export default async function SettingsPage() {
           overflowY: "auto",
           WebkitOverflowScrolling: "touch",
           background: "var(--bg)",
-          paddingBottom: "56px", // Space for bottom tabs
+          transition: "background 240ms var(--ease)",
+          paddingBottom: "56px",
         }}
       >
+        {/* ---- Capçalera ---- */}
         <div
           style={{
-            height: "28vh",
-            minHeight: "180px",
-            flexShrink: 0,
-            background: "linear-gradient(160deg, #0D9E7A 0%, #1a6b9a 60%, #2D3561 100%)",
             position: "relative",
             overflow: "hidden",
-            borderRadius: "0 0 32px 32px",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "flex-end",
-            padding: "24px",
+            background:
+              "linear-gradient(155deg, #0D9E7A 0%, #1a6b9a 56%, #2D3561 100%)",
+            padding: "56px 24px 100px",
           }}
         >
-          <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "12px", marginBottom: "8px" }}>
-            <Settings size={28} color="#fff" />
-            <h1
+          {/* Cercles decoratius */}
+          <div
+            style={{
+              position: "absolute",
+              top: -64,
+              right: -36,
+              width: 190,
+              height: 190,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.08)",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              bottom: -52,
+              left: -48,
+              width: 150,
+              height: 150,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.06)",
+            }}
+          />
+          <div
+            style={{
+              position: "relative",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
+            }}
+          >
+            <div
               style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "28px",
-                fontWeight: 800,
-                color: "#fff",
-                letterSpacing: "-0.03em",
-                lineHeight: 1.1,
-                margin: 0,
+                width: 42,
+                height: 42,
+                borderRadius: 13,
+                background: "rgba(255,255,255,0.16)",
+                backdropFilter: "blur(8px)",
+                WebkitBackdropFilter: "blur(8px)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
               }}
             >
-              Ajustaments
-            </h1>
+              <Settings size={21} color="#fff" />
+            </div>
+            <div>
+              <h1
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontSize: "25px",
+                  fontWeight: 800,
+                  color: "#fff",
+                  letterSpacing: "-0.03em",
+                  lineHeight: 1.1,
+                  margin: 0,
+                }}
+              >
+                Ajustaments
+              </h1>
+              <p
+                style={{
+                  fontSize: "12.5px",
+                  color: "rgba(255,255,255,0.62)",
+                  margin: "2px 0 0",
+                }}
+              >
+                El teu perfil PlAIner
+              </p>
+            </div>
           </div>
-          <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.7)", margin: 0 }}>
-            Actualitza la teva informació personal
-          </p>
         </div>
 
-        <div style={{ marginTop: "-20px", position: "relative", zIndex: 10 }}>
+        {/* ---- Targeta del formulari (sobresurt damunt la capçalera) ---- */}
+        <div style={{ marginTop: "-56px", position: "relative", zIndex: 10 }}>
           <SettingsForm userId={session.user.id} initialData={user} />
         </div>
       </div>

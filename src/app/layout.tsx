@@ -19,11 +19,18 @@ export default function RootLayout({
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1"
         />
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var t=localStorage.getItem('pl-theme');document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light');}catch(e){}})();",
+          }}
+        />
       </head>
       <body
         style={{ margin: 0, padding: 0, width: "100vw", minHeight: "100vh" }}
       >
         <Providers>{children}</Providers>
+        <script src="/i18n.js" async />
       </body>
     </html>
   );

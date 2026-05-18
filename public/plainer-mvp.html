@@ -9,8 +9,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
 <link href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>(function(){try{var t=localStorage.getItem('pl-theme');document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light');}catch(e){}})();</script>
 <style>
-  html, body { margin: 0; padding: 0; background: #f0eee9; font-family: 'Inter', system-ui, sans-serif; }
+  html, body { margin: 0; padding: 0; background: var(--bg); font-family: 'Inter', system-ui, sans-serif; }
   body { width: 100vw; height: 100vh; overflow: hidden; }
   #root { width: 100%; height: 100%; }
   :root {
@@ -30,6 +31,22 @@
     --shadow-cta: 0 4px 24px rgba(13,158,122,0.32), 0 1px 4px rgba(13,158,122,0.16);
     --ease: cubic-bezier(0.16, 1, 0.3, 1);
   }
+  html[data-theme="dark"] {
+    --bg: #15140F; --surface: #211F18; --surface-2: #2B2920; --surface-3: #35322A;
+    --border: rgba(255,255,255,0.08); --border-md: rgba(255,255,255,0.16);
+    --text: #F3EFE6; --text-muted: #9D978B; --text-faint: #6B665B;
+    --green: #15B890; --green-hover: #2BC9A2; --green-deep: #5FD9BD;
+    --green-subtle: rgba(21,184,144,0.14); --green-glow: rgba(21,184,144,0.30);
+    --coral-subtle: rgba(240,90,53,0.16);
+    --blue-subtle: rgba(59,135,232,0.18);
+    --gold-subtle: rgba(200,134,10,0.18);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.45), 0 1px 4px rgba(0,0,0,0.3);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35);
+    --shadow-cta: 0 4px 24px rgba(21,184,144,0.35), 0 1px 4px rgba(21,184,144,0.2);
+    color-scheme: dark;
+  }
+  html, body, .pl-app { transition: background 240ms var(--ease), color 240ms var(--ease); }
   .pl-app, .pl-app * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
   .pl-app { font-family: var(--font-body); color: var(--text); background: var(--bg); width: 100%; height: 100%; position: relative; overflow: hidden; }
   .pl-app button { font-family: inherit; cursor: pointer; border: none; background: none; padding: 0; color: inherit; }
@@ -775,7 +792,7 @@ Object.assign(window, {
 //   </DesignCanvas>
 
 const DC = {
-  bg: '#f0eee9',
+  bg: 'var(--bg)',
   grid: 'rgba(0,0,0,0.06)',
   label: 'rgba(60,50,40,0.7)',
   title: 'rgba(40,30,20,0.85)',
@@ -790,7 +807,7 @@ const DC = {
 if (typeof document !== 'undefined' && !document.getElementById('dc-styles')) {
   const s = document.createElement('style');
   s.id = 'dc-styles';
-  s.textContent = ['.dc-editable{cursor:text;outline:none;white-space:nowrap;border-radius:3px;padding:0 2px;margin:0 -2px}', '.dc-editable:focus{background:#fff;box-shadow:0 0 0 1.5px #c96442}', '[data-dc-slot]{transition:transform .18s cubic-bezier(.2,.7,.3,1)}', '[data-dc-slot].dc-dragging{transition:none;z-index:10;pointer-events:none}', '[data-dc-slot].dc-dragging .dc-card{box-shadow:0 12px 40px rgba(0,0,0,.25),0 0 0 2px #c96442;transform:scale(1.02)}', '.dc-card{transition:box-shadow .15s,transform .15s}', '.dc-card *{scrollbar-width:none}', '.dc-card *::-webkit-scrollbar{display:none}',
+  s.textContent = ['.dc-editable{cursor:text;outline:none;white-space:nowrap;border-radius:3px;padding:0 2px;margin:0 -2px}', '.dc-editable:focus{background:var(--surface);box-shadow:0 0 0 1.5px #c96442}', '[data-dc-slot]{transition:transform .18s cubic-bezier(.2,.7,.3,1)}', '[data-dc-slot].dc-dragging{transition:none;z-index:10;pointer-events:none}', '[data-dc-slot].dc-dragging .dc-card{box-shadow:0 12px 40px rgba(0,0,0,.25),0 0 0 2px #c96442;transform:scale(1.02)}', '.dc-card{transition:box-shadow .15s,transform .15s}', '.dc-card *{scrollbar-width:none}', '.dc-card *::-webkit-scrollbar{display:none}',
     // Per-artboard header: grip + label on the left, delete/expand on the
     // right. Single flex row; when the artboard's on-screen width is too
     // narrow for both the label yields (ellipsis, then hidden entirely below
@@ -1591,7 +1608,7 @@ function DCArtboardFrame(_ref14) {
       overflow: 'hidden',
       width,
       height,
-      background: '#fff',
+      background: 'var(--surface)',
       ...style
     }
   }, children || /*#__PURE__*/React.createElement("div", {
@@ -1912,7 +1929,7 @@ function DCFocusOverlay(_ref16) {
       height,
       transform: `scale(${scale})`,
       transformOrigin: 'top left',
-      background: '#fff',
+      background: 'var(--surface)',
       borderRadius: 2,
       overflow: 'hidden',
       boxShadow: '0 20px 80px rgba(0,0,0,.4)'
@@ -2358,7 +2375,7 @@ function TrustBadge(_ref27) {
       gap: 5,
       padding: '5px 12px',
       borderRadius: 9999,
-      background: '#fff',
+      background: 'var(--surface)',
       border: '1px solid var(--border)',
       boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
       fontSize: 11.5,
@@ -2689,7 +2706,7 @@ function Sheet(_ref28) {
       right: 0,
       bottom: 0,
       height,
-        background: '#fff',
+        background: 'var(--surface)',
       borderTopLeftRadius: 28,
       borderTopRightRadius: 28,
         boxShadow: '0 -8px 40px rgba(0,0,0,0.18)',
@@ -2975,7 +2992,7 @@ function DestinationSheet(_ref34) {
       position: 'sticky',
       top: 0,
       zIndex: 10,
-        background: '#fff',
+        background: 'var(--surface)',
         padding: '2px 20px 14px',
       boxShadow: '0 1px 0 var(--border)'
     }
@@ -3444,7 +3461,7 @@ function DatesSheet(_ref36) {
     style: {
       position: 'sticky',
       bottom: 0,
-      background: '#fff',
+      background: 'var(--surface)',
         padding: '12px 20px 22px',
       borderTop: '1px solid var(--border)'
     }
@@ -3612,7 +3629,7 @@ function TransportSheet(_ref38) {
         textAlign: 'left',
               borderRadius: 18,
               border: `2px solid ${sel ? 'var(--green)' : 'var(--border)'}`,
-              background: sel ? 'rgba(13,158,122,0.07)' : '#fff',
+              background: sel ? 'var(--green-subtle)' : 'var(--surface)',
         transition: 'all 180ms var(--ease)'
       }
     }, /*#__PURE__*/React.createElement("div", {
@@ -3873,7 +3890,7 @@ function BudgetSheet(_ref39) {
       width: 30,
       height: 30,
       borderRadius: 9999,
-            background: '#fff',
+            background: 'var(--surface)',
             border: `3px solid ${activeColor}`,
             transform: 'translate(-50%, -50%)',
             boxShadow: `0 2px 12px ${activeColor}55, 0 0 0 ${dragging ? 5 : 0}px ${activeColor}22`,
@@ -3899,7 +3916,7 @@ function BudgetSheet(_ref39) {
       left: `${b * 100}%`,
       width: 2,
       height: 16,
-      background: '#fff',
+      background: 'var(--surface)',
               transform: 'translate(-50%, -50%)',
       borderRadius: 1,
       pointerEvents: 'none',
@@ -4200,7 +4217,7 @@ function LoginScreen(_ref41) {
   React.createElement("div", {
     style: {
         position: 'absolute', top: 'calc(46% - 24px)', left: 0, right: 0, bottom: 0,
-      background: '#fff', borderTopLeftRadius: 28, borderTopRightRadius: 28,
+      background: 'var(--surface)', borderTopLeftRadius: 28, borderTopRightRadius: 28,
       boxShadow: '0 -4px 24px rgba(0,0,0,0.08)', padding: '28px 24px 24px',
       display: 'flex', flexDirection: 'column', overflowY: 'auto'
     },
@@ -4215,7 +4232,7 @@ function LoginScreen(_ref41) {
         className: 'pl-tap',
         style: {
           flex:1, height:36, borderRadius:9, fontWeight:700, fontSize:13.5,
-          background: tab===t ? '#fff' : 'transparent',
+          background: tab===t ? 'var(--surface)' : 'transparent',
           color: tab===t ? 'var(--text)' : 'var(--text-muted)',
           boxShadow: tab===t ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
           border: 'none', transition: 'all 180ms ease', cursor:'pointer'
@@ -4280,7 +4297,7 @@ function LoginScreen(_ref41) {
     React.createElement("button", {
       className:"pl-tap", onClick: handleGoogle,
       style: {
-        height:48, borderRadius:9999, border:'1.5px solid var(--border-md)', background:'#fff',
+        height:48, borderRadius:9999, border:'1.5px solid var(--border-md)', background:'var(--surface)',
         color:'var(--text)', display:'flex', alignItems:'center', justifyContent:'center',
         gap:10, fontWeight:600, fontSize:14, marginBottom:10, cursor:'pointer'
       }
@@ -4312,7 +4329,7 @@ function Field(_ref42) {
       gap: 10,
       height: 50,
       padding: '0 14px',
-      background: focus ? '#fff' : 'var(--surface-2)',
+      background: focus ? 'var(--surface)' : 'var(--surface-2)',
       border: `1.5px solid ${focus ? 'var(--green)' : 'transparent'}`,
       boxShadow: focus ? '0 0 0 4px var(--green-subtle)' : 'none',
       borderRadius: 14,
@@ -4456,7 +4473,7 @@ function SearchScreen(_ref43) {
       React.createElement("div", {
       style: {
         position:'absolute', top:52, right:0, zIndex:100,
-        background:'#fff', borderRadius:16, boxShadow:'0 8px 32px rgba(0,0,0,0.18)',
+        background:'var(--surface)', borderRadius:16, boxShadow:'0 8px 32px rgba(0,0,0,0.18)',
         border:'1px solid var(--border)', padding:8, minWidth:160
       }
     },
@@ -4492,7 +4509,7 @@ function SearchScreen(_ref43) {
   )), /*#__PURE__*/React.createElement("div", {
     style: {
           margin: '0 16px',
-      background: '#fff',
+      background: 'var(--surface)',
       borderRadius: 24,
           boxShadow: 'var(--shadow-lg)',
           border: '1px solid var(--border)',
@@ -4864,7 +4881,7 @@ function Row(_ref44) {
       minHeight: 64,
       textAlign: 'left',
       borderTop: first ? 'none' : '1px solid var(--border)',
-      background: '#fff',
+      background: 'var(--surface)',
       position: 'relative'
     }
   }, /*#__PURE__*/React.createElement(IconSquare, {
@@ -4934,7 +4951,7 @@ function CircBtn(_ref45) {
       height: 32,
       borderRadius: 9999,
       border: '1.5px solid var(--border-md)',
-      background: '#fff',
+      background: 'var(--surface)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -5218,7 +5235,7 @@ function PremiumMap(_refMap) {
 
         const vSvg = VEHICLE_SVG[vehicle] || VEHICLE_SVG.plane;
         const vehHtml = '<div class="pl-map-vehicle" style="width:38px;height:38px;border-radius:9999px;' +
-          'background:#fff;box-shadow:0 4px 14px rgba(0,0,0,0.30);">' +
+          'background:var(--surface);box-shadow:0 4px 14px rgba(0,0,0,0.30);">' +
           '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="' + accent +
           '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + vSvg + '</svg></div>';
         const veh = L.marker(arc[0], {
@@ -5329,7 +5346,7 @@ function RouteModal(_refRM) {
         const vSvg = VEHICLE_SVG[vehicle] || VEHICLE_SVG.plane;
         const veh = L.marker(geo[0], {
           icon: L.divIcon({ className: '', iconSize: [40, 40], iconAnchor: [20, 20],
-            html: '<div class="pl-map-vehicle" style="width:40px;height:40px;border-radius:9999px;background:#fff;' +
+            html: '<div class="pl-map-vehicle" style="width:40px;height:40px;border-radius:9999px;background:var(--surface);' +
               'box-shadow:0 4px 14px rgba(0,0,0,0.30);"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="' +
               accent + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + vSvg + '</svg></div>' }),
           zIndexOffset: 1000,
@@ -5397,7 +5414,7 @@ function RouteModal(_refRM) {
               style: { width: 26, height: 26, borderRadius: 9999, border: '3px solid var(--surface-3)', borderTopColor: accent } }),
             /*#__PURE__*/React.createElement('span', { style: { fontSize: 13, fontWeight: 600 } }, 'Calculant la ruta real…')))),
     /*#__PURE__*/React.createElement('div', {
-      style: { flexShrink: 0, padding: '16px 18px 26px', background: '#fff', borderTop: '1px solid var(--border)' }
+      style: { flexShrink: 0, padding: '16px 18px 26px', background: 'var(--surface)', borderTop: '1px solid var(--border)' }
     },
       /*#__PURE__*/React.createElement('div', { style: { display: 'flex', gap: 12 } },
         /*#__PURE__*/React.createElement('div', { style: { flex: 1 } },
@@ -5766,7 +5783,7 @@ function TripCard(_ref49) {
     onClick: onOpen,
     className: "pl-tap",
     style: {
-      background: '#fff',
+      background: 'var(--surface)',
       borderRadius: 24,
       boxShadow: 'var(--shadow-md)',
       border: '1px solid var(--border)',
@@ -6038,7 +6055,7 @@ function BottomTabs(_ref52) {
     style: {
       position: 'absolute', left: 0, right: 0, bottom: 0,
       zIndex: 50,
-      background: 'rgba(244,241,236,0.88)',
+      background: 'var(--surface)',
       backdropFilter: 'saturate(180%) blur(20px)',
       WebkitBackdropFilter: 'saturate(180%) blur(20px)',
       borderTop: '0.5px solid rgba(0,0,0,0.12)',
@@ -6154,7 +6171,7 @@ function SectionEmpty(_ref55) {
     style: {
       padding: '16px 14px',
       borderRadius: 16,
-      background: '#fff',
+      background: 'var(--surface)',
       border: '1px dashed var(--border)',
       color: 'var(--text-muted)',
       fontSize: 13
@@ -6253,7 +6270,7 @@ function LoadingSkeletonSection(_ref57) {
       gap: 12,
       padding: 12,
       borderRadius: 18,
-      background: '#fff',
+      background: 'var(--surface)',
       border: '1px solid var(--border)'
     }
   }, /*#__PURE__*/React.createElement("div", {
@@ -6335,7 +6352,7 @@ function HotelOfferCard(_ref58) {
   return /*#__PURE__*/React.createElement("div", {
     style: {
       borderRadius: 20,
-      background: '#fff',
+      background: 'var(--surface)',
       border: '1px solid var(--border)',
       overflow: 'hidden',
       boxShadow: '0 2px 12px rgba(0,0,0,0.06)'
@@ -6511,7 +6528,7 @@ function FlightOfferCard(_ref59) {
   return /*#__PURE__*/React.createElement("div", {
     style: {
       borderRadius: 20,
-      background: '#fff',
+      background: 'var(--surface)',
       border: '1px solid var(--border)',
       overflow: 'hidden',
       boxShadow: '0 2px 12px rgba(0,0,0,0.06)'
@@ -7476,7 +7493,7 @@ function renderCostBreakdownList(costs, tMeta, itineraryLoading, people) {
 
 function renderLiveSummaryCosts(costs, tMeta, itineraryLoading, people) {
   return React.createElement('div', {
-    style: { padding: '14px 16px', borderRadius: 16, background: '#fff', border: '1px solid var(--border)' },
+    style: { padding: '14px 16px', borderRadius: 16, background: 'var(--surface)', border: '1px solid var(--border)' },
   },
     React.createElement('div', { className: 'micro', style: { color: 'var(--green)', marginBottom: 4 } }, 'RESUM DE COSTOS'),
     renderCostBreakdownGrid(costs, tMeta && tMeta.stepLabel),
@@ -7562,7 +7579,7 @@ function ItinerarySection({pendingParams, selectedFlight, selectedHotel, itinera
         React.createElement('button',{
           className:'pl-tap',
           onClick:()=>setOpenDay(isOpen ? -1 : di),
-          style:{width:'100%',background:'#fff',border:'1px solid var(--border)',borderRadius:16,padding:'13px 16px',display:'flex',alignItems:'center',gap:12,textAlign:'left'}
+          style:{width:'100%',background:'var(--surface)',border:'1px solid var(--border)',borderRadius:16,padding:'13px 16px',display:'flex',alignItems:'center',gap:12,textAlign:'left'}
         },
           React.createElement('div',{style:{width:36,height:36,borderRadius:12,background:'var(--green)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}},
             React.createElement('span',{style:{color:'#fff',fontFamily:'var(--font-display)',fontWeight:800,fontSize:15}}, day.day_number)
@@ -7575,7 +7592,7 @@ function ItinerarySection({pendingParams, selectedFlight, selectedHotel, itinera
             React.createElement('polyline',{points:'6 9 12 15 18 9'})
           )
         ),
-        isOpen && React.createElement('div',{style:{borderRadius:'0 0 16px 16px',border:'1px solid var(--border)',borderTop:'none',background:'#fff',padding:'4px 12px 12px',display:'flex',flexDirection:'column',gap:8,marginTop:-8,paddingTop:12}},
+        isOpen && React.createElement('div',{style:{borderRadius:'0 0 16px 16px',border:'1px solid var(--border)',borderTop:'none',background:'var(--surface)',padding:'4px 12px 12px',display:'flex',flexDirection:'column',gap:8,marginTop:-8,paddingTop:12}},
           ITIN_SLOT_KEYS.map(slotKey => {
             const item = day[slotKey];
             if (!item) return null;
@@ -7898,7 +7915,7 @@ function PLAIerApp(_ref62) {
       height: '100%',
       position: 'relative',
       overflow: 'hidden',
-      background: '#F4F1EC'
+      background: 'var(--bg)'
     }
   },
   route !== 'login' && route !== 'generating' && /*#__PURE__*/React.createElement(BottomTabs, {
@@ -8034,7 +8051,7 @@ function renderTripDetailItinerary(trip) {
     itinerary.days.map(function(day) {
       return React.createElement('div', {
         key: day.day_number,
-        style: { marginBottom: 12, padding: 14, background: '#fff', borderRadius: 16, border: '1px solid var(--border)' },
+        style: { marginBottom: 12, padding: 14, background: 'var(--surface)', borderRadius: 16, border: '1px solid var(--border)' },
       },
         React.createElement('div', { style: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 } },
           React.createElement('div', {
@@ -8162,7 +8179,7 @@ function TripDetail(_ref63) {
     }
   }, /*#__PURE__*/React.createElement("div", {
     style: {
-      background: '#fff',
+      background: 'var(--surface)',
       borderRadius: 24,
       padding: 18,
       boxShadow: 'var(--shadow-lg)',
@@ -8260,7 +8277,7 @@ function App() {
     maxHeight: isMobile ? '100%' : 900, position: 'relative',
     overflow: 'hidden', borderRadius: isMobile ? 0 : 40,
         boxShadow: isMobile ? 'none' : '0 40px 120px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.08)',
-    background: '#F4F1EC'
+    background: 'var(--bg)'
   };
 
   const urlParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
@@ -8441,6 +8458,7 @@ function GeneratingFreeze() {
 }
 ReactDOM.createRoot(document.getElementById('root')).render(/*#__PURE__*/React.createElement(App, null));
 </script>
+<script src="/i18n.js"></script>
 
 </body>
 </html>
