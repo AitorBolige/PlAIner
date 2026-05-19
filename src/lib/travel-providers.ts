@@ -521,6 +521,15 @@ async function getEntityIdFromAutoComplete(
     for (const row of results) {
       if (!row || typeof row !== "object") continue;
       const item = row as Record<string, unknown>;
+
+      // flights-sky autocomplete returns rows with a `PlaceId` field (e.g. "BCN").
+      const placeIdRaw =
+        trimSkyScraperSkyId(item.PlaceId) ||
+        trimSkyScraperSkyId(item.placeId);
+      if (placeIdRaw) {
+        return placeIdRaw;
+      }
+
       const navigation = item.navigation as Record<string, unknown> | undefined;
       const flight = navigation?.relevantFlightParams as
         | Record<string, unknown>
@@ -624,8 +633,9 @@ function buildRapidApiFlightSearchUrlWithEntityIds(
   const searchParams = new URLSearchParams();
   const curr = String(currency.toUpperCase()).slice(0, 3);
 
-  searchParams.set("fromEntityId", fromPlaceId);
-  searchParams.set("toEntityId", toPlaceId);
+  // flights-sky `search-roundtrip` expects `placeIdFrom` / `placeIdTo`.
+  searchParams.set("placeIdFrom", fromPlaceId);
+  searchParams.set("placeIdTo", toPlaceId);
 
   if (departureDate) searchParams.set("departDate", departureDate);
   if (returnDate) searchParams.set("returnDate", returnDate);
@@ -1346,7 +1356,10 @@ export async function searchFlightsMetasearch(
   params: MetasearchFlightParams,
 ): Promise<TravelOfferInput[]> {
   const fromId = await getEntityIdFromAutoComplete(params.originIata);
+  // Space out calls — the free RapidAPI tier rate-limits rapid bursts.
+  await new Promise((r) => setTimeout(r, 800));
   const toId = await getEntityIdFromAutoComplete(params.destinationIata);
+  await new Promise((r) => setTimeout(r, 800));
 
   if (!fromId || !toId) {
     console.warn(
@@ -1373,26 +1386,64 @@ export async function searchFlightsMetasearch(
   const { host, key } = getRapidApiFlightConfig();
   console.log(`[searchFlightsMetasearch] Fetching from: ${url}`);
 
-  const response = await fetch(url, {
-    headers: {
-      "X-RapidAPI-Key": key,
-      "X-RapidAPI-Host": host,
-      accept: "application/json",
-    },
-  });
+  const flightHeaders = {
+    "X-RapidAPI-Key": key,
+    "X-RapidAPI-Host": host,
+    accept: "application/json",
+  };
 
-  console.log(`[searchFlightsMetasearch] Response status: ${response.status}`);
-
-  if (!response.ok) {
-    const text = await response.text().catch(() => "");
-    console.error(`[searchFlightsMetasearch] Error response: ${text}`);
-    throw new Error(
-      `RapidAPI flight search responded ${response.status}: ${text}`,
+  // flights-sky returns a transient error envelope (`data.status === false`,
+  // no `itineraries`) when requests arrive too fast — the free RapidAPI tier
+  // rate-limits the autocomplete + search burst. Retry with backoff.
+  const MAX_SEARCH_ATTEMPTS = 4;
+  let payload: unknown = null;
+  for (let attempt = 1; attempt <= MAX_SEARCH_ATTEMPTS; attempt++) {
+    const response = await fetch(url, { headers: flightHeaders });
+    console.log(
+      `[searchFlightsMetasearch] Response status: ${response.status} (attempt ${attempt}/${MAX_SEARCH_ATTEMPTS})`,
     );
-  }
 
-  let payload = await response.json().catch(() => null);
-  logFlightResponseDebug(payload, "after-parse");
+    if (response.status === 429) {
+      console.warn(`[searchFlightsMetasearch] Rate limited (429), backing off`);
+      if (attempt < MAX_SEARCH_ATTEMPTS) {
+        await new Promise((r) => setTimeout(r, 2500 * attempt));
+        continue;
+      }
+      throw new Error("RapidAPI flight search rate limited (429)");
+    }
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      console.error(`[searchFlightsMetasearch] Error response: ${text}`);
+      throw new Error(
+        `RapidAPI flight search responded ${response.status}: ${text}`,
+      );
+    }
+
+    payload = await response.json().catch(() => null);
+    logFlightResponseDebug(payload, `after-parse (attempt ${attempt})`);
+
+    // A usable response exposes `data.itineraries`. The transient rate-limit
+    // envelope only has `data.status`/`data.errors` and no `itineraries`.
+    const dataObj =
+      payload && typeof payload === "object"
+        ? ((payload as Record<string, unknown>).data as
+            | Record<string, unknown>
+            | null
+            | undefined)
+        : null;
+    const hasItineraries = Boolean(
+      dataObj && typeof dataObj === "object" && "itineraries" in dataObj,
+    );
+    if (hasItineraries) break;
+
+    console.warn(
+      `[searchFlightsMetasearch] No itineraries in response (likely rate limit), retrying...`,
+    );
+    if (attempt < MAX_SEARCH_ATTEMPTS) {
+      await new Promise((r) => setTimeout(r, 2500 * attempt));
+    }
+  }
 
   // Step 3: Poll if status is incomplete (flights-sky uses async session pattern)
   const getSessionId = (p: unknown): string | null => {
@@ -1432,11 +1483,14 @@ export async function searchFlightsMetasearch(
 
   const sessionId = getSessionId(payload);
   const initialStatus = getStatus(payload);
+  const initialOffers = extractRapidApiFlightOffers(payload);
   console.log(
-    `[searchFlightsMetasearch] Initial status: ${initialStatus}, sessionId: ${sessionId}`,
+    `[searchFlightsMetasearch] Initial status: ${initialStatus}, sessionId: ${sessionId}, offers: ${initialOffers.length}`,
   );
 
-  if (initialStatus === "incomplete" && sessionId) {
+  // The initial response usually already contains itineraries in
+  // `data.itineraries.buckets[]`; only poll when it came back empty.
+  if (initialOffers.length === 0 && initialStatus === "incomplete" && sessionId) {
     // The flights-sky API uses a polling pattern: re-call the same search endpoint
     // adding sessionId as a query param to retrieve progressive results.
     const { path } = getRapidApiFlightConfig();

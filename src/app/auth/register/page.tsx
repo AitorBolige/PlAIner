@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { signIn } from "next-auth/react";
 import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 
 export default function RegisterPage() {
@@ -45,6 +46,21 @@ export default function RegisterPage() {
     const data = await res.json();
     if (!data?.id) {
       setError("No hem pogut crear el teu perfil d'onboarding.");
+      return;
+    }
+
+    // Sign the new user in so the onboarding page (and the app afterwards)
+    // has a valid session. Without this, "/" bounces back to /auth/login.
+    const signInResult = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
+
+    if (signInResult?.error) {
+      setError(
+        "Compte creat, però no hem pogut iniciar sessió. Inicia sessió manualment.",
+      );
       return;
     }
 
