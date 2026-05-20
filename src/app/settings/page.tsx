@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { SettingsForm } from "./SettingsForm";
 import { PhoneWrapper } from "./PhoneWrapper";
 import { SettingsBottomTabs } from "./SettingsBottomTabs";
+import { PageTransition } from "@/components/motion/PageTransition";
 
 export const metadata = {
   title: "Ajustaments - PlAIner",
@@ -39,10 +40,11 @@ export default async function SettingsPage() {
 
   return (
     <PhoneWrapper>
-      <div
-        className="h-full overflow-y-auto pb-14 transition-[background] duration-[240ms] [-webkit-overflow-scrolling:touch]"
-        style={{ background: "var(--bg)", transitionTimingFunction: "var(--ease)" }}
-      >
+      <PageTransition className="h-full">
+        <div
+          className="h-full overflow-y-auto pb-14 transition-[background] duration-[240ms] [-webkit-overflow-scrolling:touch]"
+          style={{ background: "var(--bg)", transitionTimingFunction: "var(--ease)" }}
+        >
         <header
           className="relative overflow-hidden px-6 pt-14 pb-[100px]"
           style={{
@@ -79,7 +81,8 @@ export default async function SettingsPage() {
         <div className="relative z-10 -mt-14">
           <SettingsForm userId={session.user.id} initialData={user} />
         </div>
-      </div>
+        </div>
+      </PageTransition>
       <SettingsBottomTabs user={user} />
     </PhoneWrapper>
   );

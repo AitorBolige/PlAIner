@@ -9,6 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { BudgetBreakdown } from "@/components/trip/BudgetBreakdown";
 import { DayAccordion, type DayDTO } from "@/components/trip/DayAccordion";
 import { Badge } from "@/components/ui/Badge";
+import { PageTransition } from "@/components/motion/PageTransition";
 
 export const metadata = {
   title: "Detall del viatge - PlAIner",
@@ -73,7 +74,7 @@ export default async function TripDetailPage({
   const nights = nightsBetween(trip.startDate, trip.endDate);
 
   return (
-    <div className="mx-auto min-h-dvh max-w-[480px] bg-bg pb-24">
+    <PageTransition className="mx-auto min-h-dvh max-w-[480px] bg-bg pb-24">
       <header className="relative h-[260px] overflow-hidden">
         {trip.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -168,6 +169,6 @@ export default async function TripDetailPage({
           </section>
         )}
       </main>
-    </div>
+    </PageTransition>
   );
 }

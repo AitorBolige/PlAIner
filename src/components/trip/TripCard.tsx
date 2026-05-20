@@ -58,7 +58,7 @@ export function TripCard({
 
   return (
     <Link
-      href={`/trip/${id}`}
+      href={`/trips/${id}`}
       className="rounded-[var(--radius-xl)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--color-primary)] focus-visible:ring-offset-2 focus-visible:ring-offset-[color:var(--color-bg)]"
     >
       <Card

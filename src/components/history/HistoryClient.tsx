@@ -298,7 +298,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
 
     return (
       <div
-        onClick={() => router.push(`/trip/${trip.id}`)}
+        onClick={() => router.push(`/trips/${trip.id}`)}
         style={{
           background: "var(--surface)",
           borderRadius: "var(--r-xl)",
