@@ -7,7 +7,8 @@ import { ArrowLeft, Calendar, Users, MapPin, Heart } from "lucide-react";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BudgetBreakdown } from "@/components/trip/BudgetBreakdown";
-import { DayAccordion, type DayDTO } from "@/components/trip/DayAccordion";
+import type { DayDTO } from "@/components/trip/DayAccordion";
+import { EditableItinerary } from "@/components/trip/EditableItinerary";
 import { Badge } from "@/components/ui/Badge";
 import { PageTransition } from "@/components/motion/PageTransition";
 
@@ -102,7 +103,7 @@ export default async function TripDetailPage({
         />
 
         <Link
-          href="/trips"
+          href="/plainer-mvp.html?tab=trips"
           aria-label="Tornar"
           className="absolute left-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md transition hover:bg-white/25"
         >
@@ -159,7 +160,7 @@ export default async function TripDetailPage({
             <h2 className="display mb-3 px-1 text-xl font-extrabold tracking-[-0.02em] text-text">
               Itinerari
             </h2>
-            <DayAccordion days={days} />
+            <EditableItinerary tripId={trip.id} initialDays={days} />
           </section>
         ) : (
           <section className="mt-6 rounded-[var(--r-lg)] border border-border bg-surface p-6 text-center">

@@ -8025,8 +8025,10 @@ function PLAIerApp(_ref62) {
     },
     onTab: navigateTab,
     onOpen: t => {
-      setOpenTrip(t);
-      setRoute('detail');
+      // Navigate to the new RSC route /trips/[id] instead of rendering the
+      // legacy inline TripDetail. The Next.js page reuses the same data via
+      // Prisma + handles drag-and-drop reordering with persistence.
+      window.location.href = '/trips/' + t.id;
     }
   })), route === 'detail' && openTrip && /*#__PURE__*/React.createElement(TripDetail, {
     trip: openTrip,
