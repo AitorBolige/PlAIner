@@ -40,101 +40,43 @@ export default async function SettingsPage() {
   return (
     <PhoneWrapper>
       <div
-        style={{
-          height: "100%",
-          overflowY: "auto",
-          WebkitOverflowScrolling: "touch",
-          background: "var(--bg)",
-          transition: "background 240ms var(--ease)",
-          paddingBottom: "56px",
-        }}
+        className="h-full overflow-y-auto pb-14 transition-[background] duration-[240ms] [-webkit-overflow-scrolling:touch]"
+        style={{ background: "var(--bg)", transitionTimingFunction: "var(--ease)" }}
       >
-        {/* ---- Capçalera ---- */}
-        <div
+        <header
+          className="relative overflow-hidden px-6 pt-14 pb-[100px]"
           style={{
-            position: "relative",
-            overflow: "hidden",
             background:
               "linear-gradient(155deg, #0D9E7A 0%, #1a6b9a 56%, #2D3561 100%)",
-            padding: "56px 24px 100px",
           }}
         >
-          {/* Cercles decoratius */}
           <div
-            style={{
-              position: "absolute",
-              top: -64,
-              right: -36,
-              width: 190,
-              height: 190,
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.08)",
-            }}
+            aria-hidden
+            className="absolute -top-16 -right-9 h-[190px] w-[190px] rounded-full bg-white/[0.08]"
           />
           <div
-            style={{
-              position: "absolute",
-              bottom: -52,
-              left: -48,
-              width: 150,
-              height: 150,
-              borderRadius: "50%",
-              background: "rgba(255,255,255,0.06)",
-            }}
+            aria-hidden
+            className="absolute -bottom-[52px] -left-12 h-[150px] w-[150px] rounded-full bg-white/[0.06]"
           />
-          <div
-            style={{
-              position: "relative",
-              display: "flex",
-              alignItems: "center",
-              gap: "12px",
-            }}
-          >
-            <div
-              style={{
-                width: 42,
-                height: 42,
-                borderRadius: 13,
-                background: "rgba(255,255,255,0.16)",
-                backdropFilter: "blur(8px)",
-                WebkitBackdropFilter: "blur(8px)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-              }}
-            >
+
+          <div className="relative flex items-center gap-3">
+            <div className="flex h-[42px] w-[42px] flex-shrink-0 items-center justify-center rounded-[13px] bg-white/[0.16] backdrop-blur-md">
               <Settings size={21} color="#fff" />
             </div>
             <div>
               <h1
-                style={{
-                  fontFamily: "var(--font-display)",
-                  fontSize: "25px",
-                  fontWeight: 800,
-                  color: "#fff",
-                  letterSpacing: "-0.03em",
-                  lineHeight: 1.1,
-                  margin: 0,
-                }}
+                className="display m-0 text-[25px] font-extrabold leading-[1.1] tracking-[-0.03em] text-white"
               >
                 Ajustaments
               </h1>
-              <p
-                style={{
-                  fontSize: "12.5px",
-                  color: "rgba(255,255,255,0.62)",
-                  margin: "2px 0 0",
-                }}
-              >
+              <p className="mt-0.5 text-[12.5px] text-white/[0.62]">
                 El teu perfil PlAIner
               </p>
             </div>
           </div>
-        </div>
+        </header>
 
-        {/* ---- Targeta del formulari (sobresurt damunt la capçalera) ---- */}
-        <div style={{ marginTop: "-56px", position: "relative", zIndex: 10 }}>
+        <div className="relative z-10 -mt-14">
           <SettingsForm userId={session.user.id} initialData={user} />
         </div>
       </div>

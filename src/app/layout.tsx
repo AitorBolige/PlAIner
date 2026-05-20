@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import "./globals.css";
 import Providers from "./Providers";
 
@@ -30,7 +31,7 @@ export default function RootLayout({
         style={{ margin: 0, padding: 0, width: "100vw", minHeight: "100vh" }}
       >
         <Providers>{children}</Providers>
-        <script src="/i18n.js" async />
+        <Script src="/i18n.js" strategy="lazyOnload" />
       </body>
     </html>
   );

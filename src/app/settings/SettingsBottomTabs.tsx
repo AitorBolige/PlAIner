@@ -36,7 +36,9 @@ export function SettingsBottomTabs({ user }: { user: any }) {
       iconActive: user?.image ? (
         <img
           src={user.image}
-          style={{ width: 24, height: 24, borderRadius: 12, border: "2px solid var(--green)", objectFit: "cover" }}
+          alt=""
+          className="h-6 w-6 rounded-full object-cover"
+          style={{ border: "2px solid var(--green)" }}
         />
       ) : (
         <svg width={26} height={26} viewBox="0 0 24 24" fill="none">
@@ -55,59 +57,33 @@ export function SettingsBottomTabs({ user }: { user: any }) {
   ];
 
   return (
-    <div
+    <nav
+      className="absolute inset-x-0 bottom-0 z-50 [backdrop-filter:saturate(180%)_blur(20px)] [-webkit-backdrop-filter:saturate(180%)_blur(20px)] transition-[background] duration-[240ms]"
       style={{
-        position: "absolute",
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 50,
         background: "var(--surface)",
-        backdropFilter: "saturate(180%) blur(20px)",
-        WebkitBackdropFilter: "saturate(180%) blur(20px)",
         borderTop: "1px solid var(--border-md)",
-        transition: "background 240ms var(--ease)",
+        transitionTimingFunction: "var(--ease)",
       }}
     >
-      <div
-        style={{
-          display: "flex",
-          height: 56,
-          paddingBottom: 2,
-          justifyContent: "space-evenly",
-          alignItems: "center",
-          margin: "0 auto",
-          maxWidth: 300,
-        }}
-      >
+      <div className="mx-auto flex h-14 max-w-[300px] items-center justify-evenly pb-0.5">
         {TABS.map((t) => {
           const active = t.id === "settings";
           return (
             <button
               key={t.id}
+              type="button"
               onClick={() => {
                 if (t.id === "search" || t.id === "trips") {
                   window.location.href = `/plainer-mvp.html?tab=${t.id}`;
                 }
               }}
-              style={{
-                flex: 1,
-                maxWidth: 100,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 2,
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                color: "var(--text-faint)",
-              }}
+              className="flex max-w-[100px] flex-1 flex-col items-center justify-center gap-0.5 border-0 bg-transparent"
+              style={{ color: "var(--text-faint)" }}
             >
               {active ? t.iconActive : t.iconInactive}
               <span
+                className="text-[10.5px]"
                 style={{
-                  fontSize: 10.5,
                   fontWeight: active ? 600 : 500,
                   color: active ? "var(--green)" : "var(--text-faint)",
                   fontFamily: "var(--font-body)",
@@ -119,6 +95,6 @@ export function SettingsBottomTabs({ user }: { user: any }) {
           );
         })}
       </div>
-    </div>
+    </nav>
   );
 }
