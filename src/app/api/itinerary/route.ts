@@ -1,6 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
 
+import { authOptions } from "@/lib/auth";
 import {
   buildItinerarySystemInstruction,
   buildItineraryUserPrompt,
@@ -11,6 +13,10 @@ import {
   validateItinerary,
   validationFailureReason,
 } from "@/lib/itinerary";
+import { rateLimit } from "@/lib/rate-limit";
+
+const ITINERARY_RATE_LIMIT = 5;
+const ITINERARY_RATE_WINDOW_MS = 60_000;
 
 const MAX_DAYS = 14;
 const GEMINI_MODEL = "gemini-2.5-flash";
@@ -77,7 +83,29 @@ function inclusiveDays(startDate: string, endDate: string): number | null {
 
 export async function POST(req: NextRequest) {
   const requestId = `itin-${Date.now().toString(36)}`;
-  geminiLog("request received", { requestId });
+
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const rl = rateLimit(
+    `itinerary:${session.user.id}`,
+    ITINERARY_RATE_LIMIT,
+    ITINERARY_RATE_WINDOW_MS,
+  );
+  if (!rl.allowed) {
+    const retryAfter = Math.max(
+      1,
+      Math.ceil((rl.resetAt - Date.now()) / 1000),
+    );
+    return NextResponse.json(
+      { error: "Too many requests. Please slow down." },
+      { status: 429, headers: { "Retry-After": String(retryAfter) } },
+    );
+  }
+
+  geminiLog("request received", { requestId, userId: session.user.id });
 
   const apiKey = process.env.GEMINI_API_KEY?.trim();
   if (!apiKey) {

@@ -4,8 +4,11 @@ import {
   searchHotelsApiDojo,
   type ApiDojoHotelParams,
 } from "@/lib/travel-providers";
+import { assertDebugAccess } from "@/lib/debug-guard";
 
 export async function GET(request: Request) {
+  const denied = assertDebugAccess(request);
+  if (denied) return denied;
   try {
     const url = new URL(request.url);
     const queryFromUrl = url.searchParams.get("query");
@@ -39,14 +42,9 @@ export async function GET(request: Request) {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    const stack = error instanceof Error ? error.stack : undefined;
     console.error(`[DEBUG hotels] Route Error:`, error);
     return NextResponse.json(
-      {
-        success: false,
-        error: message,
-        stack,
-      },
+      { success: false, error: message },
       { status: 500 },
     );
   }

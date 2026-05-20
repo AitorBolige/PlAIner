@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchFlightsMetasearch } from "@/lib/travel-providers";
+import { assertDebugAccess } from "@/lib/debug-guard";
 
 export async function GET(request: NextRequest) {
+  const denied = assertDebugAccess(request);
+  if (denied) return denied;
   try {
     const departureDate = new Date();
     departureDate.setDate(departureDate.getDate() + 30);
@@ -33,14 +36,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : "Unknown error";
-    const stack = error instanceof Error ? error.stack : undefined;
     console.error(`[DEBUG] Route Error:`, error);
     return NextResponse.json(
-      {
-        success: false,
-        error: message,
-        stack,
-      },
+      { success: false, error: message },
       { status: 500 },
     );
   }

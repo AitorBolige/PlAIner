@@ -58,20 +58,15 @@ export async function POST(req: Request) {
       });
       if (sendRes.error) {
         console.error("[forgot-password] resend error:", sendRes.error);
-        console.info("[forgot-password] resetUrl:", resetUrl);
-        // In dev/testing mode Resend only allows sending to your own email unless a domain is verified.
-        // For local debugging we return the resetUrl so you can continue the flow without email delivery.
+        // Resend free tier only delivers to verified addresses; log the
+        // resetUrl server-side so dev can recover it from logs without
+        // ever returning it in the HTTP response.
         if (process.env.NODE_ENV !== "production") {
-          return NextResponse.json({
-            ok: true,
-            dev: true,
-            resetUrl,
-            resendError: sendRes.error,
-          });
+          console.info("[forgot-password] dev resetUrl:", resetUrl);
         }
         return NextResponse.json({ ok: true });
       }
-      return NextResponse.json({ ok: true, id: sendRes.data?.id });
+      return NextResponse.json({ ok: true });
     }
 
     return NextResponse.json({ ok: true });
