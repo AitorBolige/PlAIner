@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Script from "next/script";
 import "./globals.css";
 import Providers from "./Providers";
+import { Toaster } from "@/components/ui/Toast";
 
 export const metadata: Metadata = {
   title: "PLAIner — MVP Premium",
@@ -31,6 +32,7 @@ export default function RootLayout({
         style={{ margin: 0, padding: 0, width: "100vw", minHeight: "100vh" }}
       >
         <Providers>{children}</Providers>
+        <Toaster />
         <Script src="/i18n.js" strategy="lazyOnload" />
       </body>
     </html>

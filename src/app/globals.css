@@ -1,6 +1,38 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
+/* Tailwind v4 theme — generates utilities from existing design tokens.
+   Values reference vars defined in :root / [data-theme="dark"] below so
+   dark-mode swaps propagate to utilities automatically (bg-bg, text-text,
+   bg-brand, rounded-lg, shadow-md, font-display, ease-premium, …). */
+@theme {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-md: var(--border-md);
+  --color-text: var(--text);
+  --color-muted: var(--text-muted);
+  --color-faint: var(--text-faint);
+  --color-brand: var(--green);
+  --color-brand-hover: var(--green-hover);
+  --color-brand-deep: var(--green-deep);
+  --color-coral: var(--coral);
+  --color-info: var(--blue);
+  --color-gold: var(--gold);
+
+  --font-display: "Plus Jakarta Sans", -apple-system, system-ui, sans-serif;
+  --font-body: "Inter", -apple-system, system-ui, sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
 :root {
   --bg: #f4f1ec;
   --surface: #ffffff;
