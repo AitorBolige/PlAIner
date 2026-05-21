@@ -15,7 +15,8 @@ function OnboardingInner() {
   const [gender, setGender] = React.useState("");
   const [nationality, setNationality] = React.useState("");
   const [hobbies, setHobbies] = React.useState("");
-  const [avatar, setAvatar] = React.useState("");
+  const [avatarFile, setAvatarFile] = React.useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState(false);
@@ -42,6 +43,34 @@ function OnboardingInner() {
 
     setLoading(true);
 
+    let avatarUrl = "";
+    if (avatarFile) {
+      const formData = new FormData();
+      formData.append("file", avatarFile);
+
+      try {
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          if (uploadData.url) {
+            avatarUrl = uploadData.url;
+          }
+        } else {
+          setError("No hem pogut pujar la imatge.");
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        setError("Error de xarxa al pujar la imatge.");
+        setLoading(false);
+        return;
+      }
+    }
+
     const res = await fetch("/api/auth/onboarding", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -52,7 +81,7 @@ function OnboardingInner() {
         gender,
         nationality,
         hobbies,
-        avatar,
+        avatar: avatarUrl,
       }),
     });
 
@@ -65,7 +94,7 @@ function OnboardingInner() {
     }
 
     setSuccess(true);
-    await update({ onboarded: true, nickname, image: avatar });
+    await update({ onboarded: true, nickname, image: avatarUrl });
     setTimeout(() => {
       window.location.href = "/";
     }, 1200);
@@ -283,35 +312,75 @@ function OnboardingInner() {
 
           <div style={{ marginBottom: "18px" }}>
             <label style={labelStyle}>
-              Avatar (URL){" "}
+              Foto de perfil{" "}
               <span style={{ textTransform: "none", opacity: 0.7 }}>
                 (Opcional)
               </span>
             </label>
-            <div style={{ position: "relative" }}>
-              <Camera
-                size={16}
+            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+              <div
                 style={{
-                  position: "absolute",
-                  left: "14px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  color: "var(--text-faint)",
+                  width: "60px",
+                  height: "60px",
+                  borderRadius: "50%",
+                  background: "var(--surface-2)",
+                  border: "1.5px solid var(--border)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  overflow: "hidden",
+                  flexShrink: 0,
                 }}
-              />
-              <input
-                type="url"
-                value={avatar}
-                onChange={(e) => setAvatar(e.target.value)}
-                placeholder="https://..."
-                style={{ ...inputStyle, paddingLeft: "40px" }}
-                onFocus={(e) =>
-                  (e.currentTarget.style.borderColor = "var(--green)")
-                }
-                onBlur={(e) =>
-                  (e.currentTarget.style.borderColor = "var(--border)")
-                }
-              />
+              >
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Avatar preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  <User size={24} style={{ color: "var(--text-faint)" }} />
+                )}
+              </div>
+              <div style={{ flex: 1, position: "relative" }}>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      setAvatarFile(file);
+                      setAvatarPreview(URL.createObjectURL(file));
+                    }
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    opacity: 0,
+                    cursor: "pointer",
+                  }}
+                />
+                <button
+                  type="button"
+                  style={{
+                    width: "100%",
+                    height: "40px",
+                    background: "var(--surface-2)",
+                    border: "1.5px solid var(--border)",
+                    borderRadius: "var(--r-md)",
+                    fontSize: "14px",
+                    color: "var(--text)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    cursor: "pointer",
+                    transition: "var(--t)",
+                  }}
+                >
+                  <Camera size={16} />
+                  {avatarFile ? "Canviar foto" : "Pujar foto"}
+                </button>
+              </div>
             </div>
           </div>
 

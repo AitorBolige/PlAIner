@@ -121,6 +121,7 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
   );
   const [hobbies, setHobbies] = React.useState(initialData.hobbies || "");
   const [avatar, setAvatar] = React.useState(initialData.image || "");
+  const [avatarFile, setAvatarFile] = React.useState<File | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState(false);
@@ -143,6 +144,33 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
     }
 
     setLoading(true);
+
+    let avatarUrl = avatar;
+    if (avatarFile) {
+      const formData = new FormData();
+      formData.append("file", avatarFile);
+      try {
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          if (uploadData.url) {
+            avatarUrl = uploadData.url;
+          }
+        } else {
+          setError("No hem pogut pujar la foto de perfil.");
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        setError("Error de xarxa al pujar la imatge.");
+        setLoading(false);
+        return;
+      }
+    }
+
     const res = await fetch("/api/auth/onboarding", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -153,7 +181,7 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
         gender,
         nationality,
         hobbies,
-        avatar,
+        avatar: avatarUrl,
       }),
     });
     setLoading(false);
@@ -165,7 +193,7 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
     }
 
     setSuccess(true);
-    await update({ nickname, image: avatar });
+    await update({ nickname, image: avatarUrl });
     window.setTimeout(() => setSuccess(false), 3200);
   }
 
@@ -296,23 +324,31 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
           className="mb-5"
           label={
             <>
-              Avatar (URL){" "}
+              Foto de perfil{" "}
               <span className="font-medium normal-case opacity-70">
                 · Opcional
               </span>
             </>
           }
         >
-          <input
-            type="url"
-            value={avatar}
-            onChange={(e) => {
-              setAvatar(e.target.value);
-              setAvatarOk(true);
-            }}
-            placeholder="https://..."
-            className={inputCls}
-          />
+          <div className="relative h-[52px] w-full">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setAvatarFile(file);
+                  setAvatar(URL.createObjectURL(file));
+                  setAvatarOk(true);
+                }
+              }}
+              className="absolute inset-0 h-full w-full cursor-pointer opacity-0 z-10"
+            />
+            <div className={`${inputCls} absolute inset-0 flex items-center`}>
+              <span className="truncate">{avatarFile ? "Foto seleccionada" : "Pujar nova foto..."}</span>
+            </div>
+          </div>
         </Field>
 
         <div className="my-[14px] flex items-center gap-2.5">
