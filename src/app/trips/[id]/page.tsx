@@ -103,7 +103,7 @@ export default async function TripDetailPage({
         />
 
         <Link
-          href="/plainer-mvp.html?tab=trips"
+          href="/trips"
           aria-label="Tornar"
           className="absolute left-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md transition hover:bg-white/25"
         >

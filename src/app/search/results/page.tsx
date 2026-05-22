@@ -56,7 +56,7 @@ export default async function SearchResultsPage({
     return (
       <PageTransition className="mx-auto min-h-dvh max-w-[480px] bg-bg p-6">
         <Link
-          href="/plainer-mvp.html"
+          href="/plan"
           className="inline-flex items-center gap-2 text-sm text-muted"
         >
           <ArrowLeft size={16} /> Tornar
@@ -92,7 +92,7 @@ export default async function SearchResultsPage({
         }}
       >
         <Link
-          href="/plainer-mvp.html"
+          href="/plan"
           aria-label="Tornar"
           className="absolute left-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-md transition hover:bg-white/25"
         >

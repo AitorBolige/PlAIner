@@ -7,8 +7,10 @@ import { Camera, User } from "lucide-react";
 
 function OnboardingInner() {
   const searchParams = useSearchParams();
-  const { update } = useSession();
-  const userId = searchParams.get("user") ?? "";
+  const { update, data: session } = useSession();
+  // New OAuth users reach onboarding without the ?user= param — fall back to
+  // the current session id so the gate works for every sign-up path.
+  const userId = searchParams.get("user") || session?.user?.id || "";
 
   const [nickname, setNickname] = React.useState("");
   const [age, setAge] = React.useState("");
@@ -67,7 +69,7 @@ function OnboardingInner() {
     setSuccess(true);
     await update({ onboarded: true, nickname, image: avatar });
     setTimeout(() => {
-      window.location.href = "/";
+      window.location.href = "/plan";
     }, 1200);
   }
 

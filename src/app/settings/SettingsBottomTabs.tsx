@@ -58,7 +58,7 @@ export function SettingsBottomTabs({ user }: { user: any }) {
 
   return (
     <nav
-      className="absolute inset-x-0 bottom-0 z-50 [backdrop-filter:saturate(180%)_blur(20px)] [-webkit-backdrop-filter:saturate(180%)_blur(20px)] transition-[background] duration-[240ms]"
+      className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[480px] [backdrop-filter:saturate(180%)_blur(20px)] [-webkit-backdrop-filter:saturate(180%)_blur(20px)] transition-[background] duration-[240ms]"
       style={{
         background: "var(--surface)",
         borderTop: "1px solid var(--border-md)",
@@ -73,9 +73,8 @@ export function SettingsBottomTabs({ user }: { user: any }) {
               key={t.id}
               type="button"
               onClick={() => {
-                if (t.id === "search" || t.id === "trips") {
-                  window.location.href = `/plainer-mvp.html?tab=${t.id}`;
-                }
+                if (t.id === "search") window.location.href = "/plan";
+                else if (t.id === "trips") window.location.href = "/trips";
               }}
               className="flex max-w-[100px] flex-1 flex-col items-center justify-center gap-0.5 border-0 bg-transparent"
               style={{ color: "var(--text-faint)" }}

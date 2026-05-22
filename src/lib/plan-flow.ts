@@ -1,0 +1,231 @@
+import type { Offer } from "@/components/plan/PlanProvider";
+import type { Destination } from "@/lib/destinations";
+
+const ITIN_SLOT_KEYS = [
+  "morning_activity",
+  "lunch_restaurant",
+  "afternoon_activity",
+  "dinner_restaurant",
+] as const;
+
+interface ItinerarySlot {
+  estimated_cost_eur?: number;
+}
+interface ItineraryDay {
+  morning_activity?: ItinerarySlot;
+  lunch_restaurant?: ItinerarySlot;
+  afternoon_activity?: ItinerarySlot;
+  dinner_restaurant?: ItinerarySlot;
+}
+export interface Itinerary {
+  trip_title?: string;
+  days?: ItineraryDay[];
+}
+
+/** Sum of all activity/restaurant estimated costs across the itinerary. */
+export function sumItineraryActivities(itinerary: Itinerary | null): number {
+  if (!itinerary?.days) return 0;
+  let total = 0;
+  for (const day of itinerary.days) {
+    for (const key of ITIN_SLOT_KEYS) {
+      const slot = day[key];
+      if (slot && typeof slot.estimated_cost_eur === "number" && slot.estimated_cost_eur > 0) {
+        total += slot.estimated_cost_eur;
+      }
+    }
+  }
+  return Math.round(total);
+}
+
+export interface CostBreakdown {
+  flightCost: number;
+  hotelCost: number;
+  activitiesCost: number;
+  grandTotal: number;
+}
+
+export function computeCostBreakdown(
+  flight: Offer | null,
+  hotel: Offer | null,
+  itinerary: Itinerary | null,
+  people: number,
+): CostBreakdown {
+  const flightCost = flight ? Math.round((flight.price || 0) * (people || 1)) : 0;
+  const hotelCost = hotel ? Math.round(hotel.price || 0) : 0;
+  const activitiesCost = sumItineraryActivities(itinerary);
+  return {
+    flightCost,
+    hotelCost,
+    activitiesCost,
+    grandTotal: flightCost + hotelCost + activitiesCost,
+  };
+}
+
+/** Budget left for activities once flight + hotel are paid (budget is per person). */
+export function remainingActivitiesBudget(
+  budgetPerPerson: number,
+  people: number,
+  flight: Offer | null,
+  hotel: Offer | null,
+): number {
+  const totalBudget = Math.round((budgetPerPerson || 0) * (people || 1));
+  const flightCost = flight ? Math.round((flight.price || 0) * (people || 1)) : 0;
+  const hotelCost = hotel ? Math.round(hotel.price || 0) : 0;
+  return Math.max(0, totalBudget - flightCost - hotelCost);
+}
+
+export interface OfferQueryParams {
+  destination: Destination;
+  startDate: Date;
+  endDate: Date;
+  people: number;
+  budget: number; // per person
+  origin: string;
+  currency?: string;
+}
+
+/**
+ * Load offers: try the cached GET, and fall back to a refresh POST when the
+ * cache is empty. Mirrors the legacy loadLiveOffers flow.
+ */
+export async function fetchOffers(
+  params: OfferQueryParams,
+): Promise<{ offers: Offer[]; error: string | null }> {
+  const city = params.destination.city;
+  const countryCode = params.destination.countryCode || undefined;
+  const currency = (params.currency || "EUR").toUpperCase().slice(0, 3);
+  const startDate = params.startDate.toISOString().slice(0, 10);
+  const endDate = params.endDate.toISOString().slice(0, 10);
+
+  const refreshQuery = {
+    destination: city,
+    city,
+    countryCode,
+    startDate,
+    endDate,
+    people: params.people || 2,
+    budgetMax: params.budget || 1200,
+    maxPrice: params.budget || 1200,
+    currency,
+    origin: params.origin || undefined,
+  };
+
+  const url = new URL("/api/travel-offers", window.location.origin);
+  url.searchParams.set("destination", city);
+  url.searchParams.set("city", city);
+  if (countryCode) url.searchParams.set("countryCode", countryCode);
+  url.searchParams.set("startDate", startDate);
+  url.searchParams.set("endDate", endDate);
+  url.searchParams.set("people", String(params.people || 2));
+  if (params.origin) url.searchParams.set("origin", params.origin);
+  url.searchParams.set("budgetMax", String(params.budget || 1200));
+  url.searchParams.set("maxPrice", String(params.budget || 1200));
+  url.searchParams.set("currency", currency);
+
+  async function refresh(): Promise<{ offers: Offer[]; error: string | null }> {
+    const res = await fetch("/api/travel-offers/refresh", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ query: refreshQuery }),
+    });
+    const payload = await res.json().catch(() => null);
+    if (res.ok && payload?.cache?.offers) {
+      return { offers: payload.cache.offers as Offer[], error: null };
+    }
+    return {
+      offers: [],
+      error: payload?.error ?? "No s'han pogut carregar les ofertes.",
+    };
+  }
+
+  try {
+    const res = await fetch(url.toString());
+    const payload = await res.json().catch(() => null);
+    if (res.ok && Array.isArray(payload?.cache?.offers) && payload.cache.offers.length > 0) {
+      return { offers: payload.cache.offers as Offer[], error: null };
+    }
+    return await refresh();
+  } catch {
+    try {
+      return await refresh();
+    } catch {
+      return { offers: [], error: "No s'ha pogut connectar amb el servei d'ofertes." };
+    }
+  }
+}
+
+export interface GenerateItineraryParams {
+  destination: string;
+  startDate: Date;
+  endDate: Date;
+  people: number;
+  remainingBudget: number;
+  preferences: string;
+}
+
+export async function generateItinerary(
+  p: GenerateItineraryParams,
+): Promise<{ itinerary: Itinerary | null; error: string | null }> {
+  try {
+    const res = await fetch("/api/itinerary", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        destination: p.destination,
+        startDate: p.startDate.toISOString().slice(0, 10),
+        endDate: p.endDate.toISOString().slice(0, 10),
+        people: p.people,
+        remainingBudget: p.remainingBudget,
+        preferences: p.preferences,
+      }),
+    });
+    const data = await res.json().catch(() => null);
+    if (res.ok && data?.days) return { itinerary: data as Itinerary, error: null };
+    return { itinerary: null, error: data?.error ?? "No s'ha pogut generar l'itinerari." };
+  } catch {
+    return { itinerary: null, error: "Error de connexió en generar l'itinerari." };
+  }
+}
+
+export interface SaveTripParams {
+  destination: Destination;
+  startDate: Date;
+  endDate: Date;
+  days: number;
+  people: number;
+  costs: CostBreakdown;
+  itinerary: Itinerary | null;
+}
+
+export async function saveTrip(
+  p: SaveTripParams,
+): Promise<{ id: string | null; error: string | null }> {
+  const body = {
+    destination: p.destination.city,
+    country: p.destination.country || undefined,
+    imageUrl: p.destination.cardImage || undefined,
+    startDate: p.startDate.toISOString(),
+    endDate: p.endDate.toISOString(),
+    people: p.people,
+    totalCost: p.costs.grandTotal,
+    flightCost: p.costs.flightCost,
+    hotelCost: p.costs.hotelCost,
+    activitiesCost: p.costs.activitiesCost,
+    dailyCost: Math.round(p.costs.grandTotal / Math.max(1, p.days)),
+    status: "confirmed",
+    isSurprise: false,
+    itinerary: p.itinerary || undefined,
+  };
+  try {
+    const res = await fetch("/api/trips", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => null);
+    if (res.ok && data?.ok && data?.trip?.id) return { id: data.trip.id, error: null };
+    return { id: null, error: data?.error ?? "No s'ha pogut desar el viatge." };
+  } catch {
+    return { id: null, error: "Error de connexió en desar el viatge." };
+  }
+}

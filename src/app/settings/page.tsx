@@ -40,9 +40,9 @@ export default async function SettingsPage() {
 
   return (
     <PhoneWrapper>
-      <PageTransition className="h-full">
+      <PageTransition>
         <div
-          className="h-full overflow-y-auto pb-14 transition-[background] duration-[240ms] [-webkit-overflow-scrolling:touch]"
+          className="min-h-dvh pb-20 transition-[background] duration-[240ms]"
           style={{ background: "var(--bg)", transitionTimingFunction: "var(--ease)" }}
         >
         <header

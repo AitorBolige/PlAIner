@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-// L'app activa és plainer-mvp.html (flux amb mapes, RouteModal i transport).
+// El planificador actiu és la ruta RSC /plan.
 export default function SearchPage() {
-  redirect("/plainer-mvp.html");
+  redirect("/plan");
 }

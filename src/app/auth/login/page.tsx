@@ -97,7 +97,7 @@ function LoginPageInner() {
   const [passFocus, setPassFocus] = React.useState(false);
 
   React.useEffect(() => {
-    if (status === "authenticated") router.replace("/plainer-mvp.html");
+    if (status === "authenticated") router.replace("/plan");
   }, [status, router]);
 
   async function onSubmit(e: React.FormEvent) {
@@ -108,14 +108,14 @@ function LoginPageInner() {
       email,
       password,
       redirect: false,
-      callbackUrl: "/plainer-mvp.html",
+      callbackUrl: "/plan",
     });
     setLoading(false);
     if (!res?.ok) {
       setError("Email o contrasenya incorrectes.");
       return;
     }
-    window.location.href = res.url ?? "/plainer-mvp.html";
+    window.location.href = res.url ?? "/plan";
   }
 
   return (
@@ -423,7 +423,7 @@ function LoginPageInner() {
             <button
               type="button"
               onClick={() =>
-                signIn("google", { callbackUrl: "/plainer-mvp.html" })
+                signIn("google", { callbackUrl: "/plan" })
               }
               className="pl-tap"
               style={{
@@ -447,7 +447,7 @@ function LoginPageInner() {
             <button
               type="button"
               onClick={() =>
-                signIn("facebook", { callbackUrl: "/plainer-mvp.html" })
+                signIn("facebook", { callbackUrl: "/plan" })
               }
               className="pl-tap"
               style={{

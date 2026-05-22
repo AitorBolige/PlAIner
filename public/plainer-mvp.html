@@ -7914,7 +7914,7 @@ function PLAIerApp(_ref62) {
     setSlideDir(to >= from ? 'right' : 'left');
     setBottomTab(id);
     if (id === 'search') setRoute('search');
-    else if (id === 'trips') setRoute('trips');
+    else if (id === 'trips') { window.location.href = '/trips'; return; }
   }
   const _React$useState77 = React.useState(null),
     _React$useState78 = _slicedToArray(_React$useState77, 2),
@@ -8465,6 +8465,12 @@ function Phone(_ref64) {
   }, children);
 }
 function App() {
+  // El llistat de viatges ara és una ruta RSC real (/trips). Redirigeix-hi
+  // qualsevol enllaç antic amb ?tab=trips abans de muntar l'app HTML.
+  if (typeof window !== 'undefined') {
+    const _sp = new URLSearchParams(window.location.search);
+    if (_sp.get('tab') === 'trips') { window.location.replace('/trips'); return null; }
+  }
   const isMobile = window.innerWidth <= 500;
   const [sessionChecked, setSessionChecked] = React.useState(false);
   const [initialUser, setInitialUser] = React.useState(null);

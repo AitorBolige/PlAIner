@@ -29,7 +29,7 @@ export function Sheet({
         <Drawer.Overlay className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" />
         <Drawer.Content
           className={cn(
-            "fixed inset-x-0 bottom-0 z-50 mt-24 flex h-auto max-h-[92vh] flex-col rounded-t-[var(--r-xl)]",
+            "fixed inset-x-0 bottom-0 z-50 mx-auto mt-24 flex h-auto max-h-[92vh] w-full max-w-[480px] flex-col rounded-t-[var(--r-xl)]",
             "border border-b-0 border-[color:var(--border-md)] bg-[color:var(--surface)] outline-none",
           )}
         >

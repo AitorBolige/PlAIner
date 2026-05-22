@@ -44,7 +44,7 @@ export const DESTINATIONS: Destination[] = [
     heroImage:
       "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1200&q=85&fit=crop&crop=center",
     cardImage:
-      "https://images.unsplash.com/photo-1515542622106-078bda31a6b6?w=600&q=80&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1531572753322-ad063cecc140?w=600&q=80&fit=crop&crop=center",
     emoji: "🇮🇹",
   },
   {
@@ -76,7 +76,7 @@ export const DESTINATIONS: Destination[] = [
     heroImage:
       "https://images.unsplash.com/photo-1539020140153-e479b8c22e70?w=1200&q=85&fit=crop&crop=center",
     cardImage:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=600&q=80&fit=crop&crop=center",
     emoji: "🇲🇦",
   },
   {
@@ -92,7 +92,7 @@ export const DESTINATIONS: Destination[] = [
     heroImage:
       "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=1200&q=85&fit=crop&crop=center",
     cardImage:
-      "https://images.unsplash.com/photo-1431274172761-fcdab704a519?w=600&q=80&fit=crop&crop=center",
+      "https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=600&q=80&fit=crop&crop=center",
     emoji: "🇫🇷",
   },
   {
