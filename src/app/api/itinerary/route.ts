@@ -68,6 +68,35 @@ function serializeGeminiError(err: unknown): Record<string, unknown> {
   return out;
 }
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+function isOverloaded(err: unknown): boolean {
+  const status = (err as { status?: number })?.status;
+  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  return (
+    status === 503 ||
+    msg.includes("503") ||
+    msg.includes("overload") ||
+    msg.includes("high demand") ||
+    msg.includes("unavailable")
+  );
+}
+
+/** Retry transient Gemini overload (503) with exponential backoff. */
+async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
+  let lastErr: unknown;
+  for (let i = 0; i < attempts; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      if (!isOverloaded(err) || i === attempts - 1) throw err;
+      await sleep(500 * 2 ** i);
+    }
+  }
+  throw lastErr;
+}
+
 function parseIsoDate(value: string): Date | null {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
   const d = new Date(`${value}T12:00:00.000Z`);
@@ -246,7 +275,7 @@ export async function POST(req: NextRequest) {
     });
 
     const startedAt = Date.now();
-    const result = await model.generateContent(prompt);
+    const result = await withRetry(() => model.generateContent(prompt));
     const elapsedMs = Date.now() - startedAt;
 
     const text = result.response.text();

@@ -81,6 +81,21 @@
   .pl-float-3 { animation: pl-float 14s ease-in-out infinite; }
   @keyframes pl-map-pulse { 0% { transform: scale(0.6); opacity: 0.6; } 70% { opacity: 0; } 100% { transform: scale(2.4); opacity: 0; } }
   .pl-map-pulse-ring { animation: pl-map-pulse 2.4s var(--ease) infinite; }
+  /* Voice mic button */
+  @keyframes pl-mic-sheen { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  @keyframes pl-mic-ring { 0% { transform: scale(0.85); opacity: 0.5; } 100% { transform: scale(2.3); opacity: 0; } }
+  @keyframes pl-mic-breathe { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  @keyframes pl-pop { 0% { transform: scale(0.6); opacity: 0; } 60% { transform: scale(1.12); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes pl-flash { 0% { box-shadow: 0 0 0 0 rgba(13,158,122,0); } 28% { box-shadow: 0 0 0 4px rgba(13,158,122,0.40); } 100% { box-shadow: 0 0 0 0 rgba(13,158,122,0); } }
+  .pl-voice-btn { position: relative; overflow: hidden; transition: transform .22s var(--ease), box-shadow .22s var(--ease); }
+  .pl-voice-btn:hover { transform: translateY(-1px); }
+  .pl-voice-btn:active { transform: translateY(0) scale(.99); }
+  .pl-voice-sheen { background-image: linear-gradient(110deg, transparent 30%, rgba(255,255,255,.45) 50%, transparent 70%); background-size: 220% 100%; animation: pl-mic-sheen 3.4s linear infinite; }
+  .pl-mic-ring { animation: pl-mic-ring 1.8s var(--ease) infinite; }
+  .pl-mic-breathe { animation: pl-mic-breathe 1.6s ease-in-out infinite; }
+  .pl-pop { animation: pl-pop .4s var(--ease); }
+  .pl-flash { animation: pl-flash 1.3s ease-out; }
+  @media (prefers-reduced-motion: reduce) { .pl-voice-sheen,.pl-mic-ring,.pl-mic-breathe,.pl-pop,.pl-flash { animation: none !important; } }
   .pl-mapbox-wrap .leaflet-control-attribution { display: none !important; }
   .pl-mapbox-wrap .leaflet-container { background: #EDEAE4; font-family: var(--font-body); outline: none; }
   .pl-mapbox-wrap .leaflet-pane { z-index: 1; }
@@ -4360,6 +4375,167 @@ window.LoginScreen = LoginScreen;
 // === screen-search.jsx ===
 // PLAIner — Pantalla 2: Buscar Viaje (search/configurator)
 
+// --- Voice mic: records audio in-browser and sends it to Gemini (free, and
+// avoids the speech service some networks block) to fill the Home form. ------
+function VoiceMicButton(_ref_voice) {
+  const onPlan = _ref_voice.onPlan;
+  const recorderRef = React.useRef(null);
+  const streamRef = React.useRef(null);
+  const chunksRef = React.useRef([]);
+  const mimeRef = React.useRef('');
+  const timerRef = React.useRef(null);
+  const _vs = React.useState('idle'),
+    phase = _slicedToArray(_vs, 2)[0],
+    setPhase = _slicedToArray(_vs, 2)[1];
+  const _ve = React.useState(''),
+    err = _slicedToArray(_ve, 2)[0],
+    setErr = _slicedToArray(_ve, 2)[1];
+  const _vt = React.useState(0),
+    secs = _slicedToArray(_vt, 2)[0],
+    setSecs = _slicedToArray(_vt, 2)[1];
+
+  React.useEffect(() => () => {
+    try { if (recorderRef.current && recorderRef.current.state === 'recording') recorderRef.current.stop(); } catch (e) {}
+    if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+    if (timerRef.current) clearInterval(timerRef.current);
+  }, []);
+
+  function pickMime() {
+    if (typeof MediaRecorder === 'undefined') return '';
+    const c = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+    for (let i = 0; i < c.length; i++) { if (MediaRecorder.isTypeSupported(c[i])) return c[i]; }
+    return '';
+  }
+  function blobToB64(blob) {
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onloadend = () => { const s = String(r.result); res(s.slice(s.indexOf(',') + 1)); };
+      r.onerror = rej;
+      r.readAsDataURL(blob);
+    });
+  }
+  function release() {
+    if (streamRef.current) streamRef.current.getTracks().forEach(t => t.stop());
+    streamRef.current = null;
+    if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
+  }
+
+  async function send(blob) {
+    try {
+      const audio = await blobToB64(blob);
+      let lang = 'ca';
+      try { lang = localStorage.getItem('pl-lang') || 'ca'; } catch (e) {}
+      const res = await fetch('/api/voice-plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audio, mimeType: mimeRef.current || 'audio/webm', lang })
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || !data.plan) {
+        setErr((data && data.error) ? data.error : 'No s\'ha pogut interpretar.');
+        setPhase('idle');
+        return;
+      }
+      setPhase('done');
+      onPlan && onPlan(data.plan);
+      setTimeout(() => setPhase('idle'), 1400);
+    } catch (e) {
+      setErr('Error de connexió.');
+      setPhase('idle');
+    }
+  }
+
+  async function start() {
+    if (phase === 'proc' || phase === 'done') return;
+    setErr('');
+    let stream;
+    try { stream = await navigator.mediaDevices.getUserMedia({ audio: true }); }
+    catch (e) { setErr('Permet l\'accés al micròfon per parlar.'); return; }
+    streamRef.current = stream;
+    mimeRef.current = pickMime();
+    chunksRef.current = [];
+    let recorder;
+    try { recorder = new MediaRecorder(stream, mimeRef.current ? { mimeType: mimeRef.current } : undefined); }
+    catch (e) { release(); setErr('No s\'ha pogut gravar.'); return; }
+    recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunksRef.current.push(e.data); };
+    recorder.onstop = () => {
+      release();
+      const blob = new Blob(chunksRef.current, { type: mimeRef.current || 'audio/webm' });
+      if (blob.size < 800) { setPhase('idle'); setErr('No t\'he sentit. Parla un parell de segons.'); return; }
+      send(blob);
+    };
+    recorderRef.current = recorder;
+    setSecs(0);
+    setPhase('rec');
+    recorder.start();
+    timerRef.current = setInterval(() => setSecs(s => s + 1), 1000);
+  }
+  function stop() {
+    if (recorderRef.current && recorderRef.current.state === 'recording') {
+      setPhase('proc');
+      recorderRef.current.stop();
+    }
+  }
+
+  const isRec = phase === 'rec';
+  const isProc = phase === 'proc';
+  const isDone = phase === 'done';
+  const label = isRec ? ('Escoltant…  ' + String(Math.floor(secs / 60)).padStart(1, '0') + ':' + String(secs % 60).padStart(2, '0'))
+    : isProc ? 'Pensant el teu pla…'
+    : isDone ? 'Fet!  Mira el formulari'
+    : 'Parla i la IA ho omple per tu';
+  const sub = isRec ? 'Toca per acabar' : isProc ? '' : isDone ? '' : 'Ex: «Roma 4 dies al juny, 800 €»';
+
+  return React.createElement('div', { style: { margin: '0 16px 14px' } },
+    React.createElement('button', {
+      type: 'button',
+      className: 'pl-voice-btn',
+      onClick: isRec ? stop : (isProc || isDone ? null : start),
+      style: {
+        width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+        padding: '14px 18px', borderRadius: 18, border: 'none', cursor: (isProc || isDone) ? 'default' : 'pointer',
+        textAlign: 'left',
+        background: isRec
+          ? 'linear-gradient(135deg, #0D9E7A 0%, #0a7d61 100%)'
+          : 'linear-gradient(135deg, #0D9E7A 0%, #1a6b9a 100%)',
+        color: '#fff',
+        boxShadow: isRec ? '0 14px 38px rgba(13,158,122,0.40)' : '0 12px 30px rgba(13,158,122,0.28)'
+      }
+    },
+      // animated sheen overlay (idle only)
+      (!isRec && !isProc && !isDone) ? React.createElement('span', {
+        className: 'pl-voice-sheen', 'aria-hidden': true,
+        style: { position: 'absolute', inset: 0, pointerEvents: 'none' }
+      }) : null,
+      // icon disc with pulse rings while recording
+      React.createElement('span', {
+        className: isRec ? 'pl-mic-breathe' : (isDone ? 'pl-pop' : ''),
+        style: {
+          position: 'relative', flex: '0 0 auto', width: 42, height: 42, borderRadius: 9999,
+          background: 'rgba(255,255,255,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center'
+        }
+      },
+        isRec ? React.createElement('span', { className: 'pl-mic-ring', 'aria-hidden': true, style: { position: 'absolute', inset: 0, borderRadius: 9999, border: '2px solid rgba(255,255,255,0.7)' } }) : null,
+        isProc
+          ? React.createElement('span', { className: 'pl-spin', style: { width: 20, height: 20, borderRadius: 9999, border: '2.5px solid rgba(255,255,255,0.4)', borderTopColor: '#fff' } })
+          : isDone
+            ? React.createElement('svg', { width: 22, height: 22, viewBox: '0 0 24 24', fill: 'none', stroke: '#fff', strokeWidth: 2.6, strokeLinecap: 'round', strokeLinejoin: 'round' }, React.createElement('polyline', { points: '20 6 9 17 4 12' }))
+            : React.createElement('svg', { width: 21, height: 21, viewBox: '0 0 24 24', fill: 'none', stroke: '#fff', strokeWidth: 2.2, strokeLinecap: 'round', strokeLinejoin: 'round' },
+                React.createElement('path', { d: 'M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z' }),
+                React.createElement('path', { d: 'M19 10v2a7 7 0 0 1-14 0v-2' }),
+                React.createElement('line', { x1: 12, y1: 19, x2: 12, y2: 23 })
+              )
+      ),
+      React.createElement('span', { style: { position: 'relative', flex: 1, minWidth: 0 } },
+        React.createElement('span', { style: { display: 'block', fontFamily: 'var(--font-display)', fontWeight: 800, fontSize: 15, letterSpacing: '-0.01em' } }, label),
+        sub ? React.createElement('span', { style: { display: 'block', fontSize: 12, opacity: 0.85, marginTop: 1 } }, sub) : null
+      ),
+      isRec ? React.createElement('span', { 'aria-hidden': true, style: { flex: '0 0 auto', width: 10, height: 10, borderRadius: 9999, background: '#fff', boxShadow: '0 0 0 4px rgba(255,255,255,0.25)' } }) : null
+    ),
+    err ? React.createElement('div', { style: { marginTop: 8, fontSize: 12, color: '#DC2626', paddingLeft: 4 } }, err) : null
+  );
+}
+
 function SearchScreen(_ref43) {
   let user = _ref43.user,
     onGenerate = _ref43.onGenerate,
@@ -4397,6 +4573,42 @@ function SearchScreen(_ref43) {
     _React$useState50 = _slicedToArray(_React$useState49, 2),
     openSheet = _React$useState50[0],
     setOpenSheet = _React$useState50[1];
+  const _vsFlash = React.useState(false),
+    flash = _slicedToArray(_vsFlash, 2)[0],
+    setFlash = _slicedToArray(_vsFlash, 2)[1];
+
+  function handleVoicePlan(plan) {
+    if (!plan) return;
+    if (plan.destination) {
+      const match = DESTINATIONS.find(d => d.city && d.city.toLowerCase() === String(plan.destination).toLowerCase());
+      setDestination(match || { id: 'voice', city: plan.destination, country: plan.country || '', img: null });
+    }
+    if (plan.startDate && plan.endDate) {
+      const s = new Date(plan.startDate + 'T12:00:00');
+      const e = new Date(plan.endDate + 'T12:00:00');
+      if (!isNaN(s.getTime()) && !isNaN(e.getTime()) && e >= s) {
+        const days = Math.max(1, Math.round((e.getTime() - s.getTime()) / 86400000) + 1);
+        setDates({ start: s, end: e, days });
+      }
+    }
+    const ppl = (plan.people && plan.people > 0) ? Math.round(plan.people) : people;
+    if (plan.people && plan.people > 0) setPeople(ppl);
+    if (plan.budget && plan.budget > 0) {
+      // The form's budget is PER PERSON; convert if the user gave a total.
+      let perPerson = plan.budgetIsTotal && ppl > 0 ? plan.budget / ppl : plan.budget;
+      perPerson = Math.round(perPerson / 50) * 50;          // slider step
+      perPerson = Math.max(300, Math.min(6000, perPerson)); // slider range
+      setBudget(perPerson);
+    }
+    if (plan.transport) {
+      const tr = TRANSPORT.find(t => t.id === plan.transport);
+      if (tr) setTransport(tr);
+    }
+    if (plan.preferences) setTravelPreferences(String(plan.preferences));
+    setFlash(true);
+    setTimeout(() => setFlash(false), 1400);
+  }
+
   const ready = destination && dates;
   const TRANSPORT_ICONS = {
     plane: IcPlane,
@@ -4506,7 +4718,10 @@ function SearchScreen(_ref43) {
         "Tancar sessió"
       )
     ))
-  )), /*#__PURE__*/React.createElement("div", {
+  )), /*#__PURE__*/React.createElement(VoiceMicButton, {
+    onPlan: handleVoicePlan
+  }), /*#__PURE__*/React.createElement("div", {
+    className: flash ? 'pl-flash' : undefined,
     style: {
           margin: '0 16px',
       background: 'var(--surface)',
