@@ -93,7 +93,9 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           image: user.image,
           nickname: user.nickname,
-          onboarded: !!user.ageGroup,
+          // Logging in via credentials means the account already exists in the
+          // DB, so onboarding (which only runs for brand-new sign-ups) is done.
+          onboarded: true,
         };
       },
     }),
@@ -133,18 +135,20 @@ export const authOptions: NextAuthOptions = {
 
         let userId: string;
         if (!existing) {
+          // Brand-new OAuth account → must go through onboarding once.
           userId = crypto.randomUUID();
           await prisma.user.create({
             data: { id: userId, email, name, image },
           });
           token.onboarded = false;
         } else {
+          // Account already exists in the DB → onboarding does not re-trigger.
           userId = existing.id;
           await prisma.user.update({
             where: { id: userId },
             data: { name, image },
           });
-          token.onboarded = !!existing.ageGroup;
+          token.onboarded = true;
           token.nickname = existing.nickname;
           if (existing.image) token.image = existing.image;
         }

@@ -78,7 +78,7 @@ const TABS: {
 
 /**
  * Bottom tab bar for the migrated RSC screens. Mirrors the look of the legacy
- * BottomTabs in plainer-mvp.html so navigation feels seamless across both.
+ * legacy BottomTabs so navigation feels seamless across the migrated routes.
  */
 export function BottomTabs({ active }: { active: TabId }) {
   return (
