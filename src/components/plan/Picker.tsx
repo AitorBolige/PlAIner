@@ -3,7 +3,21 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { ArrowLeft, Plane, Hotel, Star, Check, Heart, Loader2, Sparkles } from "lucide-react";
+import {
+  ArrowLeft,
+  Plane,
+  Hotel,
+  Star,
+  Check,
+  Heart,
+  Loader2,
+  Sparkles,
+  ExternalLink,
+  Sun,
+  Utensils,
+  MapPin,
+  Moon,
+} from "lucide-react";
 
 import { usePlan, type Offer } from "@/components/plan/PlanProvider";
 import { Card } from "@/components/ui/Card";
@@ -15,7 +29,109 @@ import {
   remainingActivitiesBudget,
   saveTrip,
   type Itinerary,
+  type ItineraryDay,
+  type ItinerarySlot,
 } from "@/lib/plan-flow";
+
+function money2(value: number, currency = "EUR") {
+  return new Intl.NumberFormat("es-ES", {
+    style: "currency",
+    currency: currency || "EUR",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function SlotRow({
+  icon,
+  label,
+  slot,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  slot?: ItinerarySlot;
+}) {
+  if (!slot?.name) return null;
+  const sub = slot.description ?? slot.cuisine;
+  return (
+    <div className="flex items-start gap-2.5">
+      <span className="mt-0.5 flex-none text-[color:var(--green)]">{icon}</span>
+      <div className="min-w-0 flex-1">
+        <div className="text-[10px] uppercase tracking-[0.06em] text-faint">{label}</div>
+        <div className="truncate text-sm font-medium text-text">{slot.name}</div>
+        {sub ? <div className="line-clamp-1 text-xs text-muted">{sub}</div> : null}
+      </div>
+      {slot.estimated_cost_eur ? (
+        <span className="tnum flex-none text-xs font-semibold text-text">
+          {money2(slot.estimated_cost_eur)}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+function DaySection({ day, index }: { day: ItineraryDay; index: number }) {
+  return (
+    <div className="rounded-[var(--r-md)] border border-border bg-[color:var(--surface-2)] p-3">
+      <div className="mb-2.5 flex items-center gap-2">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--green)] text-[11px] font-bold text-white">
+          {day.day_number ?? index + 1}
+        </span>
+        <span className="display text-sm font-bold text-text">
+          {day.theme ?? `Dia ${index + 1}`}
+        </span>
+      </div>
+      <div className="grid gap-2.5">
+        <SlotRow icon={<Sun size={14} />} label="Matí" slot={day.morning_activity} />
+        <SlotRow icon={<Utensils size={14} />} label="Dinar" slot={day.lunch_restaurant} />
+        <SlotRow icon={<MapPin size={14} />} label="Tarda" slot={day.afternoon_activity} />
+        <SlotRow icon={<Moon size={14} />} label="Sopar" slot={day.dinner_restaurant} />
+      </div>
+    </div>
+  );
+}
+
+function BookingCard({
+  offer,
+  label,
+}: {
+  offer: Offer;
+  label: string;
+}) {
+  const isHotel = offer.type === "HOTEL";
+  const Icon = isHotel ? Hotel : Plane;
+  return (
+    <Card className="flex items-center gap-3 p-3.5">
+      <span
+        className="flex h-10 w-10 flex-none items-center justify-center rounded-full"
+        style={{
+          background: isHotel ? "var(--green-subtle)" : "var(--coral-subtle)",
+          color: isHotel ? "var(--green)" : "var(--coral)",
+        }}
+      >
+        <Icon size={18} />
+      </span>
+      <div className="min-w-0 flex-1">
+        <div className="text-[10px] uppercase tracking-[0.06em] text-faint">{label}</div>
+        <div className="truncate text-sm font-semibold text-text">{offer.title}</div>
+        <div className="text-xs text-muted">
+          {offer.provider ? `${offer.provider} · ` : ""}
+          {money2(offer.price, offer.currency)}
+          {isHotel ? " /nit" : ""}
+        </div>
+      </div>
+      {offer.bookingUrl ? (
+        <a
+          href={offer.bookingUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex flex-none items-center gap-1 rounded-full bg-[color:var(--green)] px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
+        >
+          Reservar <ExternalLink size={12} />
+        </a>
+      ) : null}
+    </Card>
+  );
+}
 
 type Step = "flights" | "hotels" | "summary";
 
@@ -43,6 +159,10 @@ function SelectableOffer({
       type="button"
       onClick={onSelect}
       className="w-full text-left"
+      variants={{
+        hidden: { opacity: 0, y: 14 },
+        show: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.16, 1, 0.3, 1] } },
+      }}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.99 }}
       transition={{ type: "spring", stiffness: 400, damping: 28 }}
@@ -168,6 +288,12 @@ export function Picker() {
     itinerary as Itinerary | null,
     people,
   );
+  const totalBudget = Math.round(budget * people);
+  const usagePct =
+    totalBudget > 0
+      ? Math.min(100, Math.round((costs.grandTotal / totalBudget) * 100))
+      : 0;
+  const overBudget = costs.grandTotal > totalBudget;
 
   async function onSave() {
     if (!destination || !dates) return;
@@ -232,7 +358,12 @@ export function Picker() {
         <AnimatePresence mode="wait">
           <motion.div key={step} {...stepAnim}>
         {step === "flights" ? (
-          <div className="grid gap-3">
+          <motion.div
+            className="grid gap-3"
+            initial="hidden"
+            animate="show"
+            variants={{ show: { transition: { staggerChildren: 0.05 } } }}
+          >
             {flights.length === 0 && !offersError ? (
               <Card className="p-6 text-center text-sm text-muted">Cap transport disponible.</Card>
             ) : null}
@@ -247,11 +378,16 @@ export function Picker() {
                 }}
               />
             ))}
-          </div>
+          </motion.div>
         ) : null}
 
         {step === "hotels" ? (
-          <div className="grid gap-3">
+          <motion.div
+            className="grid gap-3"
+            initial="hidden"
+            animate="show"
+            variants={{ show: { transition: { staggerChildren: 0.05 } } }}
+          >
             {hotels.length === 0 && !offersError ? (
               <Card className="p-6 text-center text-sm text-muted">Cap allotjament disponible.</Card>
             ) : null}
@@ -266,7 +402,7 @@ export function Picker() {
                 }}
               />
             ))}
-          </div>
+          </motion.div>
         ) : null}
 
         {step === "summary" ? (
@@ -277,44 +413,81 @@ export function Picker() {
               <div className="mt-3 grid gap-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted">Transport ({people} pers.)</span>
-                  <span className="font-semibold text-text">{money(costs.flightCost)}</span>
+                  <span className="tnum font-semibold text-text">{money(costs.flightCost)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted">Allotjament</span>
-                  <span className="font-semibold text-text">{money(costs.hotelCost)}</span>
+                  <span className="tnum font-semibold text-text">{money(costs.hotelCost)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted">Activitats i gastronomia</span>
-                  <span className="font-semibold text-text">
+                  <span className="tnum font-semibold text-text">
                     {itineraryLoading ? "…" : money(costs.activitiesCost)}
                   </span>
                 </div>
                 <div className="mt-1 flex justify-between border-t border-border pt-2">
                   <span className="display font-extrabold text-text">Total del viatge</span>
-                  <span className="display text-lg font-extrabold text-[color:var(--green-deep)]">
+                  <span className="display tnum text-lg font-extrabold text-[color:var(--green-deep)]">
                     {itineraryLoading ? "…" : money(costs.grandTotal)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Budget usage bar */}
+              <div className="mt-3">
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-[color:var(--surface-2)]">
+                  <motion.div
+                    className="h-full rounded-full"
+                    style={{ background: overBudget ? "#DC2626" : "var(--green)" }}
+                    initial={reduce ? false : { width: 0 }}
+                    animate={{ width: `${usagePct}%` }}
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                  />
+                </div>
+                <div className="mt-1.5 flex justify-between text-[11px]">
+                  <span className="text-faint">
+                    Pressupost {money(totalBudget)}
+                  </span>
+                  <span
+                    className="tnum font-semibold"
+                    style={{ color: overBudget ? "#DC2626" : "var(--text-muted)" }}
+                  >
+                    {overBudget ? "Excedit · " : ""}
+                    {usagePct}%
                   </span>
                 </div>
               </div>
             </Card>
 
-            {/* Itinerary preview */}
+            {/* Selected flight & hotel — reservable */}
+            {selectedFlight ? (
+              <BookingCard offer={selectedFlight} label="EL TEU TRANSPORT" />
+            ) : null}
+            {selectedHotel ? (
+              <BookingCard offer={selectedHotel} label="EL TEU ALLOTJAMENT" />
+            ) : null}
+
+            {/* Day-by-day itinerary */}
             <Card className="p-4">
               <div className="flex items-center gap-2">
                 <Sparkles size={16} className="text-[color:var(--green)]" />
-                <span className="display text-base font-bold text-text">Itinerari</span>
+                <span className="display text-base font-bold text-text">Itinerari dia a dia</span>
               </div>
               {itineraryLoading ? (
                 <div className="mt-3 flex items-center gap-2 text-sm text-muted">
                   <Loader2 size={16} className="animate-spin" /> Preparant el teu itinerari…
                 </div>
               ) : itinerary && (itinerary as Itinerary).days?.length ? (
-                <p className="mt-2 text-sm text-muted">
-                  {(itinerary as Itinerary).trip_title
-                    ? `${(itinerary as Itinerary).trip_title} · `
-                    : ""}
-                  {(itinerary as Itinerary).days!.length} dies planificats.
-                </p>
+                <div className="mt-3 grid gap-3">
+                  {(itinerary as Itinerary).trip_title ? (
+                    <p className="text-sm font-medium text-muted">
+                      {(itinerary as Itinerary).trip_title}
+                    </p>
+                  ) : null}
+                  {(itinerary as Itinerary).days!.map((d, i) => (
+                    <DaySection key={i} day={d} index={i} />
+                  ))}
+                </div>
               ) : (
                 <p className="mt-2 text-sm text-muted">No s&apos;ha pogut generar l&apos;itinerari.</p>
               )}
@@ -341,7 +514,11 @@ export function Picker() {
 
       {/* Save bar (summary only) */}
       {step === "summary" ? (
-        <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[480px] border-t border-border bg-surface p-4">
+        <motion.div
+          initial={reduce ? false : { y: 90 }}
+          animate={{ y: 0 }}
+          transition={{ type: "spring", stiffness: 380, damping: 32 }}
+          className="safe-bottom fixed inset-x-0 bottom-0 mx-auto w-full max-w-[480px] border-t border-border bg-surface p-4 shadow-[var(--shadow-lg)]">
           <Button
             type="button"
             className="w-full normal-case tracking-normal"
@@ -351,7 +528,7 @@ export function Picker() {
           >
             {saving ? "Desant…" : "Desar viatge"}
           </Button>
-        </div>
+        </motion.div>
       ) : null}
     </div>
   );

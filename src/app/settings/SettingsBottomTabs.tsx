@@ -65,7 +65,7 @@ export function SettingsBottomTabs({ user }: { user: any }) {
         transitionTimingFunction: "var(--ease)",
       }}
     >
-      <div className="mx-auto flex h-14 max-w-[300px] items-center justify-evenly pb-0.5">
+      <div className="safe-bottom mx-auto flex h-14 max-w-[300px] items-center justify-evenly pb-0.5">
         {TABS.map((t) => {
           const active = t.id === "settings";
           return (

@@ -1,7 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Mic, Square, Loader2 } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { Mic, Square, Loader2, Sparkles } from "lucide-react";
 
 import { usePlan } from "@/components/plan/PlanProvider";
 import { toast } from "@/components/ui/Toast";
@@ -79,6 +80,7 @@ export function VoiceButton() {
   const chunksRef = React.useRef<Blob[]>([]);
   const mimeRef = React.useRef("");
   const [phase, setPhase] = React.useState<Phase>("idle");
+  const reduce = useReducedMotion();
 
   React.useEffect(
     () => () => {
@@ -192,11 +194,16 @@ export function VoiceButton() {
   const isRec = phase === "rec";
   const isProc = phase === "proc";
 
+  const idle = !isRec && !isProc;
+
   return (
     <div className="mx-4 mb-3.5">
-      <button
+      <motion.button
         type="button"
         onClick={isRec ? stop : isProc ? undefined : start}
+        whileHover={reduce || !idle ? undefined : { y: -2 }}
+        whileTap={reduce || isProc ? undefined : { scale: 0.985 }}
+        transition={{ type: "spring", stiffness: 400, damping: 26 }}
         className="relative flex w-full items-center gap-3.5 overflow-hidden rounded-[18px] px-[18px] py-3.5 text-left text-white"
         style={{
           background: isRec
@@ -204,12 +211,25 @@ export function VoiceButton() {
             : "linear-gradient(135deg, #0D9E7A 0%, #1a6b9a 100%)",
           boxShadow: isRec
             ? "0 14px 38px rgba(13,158,122,0.40)"
-            : "0 12px 30px rgba(13,158,122,0.28)",
+            : "0 14px 34px rgba(13,158,122,0.30)",
           cursor: isProc ? "default" : "pointer",
         }}
       >
+        {/* Diagonal sheen sweep (idle only) */}
+        {idle ? (
+          <span aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-[18px]">
+            <span
+              className="pl-voice-sheen absolute inset-y-0 left-0 w-1/3"
+              style={{
+                background:
+                  "linear-gradient(100deg, transparent, rgba(255,255,255,0.28), transparent)",
+              }}
+            />
+          </span>
+        ) : null}
+
         <span
-          className="relative flex h-[42px] w-[42px] flex-none items-center justify-center rounded-full"
+          className={`relative flex h-[42px] w-[42px] flex-none items-center justify-center rounded-full ${idle ? "pl-mic-breathe" : ""}`}
           style={{ background: "rgba(255,255,255,0.18)" }}
         >
           {isRec ? (
@@ -223,15 +243,32 @@ export function VoiceButton() {
             <Mic size={21} />
           )}
         </span>
-        <span className="min-w-0 flex-1">
+
+        <span className="relative min-w-0 flex-1">
           <span className="display block text-[15px] font-extrabold tracking-[-0.01em]">
-            {isRec ? "Escoltant… toca per acabar" : isProc ? "Pensant el teu pla…" : "Parla i la IA ho omple per tu"}
+            {isRec
+              ? "Escoltant… toca per acabar"
+              : isProc
+                ? "Pensant el teu pla…"
+                : "Parla i la IA ho omple per tu"}
           </span>
-          {!isRec && !isProc ? (
+          {idle ? (
             <span className="block text-xs opacity-85">Ex: «Roma 4 dies al juny, 800 €»</span>
           ) : null}
         </span>
-      </button>
+
+        {/* Subtle AI sparkle hint (idle only) */}
+        {idle ? (
+          <motion.span
+            aria-hidden
+            className="relative flex-none text-white/85"
+            animate={reduce ? undefined : { opacity: [0.5, 1, 0.5], scale: [0.92, 1, 0.92] }}
+            transition={{ duration: 2.6, ease: "easeInOut", repeat: Infinity }}
+          >
+            <Sparkles size={18} />
+          </motion.span>
+        ) : null}
+      </motion.button>
     </div>
   );
 }

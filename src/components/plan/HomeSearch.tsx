@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
+import { motion, useReducedMotion } from "framer-motion";
 import {
   MapPin,
   Calendar,
@@ -146,17 +147,49 @@ export function HomeSearch() {
 
   const [sheet, setSheet] = React.useState<SheetKind>(null);
   const fmtDates = formatDateRange(dates?.start, dates?.end, dates?.days);
+  const reduce = useReducedMotion();
+
+  // Staggered entrance for the main blocks — subtle, not flashy.
+  const container = reduce
+    ? {}
+    : {
+        initial: "hidden",
+        animate: "show",
+        variants: {
+          hidden: {},
+          show: { transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
+        },
+      };
+  const item = reduce
+    ? {}
+    : {
+        variants: {
+          hidden: { opacity: 0, y: 12 },
+          show: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const },
+          },
+        },
+      };
 
   return (
-    <div className="min-h-dvh overflow-y-auto bg-bg pb-28">
+    <motion.div {...container} className="min-h-dvh overflow-y-auto bg-bg pb-28">
       {/* Header with account menu */}
-      <PlanHeader />
+      <motion.div {...item}>
+        <PlanHeader />
+      </motion.div>
 
       {/* Voice */}
-      <VoiceButton />
+      <motion.div {...item}>
+        <VoiceButton />
+      </motion.div>
 
       {/* Form card */}
-      <div className="mx-4 overflow-hidden rounded-3xl border border-border bg-surface shadow-[var(--shadow-lg)]">
+      <motion.div
+        {...item}
+        className="mx-4 overflow-hidden rounded-3xl border border-border bg-surface shadow-[var(--shadow-lg)]"
+      >
         <Row
           first
           icon={<MapPin size={18} />}
@@ -254,14 +287,15 @@ export function HomeSearch() {
             {preferences.length} / 280
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Generate */}
-      <div className="px-4 pt-4">
-        <button
+      <motion.div {...item} className="px-4 pt-4">
+        <motion.button
           type="button"
           disabled={!ready}
           onClick={() => ready && setStep("generating")}
+          whileTap={reduce ? undefined : { scale: 0.985 }}
           className="flex h-[58px] w-full items-center justify-center gap-2.5 rounded-full font-display text-base font-bold transition-all"
           style={{
             background: ready ? "var(--green)" : "var(--surface-2)",
@@ -273,17 +307,17 @@ export function HomeSearch() {
           <Sparkles size={18} style={{ opacity: ready ? 1 : 0.6 }} />
           {ready ? "Genera el meu viatge" : "Completa tots els camps"}
           {ready ? <ArrowRight size={18} /> : null}
-        </button>
-      </div>
+        </motion.button>
+      </motion.div>
 
       {/* Popular destinations */}
-      <div className="px-5 pb-2 pt-7">
+      <motion.div {...item} className="px-5 pb-2 pt-7">
         <div className="micro text-[color:var(--green)]">DESTINS POPULARS</div>
         <div className="display text-lg font-extrabold tracking-[-0.025em] text-text">
           On t&apos;agradaria anar?
         </div>
-      </div>
-      <div className="grid grid-cols-2 gap-2.5 px-4">
+      </motion.div>
+      <motion.div {...item} className="grid grid-cols-2 gap-2.5 px-4">
         {DESTINATIONS.slice(0, 6).map((d) => (
           <button
             key={d.id}
@@ -311,7 +345,7 @@ export function HomeSearch() {
             </span>
           </button>
         ))}
-      </div>
+      </motion.div>
 
       {/* Sheets */}
       <DestinationSheet open={sheet === "dest"} onClose={() => setSheet(null)} />
@@ -319,6 +353,6 @@ export function HomeSearch() {
       <TransportSheet open={sheet === "transport"} onClose={() => setSheet(null)} />
       <BudgetSheet open={sheet === "budget"} onClose={() => setSheet(null)} />
       <OriginSheet open={sheet === "origin"} onClose={() => setSheet(null)} />
-    </div>
+    </motion.div>
   );
 }

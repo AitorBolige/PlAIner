@@ -2,7 +2,7 @@ import * as React from "react";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, Calendar, Users, MapPin, Heart } from "lucide-react";
+import { ArrowLeft, Calendar, Users, MapPin, Heart, Plane, Hotel, ExternalLink } from "lucide-react";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -74,8 +74,19 @@ export default async function TripDetailPage({
 
   const nights = nightsBetween(trip.startDate, trip.endDate);
 
+  // Booking deep-links so the user can still pay for flights/hotels.
+  const startIso = trip.startDate.toISOString().slice(0, 10);
+  const endIso = trip.endDate.toISOString().slice(0, 10);
+  const flightsUrl = `https://www.google.com/travel/flights?q=${encodeURIComponent(
+    `vols a ${trip.destination}`,
+  )}`;
+  const hotelUrl = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(
+    trip.destination,
+  )}&checkin=${startIso}&checkout=${endIso}&group_adults=${trip.people}`;
+
   return (
-    <PageTransition className="mx-auto min-h-dvh max-w-[480px] bg-bg pb-24">
+    <div className="flex min-h-dvh justify-center bg-[color:var(--surface-2)]">
+      <PageTransition className="relative min-h-dvh w-full max-w-[480px] overflow-hidden border-x border-border bg-bg pb-24">
       <header className="relative h-[260px] overflow-hidden">
         {trip.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
@@ -155,6 +166,59 @@ export default async function TripDetailPage({
           daily={trip.dailyCost}
         />
 
+        {/* Reserva — encara pots pagar vols i allotjament */}
+        <section className="mt-6 overflow-hidden rounded-[var(--r-xl)] border border-border bg-surface shadow-[var(--shadow-sm)]">
+          <div className="border-b border-border px-4 py-3">
+            <h2 className="display text-base font-extrabold tracking-[-0.02em] text-text">
+              Reserva el teu viatge
+            </h2>
+            <p className="mt-0.5 text-xs text-muted">
+              Encara no has reservat? Assegura vols i allotjament ara.
+            </p>
+          </div>
+
+          <a
+            href={flightsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-[color:var(--surface-2)]"
+          >
+            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[color:var(--coral-subtle)] text-[color:var(--coral)]">
+              <Plane size={18} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-text">Reservar vols</span>
+              <span className="block text-xs text-muted">
+                Cap a {trip.destination} · {trip.people}{" "}
+                {trip.people === 1 ? "viatger" : "viatgers"}
+              </span>
+            </span>
+            <span className="inline-flex flex-none items-center gap-1 text-xs font-semibold text-[color:var(--green)]">
+              Pagar <ExternalLink size={13} />
+            </span>
+          </a>
+
+          <a
+            href={hotelUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 border-t border-border px-4 py-3.5 transition-colors hover:bg-[color:var(--surface-2)]"
+          >
+            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[color:var(--green-subtle)] text-[color:var(--green)]">
+              <Hotel size={18} />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-text">Reservar allotjament</span>
+              <span className="block text-xs text-muted">
+                {nights} {nights === 1 ? "nit" : "nits"} a {trip.destination}
+              </span>
+            </span>
+            <span className="inline-flex flex-none items-center gap-1 text-xs font-semibold text-[color:var(--green)]">
+              Pagar <ExternalLink size={13} />
+            </span>
+          </a>
+        </section>
+
         {days.length > 0 ? (
           <section className="mt-6">
             <h2 className="display mb-3 px-1 text-xl font-extrabold tracking-[-0.02em] text-text">
@@ -170,6 +234,7 @@ export default async function TripDetailPage({
           </section>
         )}
       </main>
-    </PageTransition>
+      </PageTransition>
+    </div>
   );
 }

@@ -91,7 +91,7 @@ export function BottomTabs({ active }: { active: TabId }) {
         borderTop: "0.5px solid rgba(0,0,0,0.12)",
       }}
     >
-      <div className="mx-auto flex h-14 max-w-[300px] items-center justify-evenly pb-0.5">
+      <div className="safe-bottom mx-auto flex h-14 max-w-[300px] items-center justify-evenly pb-0.5">
         {TABS.map((t) => {
           const isActive = t.id === active;
           return (
