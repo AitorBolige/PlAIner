@@ -266,6 +266,8 @@ export interface SaveTripParams {
   people: number;
   costs: CostBreakdown;
   itinerary: Itinerary | null;
+  flightOffer?: Offer | null;
+  hotelOffer?: Offer | null;
 }
 
 export async function saveTrip(
@@ -286,6 +288,8 @@ export async function saveTrip(
     status: "confirmed",
     isSurprise: false,
     itinerary: p.itinerary || undefined,
+    flightOffer: p.flightOffer ?? undefined,
+    hotelOffer: p.hotelOffer ?? undefined,
   };
   try {
     const res = await fetch("/api/trips", {

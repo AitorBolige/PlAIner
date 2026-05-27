@@ -54,6 +54,8 @@ const createTripSchema = z.object({
   isSurprise: z.boolean().default(false),
   searchCacheKey: z.string().trim().optional(),
   itinerary: itinerarySchema.optional(),
+  flightOffer: z.unknown().optional(),
+  hotelOffer: z.unknown().optional(),
 });
 
 const tripInclude = {
@@ -167,6 +169,10 @@ export async function POST(request: NextRequest) {
       dailyCost: data.dailyCost,
       status: data.status,
       isSurprise: data.isSurprise,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      flightOffer: (data.flightOffer as any) ?? undefined,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      hotelOffer: (data.hotelOffer as any) ?? undefined,
       searchId,
       days: data.itinerary
         ? { create: mapItineraryToDaysCreate(data.itinerary) }

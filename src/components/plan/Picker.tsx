@@ -348,6 +348,8 @@ export function Picker() {
       people,
       costs,
       itinerary: itinerary as Itinerary | null,
+      flightOffer: selectedFlight,
+      hotelOffer: selectedHotel,
     });
     if (!id) {
       toast.error(error ?? "No s'ha pogut desar el viatge.");
