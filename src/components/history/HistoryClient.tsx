@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Calendar, ChevronRight, Heart, MapPin, Plus } from "lucide-react";
 
-import { getDestinationImage } from "@/lib/destinations";
+import { getDestinationImage, BLUR_DATA_URL } from "@/lib/destinations";
 
 type TripLite = {
   id: string;
@@ -19,19 +19,20 @@ type TripLite = {
 
 type TabFilter = "all" | "upcoming" | "past" | "favorites";
 
+// Deterministic formatters (no Intl): identical output on server and client,
+// avoiding hydration mismatches from ICU/timezone differences.
+const MONTHS_CA = [
+  "gen", "feb", "març", "abr", "maig", "juny",
+  "jul", "ago", "set", "oct", "nov", "des",
+];
+
 function euro(v: number) {
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(v);
+  return `${Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} €`;
 }
 
 function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString("ca-ES", {
-    day: "2-digit",
-    month: "short",
-  });
+  const d = new Date(iso);
+  return `${d.getUTCDate()} ${MONTHS_CA[d.getUTCMonth()]}`;
 }
 
 export function HistoryClient({ trips }: { trips: TripLite[] }) {
@@ -298,6 +299,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
 
     return (
       <div
+        className="pl-tap"
         onClick={() => router.push(`/trips/${trip.id}`)}
         style={{
           background: "var(--surface)",
@@ -318,6 +320,8 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
             alt={trip.destination}
             fill
             sizes="(max-width: 768px) 100vw, 480px"
+            placeholder="blur"
+            blurDataURL={BLUR_DATA_URL}
             style={{ objectFit: "cover" }}
           />
           <div

@@ -7,7 +7,7 @@ import { Plane, TrainFront, Bus, Car, Search, type LucideIcon } from "lucide-rea
 import { Sheet } from "@/components/ui/Sheet";
 import { Button } from "@/components/ui/Button";
 import { Calendar, type RangeValue } from "@/components/plan/Calendar";
-import { DESTINATIONS } from "@/lib/destinations";
+import { DESTINATIONS, BLUR_DATA_URL } from "@/lib/destinations";
 import {
   BUDGET_MAX,
   BUDGET_MIN,
@@ -15,6 +15,7 @@ import {
   budgetZone,
   daysBetween,
   formatDateRange,
+  groupThousands,
   TRANSPORT_OPTIONS,
 } from "@/lib/plan";
 import { usePlan } from "@/components/plan/PlanProvider";
@@ -73,6 +74,8 @@ export function DestinationSheet({ open, onClose }: SheetCommon) {
                 alt={d.city}
                 fill
                 sizes="240px"
+                placeholder="blur"
+                blurDataURL={BLUR_DATA_URL}
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <span
@@ -263,7 +266,7 @@ export function BudgetSheet({ open, onClose }: SheetCommon) {
         {/* Big amount */}
         <div className="text-center">
           <div className="display text-5xl font-extrabold tracking-[-0.03em] text-text">
-            {v.toLocaleString("ca")}{" "}
+            {groupThousands(v)}{" "}
             <span className="text-3xl font-bold text-muted">€</span>
           </div>
           <div className="mt-1 text-sm text-muted">per persona · tot inclòs</div>
@@ -326,7 +329,7 @@ export function BudgetSheet({ open, onClose }: SheetCommon) {
             onClose();
           }}
         >
-          Confirmar · {v.toLocaleString("ca")} €
+          Confirmar · {groupThousands(v)} €
         </Button>
       </div>
     </Sheet>

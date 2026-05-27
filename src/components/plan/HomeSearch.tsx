@@ -25,8 +25,8 @@ import {
 } from "@/components/plan/sheets";
 import { VoiceButton } from "@/components/plan/VoiceButton";
 import { PlanHeader } from "@/components/plan/PlanHeader";
-import { budgetZone, formatDateRange } from "@/lib/plan";
-import { DESTINATIONS } from "@/lib/destinations";
+import { budgetZone, formatDateRange, groupThousands } from "@/lib/plan";
+import { DESTINATIONS, BLUR_DATA_URL } from "@/lib/destinations";
 
 type SheetKind = "dest" | "dates" | "transport" | "origin" | "budget" | null;
 
@@ -78,7 +78,7 @@ function Row({
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 px-4 text-left transition-colors hover:bg-[color:var(--surface-2)] active:bg-[color:var(--surface-2)]"
+      className="pl-tap flex w-full items-center gap-3 px-4 text-left transition-colors hover:bg-[color:var(--surface-2)] active:bg-[color:var(--surface-2)]"
       style={{
         minHeight: 64,
         borderTop: first || noBorder ? "none" : "1px solid var(--border)",
@@ -263,7 +263,7 @@ export function HomeSearch() {
           iconColor="var(--gold)"
           iconBg="var(--gold-subtle)"
           label="PRESSUPOST PER PERSONA"
-          value={`${budget.toLocaleString("ca")} € per persona`}
+          value={`${groupThousands(budget)} € per persona`}
           badge={budgetZone(budget).label}
           placeholder=""
           onClick={() => setSheet("budget")}
@@ -330,6 +330,8 @@ export function HomeSearch() {
               alt={d.city}
               fill
               sizes="240px"
+              placeholder="blur"
+              blurDataURL={BLUR_DATA_URL}
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
             <span

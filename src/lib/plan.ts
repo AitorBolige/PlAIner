@@ -7,6 +7,17 @@ export const TRANSPORT_OPTIONS: TransportOption[] = [
   { id: "car", label: "Cotxe propi", sub: "Flexible" },
 ];
 
+/**
+ * Deterministic thousands grouping ("1200" → "1.200"). Avoids hydration
+ * mismatches from toLocaleString, whose output can differ between the Node
+ * server (limited ICU) and the browser.
+ */
+export function groupThousands(n: number): string {
+  return Math.round(n)
+    .toString()
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+}
+
 export const BUDGET_MIN = 300;
 export const BUDGET_MAX = 6000;
 export const BUDGET_STEP = 50;

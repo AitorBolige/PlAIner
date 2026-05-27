@@ -17,6 +17,8 @@ import {
   Utensils,
   MapPin,
   Moon,
+  SearchX,
+  RotateCw,
 } from "lucide-react";
 
 import { usePlan, type Offer } from "@/components/plan/PlanProvider";
@@ -141,6 +143,41 @@ function money(value: number, currency = "EUR") {
     currency: currency || "EUR",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+function PickerNotice({
+  title,
+  sub,
+  onRetry,
+}: {
+  title: string;
+  sub?: string | null;
+  onRetry?: () => void;
+}) {
+  return (
+    <Card className="flex flex-col items-center gap-3 p-8 text-center">
+      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-[color:var(--surface-2)] text-faint">
+        <SearchX size={26} />
+      </span>
+      <div>
+        <div className="display text-base font-bold text-text">{title}</div>
+        {sub ? <p className="mt-1 text-sm text-muted">{sub}</p> : null}
+      </div>
+      {onRetry ? (
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          onClick={onRetry}
+          className="normal-case tracking-normal"
+        >
+          <span className="inline-flex items-center gap-1.5">
+            <RotateCw size={14} /> Tornar a cercar
+          </span>
+        </Button>
+      ) : null}
+    </Card>
+  );
 }
 
 function SelectableOffer({
@@ -282,6 +319,11 @@ export function Picker() {
     else plan.reset();
   }
 
+  // Re-run the search (remounts GeneratingScreen → fresh fetch).
+  function retry() {
+    plan.setStep("generating");
+  }
+
   const costs = computeCostBreakdown(
     selectedFlight,
     selectedHotel,
@@ -350,9 +392,11 @@ export function Picker() {
 
       <div className="flex-1 overflow-y-auto px-4 pb-28 pt-3">
         {offersError && step !== "summary" ? (
-          <Card className="p-6 text-center">
-            <p className="text-sm text-muted">{offersError}</p>
-          </Card>
+          <PickerNotice
+            title="No hem trobat ofertes"
+            sub={offersError}
+            onRetry={retry}
+          />
         ) : null}
 
         <AnimatePresence mode="wait">
@@ -365,7 +409,11 @@ export function Picker() {
             variants={{ show: { transition: { staggerChildren: 0.05 } } }}
           >
             {flights.length === 0 && !offersError ? (
-              <Card className="p-6 text-center text-sm text-muted">Cap transport disponible.</Card>
+              <PickerNotice
+                title="Cap transport disponible"
+                sub="Prova amb unes altres dates o un altre origen."
+                onRetry={retry}
+              />
             ) : null}
             {flights.map((o) => (
               <SelectableOffer
@@ -389,7 +437,11 @@ export function Picker() {
             variants={{ show: { transition: { staggerChildren: 0.05 } } }}
           >
             {hotels.length === 0 && !offersError ? (
-              <Card className="p-6 text-center text-sm text-muted">Cap allotjament disponible.</Card>
+              <PickerNotice
+                title="Cap allotjament disponible"
+                sub="Prova amb unes altres dates."
+                onRetry={retry}
+              />
             ) : null}
             {hotels.map((o) => (
               <SelectableOffer

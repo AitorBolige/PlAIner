@@ -98,7 +98,7 @@ export function BottomTabs({ active }: { active: TabId }) {
             <Link
               key={t.id}
               href={t.href}
-              className="flex flex-1 max-w-[100px] flex-col items-center justify-center gap-0.5 no-underline"
+              className="pl-tap flex flex-1 max-w-[100px] flex-col items-center justify-center gap-0.5 no-underline"
             >
               <span
                 style={{

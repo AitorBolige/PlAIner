@@ -15,7 +15,7 @@ export function Toaster() {
           background: "var(--surface)",
           color: "var(--text)",
           border: "1px solid var(--border-md)",
-          borderRadius: "var(--r-md)",
+          borderRadius: "var(--r-lg)",
           fontFamily: "var(--font-body)",
           boxShadow: "var(--shadow-lg)",
         },
