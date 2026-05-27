@@ -8,7 +8,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BudgetBreakdown } from "@/components/trip/BudgetBreakdown";
 import type { DayDTO } from "@/components/trip/DayAccordion";
-import { EditableItinerary } from "@/components/trip/EditableItinerary";
+import { TripItineraryView } from "@/components/trip/TripItineraryView";
 import { BookingSection, type OfferSnapshot } from "@/components/trip/BookingSection";
 import { Badge } from "@/components/ui/Badge";
 import { PageTransition } from "@/components/motion/PageTransition";
@@ -70,6 +70,8 @@ export default async function TripDetailPage({
       cost: a.cost,
       category: a.category,
       order: a.order,
+      mapsUrl: a.mapsUrl,
+      menuUrl: a.menuUrl,
     })),
   }));
 
@@ -204,7 +206,7 @@ export default async function TripDetailPage({
             <h2 className="display mb-3 px-1 text-xl font-extrabold tracking-[-0.02em] text-text">
               Itinerari
             </h2>
-            <EditableItinerary tripId={trip.id} initialDays={days} />
+            <TripItineraryView days={days} destination={trip.destination} />
           </section>
         ) : (
           <section className="mt-6 rounded-[var(--r-lg)] border border-border bg-surface p-6 text-center">

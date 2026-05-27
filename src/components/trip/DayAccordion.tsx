@@ -16,6 +16,8 @@ export interface ActivityDTO {
   cost: number;
   category: string | null;
   order: number;
+  mapsUrl?: string | null;
+  menuUrl?: string | null;
 }
 
 export interface DayDTO {

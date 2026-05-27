@@ -177,6 +177,7 @@ model Activity {
   category    String?
   imageUrl    String?
   mapsUrl     String?
+  menuUrl     String?
   order       Int
 
   @@index([dayId, order])

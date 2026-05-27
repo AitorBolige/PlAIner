@@ -19,6 +19,7 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  transpilePackages: ["mapbox-gl"],
   images: {
     remotePatterns: [
       {

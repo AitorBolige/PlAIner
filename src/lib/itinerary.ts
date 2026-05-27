@@ -12,6 +12,7 @@ export type RestaurantSlot = {
   cuisine: string;
   estimated_cost_eur: number;
   Maps_url: string;
+  menu_url?: string;
 };
 
 export type ItineraryDay = {
@@ -127,6 +128,11 @@ function normalizePlaceSlot(
   }
   if (typeof src.cuisine === "string") {
     out.cuisine = src.cuisine.trim();
+  }
+  // menu_url: optional, only for restaurants
+  const menuRaw = src.menu_url ?? src.menuUrl ?? src.Menu_url ?? "";
+  if (typeof menuRaw === "string" && menuRaw.trim()) {
+    try { new URL(menuRaw.trim()); out.menu_url = menuRaw.trim(); } catch { /* skip invalid */ }
   }
 
   return out;
@@ -346,9 +352,9 @@ Return ONLY valid JSON matching this exact structure (no markdown, no extra keys
       "day_number": 1,
       "theme": "string",
       "morning_activity": { "name": "string", "description": "string", "estimated_cost_eur": 0, "Maps_url": "string" },
-      "lunch_restaurant": { "name": "string", "cuisine": "string", "estimated_cost_eur": 0, "Maps_url": "string" },
+      "lunch_restaurant": { "name": "string", "cuisine": "string", "estimated_cost_eur": 0, "Maps_url": "string", "menu_url": "string" },
       "afternoon_activity": { "name": "string", "description": "string", "estimated_cost_eur": 0, "Maps_url": "string" },
-      "dinner_restaurant": { "name": "string", "cuisine": "string", "estimated_cost_eur": 0, "Maps_url": "string" }
+      "dinner_restaurant": { "name": "string", "cuisine": "string", "estimated_cost_eur": 0, "Maps_url": "string", "menu_url": "string" }
     }
   ]
 }
@@ -357,6 +363,7 @@ Requirements:
 - day_number must run from 1 to ${days} in order.
 - Keep estimated_cost_eur realistic per activity/restaurant for the whole group; use 0 for free activities.
 - Use the exact key Maps_url (capital M) for every slot. Every Maps_url must be a valid https:// Google Maps link for that venue.
+- For lunch_restaurant and dinner_restaurant, include menu_url: the direct URL to the restaurant's online menu (their website menu page, TripAdvisor, TheFork, or similar). If unknown, use a Google search URL: https://www.google.com/search?q={restaurant+name}+{city}+menu
 - Every activity needs description; every restaurant needs cuisine. All ${days} days must be complete with all four slots.
 - When trip dates are provided, theme each day around what is actually on during that calendar date (festivals, fairs, concerts, public holidays, seasonal highlights).
 - HARD BUDGET: The sum of every estimated_cost_eur (all slots on all ${days} days) must be ≤ ${remainingBudget} EUR. Do not exceed ${remainingBudget} EUR under any circumstances.${
@@ -399,6 +406,7 @@ function slotToActivityCreate(
     cost: item.estimated_cost_eur,
     category: slotKey,
     mapsUrl: item.Maps_url,
+    menuUrl: isRestaurant ? (item as RestaurantSlot).menu_url ?? null : null,
     order,
   };
 }

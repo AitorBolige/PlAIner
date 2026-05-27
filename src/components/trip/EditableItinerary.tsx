@@ -28,6 +28,7 @@ import { Button } from "@/components/ui/Button";
 import { toast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import type { DayDTO, ActivityDTO } from "@/components/trip/DayAccordion";
+import { DayRouteMap } from "@/components/trip/DayRouteMap";
 
 function euro(value: number) {
   return new Intl.NumberFormat("es-ES", {
@@ -154,35 +155,44 @@ function SortableActivity({
 
 // Day column ---------------------------------------------------------------
 
-function DayColumn({ day }: { day: DayDTO }) {
+function DayColumn({ day, destination }: { day: DayDTO; destination: string }) {
   const total = dayTotal(day);
   return (
-    <Card className="p-4">
-      <div className="mb-3 flex items-baseline justify-between">
-        <div className="display text-base font-extrabold tracking-[-0.02em]">
-          Dia {day.dayNumber} — {day.title}
-        </div>
-        <div className="text-xs text-muted">
-          {day.activities.length} act. · {euro(total)}
-        </div>
-      </div>
+    <Card className="overflow-hidden p-0">
+      {/* Map — renders above the activity list when token is present */}
+      <DayRouteMap
+        activities={day.activities}
+        destination={destination}
+        className="border-b border-border"
+      />
 
-      <SortableContext
-        items={day.activities.map((a) => a.id)}
-        strategy={verticalListSortingStrategy}
-      >
-        <div className="grid gap-2" data-day-id={day.id}>
-          {day.activities.length === 0 ? (
-            <div className="rounded-[var(--r-md)] border border-dashed border-border-md p-4 text-center text-xs text-faint">
-              Arrossega activitats aquí
-            </div>
-          ) : (
-            day.activities.map((a) => (
-              <SortableActivity key={a.id} activity={a} dayId={day.id} />
-            ))
-          )}
+      <div className="p-4">
+        <div className="mb-3 flex items-baseline justify-between">
+          <div className="display text-base font-extrabold tracking-[-0.02em]">
+            Dia {day.dayNumber} — {day.title}
+          </div>
+          <div className="text-xs text-muted">
+            {day.activities.length} act. · {euro(total)}
+          </div>
         </div>
-      </SortableContext>
+
+        <SortableContext
+          items={day.activities.map((a) => a.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="grid gap-2" data-day-id={day.id}>
+            {day.activities.length === 0 ? (
+              <div className="rounded-[var(--r-md)] border border-dashed border-border-md p-4 text-center text-xs text-faint">
+                Arrossega activitats aquí
+              </div>
+            ) : (
+              day.activities.map((a) => (
+                <SortableActivity key={a.id} activity={a} dayId={day.id} />
+              ))
+            )}
+          </div>
+        </SortableContext>
+      </div>
     </Card>
   );
 }
@@ -192,11 +202,13 @@ function DayColumn({ day }: { day: DayDTO }) {
 export interface EditableItineraryProps {
   tripId: string;
   initialDays: DayDTO[];
+  destination: string;
 }
 
 export function EditableItinerary({
   tripId,
   initialDays,
+  destination,
 }: EditableItineraryProps) {
   const [days, setDays] = React.useState<DayDTO[]>(initialDays);
   const [activeId, setActiveId] = React.useState<string | null>(null);
@@ -329,7 +341,7 @@ export function EditableItinerary({
       >
         <div className="grid gap-3">
           {days.map((d) => (
-            <DayColumn key={d.id} day={d} />
+            <DayColumn key={d.id} day={d} destination={destination} />
           ))}
         </div>
 

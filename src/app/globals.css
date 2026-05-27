@@ -1,5 +1,6 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap");
 @import "tailwindcss";
+@import "mapbox-gl/dist/mapbox-gl.css";
 
 /* Tailwind v4 theme — generates utilities from existing design tokens.
    Values reference vars defined in :root / [data-theme="dark"] below so
@@ -339,4 +340,19 @@ select:focus-visible,
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--text-faint);
+}
+
+/* Mapbox popup overrides */
+.pl-map-popup .mapboxgl-popup-content {
+  background: var(--surface);
+  color: var(--text);
+  border-radius: var(--r-md);
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+}
+.pl-map-popup .mapboxgl-popup-tip {
+  border-top-color: var(--surface);
 }
