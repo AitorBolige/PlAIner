@@ -19,16 +19,63 @@ function buildMapsUrl(
   destination: string,
   coord: [number, number] | null | undefined,
 ): string {
-  // Exact pin from resolved geocoding coordinates — most reliable
-  if (coord) return `https://maps.google.com/?q=${coord[1]},${coord[0]}`;
+  // Search by name anchored to resolved coordinates → shows place card, not raw coords
+  if (coord) {
+    const q = encodeURIComponent(`${name} ${destination}`);
+    return `https://www.google.com/maps/search/?api=1&query=${q}&center=${coord[1]},${coord[0]}`;
+  }
   // Gemini-provided Maps URL
   if (mapsUrl) return mapsUrl;
   // Fallback: Google Maps search with name + destination
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${destination}`)}`;
 }
 
-function buildMenuFallback(name: string, destination: string): string {
-  return `https://www.google.com/search?q=${encodeURIComponent(`${name} ${destination} menu`)}`;
+// ── Menu URL resolution ───────────────────────────────────────────────────────
+
+/** Fetch the restaurant's official website via Google Places API (server-side). */
+async function fetchRestaurantWebsite(
+  name: string,
+  destination: string,
+  coord: [number, number] | null | undefined,
+): Promise<string | null> {
+  const params = new URLSearchParams({ name, dest: destination });
+  if (coord) { params.set("lat", String(coord[1])); params.set("lng", String(coord[0])); }
+  try {
+    const res = await fetch(`/api/restaurant-website?${params}`);
+    return await res.json();
+  } catch {
+    return null;
+  }
+}
+
+function menuFallback(name: string, destination: string): string {
+  return `https://www.google.com/search?q=${encodeURIComponent(`${name} ${destination} menu carta`)}`;
+}
+
+/**
+ * Hook that resolves the best menu URL for a restaurant.
+ * Returns immediately with a fallback so the button always shows,
+ * then upgrades to the official website URL when Places API resolves.
+ */
+function useMenuUrl(
+  activityId: string,
+  name: string,
+  storedMenuUrl: string | null | undefined,
+  destination: string,
+  coord: [number, number] | null | undefined,
+): string {
+  const fallback = menuFallback(name, destination);
+  const [url, setUrl] = React.useState<string>(storedMenuUrl ?? fallback);
+
+  React.useEffect(() => {
+    if (storedMenuUrl) { setUrl(storedMenuUrl); return; }
+    fetchRestaurantWebsite(name, destination, coord).then((w) => {
+      setUrl(w ?? fallback);
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activityId, !!coord]);
+
+  return url;
 }
 
 function euro(v: number) {
@@ -161,6 +208,84 @@ function TravelConnector({
   );
 }
 
+// ── Activity card (own component so hooks work inside .map) ──────────────────
+
+interface ActivityCardProps {
+  activity: DayDTO["activities"][number];
+  index: number;
+  color: string;
+  label: string;
+  time: string;
+  coord: [number, number] | null | undefined;
+  destination: string;
+}
+
+function ActivityCard({ activity, index, color, label, time, coord, destination }: ActivityCardProps) {
+  const rest    = isRestaurant(activity.category);
+  const menuUrl = useMenuUrl(activity.id, activity.name, activity.menuUrl, destination, coord);
+
+  return (
+    <div className="overflow-hidden rounded-[var(--r-xl)] border border-border bg-surface shadow-[var(--shadow-xs)]">
+      <div className="flex items-start gap-3 p-4">
+        <span
+          className="mt-0.5 inline-flex h-9 w-9 flex-none items-center justify-center rounded-full text-[13px] font-bold text-white"
+          style={{ background: color, boxShadow: `0 2px 8px ${color}55` }}
+        >
+          {index + 1}
+        </span>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color }}>
+              {label}
+            </span>
+            {time && (
+              <span className="rounded-full px-2 py-0.5 text-[11px] font-bold" style={{ background: `${color}18`, color }}>
+                {time}
+              </span>
+            )}
+          </div>
+
+          <p className="mt-0.5 text-[15px] font-semibold leading-snug text-text">{activity.name}</p>
+
+          {activity.description && (
+            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted">{activity.description}</p>
+          )}
+
+          <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-muted">
+            {activity.duration ? (
+              <span className="inline-flex items-center gap-1"><Clock size={11} />{activity.duration} min</span>
+            ) : null}
+            <span className="inline-flex items-center gap-1"><Coins size={11} />{euro(activity.cost)}</span>
+
+            <a
+              href={buildMapsUrl(activity.name, activity.mapsUrl, destination, coord)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 font-semibold"
+              style={{ color: "var(--green)" }}
+            >
+              <MapPin size={11} />Veure al mapa
+            </a>
+
+            {rest && (
+              <a
+                href={menuUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 font-semibold"
+                style={{ color: "var(--coral)" }}
+              >
+                <UtensilsCrossed size={11} />Veure menú
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Main component ────────────────────────────────────────────────────────────
 
 export interface TripItineraryViewProps {
@@ -272,80 +397,15 @@ export function TripItineraryView({ days, destination }: TripItineraryViewProps)
 
           return (
             <React.Fragment key={activity.id}>
-              {/* Activity card */}
-              <div className="overflow-hidden rounded-[var(--r-xl)] border border-border bg-surface shadow-[var(--shadow-xs)]">
-                <div className="flex items-start gap-3 p-4">
-                  <span
-                    className="mt-0.5 inline-flex h-9 w-9 flex-none items-center justify-center rounded-full text-[13px] font-bold text-white"
-                    style={{ background: color, boxShadow: `0 2px 8px ${color}55` }}
-                  >
-                    {i + 1}
-                  </span>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color }}>
-                        {label}
-                      </span>
-                      {time && (
-                        <span
-                          className="rounded-full px-2 py-0.5 text-[11px] font-bold"
-                          style={{ background: `${color}18`, color }}
-                        >
-                          {time}
-                        </span>
-                      )}
-                    </div>
-
-                    <p className="mt-0.5 text-[15px] font-semibold leading-snug text-text">
-                      {activity.name}
-                    </p>
-
-                    {activity.description && (
-                      <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted">
-                        {activity.description}
-                      </p>
-                    )}
-
-                    <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-muted">
-                      {activity.duration ? (
-                        <span className="inline-flex items-center gap-1">
-                          <Clock size={11} />
-                          {activity.duration} min
-                        </span>
-                      ) : null}
-                      <span className="inline-flex items-center gap-1">
-                        <Coins size={11} />
-                        {euro(activity.cost)}
-                      </span>
-                      {/* Always show map link — uses exact geocoded coords when available */}
-                      <a
-                        href={buildMapsUrl(activity.name, activity.mapsUrl, destination, coords[i])}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 font-semibold"
-                        style={{ color: "var(--green)" }}
-                      >
-                        <MapPin size={11} />
-                        Veure al mapa
-                      </a>
-                      {/* Menu link — only for restaurants */}
-                      {isRestaurant(activity.category) && (
-                        <a
-                          href={activity.menuUrl || buildMenuFallback(activity.name, destination)}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 font-semibold"
-                          style={{ color: "var(--coral)" }}
-                        >
-                          <UtensilsCrossed size={11} />
-                          Veure menú
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <ActivityCard
+                activity={activity}
+                index={i}
+                color={color}
+                label={label}
+                time={time}
+                coord={coords[i] ?? null}
+                destination={destination}
+              />
 
               {/* Travel connector to next activity */}
               {leg && i < activitiesSorted.length - 1 && (
