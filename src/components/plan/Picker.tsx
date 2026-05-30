@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 
 import { usePlan, type Offer } from "@/components/plan/PlanProvider";
+import { TripTransitionOverlay } from "@/components/plan/TripTransitionOverlay";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/components/ui/Toast";
@@ -281,6 +282,7 @@ export function Picker() {
     travelerAgeGroups,
     selectedFlight,
     selectedHotel,
+    origin,
     itinerary,
     itineraryLoading,
   } = plan;
@@ -288,6 +290,21 @@ export function Picker() {
   const [step, setStep] = React.useState<Step>("flights");
   const [fav, setFav] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
+
+  // ─── Transition overlays ────────────────────────────────────────────────────
+  const [showTransitionOverlay, setShowTransitionOverlay] = React.useState(false);
+  const [destCoords, setDestCoords] = React.useState<[number, number] | null>(null);
+
+  // Geocode destination once we have it
+  React.useEffect(() => {
+    if (!destination?.city) return;
+    fetch(`/api/geocode?q=${encodeURIComponent(destination.city)}&dest=1`)
+      .then((r) => r.json())
+      .then((d: [number, number] | null) => {
+        if (Array.isArray(d) && d.length === 2) setDestCoords(d);
+      })
+      .catch(() => null);
+  }, [destination?.city]);
   const reduce = useReducedMotion();
   const stepAnim = reduce
     ? {}
@@ -360,6 +377,8 @@ export function Picker() {
       costs,
       itinerary: itinerary as Itinerary | null,
       travelerAgeGroups,
+      flightOffer: selectedFlight,
+      hotelOffer: selectedHotel,
     });
     if (!id) {
       toast.error(error ?? t.tripSaveFailed);
@@ -373,7 +392,28 @@ export function Picker() {
     router.push("/trips");
   }
 
+  const localizedDest = destination ? localizeCity(destination.city, locale) : "";
+
   return (
+    <>
+    {/* ── Unified flight + hotel transition overlay ── */}
+    {showTransitionOverlay && destination && (
+      <TripTransitionOverlay
+        originCode={origin}
+        originCity={origin}
+        destCity={localizedDest}
+        destCoords={destCoords}
+        hotels={hotels}
+        onHotelSelected={(hotel) => {
+          plan.setSelectedHotel(hotel);
+          setStep("summary");
+        }}
+        onComplete={() => {
+          setShowTransitionOverlay(false);
+        }}
+      />
+    )}
+
     <div className="flex min-h-dvh flex-col bg-bg">
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-border px-5 pb-4 pt-14">
@@ -436,7 +476,7 @@ export function Picker() {
                 selected={selectedFlight?.id === o.id}
                 onSelect={() => {
                   plan.setSelectedFlight(o);
-                  setStep("hotels");
+                  setShowTransitionOverlay(true);
                 }}
                 locale={locale}
               />
@@ -600,5 +640,6 @@ export function Picker() {
         </motion.div>
       ) : null}
     </div>
+    </>
   );
 }

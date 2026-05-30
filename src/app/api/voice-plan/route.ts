@@ -49,12 +49,15 @@ async function withRetry<T>(fn: () => Promise<T>, attempts = 3): Promise<T> {
  * may be null when the user did not mention it, and the client decides how to
  * fill the gaps (sensible defaults / asking again).
  */
+type AgeGroup = "minor" | "young" | "adult" | "senior";
+
 type ParsedPlan = {
   destination: string | null;
   country: string | null;
   startDate: string | null;
   endDate: string | null;
   people: number | null;
+  travelerAgeGroups: AgeGroup[] | null;
   budget: number | null;
   budgetIsTotal: boolean;
   transport: "plane" | "train" | "bus" | "car" | null;
@@ -90,12 +93,22 @@ function coerceParsed(raw: unknown): ParsedPlan | null {
       ? (r.transport as ParsedPlan["transport"])
       : null;
 
+  const AGE_VALID = ["minor", "young", "adult", "senior"] as const;
+  let travelerAgeGroups: AgeGroup[] | null = null;
+  if (Array.isArray(r.travelerAgeGroups) && r.travelerAgeGroups.length > 0) {
+    const groups = r.travelerAgeGroups.filter((g): g is AgeGroup =>
+      (AGE_VALID as readonly string[]).includes(g as string)
+    );
+    if (groups.length > 0) travelerAgeGroups = groups;
+  }
+
   return {
     destination: str(r.destination),
     country: str(r.country),
     startDate: r.startDate ?? null,
     endDate: r.endDate ?? null,
     people: num(r.people),
+    travelerAgeGroups,
     budget: num(r.budget),
     budgetIsTotal: r.budgetIsTotal === true,
     transport,
@@ -167,7 +180,8 @@ export async function POST(req: NextRequest) {
     `- country: country name (string) or null. Write it in ${langName}.`,
     "- startDate: ISO date YYYY-MM-DD or null",
     "- endDate: ISO date YYYY-MM-DD or null",
-    "- people: positive integer (number of travellers) or null",
+    "- people: positive integer (total number of travellers) or null",
+    `- travelerAgeGroups: array of age group strings, one per traveller, using ONLY these values: "minor" (child under 18), "young" (young adult 18-30), "adult" (adult 31-60), "senior" (senior 60+). Infer from words like: nen/niño/child→minor, jove/joven/young→young, adult/adulte→adult, gent gran/mayor/elderly/senior→senior. If ages are not mentioned, return null. If people count is given but no ages, return null.`,
     "- budget: the budget amount in EUR the user mentioned, as a number, or null",
     "- budgetIsTotal: boolean. true if that budget is meant for the whole trip / all travellers combined; false if it is per person. When ambiguous, default to false (per person).",
     "- transport: one of \"plane\", \"train\", \"bus\", \"car\" if a transport mode is mentioned (avió/avión→plane, tren→train, bus/autobús/ferri→bus, cotxe/coche→car), otherwise null",

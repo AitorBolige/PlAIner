@@ -1,3 +1,5 @@
+"use client";
+
 import { useLocale } from "@/lib/i18n-client";
 import { type Locale } from "@/lib/i18n";
 import { Badge } from "@/components/ui/Badge";

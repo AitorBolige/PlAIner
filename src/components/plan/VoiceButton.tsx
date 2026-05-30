@@ -25,6 +25,7 @@ interface VoicePlan {
   startDate: string | null;
   endDate: string | null;
   people: number | null;
+  travelerAgeGroups: string[] | null;
   budget: number | null;
   budgetIsTotal: boolean;
   transport: string | null;
@@ -97,6 +98,9 @@ export function VoiceButton() {
     streamRef.current = null;
   }
 
+  const AGE_VALID = ["minor", "young", "adult", "senior"] as const;
+  type AgeGroup = typeof AGE_VALID[number];
+
   function applyPlan(p: VoicePlan) {
     if (p.destination) plan.setDestination(synthDestination(p.destination, p.country));
     if (p.startDate && p.endDate) {
@@ -117,6 +121,12 @@ export function VoiceButton() {
       if (t) plan.setTransport(t);
     }
     if (p.preferences) plan.setPreferences(p.preferences);
+    if (p.travelerAgeGroups && p.travelerAgeGroups.length > 0) {
+      const groups = p.travelerAgeGroups.filter((g): g is AgeGroup =>
+        (AGE_VALID as readonly string[]).includes(g)
+      );
+      groups.forEach((g, i) => plan.setTravelerAgeGroup(i, g));
+    }
   }
 
   async function send(blob: Blob) {

@@ -74,6 +74,10 @@ model Trip {
   status         String    @default("draft") // draft | confirmed | completed
   isSurprise     Boolean   @default(false)
   isFavorite     Boolean   @default(false)
+  flightOffer    Json?
+  hotelOffer     Json?
+  flightBooked   Boolean   @default(false)
+  hotelBooked    Boolean   @default(false)
   searchId       String?
   search         TravelSearch? @relation(fields: [searchId], references: [id], onDelete: SetNull)
   days           Day[]
@@ -174,6 +178,7 @@ model Activity {
   category    String?
   imageUrl    String?
   mapsUrl     String?
+  menuUrl     String?
   order       Int
 
   @@index([dayId, order])

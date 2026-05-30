@@ -2,13 +2,14 @@ import * as React from "react";
 import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft, Calendar, Users, MapPin, Heart, Plane, Hotel, ExternalLink } from "lucide-react";
+import { ArrowLeft, Calendar, Users, MapPin, Heart } from "lucide-react";
 
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { BudgetBreakdown } from "@/components/trip/BudgetBreakdown";
 import type { DayDTO } from "@/components/trip/DayAccordion";
-import { EditableItinerary } from "@/components/trip/EditableItinerary";
+import { TripItineraryView } from "@/components/trip/TripItineraryView";
+import { BookingSection, type OfferSnapshot } from "@/components/trip/BookingSection";
 import { Badge } from "@/components/ui/Badge";
 import { PageTransition } from "@/components/motion/PageTransition";
 import { getServerLocale } from "@/lib/i18n-server";
@@ -77,24 +78,43 @@ export default async function TripDetailPage({
       cost: a.cost,
       category: a.category,
       order: a.order,
+      mapsUrl: a.mapsUrl,
+      menuUrl: a.menuUrl,
     })),
   }));
 
   const nights = nightsBetween(trip.startDate, trip.endDate);
   const localizedCity = localizeCity(trip.destination, locale);
 
-  // Booking deep-links so the user can still pay for flights/hotels.
   const startIso = trip.startDate.toISOString().slice(0, 10);
   const endIso = trip.endDate.toISOString().slice(0, 10);
-  const flightsUrl = `https://www.google.com/travel/flights?q=${encodeURIComponent(
+  const flightsFallback = `https://www.google.com/travel/flights?q=${encodeURIComponent(
     locale === "en" ? `flights to ${localizedCity}` : locale === "es" ? `vuelos a ${localizedCity}` : `vols a ${localizedCity}`,
   )}`;
-  const hotelUrl = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(
+  const hotelFallback = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(
     localizedCity,
   )}&checkin=${startIso}&checkout=${endIso}&group_adults=${trip.people}`;
 
-  const nightsLabel = nights === 1 
-    ? t.nightWord 
+  function asOffer(raw: unknown): OfferSnapshot | null {
+    if (!raw || typeof raw !== "object") return null;
+    const o = raw as Record<string, unknown>;
+    if (typeof o.provider !== "string" || typeof o.title !== "string") return null;
+    return {
+      id: typeof o.id === "string" ? o.id : undefined,
+      provider: o.provider,
+      title: o.title,
+      description: typeof o.description === "string" ? o.description : null,
+      price: typeof o.price === "number" ? o.price : 0,
+      bookingUrl: typeof o.bookingUrl === "string" ? o.bookingUrl : flightsFallback,
+      imageUrl: typeof o.imageUrl === "string" ? o.imageUrl : null,
+      rating: typeof o.rating === "number" ? o.rating : null,
+    };
+  }
+  const flightOffer = asOffer(trip.flightOffer);
+  const hotelOffer = asOffer(trip.hotelOffer);
+
+  const nightsLabel = nights === 1
+    ? t.nightWord
     : (locale === "en" ? "nights" : locale === "es" ? "noches" : "nits");
 
   return (
@@ -180,64 +200,25 @@ export default async function TripDetailPage({
           initialLocale={locale}
         />
 
-        {/* Reserva — encara pots pagar vols i allotjament */}
-        <section className="mt-6 overflow-hidden rounded-[var(--r-xl)] border border-border bg-surface shadow-[var(--shadow-sm)]">
-          <div className="border-b border-border px-4 py-3">
-            <h2 className="display text-base font-extrabold tracking-[-0.02em] text-text">
-              {t.bookYourTrip}
-            </h2>
-            <p className="mt-0.5 text-xs text-muted">
-              {t.notBookedYetSub}
-            </p>
-          </div>
-
-          <a
-            href={flightsUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 px-4 py-3.5 transition-colors hover:bg-[color:var(--surface-2)]"
-          >
-            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[color:var(--coral-subtle)] text-[color:var(--coral)]">
-              <Plane size={18} />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-semibold text-text">{t.bookFlights}</span>
-              <span className="block text-xs text-muted">
-                {t.towardsCity(trip.people, localizedCity)}
-              </span>
-            </span>
-            <span className="inline-flex flex-none items-center gap-1 text-xs font-semibold text-[color:var(--green)]">
-              {t.payWord} <ExternalLink size={13} />
-            </span>
-          </a>
-
-          <a
-            href={hotelUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 border-t border-border px-4 py-3.5 transition-colors hover:bg-[color:var(--surface-2)]"
-          >
-            <span className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-[color:var(--green-subtle)] text-[color:var(--green)]">
-              <Hotel size={18} />
-            </span>
-            <span className="min-w-0 flex-1">
-              <span className="block text-sm font-semibold text-text">{t.bookAccommodation}</span>
-              <span className="block text-xs text-muted">
-                {t.nightsInCity(nights, localizedCity)}
-              </span>
-            </span>
-            <span className="inline-flex flex-none items-center gap-1 text-xs font-semibold text-[color:var(--green)]">
-              {t.payWord} <ExternalLink size={13} />
-            </span>
-          </a>
-        </section>
+        <BookingSection
+          tripId={trip.id}
+          flightOffer={flightOffer}
+          hotelOffer={hotelOffer}
+          flightBooked={trip.flightBooked}
+          hotelBooked={trip.hotelBooked}
+          flightFallbackUrl={flightsFallback}
+          hotelFallbackUrl={hotelFallback}
+          destination={localizedCity}
+          people={trip.people}
+          nights={nights}
+        />
 
         {days.length > 0 ? (
           <section className="mt-6">
             <h2 className="display mb-3 px-1 text-xl font-extrabold tracking-[-0.02em] text-text">
               {t.itineraryWord}
             </h2>
-            <EditableItinerary tripId={trip.id} initialDays={days} initialLocale={locale} />
+            <TripItineraryView days={days} destination={localizedCity} />
           </section>
         ) : (
           <section className="mt-6 rounded-[var(--r-lg)] border border-border bg-surface p-6 text-center">
