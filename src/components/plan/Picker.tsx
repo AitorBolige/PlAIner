@@ -25,6 +25,8 @@ import { usePlan, type Offer } from "@/components/plan/PlanProvider";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { toast } from "@/components/ui/Toast";
+import { useLocale } from "@/lib/i18n-client";
+import { localizeCity, type Translations } from "@/lib/i18n";
 import {
   computeCostBreakdown,
   generateItinerary,
@@ -35,8 +37,9 @@ import {
   type ItinerarySlot,
 } from "@/lib/plan-flow";
 
-function money2(value: number, currency = "EUR") {
-  return new Intl.NumberFormat("es-ES", {
+function money(value: number, locale: string, currency = "EUR") {
+  const code = locale === "en" ? "en-US" : "es-ES";
+  return new Intl.NumberFormat(code, {
     style: "currency",
     currency: currency || "EUR",
     maximumFractionDigits: 0,
@@ -47,10 +50,12 @@ function SlotRow({
   icon,
   label,
   slot,
+  locale,
 }: {
   icon: React.ReactNode;
   label: string;
   slot?: ItinerarySlot;
+  locale: string;
 }) {
   if (!slot?.name) return null;
   const sub = slot.description ?? slot.cuisine;
@@ -64,14 +69,14 @@ function SlotRow({
       </div>
       {slot.estimated_cost_eur ? (
         <span className="tnum flex-none text-xs font-semibold text-text">
-          {money2(slot.estimated_cost_eur)}
+          {money(slot.estimated_cost_eur, locale)}
         </span>
       ) : null}
     </div>
   );
 }
 
-function DaySection({ day, index }: { day: ItineraryDay; index: number }) {
+function DaySection({ day, index, locale, t }: { day: ItineraryDay; index: number; locale: string; t: Translations }) {
   return (
     <div className="rounded-[var(--r-md)] border border-border bg-[color:var(--surface-2)] p-3">
       <div className="mb-2.5 flex items-center gap-2">
@@ -79,14 +84,14 @@ function DaySection({ day, index }: { day: ItineraryDay; index: number }) {
           {day.day_number ?? index + 1}
         </span>
         <span className="display text-sm font-bold text-text">
-          {day.theme ?? `Dia ${index + 1}`}
+          {day.theme ?? `${t.dayWord} ${index + 1}`}
         </span>
       </div>
       <div className="grid gap-2.5">
-        <SlotRow icon={<Sun size={14} />} label="Matí" slot={day.morning_activity} />
-        <SlotRow icon={<Utensils size={14} />} label="Dinar" slot={day.lunch_restaurant} />
-        <SlotRow icon={<MapPin size={14} />} label="Tarda" slot={day.afternoon_activity} />
-        <SlotRow icon={<Moon size={14} />} label="Sopar" slot={day.dinner_restaurant} />
+        <SlotRow icon={<Sun size={14} />} label={t.slotMorning} slot={day.morning_activity} locale={locale} />
+        <SlotRow icon={<Utensils size={14} />} label={t.slotLunch} slot={day.lunch_restaurant} locale={locale} />
+        <SlotRow icon={<MapPin size={14} />} label={t.slotAfternoon} slot={day.afternoon_activity} locale={locale} />
+        <SlotRow icon={<Moon size={14} />} label={t.slotDinner} slot={day.dinner_restaurant} locale={locale} />
       </div>
     </div>
   );
@@ -95,9 +100,13 @@ function DaySection({ day, index }: { day: ItineraryDay; index: number }) {
 function BookingCard({
   offer,
   label,
+  locale,
+  t,
 }: {
   offer: Offer;
   label: string;
+  locale: string;
+  t: Translations;
 }) {
   const isHotel = offer.type === "HOTEL";
   const Icon = isHotel ? Hotel : Plane;
@@ -117,8 +126,8 @@ function BookingCard({
         <div className="truncate text-sm font-semibold text-text">{offer.title}</div>
         <div className="text-xs text-muted">
           {offer.provider ? `${offer.provider} · ` : ""}
-          {money2(offer.price, offer.currency)}
-          {isHotel ? " /nit" : ""}
+          {money(offer.price, locale, offer.currency)}
+          {isHotel ? (locale === "en" ? " /night" : locale === "es" ? " /noche" : " /nit") : ""}
         </div>
       </div>
       {offer.bookingUrl ? (
@@ -128,7 +137,7 @@ function BookingCard({
           rel="noopener noreferrer"
           className="inline-flex flex-none items-center gap-1 rounded-full bg-[color:var(--green)] px-3 py-1.5 text-xs font-semibold text-white transition hover:opacity-90"
         >
-          Reservar <ExternalLink size={12} />
+          {t.reserve} <ExternalLink size={12} />
         </a>
       ) : null}
     </Card>
@@ -137,22 +146,18 @@ function BookingCard({
 
 type Step = "flights" | "hotels" | "summary";
 
-function money(value: number, currency = "EUR") {
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: currency || "EUR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
+// money helper is defined at the top
 
 function PickerNotice({
   title,
   sub,
   onRetry,
+  retryLabel,
 }: {
   title: string;
   sub?: string | null;
   onRetry?: () => void;
+  retryLabel?: string;
 }) {
   return (
     <Card className="flex flex-col items-center gap-3 p-8 text-center">
@@ -172,7 +177,7 @@ function PickerNotice({
           className="normal-case tracking-normal"
         >
           <span className="inline-flex items-center gap-1.5">
-            <RotateCw size={14} /> Tornar a cercar
+            <RotateCw size={14} /> {retryLabel ?? "Tornar a cercar"}
           </span>
         </Button>
       ) : null}
@@ -184,10 +189,12 @@ function SelectableOffer({
   offer,
   selected,
   onSelect,
+  locale,
 }: {
   offer: Offer;
   selected: boolean;
   onSelect: () => void;
+  locale: string;
 }) {
   const isHotel = offer.type === "HOTEL";
   const Icon = isHotel ? Hotel : Plane;
@@ -233,7 +240,7 @@ function SelectableOffer({
                   transition={{ type: "spring", stiffness: 500, damping: 22 }}
                   className="inline-flex items-center gap-1 text-[11px] font-semibold text-[color:var(--green)]"
                 >
-                  <Check size={12} /> Triat
+                  <Check size={12} /> {locale === "en" ? "Chosen" : locale === "es" ? "Elegido" : "Triat"}
                 </motion.span>
               ) : null}
             </div>
@@ -250,8 +257,8 @@ function SelectableOffer({
             ) : null}
           </div>
           <div className="display mt-2 text-lg font-extrabold tracking-[-0.02em] text-text">
-            {money(offer.price, offer.currency)}
-            {isHotel ? <span className="text-xs font-normal text-muted"> /nit</span> : null}
+            {money(offer.price, locale, offer.currency)}
+            {isHotel ? <span className="text-xs font-normal text-muted"> {locale === "en" ? " /night" : locale === "es" ? " /noche" : " /nit"}</span> : null}
           </div>
         </div>
       </Card>
@@ -262,6 +269,7 @@ function SelectableOffer({
 export function Picker() {
   const router = useRouter();
   const plan = usePlan();
+  const { locale, t } = useLocale();
   const {
     offers,
     offersError,
@@ -270,6 +278,7 @@ export function Picker() {
     people,
     budget,
     preferences,
+    travelerAgeGroups,
     selectedFlight,
     selectedHotel,
     itinerary,
@@ -305,6 +314,8 @@ export function Picker() {
       people,
       remainingBudget: remaining,
       preferences,
+      travelerAgeGroups,
+      locale,
     }).then(({ itinerary: it, error }) => {
       plan.setItinerary(it);
       plan.setItineraryLoading(false);
@@ -348,16 +359,17 @@ export function Picker() {
       people,
       costs,
       itinerary: itinerary as Itinerary | null,
+      travelerAgeGroups,
     });
     if (!id) {
-      toast.error(error ?? "No s'ha pogut desar el viatge.");
+      toast.error(error ?? t.tripSaveFailed);
       setSaving(false);
       return;
     }
     if (fav) {
       await fetch(`/api/trips/${id}/favorite`, { method: "POST" }).catch(() => null);
     }
-    toast.success("Viatge desat!");
+    toast.success(t.tripSaved);
     router.push("/trips");
   }
 
@@ -369,16 +381,16 @@ export function Picker() {
           type="button"
           onClick={back}
           className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-full border border-border bg-[color:var(--surface-2)] text-text"
-          aria-label="Enrere"
+          aria-label={t.backWord}
         >
           <ArrowLeft size={18} />
         </button>
         <div className="min-w-0">
           <div className="display truncate text-[19px] font-extrabold tracking-[-0.02em] text-text">
-            {destination?.city ?? "El teu viatge"}
+            {destination ? localizeCity(destination.id, locale) : (locale === "en" ? "Your Trip" : locale === "es" ? "Tu Viaje" : "El teu viatge")}
           </div>
           <div className="truncate text-xs text-muted">
-            {dates ? `${dates.days} dies · ${people} persones · ${budget} €/p.` : ""}
+            {dates ? `${dates.days} ${dates.days === 1 ? t.day : t.days} · ${people} ${t.peopleCount(people).toLowerCase()} · ${budget} €/${t.perPersonWord}` : ""}
           </div>
         </div>
       </div>
@@ -386,16 +398,17 @@ export function Picker() {
       {/* Step label */}
       <div className="px-5 pt-4">
         <div className="micro text-[color:var(--green)]">
-          {step === "flights" ? "PAS 1 · TRANSPORT" : step === "hotels" ? "PAS 2 · ALLOTJAMENT" : "PAS 3 · RESUM"}
+          {step === "flights" ? t.stepTransport : step === "hotels" ? t.stepAccommodation : t.stepSummary}
         </div>
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 pb-28 pt-3">
         {offersError && step !== "summary" ? (
           <PickerNotice
-            title="No hem trobat ofertes"
+            title={locale === "en" ? "No offers found" : locale === "es" ? "No hemos encontrado ofertas" : "No hem trobat ofertes"}
             sub={offersError}
             onRetry={retry}
+            retryLabel={t.searchAgain}
           />
         ) : null}
 
@@ -410,9 +423,10 @@ export function Picker() {
           >
             {flights.length === 0 && !offersError ? (
               <PickerNotice
-                title="Cap transport disponible"
-                sub="Prova amb unes altres dates o un altre origen."
+                title={t.noTransportTitle}
+                sub={t.noTransportSub}
                 onRetry={retry}
+                retryLabel={t.searchAgain}
               />
             ) : null}
             {flights.map((o) => (
@@ -424,6 +438,7 @@ export function Picker() {
                   plan.setSelectedFlight(o);
                   setStep("hotels");
                 }}
+                locale={locale}
               />
             ))}
           </motion.div>
@@ -438,9 +453,10 @@ export function Picker() {
           >
             {hotels.length === 0 && !offersError ? (
               <PickerNotice
-                title="Cap allotjament disponible"
-                sub="Prova amb unes altres dates."
+                title={t.noHotelTitle}
+                sub={t.noHotelSub}
                 onRetry={retry}
+                retryLabel={t.searchAgain}
               />
             ) : null}
             {hotels.map((o) => (
@@ -452,6 +468,7 @@ export function Picker() {
                   plan.setSelectedHotel(o);
                   setStep("summary");
                 }}
+                locale={locale}
               />
             ))}
           </motion.div>
@@ -461,26 +478,26 @@ export function Picker() {
           <div className="grid gap-4">
             {/* Cost breakdown */}
             <Card className="p-4">
-              <div className="micro text-[color:var(--green)]">RESUM DE COSTOS</div>
+              <div className="micro text-[color:var(--green)]">{t.costSummary}</div>
               <div className="mt-3 grid gap-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-muted">Transport ({people} pers.)</span>
-                  <span className="tnum font-semibold text-text">{money(costs.flightCost)}</span>
+                  <span className="text-muted">{t.transport} ({people} {locale === "en" ? "people" : "pers."})</span>
+                  <span className="tnum font-semibold text-text">{money(costs.flightCost, locale)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted">Allotjament</span>
-                  <span className="tnum font-semibold text-text">{money(costs.hotelCost)}</span>
+                  <span className="text-muted">{t.accommodation}</span>
+                  <span className="tnum font-semibold text-text">{money(costs.hotelCost, locale)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted">Activitats i gastronomia</span>
+                  <span className="text-muted">{t.activitiesGastronomy}</span>
                   <span className="tnum font-semibold text-text">
-                    {itineraryLoading ? "…" : money(costs.activitiesCost)}
+                    {itineraryLoading ? "…" : money(costs.activitiesCost, locale)}
                   </span>
                 </div>
                 <div className="mt-1 flex justify-between border-t border-border pt-2">
-                  <span className="display font-extrabold text-text">Total del viatge</span>
+                  <span className="display font-extrabold text-text">{t.tripTotal}</span>
                   <span className="display tnum text-lg font-extrabold text-[color:var(--green-deep)]">
-                    {itineraryLoading ? "…" : money(costs.grandTotal)}
+                    {itineraryLoading ? "…" : money(costs.grandTotal, locale)}
                   </span>
                 </div>
               </div>
@@ -498,13 +515,13 @@ export function Picker() {
                 </div>
                 <div className="mt-1.5 flex justify-between text-[11px]">
                   <span className="text-faint">
-                    Pressupost {money(totalBudget)}
+                    {t.budgetLabel} {money(totalBudget, locale)}
                   </span>
                   <span
                     className="tnum font-semibold"
                     style={{ color: overBudget ? "#DC2626" : "var(--text-muted)" }}
                   >
-                    {overBudget ? "Excedit · " : ""}
+                    {overBudget ? `${t.exceeded} · ` : ""}
                     {usagePct}%
                   </span>
                 </div>
@@ -513,21 +530,21 @@ export function Picker() {
 
             {/* Selected flight & hotel — reservable */}
             {selectedFlight ? (
-              <BookingCard offer={selectedFlight} label="EL TEU TRANSPORT" />
+              <BookingCard offer={selectedFlight} label={locale === "en" ? "YOUR TRANSPORT" : locale === "es" ? "TU TRANSPORTE" : "EL TEU TRANSPORT"} locale={locale} t={t} />
             ) : null}
             {selectedHotel ? (
-              <BookingCard offer={selectedHotel} label="EL TEU ALLOTJAMENT" />
+              <BookingCard offer={selectedHotel} label={locale === "en" ? "YOUR ACCOMMODATION" : locale === "es" ? "TU ALOJAMIENTO" : "EL TEU ALLOTJAMENT"} locale={locale} t={t} />
             ) : null}
 
             {/* Day-by-day itinerary */}
             <Card className="p-4">
               <div className="flex items-center gap-2">
                 <Sparkles size={16} className="text-[color:var(--green)]" />
-                <span className="display text-base font-bold text-text">Itinerari dia a dia</span>
+                <span className="display text-base font-bold text-text">{t.dayByDayItinerary}</span>
               </div>
               {itineraryLoading ? (
                 <div className="mt-3 flex items-center gap-2 text-sm text-muted">
-                  <Loader2 size={16} className="animate-spin" /> Preparant el teu itinerari…
+                  <Loader2 size={16} className="animate-spin" /> {t.preparingItinerary}
                 </div>
               ) : itinerary && (itinerary as Itinerary).days?.length ? (
                 <div className="mt-3 grid gap-3">
@@ -537,11 +554,11 @@ export function Picker() {
                     </p>
                   ) : null}
                   {(itinerary as Itinerary).days!.map((d, i) => (
-                    <DaySection key={i} day={d} index={i} />
+                    <DaySection key={i} day={d} index={i} locale={locale} t={t} />
                   ))}
                 </div>
               ) : (
-                <p className="mt-2 text-sm text-muted">No s&apos;ha pogut generar l&apos;itinerari.</p>
+                <p className="mt-2 text-sm text-muted">{t.noItinerary}</p>
               )}
             </Card>
 
@@ -556,7 +573,7 @@ export function Picker() {
                 className={fav ? "text-[color:#E85D3A]" : "text-muted"}
                 fill={fav ? "#E85D3A" : "none"}
               />
-              {fav ? "Marcat com a favorit" : "Marcar com a favorit"}
+              {fav ? t.markedFavorite : t.markFavorite}
             </button>
           </div>
         ) : null}
@@ -578,7 +595,7 @@ export function Picker() {
             disabled={itineraryLoading || saving}
             onClick={onSave}
           >
-            {saving ? "Desant…" : "Desar viatge"}
+            {saving ? t.savingLabel : t.saveTripLabel}
           </Button>
         </motion.div>
       ) : null}

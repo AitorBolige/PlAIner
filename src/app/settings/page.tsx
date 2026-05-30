@@ -9,11 +9,14 @@ import { SettingsForm } from "./SettingsForm";
 import { PhoneWrapper } from "./PhoneWrapper";
 import { SettingsBottomTabs } from "./SettingsBottomTabs";
 import { PageTransition } from "@/components/motion/PageTransition";
+import { getServerLocale } from "@/lib/i18n-server";
 
-export const metadata = {
-  title: "Ajustaments - PlAIner",
-  description: "Edita el teu perfil i ajustaments d'usuari.",
-};
+export async function generateMetadata() {
+  const { t } = getServerLocale();
+  return {
+    title: `${t.settingsTitle} - PlAIner`,
+  };
+}
 
 export default async function SettingsPage() {
   const session = await getServerSession(authOptions);
@@ -21,6 +24,8 @@ export default async function SettingsPage() {
   if (!session?.user?.id) {
     redirect("/auth/login");
   }
+
+  const { locale, t } = getServerLocale();
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
@@ -69,17 +74,17 @@ export default async function SettingsPage() {
               <h1
                 className="display m-0 text-[25px] font-extrabold leading-[1.1] tracking-[-0.03em] text-white"
               >
-                Ajustaments
+                {t.settingsTitle}
               </h1>
               <p className="mt-0.5 text-[12.5px] text-white/[0.62]">
-                El teu perfil PlAIner
+                {t.myProfileSubtitle}
               </p>
             </div>
           </div>
         </header>
 
         <div className="relative z-10 -mt-14">
-          <SettingsForm userId={session.user.id} initialData={user} />
+          <SettingsForm userId={session.user.id} initialData={user} initialLocale={locale} />
         </div>
         </div>
       </PageTransition>

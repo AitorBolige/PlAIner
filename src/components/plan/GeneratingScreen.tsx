@@ -6,28 +6,31 @@ import { Plane, Hotel, Sparkles, MapPin } from "lucide-react";
 
 import { usePlan } from "@/components/plan/PlanProvider";
 import { fetchOffers, buildMockOffers } from "@/lib/plan-flow";
-
-const PHASES = [
-  { icon: Plane, label: "Buscant els millors vols…" },
-  { icon: Hotel, label: "Comparant allotjaments…" },
-  { icon: Sparkles, label: "Dissenyant el teu pla ideal…" },
-];
-
-const SAFETY_TIMEOUT_MS = 20_000;
+import { useLocale } from "@/lib/i18n-client";
+import { localizeCity } from "@/lib/i18n";
 
 export function GeneratingScreen() {
   const plan = usePlan();
+  const { locale, t } = useLocale();
   const { destination, dates, people, budget, origin } = plan;
   const reduce = useReducedMotion();
   const ran = React.useRef(false);
   const done = React.useRef(false);
   const [phase, setPhase] = React.useState(0);
 
+  const PHASES = React.useMemo(() => [
+    { icon: Plane, label: t.genSearchingFlights },
+    { icon: Hotel, label: t.genComparingHotels },
+    { icon: Sparkles, label: t.genDesigningPlan },
+  ], [t]);
+
+  const SAFETY_TIMEOUT_MS = 20_000;
+
   // Cycle the phase messages while loading.
   React.useEffect(() => {
     const id = setInterval(() => setPhase((p) => (p + 1) % PHASES.length), 1900);
     return () => clearInterval(id);
-  }, []);
+  }, [PHASES.length]);
 
   React.useEffect(() => {
     if (ran.current) return;
@@ -166,8 +169,8 @@ export function GeneratingScreen() {
       {destination ? (
         <div className="mt-2 inline-flex items-center gap-1.5 text-sm text-white/80">
           <MapPin size={14} />
-          {destination.city}
-          {dates ? ` · ${dates.days} dies · ${people} persones` : ""}
+          {localizeCity(destination.id, locale)}
+          {dates ? ` · ${t.daysCount(dates.days)} · ${t.peopleCount(people)}` : ""}
         </div>
       ) : null}
 

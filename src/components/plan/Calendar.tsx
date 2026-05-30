@@ -2,12 +2,7 @@
 
 import * as React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-const MONTHS = [
-  "Gener", "Febrer", "Març", "Abril", "Maig", "Juny",
-  "Juliol", "Agost", "Setembre", "Octubre", "Novembre", "Desembre",
-];
-const WEEKDAYS = ["Dl", "Dt", "Dc", "Dj", "Dv", "Ds", "Dg"];
+import { useLocale } from "@/lib/i18n-client";
 
 function startOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
@@ -36,6 +31,7 @@ export function Calendar({
   value: RangeValue;
   onChange: (v: RangeValue) => void;
 }) {
+  const { locale, t } = useLocale();
   const today = React.useMemo(() => startOfDay(new Date()), []);
   const [view, setView] = React.useState<Date>(
     value.start ? new Date(value.start.getFullYear(), value.start.getMonth(), 1) : new Date(today.getFullYear(), today.getMonth(), 1),
@@ -65,6 +61,9 @@ export function Calendar({
     onChange({ start, end: day });
   }
 
+  const prevAriaLabel = locale === "en" ? "Previous month" : locale === "es" ? "Mes anterior" : "Mes anterior";
+  const nextAriaLabel = locale === "en" ? "Next month" : locale === "es" ? "Mes siguiente" : "Mes següent";
+
   return (
     <div className="select-none">
       {/* Header */}
@@ -74,18 +73,18 @@ export function Calendar({
           disabled={!canGoPrev}
           onClick={() => setView((v) => addMonths(v, -1))}
           className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition disabled:opacity-30"
-          aria-label="Mes anterior"
+          aria-label={prevAriaLabel}
         >
           <ChevronLeft size={18} />
         </button>
         <div className="display text-base font-bold text-text">
-          {MONTHS[view.getMonth()]} {view.getFullYear()}
+          {t.calendarMonths[view.getMonth()]} {view.getFullYear()}
         </div>
         <button
           type="button"
           onClick={() => setView((v) => addMonths(v, 1))}
           className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text transition"
-          aria-label="Mes següent"
+          aria-label={nextAriaLabel}
         >
           <ChevronRight size={18} />
         </button>
@@ -93,7 +92,7 @@ export function Calendar({
 
       {/* Weekday labels */}
       <div className="grid grid-cols-7 gap-1">
-        {WEEKDAYS.map((w) => (
+        {t.calendarWeekdays.map((w) => (
           <div key={w} className="py-1 text-center text-[11px] font-semibold uppercase tracking-[0.04em] text-faint">
             {w}
           </div>

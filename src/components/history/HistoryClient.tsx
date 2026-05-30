@@ -7,6 +7,9 @@ import { Calendar, ChevronRight, Heart, MapPin, Plus } from "lucide-react";
 
 import { getDestinationImage, BLUR_DATA_URL } from "@/lib/destinations";
 
+import { useLocale } from "@/lib/i18n-client";
+import { type Translations, localizeCity, type Locale } from "@/lib/i18n";
+
 type TripLite = {
   id: string;
   destination: string;
@@ -19,24 +22,22 @@ type TripLite = {
 
 type TabFilter = "all" | "upcoming" | "past" | "favorites";
 
-// Deterministic formatters (no Intl): identical output on server and client,
-// avoiding hydration mismatches from ICU/timezone differences.
-const MONTHS_CA = [
-  "gen", "feb", "març", "abr", "maig", "juny",
-  "jul", "ago", "set", "oct", "nov", "des",
-];
-
-function euro(v: number) {
-  return `${Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} €`;
+function euro(v: number, locale: string) {
+  const rounded = Math.round(v);
+  if (locale === "en") {
+    return `€${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+  }
+  return `${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} €`;
 }
 
-function fmtDate(iso: string) {
+function fmtDate(iso: string, t: Translations) {
   const d = new Date(iso);
-  return `${d.getUTCDate()} ${MONTHS_CA[d.getUTCMonth()]}`;
+  return `${d.getUTCDate()} ${t.months[d.getUTCMonth()]}`;
 }
 
-export function HistoryClient({ trips }: { trips: TripLite[] }) {
+export function HistoryClient({ trips, initialLocale }: { trips: TripLite[]; initialLocale?: Locale }) {
   const router = useRouter();
+  const { locale, t } = useLocale(initialLocale);
   const [activeTab, setActiveTab] = React.useState<TabFilter>("all");
 
   const now = React.useMemo(() => new Date(), []);
@@ -46,12 +47,12 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
     const past = trips.filter((t) => new Date(t.endDate) < now).length;
     const favorites = trips.filter((t) => t.isFavorite).length;
     return [
-      { id: "all" as const, label: "Tots", count: trips.length },
-      { id: "upcoming" as const, label: "Pròxims", count: upcoming },
-      { id: "past" as const, label: "Passats", count: past },
-      { id: "favorites" as const, label: "Favorits", count: favorites },
+      { id: "all" as const, label: t.tabFilterAll, count: trips.length },
+      { id: "upcoming" as const, label: t.tabFilterUpcoming, count: upcoming },
+      { id: "past" as const, label: t.tabFilterPast, count: past },
+      { id: "favorites" as const, label: t.tabFilterFavorites, count: favorites },
     ];
-  }, [now, trips]);
+  }, [now, trips, t]);
 
   const filtered = React.useMemo(() => {
     if (activeTab === "upcoming")
@@ -86,7 +87,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
                 marginBottom: "4px",
               }}
             >
-              {trips.length} {trips.length === 1 ? "viatge" : "viatges"}
+              {trips.length} {trips.length === 1 ? t.tripSingle : t.tripPlural}
             </p>
             <h1
               style={{
@@ -98,7 +99,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
                 lineHeight: 1.1,
               }}
             >
-              Els meus viatges
+              {t.myTripsTitle}
             </h1>
           </div>
           <button
@@ -115,7 +116,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
               boxShadow: "var(--shadow-cta)",
               color: "#fff",
             }}
-            aria-label="Nou viatge"
+            aria-label={t.newTrip}
           >
             <Plus size={20} />
           </button>
@@ -131,49 +132,51 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
           padding: "0 20px 20px",
         }}
       >
-        {tabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            style={{
-              flexShrink: 0,
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              height: "36px",
-              padding: "0 14px",
-              borderRadius: "var(--r-pill)",
-              border:
-                activeTab === tab.id ? "none" : "1px solid var(--border-md)",
-              background:
-                activeTab === tab.id ? "var(--text)" : "var(--surface)",
-              color: activeTab === tab.id ? "#fff" : "var(--text-muted)",
-              fontSize: "13px",
-              fontWeight: 600,
-              cursor: "pointer",
-              transition: "all 200ms var(--ease)",
-            }}
-          >
-            {tab.label}
-            {tab.count > 0 ? (
-              <span
-                style={{
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  padding: "1px 6px",
-                  borderRadius: "var(--r-pill)",
-                  background:
-                    activeTab === tab.id
+        {tabs.map((tab) => {
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={isActive ? "history-tab-btn-active" : ""}
+              style={{
+                flexShrink: 0,
+                display: "flex",
+                alignItems: "center",
+                gap: "6px",
+                height: "36px",
+                padding: "0 14px",
+                borderRadius: "var(--r-pill)",
+                border: isActive ? "none" : "1px solid var(--border-md)",
+                background: isActive ? "var(--text)" : "var(--surface)",
+                color: isActive ? "var(--bg)" : "var(--text-muted)",
+                fontSize: "13px",
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 200ms var(--ease)",
+              }}
+            >
+              {tab.label}
+              {tab.count > 0 ? (
+                <span
+                  className="history-tab-badge"
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: 700,
+                    padding: "1px 6px",
+                    borderRadius: "var(--r-pill)",
+                    background: isActive
                       ? "rgba(255,255,255,0.2)"
                       : "var(--surface-2)",
-                  color: activeTab === tab.id ? "#fff" : "var(--text-faint)",
-                }}
-              >
-                {tab.count}
-              </span>
-            ) : null}
-          </button>
-        ))}
+                    color: isActive ? "var(--bg)" : "var(--text-faint)",
+                  }}
+                >
+                  {tab.count}
+                </span>
+              ) : null}
+            </button>
+          );
+        })}
       </div>
 
       <div
@@ -219,8 +222,8 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
               }}
             >
               {activeTab === "favorites"
-                ? "Cap favorit encara"
-                : "Comença el teu primer viatge"}
+                ? t.noFavoritesYet
+                : t.startFirstTrip}
             </h3>
             <p
               style={{
@@ -232,8 +235,8 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
               }}
             >
               {activeTab === "favorites"
-                ? "Marca viatges com a favorits tocant el cor a qualsevol viatge."
-                : "Configura el teu destí i deixa que la IA construeixi el pla perfecte."}
+                ? t.favoritesHint
+                : t.startFirstTripHint}
             </p>
             {activeTab !== "favorites" ? (
               <button
@@ -252,7 +255,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
                   cursor: "pointer",
                 }}
               >
-                Planifica un viatge
+                {t.planATrip}
               </button>
             ) : null}
           </div>
@@ -267,21 +270,22 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
     const [isFav, setIsFav] = React.useState(trip.isFavorite);
     const isUpcoming = new Date(trip.startDate) > now;
     const isPast = new Date(trip.endDate) < now;
+    const localizedCity = localizeCity(trip.destination, locale);
     const heroImg = getDestinationImage(trip.destination, "hero");
 
     const statusConfig = {
       upcoming: {
-        label: "Pròximament",
+        label: t.upcomingBadge,
         color: "#3B87E8",
         bg: "rgba(59,135,232,0.12)",
       },
       past: {
-        label: "Completat",
+        label: t.completedBadge,
         color: "#0D9E7A",
         bg: "rgba(13,158,122,0.12)",
       },
       active: {
-        label: "En curs",
+        label: t.activeBadge,
         color: "#C8860A",
         bg: "rgba(200,134,10,0.12)",
       },
@@ -317,7 +321,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
         >
           <Image
             src={heroImg}
-            alt={trip.destination}
+            alt={localizedCity}
             fill
             sizes="(max-width: 768px) 100vw, 480px"
             placeholder="blur"
@@ -367,7 +371,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
               justifyContent: "center",
               cursor: "pointer",
             }}
-            aria-label={isFav ? "Treure de favorits" : "Afegir a favorits"}
+            aria-label={isFav ? t.removeFavorite : t.addFavorite}
           >
             <Heart
               size={16}
@@ -385,7 +389,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
                 letterSpacing: "-0.02em",
               }}
             >
-              {trip.destination}
+              {localizedCity}
             </h3>
           </div>
         </div>
@@ -402,7 +406,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
             <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
               <Calendar size={13} color="var(--text-faint)" />
               <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
-                {fmtDate(trip.startDate)} – {fmtDate(trip.endDate)}
+                {fmtDate(trip.startDate, t)} – {fmtDate(trip.endDate, t)}
               </span>
             </div>
           </div>
@@ -425,7 +429,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
                   marginBottom: "2px",
                 }}
               >
-                Cost total
+                {t.totalCostLabel}
               </p>
               <p
                 style={{
@@ -436,7 +440,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
                   letterSpacing: "-0.02em",
                 }}
               >
-                {euro(trip.totalCost)}
+                {euro(trip.totalCost, locale)}
               </p>
             </div>
             <div
@@ -449,7 +453,7 @@ export function HistoryClient({ trips }: { trips: TripLite[] }) {
                 fontWeight: 600,
               }}
             >
-              Veure detall <ChevronRight size={16} />
+              {t.viewDetail} <ChevronRight size={16} />
             </div>
           </div>
         </div>

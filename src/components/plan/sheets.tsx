@@ -12,13 +12,15 @@ import {
   BUDGET_MAX,
   BUDGET_MIN,
   BUDGET_STEP,
-  budgetZone,
+  getBudgetZone,
   daysBetween,
-  formatDateRange,
+  formatDateRangeLocalized,
   groupThousands,
-  TRANSPORT_OPTIONS,
+  getTransportOptions,
 } from "@/lib/plan";
 import { usePlan } from "@/components/plan/PlanProvider";
+import { useLocale } from "@/lib/i18n-client";
+import { localizeTag, localizeCountry, localizeCity } from "@/lib/i18n";
 
 type SheetCommon = { open: boolean; onClose: () => void };
 
@@ -28,6 +30,7 @@ const ZONE_COLORS = ["#3B87E8", "#0D9E7A", "#C8860A", "#9747FF"];
 
 export function DestinationSheet({ open, onClose }: SheetCommon) {
   const { setDestination } = usePlan();
+  const { locale, t } = useLocale();
   const [query, setQuery] = React.useState("");
 
   React.useEffect(() => {
@@ -38,12 +41,13 @@ export function DestinationSheet({ open, onClose }: SheetCommon) {
   const list = q
     ? DESTINATIONS.filter(
         (d) =>
-          d.city.toLowerCase().includes(q) || d.country.toLowerCase().includes(q),
+          localizeCity(d.id, locale).toLowerCase().includes(q) ||
+          localizeCountry(d.countryCode, locale).toLowerCase().includes(q),
       )
     : DESTINATIONS;
 
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title="Tria la destinació">
+    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title={t.chooseDestination}>
       <div className="grid gap-3">
         {/* Search */}
         <div className="flex items-center gap-2 rounded-full border border-border bg-[color:var(--surface-2)] px-4 py-2.5">
@@ -51,12 +55,12 @@ export function DestinationSheet({ open, onClose }: SheetCommon) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Barcelona, Tòquio, Bali…"
+            placeholder="Barcelona, Tokyo, Bali…"
             className="w-full bg-transparent text-sm text-text outline-none placeholder:text-faint"
           />
         </div>
 
-        <div className="micro">DESTINS · {list.length}</div>
+        <div className="micro">{t.destinations} · {list.length}</div>
 
         <div className="grid grid-cols-2 gap-3">
           {list.map((d) => (
@@ -71,7 +75,7 @@ export function DestinationSheet({ open, onClose }: SheetCommon) {
             >
               <Image
                 src={d.cardImage}
-                alt={d.city}
+                alt={localizeCity(d.id, locale)}
                 fill
                 sizes="240px"
                 placeholder="blur"
@@ -88,7 +92,7 @@ export function DestinationSheet({ open, onClose }: SheetCommon) {
               />
               {/* price */}
               <span className="absolute right-2 top-2 rounded-full bg-black/55 px-2 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
-                des de {d.priceFrom}€
+                {t.fromPrice} {d.priceFrom}€
               </span>
               {/* tag */}
               {d.tag ? (
@@ -96,14 +100,14 @@ export function DestinationSheet({ open, onClose }: SheetCommon) {
                   className="absolute left-2 top-2 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.04em] text-white"
                   style={{ background: d.tagColor }}
                 >
-                  {d.tag}
+                  {localizeTag(d.tag, t)}
                 </span>
               ) : null}
               <span className="absolute inset-x-3 bottom-2.5 block text-white">
                 <span className="display block text-[15px] font-extrabold tracking-[-0.02em]">
-                  {d.city}
+                  {localizeCity(d.id, locale)}
                 </span>
-                <span className="block text-[11px] opacity-90">{d.country}</span>
+                <span className="block text-[11px] opacity-90">{localizeCountry(d.countryCode, locale)}</span>
               </span>
             </button>
           ))}
@@ -117,6 +121,7 @@ export function DestinationSheet({ open, onClose }: SheetCommon) {
 
 export function DatesSheet({ open, onClose }: SheetCommon) {
   const { dates, setDates } = usePlan();
+  const { t } = useLocale();
   const [range, setRange] = React.useState<RangeValue>({
     start: dates?.start ?? null,
     end: dates?.end ?? null,
@@ -130,19 +135,19 @@ export function DatesSheet({ open, onClose }: SheetCommon) {
   const days = valid ? daysBetween(range.start!, range.end!) : range.start ? 1 : 0;
 
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title="Quan vols viatjar?">
+    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title={t.whenDoYouTravel}>
       <div className="grid gap-4">
         <Calendar value={range} onChange={setRange} />
 
         <div className="flex items-center justify-between rounded-[var(--r-md)] bg-[color:var(--surface-2)] px-4 py-3">
           <span className="text-sm text-muted">
             {range.start
-              ? formatDateRange(range.start, range.end ?? range.start, valid ? days : undefined)
-              : "Tria les dates al calendari"}
+              ? formatDateRangeLocalized(range.start, range.end ?? range.start, valid ? days : undefined, t)
+              : t.chooseDatesInCalendar}
           </span>
           {valid ? (
             <span className="display text-sm font-bold text-[color:var(--green-deep)]">
-              {days} {days === 1 ? "dia" : "dies"}
+              {t.daysCount(days)}
             </span>
           ) : null}
         </div>
@@ -158,7 +163,7 @@ export function DatesSheet({ open, onClose }: SheetCommon) {
             }
           }}
         >
-          Confirmar dates
+          {t.confirmDates}
         </Button>
       </div>
     </Sheet>
@@ -176,24 +181,26 @@ const TRANSPORT_ICONS: Record<string, LucideIcon> = {
 
 export function TransportSheet({ open, onClose }: SheetCommon) {
   const { transport, setTransport } = usePlan();
+  const { t } = useLocale();
   const [picked, setPicked] = React.useState(transport?.id ?? null);
+  const options = getTransportOptions(t);
 
   React.useEffect(() => {
     if (open) setPicked(transport?.id ?? null);
   }, [open, transport]);
 
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title="Com vols anar?">
+    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title={t.howDoYouTravel}>
       <div className="grid gap-4">
         <div className="grid grid-cols-2 gap-3">
-          {TRANSPORT_OPTIONS.map((t) => {
-            const sel = picked === t.id;
-            const Icon = TRANSPORT_ICONS[t.id] ?? Plane;
+          {options.map((opt) => {
+            const sel = picked === opt.id;
+            const Icon = TRANSPORT_ICONS[opt.id] ?? Plane;
             return (
               <button
-                key={t.id}
+                key={opt.id}
                 type="button"
-                onClick={() => setPicked(t.id)}
+                onClick={() => setPicked(opt.id)}
                 className="rounded-[var(--r-lg)] border-2 p-4 text-left transition-all duration-200 hover:-translate-y-0.5"
                 style={{
                   borderColor: sel ? "var(--green)" : "var(--border)",
@@ -216,9 +223,9 @@ export function TransportSheet({ open, onClose }: SheetCommon) {
                   className="display block text-base font-bold"
                   style={{ color: sel ? "var(--green-deep)" : "var(--text)" }}
                 >
-                  {t.label}
+                  {opt.label}
                 </span>
-                <span className="mt-0.5 block text-xs text-muted">{t.sub}</span>
+                <span className="mt-0.5 block text-xs text-muted">{opt.sub}</span>
               </button>
             );
           })}
@@ -228,12 +235,12 @@ export function TransportSheet({ open, onClose }: SheetCommon) {
           disabled={!picked}
           className="normal-case tracking-normal"
           onClick={() => {
-            const t = TRANSPORT_OPTIONS.find((o) => o.id === picked);
-            if (t) setTransport(t);
+            const opt = options.find((o) => o.id === picked);
+            if (opt) setTransport(opt);
             onClose();
           }}
         >
-          Confirmar transport
+          {t.confirmTransport}
         </Button>
       </div>
     </Sheet>
@@ -251,17 +258,18 @@ const BUDGET_QUICK: { value: number; label: string }[] = [
 
 export function BudgetSheet({ open, onClose }: SheetCommon) {
   const { budget, setBudget } = usePlan();
+  const { t } = useLocale();
   const [v, setV] = React.useState(budget);
 
   React.useEffect(() => {
     if (open) setV(budget);
   }, [open, budget]);
 
-  const zone = budgetZone(v);
+  const zone = getBudgetZone(v, t);
   const zoneColor = ZONE_COLORS[zone.i];
 
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title="Quin pressupost?">
+    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title={t.whatBudget}>
       <div className="grid gap-5">
         {/* Big amount */}
         <div className="text-center">
@@ -269,7 +277,7 @@ export function BudgetSheet({ open, onClose }: SheetCommon) {
             {groupThousands(v)}{" "}
             <span className="text-3xl font-bold text-muted">€</span>
           </div>
-          <div className="mt-1 text-sm text-muted">per persona · tot inclòs</div>
+          <div className="mt-1 text-sm text-muted">{t.perPersonAllInclusive}</div>
           <div
             className="mt-3 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-bold"
             style={{ background: "var(--green-subtle)", color: zoneColor }}
@@ -329,7 +337,7 @@ export function BudgetSheet({ open, onClose }: SheetCommon) {
             onClose();
           }}
         >
-          Confirmar · {groupThousands(v)} €
+          {t.confirmBudget} · {groupThousands(v)} €
         </Button>
       </div>
     </Sheet>
@@ -340,6 +348,7 @@ export function BudgetSheet({ open, onClose }: SheetCommon) {
 
 export function OriginSheet({ open, onClose }: SheetCommon) {
   const { origin, setOrigin } = usePlan();
+  const { t } = useLocale();
   const [v, setV] = React.useState(origin);
 
   React.useEffect(() => {
@@ -348,14 +357,14 @@ export function OriginSheet({ open, onClose }: SheetCommon) {
 
   const clean = v.trim().toUpperCase().slice(0, 3);
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title="Origen del viatge">
+    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title={t.tripOrigin}>
       <div className="grid gap-4">
         <label className="grid gap-1.5">
-          <span className="micro">CODI D&apos;AEROPORT (IATA)</span>
+          <span className="micro">{t.airportCode}</span>
           <input
             value={v}
             onChange={(e) => setV(e.target.value.toUpperCase().slice(0, 3))}
-            placeholder="Ex: BCN"
+            placeholder={t.airportCodePlaceholder}
             maxLength={3}
             className="w-full rounded-[var(--r-md)] border border-border bg-surface px-3 py-2.5 text-sm uppercase tracking-[0.2em] text-text outline-none focus-visible:border-brand"
           />
@@ -369,7 +378,7 @@ export function OriginSheet({ open, onClose }: SheetCommon) {
             onClose();
           }}
         >
-          Confirmar origen
+          {t.confirmOrigin}
         </Button>
       </div>
     </Sheet>

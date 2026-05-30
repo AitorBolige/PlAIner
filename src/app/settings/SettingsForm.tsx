@@ -11,6 +11,8 @@ import {
   Check,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useLocale } from "@/lib/i18n-client";
+import { type Locale } from "@/lib/i18n";
 
 interface SettingsFormProps {
   userId: string;
@@ -22,9 +24,35 @@ interface SettingsFormProps {
     hobbies?: string | null;
     image?: string | null;
   };
+  initialLocale?: Locale;
 }
 
-const GENDERS = ["Dona", "Home", "No binari", "Prefereixo no dir-ho", "Altre"];
+function getLocalizedGender(val: string | null, targetLocale: Locale): string {
+  if (!val) return "";
+  const name = val.trim().toLowerCase();
+  const gendersMap: Record<string, Partial<Record<Locale, string>>> = {
+    "dona": { ca: "Dona", es: "Mujer", en: "Woman", de: "Frau", fr: "Femme", it: "Donna", pt: "Mulher", ar: "أنثى", zh: "女", hi: "महिला" },
+    "woman": { ca: "Dona", es: "Mujer", en: "Woman", de: "Frau", fr: "Femme", it: "Donna", pt: "Mulher", ar: "أنثى", zh: "女", hi: "महिला" },
+    "mujer": { ca: "Dona", es: "Mujer", en: "Woman", de: "Frau", fr: "Femme", it: "Donna", pt: "Mulher", ar: "أنثى", zh: "女", hi: "महिला" },
+
+    "home": { ca: "Home", es: "Hombre", en: "Man", de: "Mann", fr: "Homme", it: "Uomo", pt: "Homem", ar: "ذكر", zh: "男", hi: "पुरुष" },
+    "man": { ca: "Home", es: "Hombre", en: "Man", de: "Mann", fr: "Homme", it: "Uomo", pt: "Homem", ar: "ذكر", zh: "男", hi: "पुरुष" },
+    "hombre": { ca: "Home", es: "Hombre", en: "Man", de: "Mann", fr: "Homme", it: "Uomo", pt: "Homem", ar: "ذكر", zh: "男", hi: "पुरुष" },
+
+    "no binari": { ca: "No binari", es: "No binario", en: "Non-binary", de: "Non-binär", fr: "Non-binaire", it: "Non binario", pt: "Não-binário", ar: "غير ثنائي", zh: "非二元", hi: "गैर-बाइनरी" },
+    "non-binary": { ca: "No binari", es: "No binario", en: "Non-binary", de: "Non-binär", fr: "Non-binaire", it: "Non binario", pt: "Não-binário", ar: "غير ثنائي", zh: "非二元", hi: "गैर-बाइनरी" },
+    "no binario": { ca: "No binari", es: "No binario", en: "Non-binary", de: "Non-binär", fr: "Non-binaire", it: "Non binario", pt: "Não-binário", ar: "غير ثنائي", zh: "非二元", hi: "गैर-बाइनरी" },
+
+    "prefereixo no dir-ho": { ca: "Prefereixo no dir-ho", es: "Prefiero no decirlo", en: "Prefer not to say", de: "Keine Angabe", fr: "Préfère ne pas le dire", it: "Preferisco no dirlo", pt: "Prefiro não dizer", ar: "أفضل عدم الإفصاح", zh: "不想透露", hi: "बताना नहीं चाहते" },
+    "prefer not to say": { ca: "Prefereixo no dir-ho", es: "Prefiero no decirlo", en: "Prefer not to say", de: "Keine Angabe", fr: "Préfère ne pas le dire", it: "Preferisco no dirlo", pt: "Prefiro não dizer", ar: "أفضل عدم الإفصاح", zh: "不想透露", hi: "बताना नहीं चाहते" },
+    "prefiero no decirlo": { ca: "Prefereixo no dir-ho", es: "Prefiero no decirlo", en: "Prefer not to say", de: "Keine Angabe", fr: "Préfère ne pas le dire", it: "Preferisco no dirlo", pt: "Prefiro não dizer", ar: "أفضل عدم الإفصاح", zh: "不想透露", hi: "बताना नहीं चाहते" },
+
+    "altre": { ca: "Altre", es: "Otro", en: "Other", de: "Andere", fr: "Autre", it: "Altro", pt: "Outro", ar: "آخر", zh: "其他", hi: "अन्य" },
+    "other": { ca: "Altre", es: "Otro", en: "Other", de: "Andere", fr: "Autre", it: "Altro", pt: "Outro", ar: "آخر", zh: "其他", hi: "अन्य" },
+    "otro": { ca: "Altre", es: "Otro", en: "Other", de: "Andere", fr: "Autre", it: "Altro", pt: "Outro", ar: "آخر", zh: "其他", hi: "अन्य" },
+  };
+  return gendersMap[name]?.[targetLocale] ?? gendersMap[name]?.en ?? val;
+}
 
 /** Theme (light/dark) synced to localStorage + <html data-theme>. */
 function useTheme(): [boolean, () => void] {
@@ -90,32 +118,101 @@ function Field({ id, label, icon, children, className }: FieldProps) {
   );
 }
 
-export function SettingsForm({ userId, initialData }: SettingsFormProps) {
+interface CustomSelectProps {
+  id?: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: { value: string; label: React.ReactNode }[];
+  placeholder: string;
+  icon?: React.ReactNode;
+  className?: string;
+}
+
+function CustomSelect({ id, value, onChange, options, placeholder, icon, className }: CustomSelectProps) {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const selectedOption = options.find((o) => o.value === value);
+
+  return (
+    <div ref={containerRef} className={`relative w-full ${className || ""}`}>
+      <button
+        id={id}
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full rounded-[14px] border-[1.5px] border-[color:var(--border)] bg-[color:var(--surface-2)] py-0 pr-4 text-[15px] text-[color:var(--text)] outline-none transition-[border-color,box-shadow] duration-[180ms] flex items-center justify-between cursor-pointer relative ${
+          icon ? "pl-11 h-[52px]" : "pl-4 h-11"
+        } ${
+          isOpen ? "border-[color:var(--green)] shadow-[0_0_0_4px_var(--green-subtle)]" : ""
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          {icon && (
+            <span className="absolute left-[15px] top-1/2 -translate-y-1/2 text-[color:var(--text-faint)] flex pointer-events-none">
+              {icon}
+            </span>
+          )}
+          <span className={value ? "text-[color:var(--text)] font-semibold" : "text-[color:var(--text-faint)]"}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+        </div>
+        <span className={`text-[10px] text-[color:var(--text-faint)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
+          ▼
+        </span>
+      </button>
+
+      {isOpen && (
+        <div
+          className="absolute left-0 z-50 mt-1.5 w-full overflow-hidden rounded-[14px] border border-[color:var(--border-md)] bg-[color:var(--surface)] p-1 shadow-[var(--shadow-lg)] pl-fadein"
+          style={{ transformOrigin: "top" }}
+        >
+          <div className="max-h-[220px] overflow-y-auto">
+            {options.map((opt) => {
+              const isSelected = opt.value === value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => {
+                    onChange(opt.value);
+                    setIsOpen(false);
+                  }}
+                  className={`flex w-full items-center justify-between rounded-[10px] px-3.5 py-3 text-left text-[14px] font-medium transition-[background,color] duration-[150ms] outline-none ${
+                    isSelected
+                      ? "bg-[color:var(--green-subtle)] text-[color:var(--green-deep)]"
+                      : "text-[color:var(--text)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--text)] focus:bg-[color:var(--surface-2)]"
+                  }`}
+                >
+                  <span>{opt.label}</span>
+                  {isSelected && <Check size={15} className="text-[color:var(--green)]" />}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export function SettingsForm({ userId, initialData, initialLocale }: SettingsFormProps) {
   const { update } = useSession();
   const [dark, toggleTheme] = useTheme();
-
-  const [lang, setLang] = React.useState<"ca" | "es" | "en">("ca");
-  React.useEffect(() => {
-    try {
-      const l = localStorage.getItem("pl-lang");
-      if (l === "es" || l === "en") setLang(l);
-    } catch {
-      /* noop */
-    }
-  }, []);
-  function changeLang(next: "ca" | "es" | "en") {
-    if (next === lang) return;
-    try {
-      localStorage.setItem("pl-lang", next);
-    } catch {
-      /* noop */
-    }
-    window.location.reload();
-  }
+  const { locale, t } = useLocale(initialLocale);
 
   const [nickname, setNickname] = React.useState(initialData.nickname || "");
   const [age, setAge] = React.useState(initialData.age?.toString() || "");
-  const [gender, setGender] = React.useState(initialData.gender || "");
+  const [gender, setGender] = React.useState("");
   const [nationality, setNationality] = React.useState(
     initialData.nationality || "",
   );
@@ -126,19 +223,37 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
   const [success, setSuccess] = React.useState(false);
   const [avatarOk, setAvatarOk] = React.useState(true);
 
+  // Sync localized gender once locale is loaded
+  React.useEffect(() => {
+    if (initialData.gender) {
+      setGender(getLocalizedGender(initialData.gender, locale));
+    }
+  }, [initialData.gender, locale]);
+
+  function changeLang(next: Locale) {
+    if (next === locale) return;
+    try {
+      localStorage.setItem("pl-lang", next);
+      document.cookie = `pl-lang=${next};path=/;max-age=31536000`;
+    } catch {
+      /* noop */
+    }
+    window.location.reload();
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setSuccess(false);
 
     if (!nickname.trim()) {
-      setError("El nickname és obligatori.");
+      setError(t.nicknameRequired);
       return;
     }
 
     const ageNumber = Number(age);
     if (!Number.isFinite(ageNumber) || ageNumber <= 0) {
-      setError("Introdueix una edat vàlida.");
+      setError(t.ageInvalid);
       return;
     }
 
@@ -160,7 +275,7 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setError(data.error ?? "No hem pogut guardar els ajustaments.");
+      setError(data.error ?? t.saveSettingsError);
       return;
     }
 
@@ -209,15 +324,15 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
         <div
           className="display text-[19px] font-extrabold tracking-[-0.02em] text-[color:var(--text)]"
         >
-          {nickname.trim() ? `@${nickname.trim()}` : "El teu perfil"}
+          {nickname.trim() ? `@${nickname.trim()}` : t.onboardingDefaultProfile}
         </div>
         <div className="mt-0.5 text-[13px] text-[color:var(--text-muted)]">
-          Personalitza la teva experiència PlAIner
+          {t.onboardingPersonalize}
         </div>
       </div>
 
       <form onSubmit={onSubmit}>
-        <Field id="nickname" label="Nickname" icon={<UserIcon size={17} />}>
+        <Field id="nickname" label={t.nicknameLabel} icon={<UserIcon size={17} />}>
           <input
             type="text"
             value={nickname}
@@ -228,7 +343,7 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
           />
         </Field>
 
-        <Field id="age" label="Edat" icon={<Cake size={17} />}>
+        <Field id="age" label={t.ageLabel} icon={<Cake size={17} />}>
           <input
             type="number"
             value={age}
@@ -243,49 +358,34 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
 
         <div className="mb-4">
           <label htmlFor="gender" className={labelCls}>
-            Gènere
+            {t.genderLabel}
           </label>
-          <div className="relative">
-            <span className={iconWrapCls}>
-              <Sparkles size={17} />
-            </span>
-            <select
-              id="gender"
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              className={`${inputCls} cursor-pointer appearance-none ${
-                gender ? "text-[color:var(--text)]" : "text-[color:var(--text-faint)]"
-              }`}
-            >
-              <option value="">Selecciona…</option>
-              {GENDERS.map((g) => (
-                <option key={g} value={g} className="text-black">
-                  {g}
-                </option>
-              ))}
-            </select>
-            <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[11px] text-[color:var(--text-faint)]">
-              ▼
-            </span>
-          </div>
+          <CustomSelect
+            id="gender"
+            value={gender}
+            onChange={(val) => setGender(val)}
+            placeholder={t.genderSelectPlaceholder}
+            icon={<Sparkles size={17} />}
+            options={t.gendersList.map((g) => ({ value: g, label: g }))}
+          />
         </div>
 
-        <Field id="nationality" label="Nacionalitat" icon={<Globe2 size={17} />}>
+        <Field id="nationality" label={t.nationalityLabel} icon={<Globe2 size={17} />}>
           <input
             type="text"
             value={nationality}
             onChange={(e) => setNationality(e.target.value)}
-            placeholder="Catalana"
+            placeholder={t.nationalityPlaceholder}
             className={inputCls}
           />
         </Field>
 
-        <Field id="hobbies" label="Hobbies" icon={<Sparkles size={17} />}>
+        <Field id="hobbies" label={t.hobbiesLabel} icon={<Sparkles size={17} />}>
           <input
             type="text"
             value={hobbies}
             onChange={(e) => setHobbies(e.target.value)}
-            placeholder="Senderisme, menjar local, museus"
+            placeholder={t.hobbiesPlaceholder}
             className={inputCls}
           />
         </Field>
@@ -296,9 +396,9 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
           className="mb-5"
           label={
             <>
-              Avatar (URL){" "}
+              {t.avatarLabel}{" "}
               <span className="font-medium normal-case opacity-70">
-                · Opcional
+                {t.avatarOptional}
               </span>
             </>
           }
@@ -318,7 +418,7 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
         <div className="my-[14px] flex items-center gap-2.5">
           <div className="h-px flex-1 bg-[color:var(--border-md)]" />
           <span className="text-[10.5px] font-bold uppercase tracking-[0.1em] text-[color:var(--text-faint)]">
-            Preferències
+            {t.preferences}
           </span>
           <div className="h-px flex-1 bg-[color:var(--border-md)]" />
         </div>
@@ -333,10 +433,10 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
           </span>
           <span className="flex-1 text-left">
             <span className="block text-sm font-semibold text-[color:var(--text)]">
-              Mode fosc
+              {t.darkModeLabel}
             </span>
             <span className="text-xs text-[color:var(--text-muted)]">
-              {dark ? "Activat" : "Desactivat"}
+              {t.darkModeSub(dark)}
             </span>
           </span>
           <span
@@ -364,41 +464,30 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
             </span>
             <span className="flex-1">
               <span className="block text-sm font-semibold text-[color:var(--text)]">
-                Idioma
+                {t.languageLabel}
               </span>
               <span className="text-xs text-[color:var(--text-muted)]">
-                Tria l&apos;idioma de l&apos;aplicació
+                {t.languageSub}
               </span>
             </span>
           </div>
-          <div className="flex gap-1.5">
-            {(
-              [
-                { id: "ca", label: "Català" },
-                { id: "es", label: "Español" },
-                { id: "en", label: "English" },
-              ] as const
-            ).map((o) => {
-              const on = lang === o.id;
-              return (
-                <button
-                  key={o.id}
-                  type="button"
-                  onClick={() => changeLang(o.id)}
-                  className="h-10 flex-1 rounded-[11px] border-[1.5px] text-[13px] transition-all duration-[160ms]"
-                  style={{
-                    borderColor: on ? "var(--green)" : "var(--border-md)",
-                    background: on ? "var(--green-subtle)" : "var(--surface)",
-                    color: on ? "var(--green)" : "var(--text-muted)",
-                    fontWeight: on ? 700 : 500,
-                    transitionTimingFunction: "var(--ease)",
-                  }}
-                >
-                  {o.label}
-                </button>
-              );
-            })}
-          </div>
+          <CustomSelect
+            value={locale}
+            onChange={(val) => changeLang(val as Locale)}
+            placeholder=""
+            options={[
+              { value: "ca", label: "🏴󠁡󠁥󠁣󠁡󠁴󠁿 Català" },
+              { value: "es", label: "🇪🇸 Español" },
+              { value: "en", label: "🇬🇧 English" },
+              { value: "de", label: "🇩🇪 Deutsch" },
+              { value: "fr", label: "🇫🇷 Français" },
+              { value: "it", label: "🇮🇹 Italiano" },
+              { value: "pt", label: "🇵🇹 Português" },
+              { value: "ar", label: "🇸🇦 العربية" },
+              { value: "zh", label: "🇨🇳 中文 (简体)" },
+              { value: "hi", label: "🇮🇳 हिन्दी" }
+            ]}
+          />
         </div>
 
         {error && (
@@ -421,7 +510,7 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
               borderColor: "var(--green-glow)",
             }}
           >
-            <Check size={16} /> Ajustaments guardats correctament.
+            <Check size={16} /> {t.saveSettingsSuccess}
           </div>
         )}
 
@@ -435,7 +524,7 @@ export function SettingsForm({ userId, initialData }: SettingsFormProps) {
             boxShadow: "var(--shadow-cta)",
           }}
         >
-          {loading ? "Guardant…" : "Guardar ajustaments"}
+          {loading ? t.savingSettingsBtn : t.saveSettingsBtn}
         </button>
       </form>
     </div>

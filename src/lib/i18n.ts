@@ -1,0 +1,2826 @@
+
+
+export type Locale = "ca" | "es" | "en" | "de" | "fr" | "it" | "pt" | "ar" | "zh" | "hi";
+
+export interface Translations {
+  // HomeSearch labels
+  destination: string;
+  dates: string;
+  transport: string;
+  origin: string;
+  people: string;
+  budgetPerPerson: string;
+  preferences: string;
+  preferencesHint: string;
+
+  // Placeholders
+  whichDestination: string;
+  whenTravel: string;
+  howTravel: string;
+  originPlaceholder: string;
+
+  // People
+  person: string;
+  persons: string;
+  peopleCount: (n: number) => string;
+
+  // Traveler age groups
+  traveler: string;
+  travelerN: (n: number) => string;
+  ageMinor: string;
+  ageYoung: string;
+  ageAdult: string;
+  ageSenior: string;
+  ageGroupLabel: string;
+
+  // Budget zones
+  budgetEconomic: string;
+  budgetBalanced: string;
+  budgetComfortable: string;
+  budgetPremium: string;
+  budgetEconomicSub: string;
+  budgetBalancedSub: string;
+  budgetComfortableSub: string;
+  budgetPremiumSub: string;
+  perPersonAllInclusive: string;
+
+  // Transport options
+  transportPlane: string;
+  transportPlaneSub: string;
+  transportTrain: string;
+  transportTrainSub: string;
+  transportBus: string;
+  transportBusSub: string;
+  transportCar: string;
+  transportCarSub: string;
+
+  // Month abbreviations
+  months: string[];
+  calendarMonths: string[];
+  calendarWeekdays: string[];
+
+  // Days
+  day: string;
+  days: string;
+  daysCount: (n: number) => string;
+
+  // Buttons / actions
+  confirmDates: string;
+  confirmTransport: string;
+  confirmBudget: string;
+  confirmOrigin: string;
+  generateTrip: string;
+  completeAllFields: string;
+
+  // Sheet titles
+  chooseDestination: string;
+  whenDoYouTravel: string;
+  howDoYouTravel: string;
+  whatBudget: string;
+  tripOrigin: string;
+  airportCode: string;
+  airportCodePlaceholder: string;
+  chooseDatesInCalendar: string;
+
+  // Destination cards
+  destinations: string;
+  popularDestinations: string;
+  whereToGo: string;
+  fromPrice: string;
+
+  // Destination tags
+  tagRecommended: string;
+  tagPopular: string;
+  tagPremium: string;
+  tagDeal: string;
+  tagClassic: string;
+  tagTrending: string;
+  tagIconic: string;
+  tagRomantic: string;
+
+  // PlanHeader
+  hello: string;
+  whereAreWeGoing: string;
+  configureTrip: string;
+
+  // Account menu
+  switchAccount: string;
+  signOut: string;
+  myAccount: string;
+
+  // Voice button
+  voiceIdle: string;
+  voiceIdleSub: string;
+  voiceIdleExample: string;
+  voiceRecording: string;
+  voiceProcessing: string;
+  voiceError: string;
+  voiceMicPermission: string;
+  voiceRecordFailed: string;
+  voiceTooShort: string;
+  voiceFormFilled: string;
+
+  // Generating screen
+  genSearchingFlights: string;
+  genComparingHotels: string;
+  genDesigningPlan: string;
+
+  // Bottom tabs
+  tabSearch: string;
+  tabTrips: string;
+  tabProfile: string;
+
+  // Preferences placeholder
+  preferencesPlaceholder: string;
+
+  // Picker page
+  stepTransport: string;
+  stepAccommodation: string;
+  stepSummary: string;
+  reserve: string;
+  searchAgain: string;
+  noTransportTitle: string;
+  noTransportSub: string;
+  noHotelTitle: string;
+  noHotelSub: string;
+  costSummary: string;
+  activitiesGastronomy: string;
+  tripTotal: string;
+  budgetLabel: string;
+  exceeded: string;
+  dayByDayItinerary: string;
+  preparingItinerary: string;
+  noItinerary: string;
+  markedFavorite: string;
+  markFavorite: string;
+  savingLabel: string;
+  saveTripLabel: string;
+  tripSaved: string;
+  tripSaveFailed: string;
+  stepWord: string;
+  peopleWord: string;
+  perPersonWord: string;
+  backWord: string;
+  slotMorning: string;
+  slotLunch: string;
+  slotAfternoon: string;
+  slotDinner: string;
+  dayWord: string;
+  nightWord: string;
+  accommodation: string;
+  ageMinorRange: string;
+  ageYoungRange: string;
+  ageAdultRange: string;
+  ageSeniorRange: string;
+  tripSingle: string;
+  tripPlural: string;
+  myTripsTitle: string;
+  newTrip: string;
+  noFavoritesYet: string;
+  startFirstTrip: string;
+  favoritesHint: string;
+  startFirstTripHint: string;
+  planATrip: string;
+  upcomingBadge: string;
+  completedBadge: string;
+  activeBadge: string;
+  removeFavorite: string;
+  addFavorite: string;
+  totalCostLabel: string;
+  viewDetail: string;
+  tabFilterAll: string;
+  tabFilterUpcoming: string;
+  tabFilterPast: string;
+  tabFilterFavorites: string;
+  yourTransport: string;
+  yourAccommodation: string;
+  perNight: string;
+  searchResultsTitle: string;
+  cacheExpired: string;
+  noOffersYet: string;
+  noOffersYetSub: string;
+  flightsLabel: string;
+  hotelsLabel: string;
+  invalidParamsTitle: string;
+  invalidParamsSub: string;
+  tripDetailsTitle: string;
+  surpriseBadge: string;
+  bookYourTrip: string;
+  notBookedYetSub: string;
+  bookFlights: string;
+  bookAccommodation: string;
+  payWord: string;
+  itineraryWord: string;
+  noActivitiesYet: string;
+  towardsCity: (n: number, city: string) => string;
+  nightsInCity: (n: number, city: string) => string;
+  inRangeBadge: string;
+  tightBudgetBadge: string;
+  costTotalLabel: string;
+  flightLabel: string;
+  hotelLabel: string;
+  activitiesLabel: string;
+  estimatedDailyLabel: string;
+  perDaySuffix: string;
+  dragActivityAria: string;
+  dayNTitle: (n: number, title: string) => string;
+  activitiesCount: (n: number) => string;
+  dragActivitiesHere: string;
+  itinerarySavedToast: string;
+  itinerarySaveFailedToast: string;
+  dragActivitiesHint: string;
+  savingText: string;
+  saveText: string;
+  noChangesText: string;
+  settingsTitle: string;
+  myProfileSubtitle: string;
+  nicknameLabel: string;
+  nicknameRequired: string;
+  ageLabel: string;
+  ageInvalid: string;
+  genderLabel: string;
+  genderSelectPlaceholder: string;
+  gendersList: string[];
+  nationalityLabel: string;
+  nationalityPlaceholder: string;
+  hobbiesLabel: string;
+  hobbiesPlaceholder: string;
+  avatarLabel: string;
+  avatarOptional: string;
+  darkModeLabel: string;
+  darkModeSub: (active: boolean) => string;
+  languageLabel: string;
+  languageSub: string;
+  saveSettingsError: string;
+  saveSettingsSuccess: string;
+  saveSettingsBtn: string;
+  savingSettingsBtn: string;
+  onboardingPersonalize: string;
+  onboardingDefaultProfile: string;
+}
+
+const ca: Translations = {
+  destination: "DESTINACIÓ",
+  dates: "DATES",
+  transport: "TRANSPORT",
+  origin: "ORIGEN",
+  people: "PERSONES",
+  budgetPerPerson: "PRESSUPOST PER PERSONA",
+  preferences: "PREFERÈNCIES",
+  preferencesHint: "Opcional — personalitza restaurants i activitats",
+
+  whichDestination: "Quina destinació?",
+  whenTravel: "Quan vols viatjar?",
+  howTravel: "Com vols anar?",
+  originPlaceholder: "Codi aeroport (IATA), ex: BCN",
+
+  person: "persona",
+  persons: "persones",
+  peopleCount: (n) => `${n} ${n === 1 ? "persona" : "persones"}`,
+
+  traveler: "Viatger",
+  travelerN: (n) => `Viatger ${n}`,
+  ageMinor: "Menor",
+  ageYoung: "Adolescent",
+  ageAdult: "Adult",
+  ageSenior: "Sènior",
+  ageGroupLabel: "GRUPS D'EDAT",
+
+  budgetEconomic: "Econòmic",
+  budgetBalanced: "Equilibrat",
+  budgetComfortable: "Confortable",
+  budgetPremium: "Premium",
+  budgetEconomicSub: "Escapades curtes a Europa",
+  budgetBalancedSub: "5-7 dies a Europa",
+  budgetComfortableSub: "Intercontinental",
+  budgetPremiumSub: "Sense compromís",
+  perPersonAllInclusive: "per persona · tot inclòs",
+
+  transportPlane: "Avió",
+  transportPlaneSub: "Més ràpid",
+  transportTrain: "Tren",
+  transportTrainSub: "Sostenible",
+  transportBus: "Bus / Ferri",
+  transportBusSub: "Econòmic",
+  transportCar: "Cotxe propi",
+  transportCarSub: "Flexible",
+
+  months: ["gen", "feb", "març", "abr", "maig", "juny", "jul", "ago", "set", "oct", "nov", "des"],
+  calendarMonths: ["Gener", "Febrer", "Març", "Abril", "Maig", "Juny", "Juliol", "Agost", "Setembre", "Octubre", "Novembre", "Desembre"],
+  calendarWeekdays: ["Dl", "Dt", "Dc", "Dj", "Dv", "Ds", "Dg"],
+
+  day: "dia",
+  days: "dies",
+  daysCount: (n) => `${n} ${n === 1 ? "dia" : "dies"}`,
+
+  confirmDates: "Confirmar dates",
+  confirmTransport: "Confirmar transport",
+  confirmBudget: "Confirmar",
+  confirmOrigin: "Confirmar origen",
+  generateTrip: "Genera el meu viatge",
+  completeAllFields: "Completa tots els camps",
+
+  chooseDestination: "Tria la destinació",
+  whenDoYouTravel: "Quan vols viatjar?",
+  howDoYouTravel: "Com vols anar?",
+  whatBudget: "Quin pressupost?",
+  tripOrigin: "Origen del viatge",
+  airportCode: "CODI D'AEROPORT (IATA)",
+  airportCodePlaceholder: "Ex: BCN",
+  chooseDatesInCalendar: "Tria les dates al calendari",
+
+  destinations: "DESTINS",
+  popularDestinations: "DESTINS POPULARS",
+  whereToGo: "On t'agradaria anar?",
+  fromPrice: "des de",
+
+  tagRecommended: "Recomanat",
+  tagPopular: "Popular",
+  tagPremium: "Premium",
+  tagDeal: "Oferta",
+  tagClassic: "Clàssic",
+  tagTrending: "Trending",
+  tagIconic: "Icònic",
+  tagRomantic: "Romàntic",
+
+  hello: "Hola",
+  whereAreWeGoing: "On anem?",
+  configureTrip: "Configura el teu viatge i deixa que la IA faci la resta.",
+
+  switchAccount: "Canviar de compte",
+  signOut: "Tancar sessió",
+  myAccount: "El meu compte",
+
+  voiceIdle: "Parla i la IA ho omple per tu",
+  voiceIdleSub: "Ex: «Roma 4 dies al juny, 800 €»",
+  voiceIdleExample: "Ex: «Roma 4 dies al juny, 800 €»",
+  voiceRecording: "Escoltant… toca per acabar",
+  voiceProcessing: "Pensant el teu pla…",
+  voiceError: "No s'ha pogut interpretar.",
+  voiceMicPermission: "Permet l'accés al micròfon per parlar.",
+  voiceRecordFailed: "No s'ha pogut gravar.",
+  voiceTooShort: "No t'he sentit. Parla un parell de segons.",
+  voiceFormFilled: "Formulari omplert!",
+
+  genSearchingFlights: "Buscant els millors vols…",
+  genComparingHotels: "Comparant allotjaments…",
+  genDesigningPlan: "Dissenyant el teu pla ideal…",
+
+  tabSearch: "Cerca",
+  tabTrips: "Viatges",
+  tabProfile: "Perfil",
+
+  preferencesPlaceholder: "Som un parell vegà, ens agrada l'art underground i la techno…",
+
+  stepTransport: "PAS 1 · TRANSPORT",
+  stepAccommodation: "PAS 2 · ALLOTJAMENT",
+  stepSummary: "PAS 3 · RESUM",
+  reserve: "Reservar",
+  searchAgain: "Tornar a cercar",
+  noTransportTitle: "Cap transport disponible",
+  noTransportSub: "Prova amb unes altres dates o un altre origen.",
+  noHotelTitle: "Cap allotjament disponible",
+  noHotelSub: "Prova amb unes altres dates.",
+  costSummary: "RESUM DE COSTOS",
+  activitiesGastronomy: "Activitats i gastronomia",
+  tripTotal: "Total del viatge",
+  budgetLabel: "Pressupost",
+  exceeded: "Excedit",
+  dayByDayItinerary: "Itinerari dia a dia",
+  preparingItinerary: "Preparant el teu itinerari…",
+  noItinerary: "No s'ha pogut generar l'itinerari.",
+  markedFavorite: "Marcat com a favorit",
+  markFavorite: "Marcar com a favorit",
+  savingLabel: "Desant…",
+  saveTripLabel: "Desar viatge",
+  tripSaved: "Viatge desat!",
+  tripSaveFailed: "No s'ha pogut desar el viatge.",
+  stepWord: "pas",
+  peopleWord: "pers.",
+  perPersonWord: "p.",
+  backWord: "Enrere",
+  slotMorning: "Matí",
+  slotLunch: "Dinar",
+  slotAfternoon: "Tarda",
+  slotDinner: "Sopar",
+  dayWord: "Dia",
+  nightWord: "nit",
+  accommodation: "Allotjament",
+  ageMinorRange: "Menor (-18)",
+  ageYoungRange: "Adolescent (18-30)",
+  ageAdultRange: "Adult (31-60)",
+  ageSeniorRange: "Sènior (+60)",
+  tripSingle: "viatge",
+  tripPlural: "viatges",
+  myTripsTitle: "Els meus viatges",
+  newTrip: "Nou viatge",
+  noFavoritesYet: "Cap favorit encara",
+  startFirstTrip: "Comença el teu primer viatge",
+  favoritesHint: "Marca viatges com a favorits tocant el cor a qualsevol viatge.",
+  startFirstTripHint: "Configura el teu destí i deixa que la IA construeixi el pla perfecte.",
+  planATrip: "Planifica un viatge",
+  upcomingBadge: "Pròximament",
+  completedBadge: "Completat",
+  activeBadge: "En curs",
+  removeFavorite: "Treure de favorits",
+  addFavorite: "Afegir a favorits",
+  totalCostLabel: "Cost total",
+  viewDetail: "Veure detall",
+  tabFilterAll: "Tots",
+  tabFilterUpcoming: "Pròxims",
+  tabFilterPast: "Passats",
+  tabFilterFavorites: "Favorits",
+  yourTransport: "EL TEU TRANSPORT",
+  yourAccommodation: "EL TEU ALLOTJAMENT",
+  perNight: " /nit",
+  searchResultsTitle: "Resultats",
+  cacheExpired: "Caché expirada",
+  noOffersYet: "Encara no tenim ofertes",
+  noOffersYetSub: "Torna al cercador i prem «Generar viatge» per buscar vols i hotels.",
+  flightsLabel: "Vols",
+  hotelsLabel: "Hotels",
+  invalidParamsTitle: "Paràmetres no vàlids",
+  invalidParamsSub: "Falten dades de cerca o estan mal formades.",
+  tripDetailsTitle: "Detall del viatge",
+  surpriseBadge: "Sorpresa",
+  bookYourTrip: "Reserva el teu viatge",
+  notBookedYetSub: "Encara no has reservat? Assegura vols i allotjament ara.",
+  bookFlights: "Reservar vols",
+  bookAccommodation: "Reservar allotjament",
+  payWord: "Pagar",
+  itineraryWord: "Itinerari",
+  noActivitiesYet: "Encara no hi ha activitats planificades.",
+  towardsCity: (n, city) => `Cap a ${city} · ${n} ${n === 1 ? "viatger" : "viatgers"}`,
+  nightsInCity: (n, city) => `${n} ${n === 1 ? "nit" : "nits"} a ${city}`,
+  inRangeBadge: "Dins del teu rang",
+  tightBudgetBadge: "Pressupost ajustat",
+  costTotalLabel: "Cost total",
+  flightLabel: "Vol",
+  hotelLabel: "Allotjament",
+  activitiesLabel: "Activitats",
+  estimatedDailyLabel: "Diaris estimats",
+  perDaySuffix: "/dia",
+  dragActivityAria: "Arrossega activitat",
+  dayNTitle: (n, title) => `Dia ${n} — ${title}`,
+  activitiesCount: (n) => `${n} act.`,
+  dragActivitiesHere: "Arrossega activitats aquí",
+  itinerarySavedToast: "Itinerari guardat correctament.",
+  itinerarySaveFailedToast: "No hem pogut guardar els canvis.",
+  dragActivitiesHint: "Arrossega les activitats per reordenar-les o moure-les a un altre dia.",
+  savingText: "Guardant…",
+  saveText: "Guardar",
+  noChangesText: "Sense canvis",
+  settingsTitle: "Ajustaments",
+  myProfileSubtitle: "El teu perfil PlAIner",
+  nicknameLabel: "Nickname",
+  nicknameRequired: "El nickname és obligatori.",
+  ageLabel: "Edat",
+  ageInvalid: "Introdueix una edat vàlida.",
+  genderLabel: "Gènere",
+  genderSelectPlaceholder: "Selecciona…",
+  gendersList: ["Dona", "Home", "No binari", "Prefereixo no dir-ho", "Altre"],
+  nationalityLabel: "Nacionalitat",
+  nationalityPlaceholder: "Catalana",
+  hobbiesLabel: "Hobbies",
+  hobbiesPlaceholder: "Senderisme, menjar local, museus",
+  avatarLabel: "Avatar (URL)",
+  avatarOptional: "· Opcional",
+  darkModeLabel: "Mode fosc",
+  darkModeSub: (active) => active ? "Activat" : "Desactivat",
+  languageLabel: "Idioma",
+  languageSub: "Tria l'idioma de l'aplicació",
+  saveSettingsError: "No hem pogut guardar els ajustaments.",
+  saveSettingsSuccess: "Ajustaments guardats correctament.",
+  saveSettingsBtn: "Guardar ajustaments",
+  savingSettingsBtn: "Guardant…",
+  onboardingPersonalize: "Personalitza la teva experiència PlAIner",
+  onboardingDefaultProfile: "El teu perfil",
+};
+
+const es: Translations = {
+  destination: "DESTINO",
+  dates: "FECHAS",
+  transport: "TRANSPORTE",
+  origin: "ORIGEN",
+  people: "PERSONAS",
+  budgetPerPerson: "PRESUPUESTO POR PERSONA",
+  preferences: "PREFERENCIAS",
+  preferencesHint: "Opcional — personaliza restaurantes y actividades",
+
+  whichDestination: "¿Qué destino?",
+  whenTravel: "¿Cuándo quieres viajar?",
+  howTravel: "¿Cómo quieres ir?",
+  originPlaceholder: "Código aeropuerto (IATA), ej: BCN",
+
+  person: "persona",
+  persons: "personas",
+  peopleCount: (n) => `${n} ${n === 1 ? "persona" : "personas"}`,
+
+  traveler: "Viajero",
+  travelerN: (n) => `Viajero ${n}`,
+  ageMinor: "Menor",
+  ageYoung: "Adolescente",
+  ageAdult: "Adulto",
+  ageSenior: "Sénior",
+  ageGroupLabel: "GRUPOS DE EDAD",
+
+  budgetEconomic: "Económico",
+  budgetBalanced: "Equilibrado",
+  budgetComfortable: "Confortable",
+  budgetPremium: "Premium",
+  budgetEconomicSub: "Escapadas cortas por Europa",
+  budgetBalancedSub: "5-7 días en Europa",
+  budgetComfortableSub: "Intercontinental",
+  budgetPremiumSub: "Sin compromiso",
+  perPersonAllInclusive: "por persona · todo incluido",
+
+  transportPlane: "Avión",
+  transportPlaneSub: "Más rápido",
+  transportTrain: "Tren",
+  transportTrainSub: "Sostenible",
+  transportBus: "Bus / Ferri",
+  transportBusSub: "Económico",
+  transportCar: "Coche propio",
+  transportCarSub: "Flexible",
+
+  months: ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"],
+  calendarMonths: ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+  calendarWeekdays: ["Lu", "Ma", "Mi", "Ju", "Vi", "Sá", "Do"],
+
+  day: "día",
+  days: "días",
+  daysCount: (n) => `${n} ${n === 1 ? "día" : "días"}`,
+
+  confirmDates: "Confirmar fechas",
+  confirmTransport: "Confirmar transporte",
+  confirmBudget: "Confirmar",
+  confirmOrigin: "Confirmar origen",
+  generateTrip: "Genera mi viaje",
+  completeAllFields: "Completa todos los campos",
+
+  chooseDestination: "Elige el destino",
+  whenDoYouTravel: "¿Cuándo quieres viajar?",
+  howDoYouTravel: "¿Cómo quieres ir?",
+  whatBudget: "¿Qué presupuesto?",
+  tripOrigin: "Origen del viaje",
+  airportCode: "CÓDIGO DE AEROPUERTO (IATA)",
+  airportCodePlaceholder: "Ej: BCN",
+  chooseDatesInCalendar: "Elige las fechas en el calendario",
+
+  destinations: "DESTINOS",
+  popularDestinations: "DESTINOS POPULARES",
+  whereToGo: "¿A dónde te gustaría ir?",
+  fromPrice: "desde",
+
+  tagRecommended: "Recomendado",
+  tagPopular: "Popular",
+  tagPremium: "Premium",
+  tagDeal: "Oferta",
+  tagClassic: "Clásico",
+  tagTrending: "Trending",
+  tagIconic: "Icónico",
+  tagRomantic: "Romántico",
+
+  hello: "Hola",
+  whereAreWeGoing: "¿A dónde vamos?",
+  configureTrip: "Configura tu viaje y deja que la IA haga el resto.",
+
+  switchAccount: "Cambiar de cuenta",
+  signOut: "Cerrar sesión",
+  myAccount: "Mi cuenta",
+
+  voiceIdle: "Habla y la IA lo rellena por ti",
+  voiceIdleSub: "Ej: «Roma 4 días en junio, 800 €»",
+  voiceIdleExample: "Ej: «Roma 4 días en junio, 800 €»",
+  voiceRecording: "Escuchando… toca para terminar",
+  voiceProcessing: "Pensando tu plan…",
+  voiceError: "No se ha podido interpretar.",
+  voiceMicPermission: "Permite el acceso al micrófono para hablar.",
+  voiceRecordFailed: "No se ha podido grabar.",
+  voiceTooShort: "No te he oído. Habla un par de segundos.",
+  voiceFormFilled: "¡Formulario rellenado!",
+
+  genSearchingFlights: "Buscando los mejores vuelos…",
+  genComparingHotels: "Comparando alojamientos…",
+  genDesigningPlan: "Diseñando tu plan ideal…",
+
+  tabSearch: "Buscar",
+  tabTrips: "Viajes",
+  tabProfile: "Perfil",
+
+  preferencesPlaceholder: "Somos veganos, nos gusta el arte underground y la techno…",
+
+  stepTransport: "PASO 1 · TRANSPORTE",
+  stepAccommodation: "PASO 2 · ALOJAMIENTO",
+  stepSummary: "PASO 3 · RESUMEN",
+  reserve: "Reservar",
+  searchAgain: "Volver a buscar",
+  noTransportTitle: "Ningún transporte disponible",
+  noTransportSub: "Prueba con otras fechas u otro origen.",
+  noHotelTitle: "Ningún alojamiento disponible",
+  noHotelSub: "Prueba con otras fechas.",
+  costSummary: "RESUMEN DE COSTOS",
+  activitiesGastronomy: "Actividades y gastronomía",
+  tripTotal: "Total del viaje",
+  budgetLabel: "Presupuesto",
+  exceeded: "Excedido",
+  dayByDayItinerary: "Itinerario día a día",
+  preparingItinerary: "Preparando tu itinerario…",
+  noItinerary: "No se ha podido generar el itinerario.",
+  markedFavorite: "Marcado como favorito",
+  markFavorite: "Marcar como favorito",
+  savingLabel: "Guardando…",
+  saveTripLabel: "Guardar viaje",
+  tripSaved: "¡Viaje guardado!",
+  tripSaveFailed: "No se ha podido guardar el viaje.",
+  stepWord: "paso",
+  peopleWord: "pers.",
+  perPersonWord: "p.",
+  backWord: "Atrás",
+  slotMorning: "Mañana",
+  slotLunch: "Comida",
+  slotAfternoon: "Tarde",
+  slotDinner: "Cena",
+  dayWord: "Día",
+  nightWord: "noche",
+  accommodation: "Alojamiento",
+  ageMinorRange: "Menor (-18)",
+  ageYoungRange: "Adolescente (18-30)",
+  ageAdultRange: "Adulto (31-60)",
+  ageSeniorRange: "Sénior (+60)",
+  tripSingle: "viaje",
+  tripPlural: "viajes",
+  myTripsTitle: "Mis viajes",
+  newTrip: "Nuevo viaje",
+  noFavoritesYet: "Ningún favorito aún",
+  startFirstTrip: "Comienza tu primer viaje",
+  favoritesHint: "Marca viajes como favoritos tocando el corazón en cualquier viaje.",
+  startFirstTripHint: "Configura tu destino y deja que la IA construya el plan perfecto.",
+  planATrip: "Planifica un viaje",
+  upcomingBadge: "Próximamente",
+  completedBadge: "Completado",
+  activeBadge: "En curso",
+  removeFavorite: "Quitar de favoritos",
+  addFavorite: "Añadir a favoritos",
+  totalCostLabel: "Coste total",
+  viewDetail: "Ver detalle",
+  tabFilterAll: "Todos",
+  tabFilterUpcoming: "Próximos",
+  tabFilterPast: "Pasados",
+  tabFilterFavorites: "Favoritos",
+  yourTransport: "TU TRANSPORTE",
+  yourAccommodation: "TU ALOJAMIENTO",
+  perNight: " /noche",
+  searchResultsTitle: "Resultados",
+  cacheExpired: "Caché expirada",
+  noOffersYet: "Aún no tenemos ofertas",
+  noOffersYetSub: "Vuelve al buscador y pulsa «Generar viaje» para buscar vuelos y hoteles.",
+  flightsLabel: "Vuelos",
+  hotelsLabel: "Hoteles",
+  invalidParamsTitle: "Parámetros no válidos",
+  invalidParamsSub: "Faltan datos de búsqueda o están mal formados.",
+  tripDetailsTitle: "Detalle del viaje",
+  surpriseBadge: "Sorpresa",
+  bookYourTrip: "Reserva tu viaje",
+  notBookedYetSub: "¿Aún no has reservado? Asegura vuelos y alojamiento ahora.",
+  bookFlights: "Reservar vuelos",
+  bookAccommodation: "Reservar alojamiento",
+  payWord: "Pagar",
+  itineraryWord: "Itinerario",
+  noActivitiesYet: "Aún no hay actividades planificadas.",
+  towardsCity: (n, city) => `Hacia ${city} · ${n} ${n === 1 ? "viajero" : "viajeros"}`,
+  nightsInCity: (n, city) => `${n} ${n === 1 ? "noche" : "noches"} en ${city}`,
+  inRangeBadge: "Dentro de tu rango",
+  tightBudgetBadge: "Presupuesto ajustado",
+  costTotalLabel: "Coste total",
+  flightLabel: "Vuelo",
+  hotelLabel: "Alojamiento",
+  activitiesLabel: "Actividades",
+  estimatedDailyLabel: "Diarios estimados",
+  perDaySuffix: "/día",
+  dragActivityAria: "Arrastra actividad",
+  dayNTitle: (n, title) => `Día ${n} — ${title}`,
+  activitiesCount: (n) => `${n} act.`,
+  dragActivitiesHere: "Arrastra actividades aquí",
+  itinerarySavedToast: "Itinerario guardado correctamente.",
+  itinerarySaveFailedToast: "No hemos podido guardar los cambios.",
+  dragActivitiesHint: "Arrastra las actividades para reordenarlas o moverlas a otro día.",
+  savingText: "Guardando…",
+  saveText: "Guardar",
+  noChangesText: "Sin cambios",
+  settingsTitle: "Ajustes",
+  myProfileSubtitle: "Tu perfil PlAIner",
+  nicknameLabel: "Nickname",
+  nicknameRequired: "El nickname es obligatorio.",
+  ageLabel: "Edad",
+  ageInvalid: "Introduce una edad válida.",
+  genderLabel: "Género",
+  genderSelectPlaceholder: "Selecciona…",
+  gendersList: ["Mujer", "Hombre", "No binario", "Prefiero no decirlo", "Otro"],
+  nationalityLabel: "Nacionalidad",
+  nationalityPlaceholder: "Española",
+  hobbiesLabel: "Hobbies",
+  hobbiesPlaceholder: "Senderismo, comida local, museos",
+  avatarLabel: "Avatar (URL)",
+  avatarOptional: "· Opcional",
+  darkModeLabel: "Modo oscuro",
+  darkModeSub: (active) => active ? "Activado" : "Desactivado",
+  languageLabel: "Idioma",
+  languageSub: "Elige el idioma de la aplicación",
+  saveSettingsError: "No hemos podido guardar los ajustes.",
+  saveSettingsSuccess: "Ajustes guardados correctamente.",
+  saveSettingsBtn: "Guardar ajustes",
+  savingSettingsBtn: "Guardando…",
+  onboardingPersonalize: "Personaliza tu experiencia PlAIner",
+  onboardingDefaultProfile: "Tu perfil",
+};
+
+const en: Translations = {
+  destination: "DESTINATION",
+  dates: "DATES",
+  transport: "TRANSPORT",
+  origin: "ORIGIN",
+  people: "TRAVELERS",
+  budgetPerPerson: "BUDGET PER PERSON",
+  preferences: "PREFERENCES",
+  preferencesHint: "Optional — customize restaurants and activities",
+
+  whichDestination: "Which destination?",
+  whenTravel: "When do you want to travel?",
+  howTravel: "How do you want to travel?",
+  originPlaceholder: "Airport code (IATA), e.g.: BCN",
+
+  person: "person",
+  persons: "people",
+  peopleCount: (n) => `${n} ${n === 1 ? "person" : "people"}`,
+
+  traveler: "Traveler",
+  travelerN: (n) => `Traveler ${n}`,
+  ageMinor: "Minor",
+  ageYoung: "Teenager",
+  ageAdult: "Adult",
+  ageSenior: "Senior",
+  ageGroupLabel: "AGE GROUPS",
+
+  budgetEconomic: "Budget",
+  budgetBalanced: "Balanced",
+  budgetComfortable: "Comfortable",
+  budgetPremium: "Premium",
+  budgetEconomicSub: "Short trips in Europe",
+  budgetBalancedSub: "5-7 days in Europe",
+  budgetComfortableSub: "Intercontinental",
+  budgetPremiumSub: "No compromise",
+  perPersonAllInclusive: "per person · all inclusive",
+
+  transportPlane: "Plane",
+  transportPlaneSub: "Fastest",
+  transportTrain: "Train",
+  transportTrainSub: "Sustainable",
+  transportBus: "Bus / Ferry",
+  transportBusSub: "Budget",
+  transportCar: "Own car",
+  transportCarSub: "Flexible",
+
+  months: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  calendarMonths: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+  calendarWeekdays: ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
+
+  day: "day",
+  days: "days",
+  daysCount: (n) => `${n} ${n === 1 ? "day" : "days"}`,
+
+  confirmDates: "Confirm dates",
+  confirmTransport: "Confirm transport",
+  confirmBudget: "Confirm",
+  confirmOrigin: "Confirm origin",
+  generateTrip: "Generate my trip",
+  completeAllFields: "Complete all fields",
+
+  chooseDestination: "Choose destination",
+  whenDoYouTravel: "When do you want to travel?",
+  howDoYouTravel: "How do you want to travel?",
+  whatBudget: "What budget?",
+  tripOrigin: "Trip origin",
+  airportCode: "AIRPORT CODE (IATA)",
+  airportCodePlaceholder: "E.g.: BCN",
+  chooseDatesInCalendar: "Choose dates on the calendar",
+
+  destinations: "DESTINATIONS",
+  popularDestinations: "POPULAR DESTINATIONS",
+  whereToGo: "Where would you like to go?",
+  fromPrice: "from",
+
+  tagRecommended: "Recommended",
+  tagPopular: "Popular",
+  tagPremium: "Premium",
+  tagDeal: "Deal",
+  tagClassic: "Classic",
+  tagTrending: "Trending",
+  tagIconic: "Iconic",
+  tagRomantic: "Romantic",
+
+  hello: "Hello",
+  whereAreWeGoing: "Where to?",
+  configureTrip: "Set up your trip and let AI do the rest.",
+
+  switchAccount: "Switch account",
+  signOut: "Sign out",
+  myAccount: "My account",
+
+  voiceIdle: "Speak and AI fills it for you",
+  voiceIdleSub: "E.g.: «Rome 4 days in June, 800 €»",
+  voiceIdleExample: "E.g.: «Rome 4 days in June, €800»",
+  voiceRecording: "Listening… tap to stop",
+  voiceProcessing: "Thinking up your plan…",
+  voiceError: "Could not interpret.",
+  voiceMicPermission: "Allow microphone access to speak.",
+  voiceRecordFailed: "Could not record.",
+  voiceTooShort: "Didn't catch that. Speak for a few seconds.",
+  voiceFormFilled: "Form filled!",
+
+  genSearchingFlights: "Searching best flights…",
+  genComparingHotels: "Comparing accommodations…",
+  genDesigningPlan: "Designing your ideal plan…",
+
+  tabSearch: "Search",
+  tabTrips: "Trips",
+  tabProfile: "Profile",
+
+  preferencesPlaceholder: "We're vegan, we love underground art and techno…",
+
+  stepTransport: "STEP 1 · TRANSPORT",
+  stepAccommodation: "STEP 2 · ACCOMMODATION",
+  stepSummary: "STEP 3 · SUMMARY",
+  reserve: "Book",
+  searchAgain: "Search again",
+  noTransportTitle: "No transport available",
+  noTransportSub: "Try other dates or a different origin.",
+  noHotelTitle: "No accommodation available",
+  noHotelSub: "Try other dates.",
+  costSummary: "COST SUMMARY",
+  activitiesGastronomy: "Activities & gastronomy",
+  tripTotal: "Trip total",
+  budgetLabel: "Budget",
+  exceeded: "Exceeded",
+  dayByDayItinerary: "Day-by-day itinerary",
+  preparingItinerary: "Preparing your itinerary…",
+  noItinerary: "Could not generate itinerary.",
+  markedFavorite: "Marked as favorite",
+  markFavorite: "Mark as favorite",
+  savingLabel: "Saving…",
+  saveTripLabel: "Save trip",
+  tripSaved: "Trip saved!",
+  tripSaveFailed: "Could not save trip.",
+  stepWord: "step",
+  peopleWord: "people",
+  perPersonWord: "p.",
+  backWord: "Back",
+  slotMorning: "Morning",
+  slotLunch: "Lunch",
+  slotAfternoon: "Afternoon",
+  slotDinner: "Dinner",
+  dayWord: "Day",
+  nightWord: "night",
+  accommodation: "Accommodation",
+  ageMinorRange: "Minor (-18)",
+  ageYoungRange: "Teenager (18-30)",
+  ageAdultRange: "Adult (31-60)",
+  ageSeniorRange: "Senior (+60)",
+  tripSingle: "trip",
+  tripPlural: "trips",
+  myTripsTitle: "My trips",
+  newTrip: "New trip",
+  noFavoritesYet: "No favorites yet",
+  startFirstTrip: "Start your first trip",
+  favoritesHint: "Mark trips as favorites by tapping the heart on any trip.",
+  startFirstTripHint: "Set up your destination and let AI build the perfect plan.",
+  planATrip: "Plan a trip",
+  upcomingBadge: "Upcoming",
+  completedBadge: "Completed",
+  activeBadge: "Active",
+  removeFavorite: "Remove from favorites",
+  addFavorite: "Add to favorites",
+  totalCostLabel: "Total cost",
+  viewDetail: "View details",
+  tabFilterAll: "All",
+  tabFilterUpcoming: "Upcoming",
+  tabFilterPast: "Past",
+  tabFilterFavorites: "Favorites",
+  yourTransport: "YOUR TRANSPORT",
+  yourAccommodation: "YOUR ACCOMMODATION",
+  perNight: " /night",
+  searchResultsTitle: "Search results",
+  cacheExpired: "Expired cache",
+  noOffersYet: "No offers yet",
+  noOffersYetSub: "Go back to search and press «Generate trip» to search for flights and hotels.",
+  flightsLabel: "Flights",
+  hotelsLabel: "Hotels",
+  invalidParamsTitle: "Invalid parameters",
+  invalidParamsSub: "Search data is missing or malformed.",
+  tripDetailsTitle: "Trip details",
+  surpriseBadge: "Surprise",
+  bookYourTrip: "Book your trip",
+  notBookedYetSub: "Haven't booked yet? Secure flights and accommodation now.",
+  bookFlights: "Book flights",
+  bookAccommodation: "Book accommodation",
+  payWord: "Pay",
+  itineraryWord: "Itinerary",
+  noActivitiesYet: "No activities planned yet.",
+  towardsCity: (n, city) => `To ${city} · ${n} ${n === 1 ? "traveler" : "travelers"}`,
+  nightsInCity: (n, city) => `${n} ${n === 1 ? "night" : "nights"} in ${city}`,
+  inRangeBadge: "Within your budget",
+  tightBudgetBadge: "Tight budget",
+  costTotalLabel: "Total cost",
+  flightLabel: "Flight",
+  hotelLabel: "Accommodation",
+  activitiesLabel: "Activities",
+  estimatedDailyLabel: "Estimated daily",
+  perDaySuffix: "/day",
+  dragActivityAria: "Drag activity",
+  dayNTitle: (n, title) => `Day ${n} — ${title}`,
+  activitiesCount: (n) => `${n} act.`,
+  dragActivitiesHere: "Drag activities here",
+  itinerarySavedToast: "Itinerary saved successfully.",
+  itinerarySaveFailedToast: "Could not save changes.",
+  dragActivitiesHint: "Drag activities to reorder or move them to another day.",
+  savingText: "Saving…",
+  saveText: "Save",
+  noChangesText: "No changes",
+  settingsTitle: "Settings",
+  myProfileSubtitle: "Your PlAIner profile",
+  nicknameLabel: "Nickname",
+  nicknameRequired: "Nickname is required.",
+  ageLabel: "Age",
+  ageInvalid: "Enter a valid age.",
+  genderLabel: "Gender",
+  genderSelectPlaceholder: "Select…",
+  gendersList: ["Woman", "Man", "Non-binary", "Prefer not to say", "Other"],
+  nationalityLabel: "Nationality",
+  nationalityPlaceholder: "American",
+  hobbiesLabel: "Hobbies",
+  hobbiesPlaceholder: "Hiking, local food, museums",
+  avatarLabel: "Avatar (URL)",
+  avatarOptional: "· Optional",
+  darkModeLabel: "Dark mode",
+  darkModeSub: (active) => active ? "Enabled" : "Disabled",
+  languageLabel: "Language",
+  languageSub: "Choose the application language",
+  saveSettingsError: "Could not save settings.",
+  saveSettingsSuccess: "Settings saved successfully.",
+  saveSettingsBtn: "Save settings",
+  savingSettingsBtn: "Saving…",
+  onboardingPersonalize: "Personalize your PlAIner experience",
+  onboardingDefaultProfile: "Your profile",
+};
+
+const de: Translations = {
+  destination: "REISEZIEL",
+  dates: "REISEDATEN",
+  transport: "TRANSPORTMITTEL",
+  origin: "ABFLUGHAFEN",
+  people: "REISENDE",
+  budgetPerPerson: "BUDGET PRO PERSON",
+  preferences: "VORLIEBEN",
+  preferencesHint: "Optional — Personalisieren Sie Restaurants und Aktivitäten",
+
+  whichDestination: "Welches Reiseziel?",
+  whenTravel: "Wann möchten Sie reisen?",
+  howTravel: "Wie möchten Sie reisen?",
+  originPlaceholder: "Flughafencode (IATA), z. B.: BCN",
+
+  person: "Person",
+  persons: "Personen",
+  peopleCount: (n) => `${n} ${n === 1 ? "Person" : "Personen"}`,
+
+  traveler: "Reisender",
+  travelerN: (n) => `Reisender ${n}`,
+  ageMinor: "Minderjährig",
+  ageYoung: "Teenager",
+  ageAdult: "Erwachsener",
+  ageSenior: "Senior",
+  ageGroupLabel: "ALTERSGRUPPEN",
+
+  budgetEconomic: "Günstig",
+  budgetBalanced: "Ausgewogen",
+  budgetComfortable: "Komfortabel",
+  budgetPremium: "Premium",
+  budgetEconomicSub: "Kurztrips in Europa",
+  budgetBalancedSub: "5-7 Tage in Europa",
+  budgetComfortableSub: "Interkontinental",
+  budgetPremiumSub: "Keine Kompromisse",
+  perPersonAllInclusive: "pro Person · All-inclusive",
+
+  transportPlane: "Flugzeug",
+  transportPlaneSub: "Am schnellsten",
+  transportTrain: "Zug",
+  transportTrainSub: "Nachhaltig",
+  transportBus: "Bus / Fähre",
+  transportBusSub: "Günstig",
+  transportCar: "Eigenes Auto",
+  transportCarSub: "Flexibel",
+
+  months: ["Jan", "Feb", "Mär", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Okt", "Nov", "Dez"],
+  calendarMonths: ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+  calendarWeekdays: ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"],
+
+  day: "Tag",
+  days: "Tage",
+  daysCount: (n) => `${n} ${n === 1 ? "Tag" : "Tage"}`,
+
+  confirmDates: "Daten bestätigen",
+  confirmTransport: "Transport bestätigen",
+  confirmBudget: "Bestätigen",
+  confirmOrigin: "Abflughafen bestätigen",
+  generateTrip: "Meine Reise erstellen",
+  completeAllFields: "Alle Felder ausfüllen",
+
+  chooseDestination: "Reiseziel wählen",
+  whenDoYouTravel: "Wann möchten Sie reisen?",
+  howDoYouTravel: "Wie möchten Sie reisen?",
+  whatBudget: "Welches Budget?",
+  tripOrigin: "Abflughafen der Reise",
+  airportCode: "FLUGHAFENCODE (IATA)",
+  airportCodePlaceholder: "Z. B.: BCN",
+  chooseDatesInCalendar: "Reisedaten im Kalender auswählen",
+
+  destinations: "REISEZIELE",
+  popularDestinations: "BELIEBTE REISEZIELE",
+  whereToGo: "Wohin möchten Sie reisen?",
+  fromPrice: "ab",
+
+  tagRecommended: "Empfohlen",
+  tagPopular: "Beliebt",
+  tagPremium: "Premium",
+  tagDeal: "Angebot",
+  tagClassic: "Klassisch",
+  tagTrending: "Angesagt",
+  tagIconic: "Kultig",
+  tagRomantic: "Romantisch",
+
+  hello: "Hallo",
+  whereAreWeGoing: "Wohin geht's?",
+  configureTrip: "Planen Sie Ihre Reise und lassen Sie die KI den Rest erledigen.",
+
+  switchAccount: "Konto wechseln",
+  signOut: "Abmelden",
+  myAccount: "Mein Konto",
+
+  voiceIdle: "Sprechen und die KI füllt es aus",
+  voiceIdleSub: "Z. B.: «Rom 4 Tage im Juni, 800 €»",
+  voiceIdleExample: "Z. B.: «Rom 4 Tage im Juni, 800 €»",
+  voiceRecording: "Zuhören… zum Stoppen tippen",
+  voiceProcessing: "Reiseplan wird erstellt…",
+  voiceError: "Konnte nicht interpretiert werden.",
+  voiceMicPermission: "Erlauben Sie Mikrofonzugriff zum Sprechen.",
+  voiceRecordFailed: "Aufnahme fehlgeschlagen.",
+  voiceTooShort: "Ich habe nichts gehört. Bitte sprechen Sie länger.",
+  voiceFormFilled: "Formular ausgefüllt!",
+
+  genSearchingFlights: "Suche nach besten Flügen…",
+  genComparingHotels: "Vergleiche Unterkünfte…",
+  genDesigningPlan: "Erstelle Ihren idealen Reiseplan…",
+
+  tabSearch: "Suche",
+  tabTrips: "Reisen",
+  tabProfile: "Profil",
+
+  preferencesPlaceholder: "Wir leben vegan, lieben Underground-Kunst und Techno…",
+
+  stepTransport: "SCHRITT 1 · TRANSPORTMITTEL",
+  stepAccommodation: "SCHRITT 2 · UNTERKUNFT",
+  stepSummary: "SCHRITT 3 · ZUSAMMENFASSUNG",
+  reserve: "Buchen",
+  searchAgain: "Erneut suchen",
+  noTransportTitle: "Keine Transportmittel verfügbar",
+  noTransportSub: "Versuchen Sie andere Daten oder einen anderen Abflughafen.",
+  noHotelTitle: "Keine Unterkünfte verfügbar",
+  noHotelSub: "Versuchen Sie andere Daten.",
+  costSummary: "KOSTENÜBERSICHT",
+  activitiesGastronomy: "Aktivitäten & Gastronomie",
+  tripTotal: "Gesamtkosten",
+  budgetLabel: "Budget",
+  exceeded: "Überschritten",
+  dayByDayItinerary: "Tagesplan",
+  preparingItinerary: "Reiseplan wird vorbereitet…",
+  noItinerary: "Reiseplan konnte nicht erstellt werden.",
+  markedFavorite: "Als Favorit markiert",
+  markFavorite: "Als Favorit speichern",
+  savingLabel: "Speichern…",
+  saveTripLabel: "Reise speichern",
+  tripSaved: "Reise gespeichert!",
+  tripSaveFailed: "Reise konnte nicht gespeichert werden.",
+  stepWord: "Schritt",
+  peopleWord: "Pers.",
+  perPersonWord: "p.P.",
+  backWord: "Zurück",
+  slotMorning: "Morgen",
+  slotLunch: "Mittagessen",
+  slotAfternoon: "Nachmittag",
+  slotDinner: "Abendessen",
+  dayWord: "Tag",
+  nightWord: "Nacht",
+  accommodation: "Unterkunft",
+  ageMinorRange: "Minderjährig (-18)",
+  ageYoungRange: "Teenager (18-30)",
+  ageAdultRange: "Erwachsener (31-60)",
+  ageSeniorRange: "Senior (+60)",
+  tripSingle: "Reise",
+  tripPlural: "Reisen",
+  myTripsTitle: "Meine Reisen",
+  newTrip: "Neue Reise",
+  noFavoritesYet: "Noch keine Favoriten",
+  startFirstTrip: "Starten Sie Ihre erste Reise",
+  favoritesHint: "Markieren Sie Reisen als Favoriten, indem Sie auf das Herzsymbol tippen.",
+  startFirstTripHint: "Geben Sie ein Ziel ein und lassen Sie die KI den perfekten Plan erstellen.",
+  planATrip: "Reise planen",
+  upcomingBadge: "Anstehend",
+  completedBadge: "Abgeschlossen",
+  activeBadge: "Aktiv",
+  removeFavorite: "Aus Favoriten entfernen",
+  addFavorite: "Zu Favoriten hinzufügen",
+  totalCostLabel: "Gesamtkosten",
+  viewDetail: "Details anzeigen",
+  tabFilterAll: "Alle",
+  tabFilterUpcoming: "Anstehend",
+  tabFilterPast: "Vergangen",
+  tabFilterFavorites: "Favoriten",
+  yourTransport: "IHR TRANSPORTMITTEL",
+  yourAccommodation: "IHRE UNTERKUNFT",
+  perNight: " /Nacht",
+  searchResultsTitle: "Suchergebnisse",
+  cacheExpired: "Cache abgelaufen",
+  noOffersYet: "Noch keine Angebote",
+  noOffersYetSub: "Gehen Sie zurück und klicken Sie auf «Reise erstellen», um Flüge und Hotels zu suchen.",
+  flightsLabel: "Flüge",
+  hotelsLabel: "Hotels",
+  invalidParamsTitle: "Ungültige Parameter",
+  invalidParamsSub: "Suchdaten fehlen oder sind fehlerhaft.",
+  tripDetailsTitle: "Reisedetails",
+  surpriseBadge: "Überraschung",
+  bookYourTrip: "Ihre Reise buchen",
+  notBookedYetSub: "Noch nicht gebucht? Sichern Sie sich jetzt Flüge und Unterkünfte.",
+  bookFlights: "Flüge buchen",
+  bookAccommodation: "Unterkunft buchen",
+  payWord: "Bezahlen",
+  itineraryWord: "Reiseplan",
+  noActivitiesYet: "Noch keine Aktivitäten geplant.",
+  towardsCity: (n, city) => `nach ${city} · ${n} ${n === 1 ? "Reisender" : "Reisende"}`,
+  nightsInCity: (n, city) => `${n} ${n === 1 ? "Nacht" : "Nächte"} in ${city}`,
+  inRangeBadge: "Im Budget",
+  tightBudgetBadge: "Knappes Budget",
+  costTotalLabel: "Gesamtkosten",
+  flightLabel: "Flug",
+  hotelLabel: "Unterkunft",
+  activitiesLabel: "Aktivitäten",
+  estimatedDailyLabel: "Geschätzte Tageskosten",
+  perDaySuffix: "/Tag",
+  dragActivityAria: "Aktivität verschieben",
+  dayNTitle: (n, title) => `Tag ${n} — ${title}`,
+  activitiesCount: (n) => `${n} Akt.`,
+  dragActivitiesHere: "Aktivitäten hierher ziehen",
+  itinerarySavedToast: "Reiseplan erfolgreich gespeichert.",
+  itinerarySaveFailedToast: "Änderungen konnten nicht gespeichert werden.",
+  dragActivitiesHint: "Ziehen Sie Aktivitäten, um sie neu anzuordnen oder auf einen anderen Tag zu verschieben.",
+  savingText: "Speichern…",
+  saveText: "Speichern",
+  noChangesText: "Keine Änderungen",
+  settingsTitle: "Einstellungen",
+  myProfileSubtitle: "Ihr PlAIner-Profil",
+  nicknameLabel: "Nickname",
+  nicknameRequired: "Nickname ist erforderlich.",
+  ageLabel: "Alter",
+  ageInvalid: "Geben Sie ein gültiges Alter ein.",
+  genderLabel: "Geschlecht",
+  genderSelectPlaceholder: "Auswählen…",
+  gendersList: ["Frau", "Mann", "Non-binär", "Keine Angabe", "Andere"],
+  nationalityLabel: "Nationalität",
+  nationalityPlaceholder: "Deutsche",
+  hobbiesLabel: "Hobbys",
+  hobbiesPlaceholder: "Wandern, lokales Essen, Museen",
+  avatarLabel: "Avatar (URL)",
+  avatarOptional: "· Optional",
+  darkModeLabel: "Dunkelmodus",
+  darkModeSub: (active) => active ? "Aktiviert" : "Deaktiviert",
+  languageLabel: "Sprache",
+  languageSub: "Wählen Sie die Anwendungssprache",
+  saveSettingsError: "Einstellungen konnten nicht gespeichert werden.",
+  saveSettingsSuccess: "Einstellungen erfolgreich gespeichert.",
+  saveSettingsBtn: "Einstellungen speichern",
+  savingSettingsBtn: "Wird gespeichert…",
+  onboardingPersonalize: "Personalisieren Sie Ihr PlAIner-Erlebnis",
+  onboardingDefaultProfile: "Ihr Profil",
+};
+
+const fr: Translations = {
+  destination: "DESTINATION",
+  dates: "DATES",
+  transport: "TRANSPORT",
+  origin: "ORIGINE",
+  people: "VOYAGEURS",
+  budgetPerPerson: "BUDGET PAR PERSONNE",
+  preferences: "PRÉFÉRENCES",
+  preferencesHint: "Optionnel — personnalisez les restaurants et les activités",
+
+  whichDestination: "Quelle destination ?",
+  whenTravel: "Quand voulez-vous voyager ?",
+  howTravel: "Comment voulez-vous voyager ?",
+  originPlaceholder: "Code aéroport (IATA), ex : BCN",
+
+  person: "personne",
+  persons: "personnes",
+  peopleCount: (n) => `${n} ${n === 1 ? "personne" : "personnes"}`,
+
+  traveler: "Voyageur",
+  travelerN: (n) => `Voyageur ${n}`,
+  ageMinor: "Mineur",
+  ageYoung: "Adolescent",
+  ageAdult: "Adulte",
+  ageSenior: "Senior",
+  ageGroupLabel: "GROUPES D'ÂGE",
+
+  budgetEconomic: "Économique",
+  budgetBalanced: "Équilibré",
+  budgetComfortable: "Confortable",
+  budgetPremium: "Premium",
+  budgetEconomicSub: "Escapades courtes en Europe",
+  budgetBalancedSub: "5-7 jours en Europe",
+  budgetComfortableSub: "Intercontinental",
+  budgetPremiumSub: "Sans compromis",
+  perPersonAllInclusive: "par personne · tout compris",
+
+  transportPlane: "Avion",
+  transportPlaneSub: "Le plus rapide",
+  transportTrain: "Train",
+  transportTrainSub: "Durable",
+  transportBus: "Bus / Ferry",
+  transportBusSub: "Économique",
+  transportCar: "Voiture propre",
+  transportCarSub: "Flexible",
+
+  months: ["Jan", "Fév", "Mar", "Avr", "Mai", "Jun", "Jul", "Aoû", "Sep", "Oct", "Nov", "Déc"],
+  calendarMonths: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+  calendarWeekdays: ["Lu", "Ma", "Me", "Je", "Ve", "Sa", "Di"],
+
+  day: "jour",
+  days: "jours",
+  daysCount: (n) => `${n} ${n === 1 ? "jour" : "jours"}`,
+
+  confirmDates: "Confirmer les dates",
+  confirmTransport: "Confirmer le transport",
+  confirmBudget: "Confirmer",
+  confirmOrigin: "Confirmer l'origine",
+  generateTrip: "Générer mon voyage",
+  completeAllFields: "Remplir tous les champs",
+
+  chooseDestination: "Choisir la destination",
+  whenDoYouTravel: "Quand voulez-vous voyager ?",
+  howDoYouTravel: "Comment voulez-vous voyager ?",
+  whatBudget: "Quel budget ?",
+  tripOrigin: "Origine du voyage",
+  airportCode: "CODE AÉROPORT (IATA)",
+  airportCodePlaceholder: "Ex : BCN",
+  chooseDatesInCalendar: "Choisir les dates sur le calendrier",
+
+  destinations: "DESTINATIONS",
+  popularDestinations: "DESTINATIONS POPULAIRES",
+  whereToGo: "Où aimeriez-vous aller ?",
+  fromPrice: "à partir de",
+
+  tagRecommended: "Recommandé",
+  tagPopular: "Populaire",
+  tagPremium: "Premium",
+  tagDeal: "Offre",
+  tagClassic: "Classique",
+  tagTrending: "Tendance",
+  tagIconic: "Iconique",
+  tagRomantic: "Romantique",
+
+  hello: "Bonjour",
+  whereAreWeGoing: "Où allons-nous ?",
+  configureTrip: "Configurez votre voyage et laissez l'IA faire le reste.",
+
+  switchAccount: "Changer de compte",
+  signOut: "Se déconnecter",
+  myAccount: "Mon compte",
+
+  voiceIdle: "Parlez et l'IA remplit pour vous",
+  voiceIdleSub: "Ex : « Rome 4 jours en juin, 800 € »",
+  voiceIdleExample: "Ex : « Rome 4 jours en juin, 800 € »",
+  voiceRecording: "Écoute… appuyez pour arrêter",
+  voiceProcessing: "Création de votre plan…",
+  voiceError: "Impossible d'interpréter.",
+  voiceMicPermission: "Autorisez l'accès au micro pour parler.",
+  voiceRecordFailed: "Impossible d'enregistrer.",
+  voiceTooShort: "Je ne vous ai pas entendu. Parlez quelques secondes.",
+  voiceFormFilled: "Formulaire rempli !",
+
+  genSearchingFlights: "Recherche des meilleurs vols…",
+  genComparingHotels: "Comparaison des hébergements…",
+  genDesigningPlan: "Conception de votre plan idéal…",
+
+  tabSearch: "Rechercher",
+  tabTrips: "Voyages",
+  tabProfile: "Profil",
+
+  preferencesPlaceholder: "Nous sommes végétaliens, aimons l'art underground et la techno…",
+
+  stepTransport: "ÉTAPE 1 · TRANSPORT",
+  stepAccommodation: "ÉTAPE 2 · HÉBERGEMENT",
+  stepSummary: "ÉTAPE 3 · RÉSUMÉ",
+  reserve: "Réserver",
+  searchAgain: "Rechercher à nouveau",
+  noTransportTitle: "Aucun transport disponible",
+  noTransportSub: "Essayez d'autres dates ou un autre départ.",
+  noHotelTitle: "Aucun hébergement disponible",
+  noHotelSub: "Essayez d'autres dates.",
+  costSummary: "RÉSUMÉ DES COÛTS",
+  activitiesGastronomy: "Activités & gastronomie",
+  tripTotal: "Total du voyage",
+  budgetLabel: "Budget",
+  exceeded: "Dépassé",
+  dayByDayItinerary: "Itinéraire jour par jour",
+  preparingItinerary: "Préparation de votre itinéraire…",
+  noItinerary: "Impossible de générer l'itinéraire.",
+  markedFavorite: "Marqué comme favori",
+  markFavorite: "Marquer comme favori",
+  savingLabel: "Enregistrement…",
+  saveTripLabel: "Enregistrer le voyage",
+  tripSaved: "Voyage enregistré !",
+  tripSaveFailed: "Impossible d'enregistrer le voyage.",
+  stepWord: "étape",
+  peopleWord: "pers.",
+  perPersonWord: "p.",
+  backWord: "Retour",
+  slotMorning: "Matin",
+  slotLunch: "Déjeuner",
+  slotAfternoon: "Après-midi",
+  slotDinner: "Dîner",
+  dayWord: "Jour",
+  nightWord: "nuit",
+  accommodation: "Hébergement",
+  ageMinorRange: "Mineur (-18)",
+  ageYoungRange: "Adolescent (18-30)",
+  ageAdultRange: "Adulte (31-60)",
+  ageSeniorRange: "Senior (+60)",
+  tripSingle: "voyage",
+  tripPlural: "voyages",
+  myTripsTitle: "Mes voyages",
+  newTrip: "Nouveau voyage",
+  noFavoritesYet: "Aucun favori pour l'instant",
+  startFirstTrip: "Commencez votre premier voyage",
+  favoritesHint: "Marquez les voyages como favoris en appuyant sur le cœur sur n'importe quel voyage.",
+  startFirstTripHint: "Configurez votre destination et laissez l'IA construire le plan parfait.",
+  planATrip: "Planifier un voyage",
+  upcomingBadge: "À venir",
+  completedBadge: "Terminé",
+  activeBadge: "Actif",
+  removeFavorite: "Retirer des favoris",
+  addFavorite: "Ajouter aux favoris",
+  totalCostLabel: "Coût total",
+  viewDetail: "Voir les détails",
+  tabFilterAll: "Tous",
+  tabFilterUpcoming: "À venir",
+  tabFilterPast: "Passés",
+  tabFilterFavorites: "Favoris",
+  yourTransport: "VOTRE TRANSPORT",
+  yourAccommodation: "VOTRE HÉBERGEMENT",
+  perNight: " /nuit",
+  searchResultsTitle: "Résultats de recherche",
+  cacheExpired: "Cache expirée",
+  noOffersYet: "Pas encore d'offres",
+  noOffersYetSub: "Retournez à la recherche et appuyez sur « Générer le voyage » pour rechercher des vols et hôtels.",
+  flightsLabel: "Vols",
+  hotelsLabel: "Hôtels",
+  invalidParamsTitle: "Paramètres invalides",
+  invalidParamsSub: "Données de recherche manquantes ou incorrectes.",
+  tripDetailsTitle: "Détails du voyage",
+  surpriseBadge: "Surprise",
+  bookYourTrip: "Réserver votre voyage",
+  notBookedYetSub: "Pas encore réservé ? Sécurisez vos vols et hébergements maintenant.",
+  bookFlights: "Réserver les vols",
+  bookAccommodation: "Réserver l'hébergement",
+  payWord: "Payer",
+  itineraryWord: "Itinéraire",
+  noActivitiesYet: "Aucune activité planifiée pour le moment.",
+  towardsCity: (n, city) => `Vers ${city} · ${n} ${n === 1 ? "voyageur" : "voyageurs"}`,
+  nightsInCity: (n, city) => `${n} ${n === 1 ? "nuit" : "nuits"} à ${city}`,
+  inRangeBadge: "Dans votre budget",
+  tightBudgetBadge: "Budget serré",
+  costTotalLabel: "Coût total",
+  flightLabel: "Vol",
+  hotelLabel: "Hébergement",
+  activitiesLabel: "Activités",
+  estimatedDailyLabel: "Estimation quotidienne",
+  perDaySuffix: "/jour",
+  dragActivityAria: "Faire glisser l'activité",
+  dayNTitle: (n, title) => `Jour ${n} — ${title}`,
+  activitiesCount: (n) => `${n} act.`,
+  dragActivitiesHere: "Faites glisser des activités ici",
+  itinerarySavedToast: "Itinéraire enregistré avec succès.",
+  itinerarySaveFailedToast: "Impossible d'enregistrer les modifications.",
+  dragActivitiesHint: "Faites glisser les activités pour les réordonner ou les déplacer vers un autre jour.",
+  savingText: "Enregistrement…",
+  saveText: "Enregistrer",
+  noChangesText: "Aucun changement",
+  settingsTitle: "Paramètres",
+  myProfileSubtitle: "Votre profil PlAIner",
+  nicknameLabel: "Pseudonyme",
+  nicknameRequired: "Le pseudonyme est obligatoire.",
+  ageLabel: "Âge",
+  ageInvalid: "Entrez un âge valide.",
+  genderLabel: "Genre",
+  genderSelectPlaceholder: "Sélectionnez…",
+  gendersList: ["Femme", "Homme", "Non-binaire", "Préfère ne pas le dire", "Autre"],
+  nationalityLabel: "Nationalité",
+  nationalityPlaceholder: "Française",
+  hobbiesLabel: "Loisirs",
+  hobbiesPlaceholder: "Randonnée, cuisine locale, musées",
+  avatarLabel: "Avatar (URL)",
+  avatarOptional: "· Optionnel",
+  darkModeLabel: "Mode sombre",
+  darkModeSub: (active) => active ? "Activé" : "Désactivé",
+  languageLabel: "Langue",
+  languageSub: "Choisissez la langue de l'application",
+  saveSettingsError: "Impossible d'enregistrer les paramètres.",
+  saveSettingsSuccess: "Paramètres enregistrés avec succès.",
+  saveSettingsBtn: "Enregistrer les paramètres",
+  savingSettingsBtn: "Enregistrement…",
+  onboardingPersonalize: "Personnalisez votre expérience PlAIner",
+  onboardingDefaultProfile: "Votre profil",
+};
+
+const it: Translations = {
+  destination: "DESTINAZIONE",
+  dates: "DATE",
+  transport: "TRASPORTO",
+  origin: "ORIGINE",
+  people: "VIAGGIATORI",
+  budgetPerPerson: "BUDGET A PERSONA",
+  preferences: "PREFERENZE",
+  preferencesHint: "Opzionale — personalizza ristoranti e attività",
+
+  whichDestination: "Quale destinazione?",
+  whenTravel: "Quando vuoi viaggiare?",
+  howTravel: "Come vuoi viaggiare?",
+  originPlaceholder: "Codice aeroporto (IATA), es: BCN",
+
+  person: "persona",
+  persons: "persone",
+  peopleCount: (n) => `${n} ${n === 1 ? "persona" : "persone"}`,
+
+  traveler: "Viaggiatore",
+  travelerN: (n) => `Viaggiatore ${n}`,
+  ageMinor: "Minore",
+  ageYoung: "Adolescente",
+  ageAdult: "Adulto",
+  ageSenior: "Senior",
+  ageGroupLabel: "GRUPPI DI ETÀ",
+
+  budgetEconomic: "Economico",
+  budgetBalanced: "Bilanciato",
+  budgetComfortable: "Confortevole",
+  budgetPremium: "Premium",
+  budgetEconomicSub: "Viaggi brevi in Europa",
+  budgetBalancedSub: "5-7 giorni in Europa",
+  budgetComfortableSub: "Intercontinentale",
+  budgetPremiumSub: "Senza compromessi",
+  perPersonAllInclusive: "a persona · tutto incluso",
+
+  transportPlane: "Aereo",
+  transportPlaneSub: "Il più veloce",
+  transportTrain: "Treno",
+  transportTrainSub: "Sostenibile",
+  transportBus: "Bus / Traghetto",
+  transportBusSub: "Economico",
+  transportCar: "Auto propria",
+  transportCarSub: "Flessibile",
+
+  months: ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug", "Ago", "Set", "Ott", "Nov", "Dic"],
+  calendarMonths: ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"],
+  calendarWeekdays: ["Lu", "Ma", "Me", "Gi", "Ve", "Sa", "Do"],
+
+  day: "giorno",
+  days: "giorni",
+  daysCount: (n) => `${n} ${n === 1 ? "giorno" : "giorni"}`,
+
+  confirmDates: "Conferma date",
+  confirmTransport: "Conferma trasporto",
+  confirmBudget: "Conferma",
+  confirmOrigin: "Conferma origine",
+  generateTrip: "Genera il mio viaggio",
+  completeAllFields: "Completa tutti i campi",
+
+  chooseDestination: "Scegli la destinazione",
+  whenDoYouTravel: "Quando vuoi viaggiare?",
+  howDoYouTravel: "Come vuoi viaggiare?",
+  whatBudget: "Quale budget?",
+  tripOrigin: "Origine del viaggio",
+  airportCode: "CODICE AEROPORTO (IATA)",
+  airportCodePlaceholder: "Es: BCN",
+  chooseDatesInCalendar: "Scegli le date sul calendario",
+
+  destinations: "DESTINAZIONI",
+  popularDestinations: "DESTINAZIONI POPOLARI",
+  whereToGo: "Dove ti piacerebbe andare?",
+  fromPrice: "da",
+
+  tagRecommended: "Consigliato",
+  tagPopular: "Popolare",
+  tagPremium: "Premium",
+  tagDeal: "Offerta",
+  tagClassic: "Classico",
+  tagTrending: "Di tendenza",
+  tagIconic: "Iconico",
+  tagRomantic: "Romantico",
+
+  hello: "Ciao",
+  whereAreWeGoing: "Dove andiamo?",
+  configureTrip: "Configura il tuo viaggio e lascia che l'IA faccia il resto.",
+
+  switchAccount: "Cambia account",
+  signOut: "Disconnettiti",
+  myAccount: "Il mio account",
+
+  voiceIdle: "Parla e l'IA compila per te",
+  voiceIdleSub: "Es: «Roma 4 giorni a giugno, 800 €»",
+  voiceIdleExample: "Es: «Roma 4 giorni a giugno, 800 €»",
+  voiceRecording: "In ascolto… tocca per fermare",
+  voiceProcessing: "Creazione del tuo piano…",
+  voiceError: "Impossibile interpretare.",
+  voiceMicPermission: "Consenti l'accesso al microfono per parlare.",
+  voiceRecordFailed: "Registrazione fallita.",
+  voiceTooShort: "Non ti ho sentito. Parla per qualche secondo.",
+  voiceFormFilled: "Formulario compilato!",
+
+  genSearchingFlights: "Ricerca dei voli migliori…",
+  genComparingHotels: "Confronto degli alloggi…",
+  genDesigningPlan: "Creazione del tuo piano ideale…",
+
+  tabSearch: "Cerca",
+  tabTrips: "Viaggi",
+  tabProfile: "Profilo",
+
+  preferencesPlaceholder: "Siamo vegani, amiamo l'arte underground e la techno…",
+
+  stepTransport: "PASSO 1 · TRASPORTO",
+  stepAccommodation: "PASSO 2 · ALLOGGIO",
+  stepSummary: "PASSO 3 · RIEPILOGO",
+  reserve: "Prenotare",
+  searchAgain: "Cerca ancora",
+  noTransportTitle: "Nessun trasporto disponibile",
+  noTransportSub: "Prova altre date o una partenza diversa.",
+  noHotelTitle: "Nessun alloggio disponibile",
+  noHotelSub: "Prova altre date.",
+  costSummary: "RIEPILOGO COSTI",
+  activitiesGastronomy: "Attività e gastronomia",
+  tripTotal: "Totale viaggio",
+  budgetLabel: "Budget",
+  exceeded: "Superato",
+  dayByDayItinerary: "Itinerario giorno per giorno",
+  preparingItinerary: "Preparazione del tuo itinerario…",
+  noItinerary: "Impossibile generare l'itinerario.",
+  markedFavorite: "Segnato come preferito",
+  markFavorite: "Salva nei preferiti",
+  savingLabel: "Salvataggio…",
+  saveTripLabel: "Salva viaggio",
+  tripSaved: "Viaggio salvato!",
+  tripSaveFailed: "Impossibile salvare il viaggio.",
+  stepWord: "passo",
+  peopleWord: "pers.",
+  perPersonWord: "p.",
+  backWord: "Indietro",
+  slotMorning: "Mattina",
+  slotLunch: "Pranzo",
+  slotAfternoon: "Pomeriggio",
+  slotDinner: "Cena",
+  dayWord: "Giorno",
+  nightWord: "notte",
+  accommodation: "Alloggio",
+  ageMinorRange: "Minore (-18)",
+  ageYoungRange: "Adolescente (18-30)",
+  ageAdultRange: "Adulto (31-60)",
+  ageSeniorRange: "Senior (+60)",
+  tripSingle: "viaggio",
+  tripPlural: "viaggi",
+  myTripsTitle: "I miei viaggi",
+  newTrip: "Nuovo viaggio",
+  noFavoritesYet: "Nessun preferito per ora",
+  startFirstTrip: "Inizia il tuo primo viaggio",
+  favoritesHint: "Salva i viaggi nei preferiti premendo il cuore su qualsiasi viaggio.",
+  startFirstTripHint: "Configura la tua destinazione e lascia che l'IA costruisca il piano perfetto.",
+  planATrip: "Pianifica un viaggio",
+  upcomingBadge: "In arrivo",
+  completedBadge: "Completato",
+  activeBadge: "Attivo",
+  removeFavorite: "Rimuovi dai preferiti",
+  addFavorite: "Aggiungi ai preferiti",
+  totalCostLabel: "Costo totale",
+  viewDetail: "Vedi dettagli",
+  tabFilterAll: "Tutti",
+  tabFilterUpcoming: "In arrivo",
+  tabFilterPast: "Passati",
+  tabFilterFavorites: "Preferiti",
+  yourTransport: "IL TUO TRASPORTO",
+  yourAccommodation: "IL TUO ALLOGGIO",
+  perNight: " /notte",
+  searchResultsTitle: "Risultati della ricerca",
+  cacheExpired: "Cache scaduta",
+  noOffersYet: "Non ci sono ancora offerte",
+  noOffersYetSub: "Torna alla ricerca e premi «Generar viatge» per cercare voli e hotel.",
+  flightsLabel: "Voli",
+  hotelsLabel: "Hotel",
+  invalidParamsTitle: "Parametri non validi",
+  invalidParamsSub: "Dati di ricerca mancanti o formattati male.",
+  tripDetailsTitle: "Dettagli del viaggio",
+  surpriseBadge: "Surpresa",
+  bookYourTrip: "Prenota il tuo viaggio",
+  notBookedYetSub: "Non hai ancora prenotato? Assicurati voli e alloggio ora.",
+  bookFlights: "Prenota voli",
+  bookAccommodation: "Prenota alloggio",
+  payWord: "Paga",
+  itineraryWord: "Itinerario",
+  noActivitiesYet: "Nessuna attività pianificata per ora.",
+  towardsCity: (n, city) => `Verso ${city} · ${n} ${n === 1 ? "viaggiatore" : "viaggiatori"}`,
+  nightsInCity: (n, city) => `${n} ${n === 1 ? "notte" : "notti"} a ${city}`,
+  inRangeBadge: "Nel tuo budget",
+  tightBudgetBadge: "Budget limitato",
+  costTotalLabel: "Costo totale",
+  flightLabel: "Volo",
+  hotelLabel: "Alloggio",
+  activitiesLabel: "Attività",
+  estimatedDailyLabel: "Stima giornaliera",
+  perDaySuffix: "/giorno",
+  dragActivityAria: "Trascina attività",
+  dayNTitle: (n, title) => `Giorno ${n} — ${title}`,
+  activitiesCount: (n) => `${n} att.`,
+  dragActivitiesHere: "Trascina qui le attività",
+  itinerarySavedToast: "Itinerario salvato con successo.",
+  itinerarySaveFailedToast: "Impossibile salvare le modifiche.",
+  dragActivitiesHint: "Trascina le attività per riordinarle o spostarle in un altro giorno.",
+  savingText: "Salvataggio…",
+  saveText: "Salva",
+  noChangesText: "Nessuna modifica",
+  settingsTitle: "Impostazioni",
+  myProfileSubtitle: "Il tuo profilo PlAIner",
+  nicknameLabel: "Nickname",
+  nicknameRequired: "Il nickname è obbligatorio.",
+  ageLabel: "Età",
+  ageInvalid: "Inserisci un'età valida.",
+  genderLabel: "Genere",
+  genderSelectPlaceholder: "Seleziona…",
+  gendersList: ["Donna", "Uomo", "Non binario", "Preferisco non dirlo", "Altro"],
+  nationalityLabel: "Nazionalità",
+  nationalityPlaceholder: "Italiana",
+  hobbiesLabel: "Hobby",
+  hobbiesPlaceholder: "Escursionismo, cucina locale, musei",
+  avatarLabel: "Avatar (URL)",
+  avatarOptional: "· Opzionale",
+  darkModeLabel: "Modalità scura",
+  darkModeSub: (active) => active ? "Attivata" : "Disattivata",
+  languageLabel: "Lingua",
+  languageSub: "Scegli la lingua dell'applicazione",
+  saveSettingsError: "Impossibile salvare le impostazioni.",
+  saveSettingsSuccess: "Impostazioni salvate con successo.",
+  saveSettingsBtn: "Salva impostazioni",
+  savingSettingsBtn: "Salvataggio…",
+  onboardingPersonalize: "Personalizza la tua esperienza PlAIner",
+  onboardingDefaultProfile: "Il tuo profilo",
+};
+
+const pt: Translations = {
+  destination: "DESTINO",
+  dates: "DATAS",
+  transport: "TRANSPORTE",
+  origin: "ORIGEM",
+  people: "VIAJANTES",
+  budgetPerPerson: "ORÇAMENTO POR PESSOA",
+  preferences: "PREFERÊNCIAS",
+  preferencesHint: "Opcional — personalize restaurantes e atividades",
+
+  whichDestination: "Qual destino?",
+  whenTravel: "Quando você quer viajar?",
+  howTravel: "Como você quer viajar?",
+  originPlaceholder: "Código de aeroporto (IATA), ex: BCN",
+
+  person: "pessoa",
+  persons: "pessoas",
+  peopleCount: (n) => `${n} ${n === 1 ? "pessoa" : "pessoas"}`,
+
+  traveler: "Viajante",
+  travelerN: (n) => `Viajante ${n}`,
+  ageMinor: "Menor",
+  ageYoung: "Adolescente",
+  ageAdult: "Adulto",
+  ageSenior: "Sênior",
+  ageGroupLabel: "GRUPOS DE IDADE",
+
+  budgetEconomic: "Econômico",
+  budgetBalanced: "Equilibrado",
+  budgetComfortable: "Confortável",
+  budgetPremium: "Premium",
+  budgetEconomicSub: "Viagens curtas na Europa",
+  budgetBalancedSub: "5-7 dias na Europa",
+  budgetComfortableSub: "Intercontinental",
+  budgetPremiumSub: "Sem compromisso",
+  perPersonAllInclusive: "por pessoa · tudo incluído",
+
+  transportPlane: "Avião",
+  transportPlaneSub: "O mais rápido",
+  transportTrain: "Trem",
+  transportTrainSub: "Sustentável",
+  transportBus: "Ônibus / Balsa",
+  transportBusSub: "Econômico",
+  transportCar: "Carro próprio",
+  transportCarSub: "Flexível",
+
+  months: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
+  calendarMonths: ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"],
+  calendarWeekdays: ["Se", "Te", "Qu", "Qu", "Se", "Sá", "Do"],
+
+  day: "dia",
+  days: "dias",
+  daysCount: (n) => `${n} ${n === 1 ? "dia" : "dias"}`,
+
+  confirmDates: "Confirmar datas",
+  confirmTransport: "Confirmar transporte",
+  confirmBudget: "Confirmar",
+  confirmOrigin: "Confirmar origem",
+  generateTrip: "Gerar minha viagem",
+  completeAllFields: "Preencha todos os campos",
+
+  chooseDestination: "Escolher destino",
+  whenDoYouTravel: "Quando você quer viajar?",
+  howDoYouTravel: "Como você quer viajar?",
+  whatBudget: "Qual orçamento?",
+  tripOrigin: "Origem da viagem",
+  airportCode: "CÓDIGO DE AEROPORTO (IATA)",
+  airportCodePlaceholder: "Ex: BCN",
+  chooseDatesInCalendar: "Escolha as datas no calendário",
+
+  destinations: "DESTINOS",
+  popularDestinations: "DESTINOS POPULARES",
+  whereToGo: "Para onde você gostaria de ir?",
+  fromPrice: "a partir de",
+
+  tagRecommended: "Recomendado",
+  tagPopular: "Popular",
+  tagPremium: "Premium",
+  tagDeal: "Oferta",
+  tagClassic: "Clássico",
+  tagTrending: "Tendência",
+  tagIconic: "Icônico",
+  tagRomantic: "Romântico",
+
+  hello: "Olá",
+  whereAreWeGoing: "Para onde vamos?",
+  configureTrip: "Configure sua viagem e deixe a IA fazer o resto.",
+
+  switchAccount: "Alterar conta",
+  signOut: "Sair da conta",
+  myAccount: "Minha conta",
+
+  voiceIdle: "Fale e a IA preenche para você",
+  voiceIdleSub: "Ex: «Roma 4 dias em junho, 800 €»",
+  voiceIdleExample: "Ex: «Roma 4 dias em junho, 800 €»",
+  voiceRecording: "Ouvindo… toque para parar",
+  voiceProcessing: "Criando seu plano…",
+  voiceError: "Não foi possível interpretar.",
+  voiceMicPermission: "Permita o acesso ao microfone para falar.",
+  voiceRecordFailed: "Gravação falhou.",
+  voiceTooShort: "Não te ouvi. Fale por alguns segundos.",
+  voiceFormFilled: "Formulário preenchido!",
+
+  genSearchingFlights: "Buscando voos ideais…",
+  genComparingHotels: "Comparando acomodações…",
+  genDesigningPlan: "Criando seu plano perfeito…",
+
+  tabSearch: "Buscar",
+  tabTrips: "Viagens",
+  tabProfile: "Perfil",
+
+  preferencesPlaceholder: "Somos veganos, gostamos de arte underground e techno…",
+
+  stepTransport: "PASSO 1 · TRANSPORTE",
+  stepAccommodation: "PASSO 2 · ACOMODAÇÃO",
+  stepSummary: "PASSO 3 · RESUMO",
+  reserve: "Reservar",
+  searchAgain: "Buscar novamente",
+  noTransportTitle: "Nenhum transporte disponível",
+  noTransportSub: "Tente outras datas ou origem diferente.",
+  noHotelTitle: "Nenhuma acomodação disponível",
+  noHotelSub: "Tente outras datas.",
+  costSummary: "RESUMO DOS CUSTOS",
+  activitiesGastronomy: "Atividades & gastronomia",
+  tripTotal: "Total da viagem",
+  budgetLabel: "Orçamento",
+  exceeded: "Excedido",
+  dayByDayItinerary: "Roteiro dia a dia",
+  preparingItinerary: "Preparando seu roteiro…",
+  noItinerary: "Não foi possível gerar o roteiro.",
+  markedFavorite: "Marcada como favorita",
+  markFavorite: "Marcar como favorita",
+  savingLabel: "Salvando…",
+  saveTripLabel: "Salvar viagem",
+  tripSaved: "Viagem salva!",
+  tripSaveFailed: "Não foi possível salvar a viagem.",
+  stepWord: "passo",
+  peopleWord: "pes.",
+  perPersonWord: "p.",
+  backWord: "Voltar",
+  slotMorning: "Manhã",
+  slotLunch: "Almoço",
+  slotAfternoon: "Tarde",
+  slotDinner: "Jantar",
+  dayWord: "Dia",
+  nightWord: "noite",
+  accommodation: "Acomodação",
+  ageMinorRange: "Menor (-18)",
+  ageYoungRange: "Adolescente (18-30)",
+  ageAdultRange: "Adulto (31-60)",
+  ageSeniorRange: "Sênior (+60)",
+  tripSingle: "viagem",
+  tripPlural: "viagens",
+  myTripsTitle: "Minhas viagens",
+  newTrip: "Nova viagem",
+  noFavoritesYet: "Nenhuma favorita ainda",
+  startFirstTrip: "Comece sua primeira viagem",
+  favoritesHint: "Marque viagens como favoritas tocando no coração de qualquer viagem.",
+  startFirstTripHint: "Configure o destino e deixe a IA construir o roteiro ideal.",
+  planATrip: "Planejar uma viagem",
+  upcomingBadge: "Próximas",
+  completedBadge: "Concluída",
+  activeBadge: "Ativa",
+  removeFavorite: "Remover das favoritas",
+  addFavorite: "Adicionar às favoritas",
+  totalCostLabel: "Custo total",
+  viewDetail: "Ver detalhes",
+  tabFilterAll: "Todas",
+  tabFilterUpcoming: "Próximas",
+  tabFilterPast: "Passadas",
+  tabFilterFavorites: "Favoritas",
+  yourTransport: "SEU TRANSPORTE",
+  yourAccommodation: "SUA ACOMODAÇÃO",
+  perNight: " /noite",
+  searchResultsTitle: "Resultados da busca",
+  cacheExpired: "Cache expirado",
+  noOffersYet: "Ainda não há ofertas",
+  noOffersYetSub: "Volte para a busca e clique em «Generar viatge» para buscar voos e hotéis.",
+  flightsLabel: "Voos",
+  hotelsLabel: "Hotéis",
+  invalidParamsTitle: "Parâmetros inválidos",
+  invalidParamsSub: "Dados da busca em falta ou mal formatados.",
+  tripDetailsTitle: "Detalhes da viagem",
+  surpriseBadge: "Surpresa",
+  bookYourTrip: "Reservar sua viagem",
+  notBookedYetSub: "Ainda não reservou? Garanta os voos e acomodação agora.",
+  bookFlights: "Reservar voos",
+  bookAccommodation: "Reservar acomodação",
+  payWord: "Pagar",
+  itineraryWord: "Roteiro",
+  noActivitiesYet: "Nenhuma atividade planejada ainda.",
+  towardsCity: (n, city) => `Para ${city} · ${n} ${n === 1 ? "viajante" : "viajantes"}`,
+  nightsInCity: (n, city) => `${n} ${n === 1 ? "noite" : "noites"} em ${city}`,
+  inRangeBadge: "Dentro do orçamento",
+  tightBudgetBadge: "Orçamento apertado",
+  costTotalLabel: "Custo total",
+  flightLabel: "Voo",
+  hotelLabel: "Acomodação",
+  activitiesLabel: "Atividades",
+  estimatedDailyLabel: "Custo diário estimado",
+  perDaySuffix: "/dia",
+  dragActivityAria: "Arrastar atividade",
+  dayNTitle: (n, title) => `Dia ${n} — ${title}`,
+  activitiesCount: (n) => `${n} at.`,
+  dragActivitiesHere: "Arraste as atividades para aqui",
+  itinerarySavedToast: "Roteiro salvo com sucesso.",
+  itinerarySaveFailedToast: "Não foi possível salvar as alterações.",
+  dragActivitiesHint: "Arraste as atividades para as reordenar ou mover para outro dia.",
+  savingText: "Salvando…",
+  saveText: "Salvar",
+  noChangesText: "Sem alterações",
+  settingsTitle: "Configurações",
+  myProfileSubtitle: "Seu perfil PlAIner",
+  nicknameLabel: "Nickname",
+  nicknameRequired: "O nickname é obrigatório.",
+  ageLabel: "Idade",
+  ageInvalid: "Insira uma idade válida.",
+  genderLabel: "Gênero",
+  genderSelectPlaceholder: "Selecione…",
+  gendersList: ["Mulher", "Homem", "Não-binário", "Prefiro não dizer", "Outro"],
+  nationalityLabel: "Nacionalidade",
+  nationalityPlaceholder: "Portuguesa",
+  hobbiesLabel: "Hobbies",
+  hobbiesPlaceholder: "Caminhadas, comida local, museus",
+  avatarLabel: "Avatar (URL)",
+  avatarOptional: "· Opcional",
+  darkModeLabel: "Modo escuro",
+  darkModeSub: (active) => active ? "Ativado" : "Desativado",
+  languageLabel: "Idioma",
+  languageSub: "Escolha o idioma do aplicativo",
+  saveSettingsError: "Não foi possível salvar as configurações.",
+  saveSettingsSuccess: "Configurações salvas com sucesso.",
+  saveSettingsBtn: "Salvar configurações",
+  savingSettingsBtn: "Salvando…",
+  onboardingPersonalize: "Personalize sua experiência PlAIner",
+  onboardingDefaultProfile: "Seu perfil",
+};
+
+const ar: Translations = {
+  destination: "الوجهة",
+  dates: "التواريخ",
+  transport: "وسيلة النقل",
+  origin: "نقطة الانطلاق",
+  people: "المسافرون",
+  budgetPerPerson: "الميزانية للشخص الواحد",
+  preferences: "التفضيلات",
+  preferencesHint: "اختياري — تخصيص المطاعم والأنشطة",
+
+  whichDestination: "أي وجهة تريد؟",
+  whenTravel: "متى تريد السفر؟",
+  howTravel: "كيف تريد السفر؟",
+  originPlaceholder: "رمز المطار (IATA)، مثل: BCN",
+
+  person: "شخص",
+  persons: "أشخاص",
+  peopleCount: (n) => `${n} ${n === 1 ? "شخص" : "أشخاص"}`,
+
+  traveler: "مسافر",
+  travelerN: (n) => `مسافر ${n}`,
+  ageMinor: "قاصر",
+  ageYoung: "مراهق",
+  ageAdult: "بالغ",
+  ageSenior: "كبير السن",
+  ageGroupLabel: "الفئات العمرية",
+
+  budgetEconomic: "اقتصادي",
+  budgetBalanced: "متوازن",
+  budgetComfortable: "مريح",
+  budgetPremium: "فاخر",
+  budgetEconomicSub: "رحلات قصيرة في أوروبا",
+  budgetBalancedSub: "5-7 أيام في أوروبا",
+  budgetComfortableSub: "عبر القارات",
+  budgetPremiumSub: "بدون تنازلات",
+  perPersonAllInclusive: "للشخص الواحد · شامل كل شيء",
+
+  transportPlane: "طائرة",
+  transportPlaneSub: "الأسرع",
+  transportTrain: "قطار",
+  transportTrainSub: "مستدام",
+  transportBus: "حافلة / عبّارة",
+  transportBusSub: "اقتصادي",
+  transportCar: "سيارة خاصة",
+  transportCarSub: "مرن",
+
+  months: ["كانون 2", "شباط", "آذار", "نيسان", "أيار", "حزيران", "تموز", "آب", "أيلول", "تشرين 1", "تشرين 2", "كانون 1"],
+  calendarMonths: ["كانون الثاني", "شباط", "آذار", "نيسان", "أيار", "حزيران", "تموز", "آب", "أيلول", "تشرين الأول", "تشرين الثاني", "كانون الأول"],
+  calendarWeekdays: ["ن", "ث", "ر", "خ", "ج", "س", "ح"],
+
+  day: "يوم",
+  days: "أيام",
+  daysCount: (n) => `${n} ${n === 1 ? "يوم" : "أيام"}`,
+
+  confirmDates: "تأكيد التواريخ",
+  confirmTransport: "تأكيد وسيلة النقل",
+  confirmBudget: "تأكيد",
+  confirmOrigin: "تأكيد الانطلاق",
+  generateTrip: "إنشاء رحلتي",
+  completeAllFields: "يرجى ملء جميع الحقول",
+
+  chooseDestination: "اختر الوجهة",
+  whenDoYouTravel: "متى تريد السفر؟",
+  howDoYouTravel: "كيف تريد السفر؟",
+  whatBudget: "ما هي الميزانية؟",
+  tripOrigin: "نقطة انطلاق الرحلة",
+  airportCode: "رمز المطار (IATA)",
+  airportCodePlaceholder: "مثل: BCN",
+  chooseDatesInCalendar: "اختر التواريخ من التقويم",
+
+  destinations: "الوجهات",
+  popularDestinations: "الوجهات الشهيرة",
+  whereToGo: "إلى أين ترغب في الذهاب؟",
+  fromPrice: "تبدأ من",
+
+  tagRecommended: "موصى به",
+  tagPopular: "شائع",
+  tagPremium: "فاخر",
+  tagDeal: "عرض",
+  tagClassic: "كلاسيكي",
+  tagTrending: "رائج",
+  tagIconic: "أيقوني",
+  tagRomantic: "رومانسي",
+
+  hello: "مرحباً",
+  whereAreWeGoing: "إلى أين نحن ذاهبون؟",
+  configureTrip: "قم بتهيئة رحلتك ودع الذكاء الاصطناعي يتولى الباقي.",
+
+  switchAccount: "تغيير الحساب",
+  signOut: "تسجيل الخروج",
+  myAccount: "حسابي",
+
+  voiceIdle: "تحدث وسيملاً الذكاء الاصطناعي النموذج بدلاً منك",
+  voiceIdleSub: "مثال: «روما 4 أيام في يونيو، 800 يورو»",
+  voiceIdleExample: "مثال: «روما 4 أيام في يونيو، 800 يورو»",
+  voiceRecording: "جاري الاستماع… انقر للإيقاف",
+  voiceProcessing: "جاري التفكير في خطتك…",
+  voiceError: "تعذر التفسير.",
+  voiceMicPermission: "يرجى السماح بالوصول إلى الميكروفون للتحدث.",
+  voiceRecordFailed: "فشل التسجيل.",
+  voiceTooShort: "لم أسمعك جيداً. يرجى التحدث لبضع ثوانٍ.",
+  voiceFormFilled: "تم ملء النموذج!",
+
+  genSearchingFlights: "جاري البحث عن أفضل الرحلات…",
+  genComparingHotels: "جاري مقارنة الفنادق…",
+  genDesigningPlan: "جاري تصميم خطتك المثالية…",
+
+  tabSearch: "بحث",
+  tabTrips: "رحلاتي",
+  tabProfile: "الملف الشخصي",
+
+  preferencesPlaceholder: "نحن نباتيون، نحب الفن البديل وموسيقى التكنو…",
+
+  stepTransport: "الخطوة 1 · وسيلة النقل",
+  stepAccommodation: "الخطوة 2 · الإقامة",
+  stepSummary: "الخطوة 3 · الملخص",
+  reserve: "حجز",
+  searchAgain: "البحث مجدداً",
+  noTransportTitle: "لا توجد وسائل نقل متاحة",
+  noTransportSub: "يرجى تجربة تواريخ أخرى أو نقطة انطلاق مختلفة.",
+  noHotelTitle: "لا توجد أماكن إقامة متاحة",
+  noHotelSub: "يرجى تجربة تواريخ أخرى.",
+  costSummary: "ملخص التكاليف",
+  activitiesGastronomy: "الأنشطة والمطاعم",
+  tripTotal: "إجمالي الرحلة",
+  budgetLabel: "الميزانية",
+  exceeded: "تم التجاوز",
+  dayByDayItinerary: "مسار الرحلة يوماً بيوم",
+  preparingItinerary: "جاري إعداد مسار رحلتك…",
+  noItinerary: "تعذر إنشاء مسار الرحلة.",
+  markedFavorite: "تم الحفظ في المفضلة",
+  markFavorite: "حفظ في المفضلة",
+  savingLabel: "جاري الحفظ…",
+  saveTripLabel: "حفظ الرحلة",
+  tripSaved: "تم حفظ الرحلة بنجاح!",
+  tripSaveFailed: "تعذر حفظ الرحلة.",
+  stepWord: "خطوة",
+  peopleWord: "أشخاص",
+  perPersonWord: "للشخص",
+  backWord: "رجوع",
+  slotMorning: "الصباح",
+  slotLunch: "الغداء",
+  slotAfternoon: "بعد الظهر",
+  slotDinner: "العشاء",
+  dayWord: "يوم",
+  nightWord: "ليلة",
+  accommodation: "الإقامة",
+  ageMinorRange: "قاصر (-18)",
+  ageYoungRange: "مراهق (18-30)",
+  ageAdultRange: "بالغ (31-60)",
+  ageSeniorRange: "كبير السن (+60)",
+  tripSingle: "رحلة",
+  tripPlural: "رحلات",
+  myTripsTitle: "رحلاتي",
+  newTrip: "رحلة جديدة",
+  noFavoritesYet: "لا توجد رحلات مفضلة بعد",
+  startFirstTrip: "ابدأ رحلتك الأولى",
+  favoritesHint: "احفظ الرحلات في المفضلة بالنقر على أيقونة القلب في أي رحلة.",
+  startFirstTripHint: "حدد وجهتك ودع الذكاء الاصطناعي يبني الخطة المثالية.",
+  planATrip: "خطط لرحلة",
+  upcomingBadge: "قادمة",
+  completedBadge: "مكتملة",
+  activeBadge: "نشطة",
+  removeFavorite: "إزالة من المفضلة",
+  addFavorite: "إضافة إلى المفضلة",
+  totalCostLabel: "التكلفة الإجمالية",
+  viewDetail: "عرض التفاصيل",
+  tabFilterAll: "الكل",
+  tabFilterUpcoming: "قادمة",
+  tabFilterPast: "سابقة",
+  tabFilterFavorites: "المفضلة",
+  yourTransport: "وسيلة النقل الخاصة بك",
+  yourAccommodation: "مكان الإقامة الخاص بك",
+  perNight: " /ليلة",
+  searchResultsTitle: "نتائج البحث",
+  cacheExpired: "انتهت صلاحية الذاكرة المؤقتة",
+  noOffersYet: "لا توجد عروض بعد",
+  noOffersYetSub: "ارجع إلى صفحة البحث وانقر على «إنشاء رحلة» للبحث عن الرحلات والفنادق.",
+  flightsLabel: "رحلات الطيران",
+  hotelsLabel: "الفنادق",
+  invalidParamsTitle: "معلمات غير صالحة",
+  invalidParamsSub: "بيانات البحث مفقودة أو غير صحيحة.",
+  tripDetailsTitle: "تفاصيل الرحلة",
+  surpriseBadge: "مفاجأة",
+  bookYourTrip: "احجز رحلتك",
+  notBookedYetSub: "لم تقم بالحجز بعد؟ احجز الرحلات الجوية ومكان الإقامة الآن.",
+  bookFlights: "احجز الرحلات الجوية",
+  bookAccommodation: "احجز الإقامة",
+  payWord: "الدفع",
+  itineraryWord: "مسار الرحلة",
+  noActivitiesYet: "لم يتم التخطيط لأي أنشطة بعد.",
+  towardsCity: (n, city) => `باتجاه ${city} · لـ ${n} ${n === 1 ? "مسافر" : "مسافرين"}`,
+  nightsInCity: (n, city) => `${n} ${n === 1 ? "ليلة" : "ليالٍ"} في ${city}`,
+  inRangeBadge: "ضمن ميزانيتك",
+  tightBudgetBadge: "ميزانية محدودة",
+  costTotalLabel: "التكلفة الإجمالية",
+  flightLabel: "رحلة الطيران",
+  hotelLabel: "مكان الإقامة",
+  activitiesLabel: "الأنشطة",
+  estimatedDailyLabel: "التكلفة اليومية المقدرة",
+  perDaySuffix: "/يوم",
+  dragActivityAria: "سحب النشاط",
+  dayNTitle: (n, title) => `اليوم ${n} — ${title}`,
+  activitiesCount: (n) => `${n} أنشطة`,
+  dragActivitiesHere: "اسحب الأنشطة هنا",
+  itinerarySavedToast: "تم حفظ مسار الرحلة بنجاح.",
+  itinerarySaveFailedToast: "تعذر حفظ التغييرات.",
+  dragActivitiesHint: "اسحب الأنشطة لإعادة ترتيبها أو نقلها إلى يوم آخر.",
+  savingText: "جاري الحفظ…",
+  saveText: "حفظ",
+  noChangesText: "لا توجد تغييرات",
+  settingsTitle: "الإعدادات",
+  myProfileSubtitle: "ملفك الشخصي في PlAIner",
+  nicknameLabel: "اسم المستخدم (اللقب)",
+  nicknameRequired: "اسم المستخدم مطلوب.",
+  ageLabel: "العمر",
+  ageInvalid: "يرجى إدخال عمر صحيح.",
+  genderLabel: "الجنس",
+  genderSelectPlaceholder: "اختر…",
+  gendersList: ["أنثى", "ذكر", "غير ثنائي", "أفضل عدم الإفصاح", "آخر"],
+  nationalityLabel: "الجنسية",
+  nationalityPlaceholder: "عربي",
+  hobbiesLabel: "الهوايات",
+  hobbiesPlaceholder: "المشي لمسافات طويلة، تجربة الطعام المحلي، المتاحف",
+  avatarLabel: "الصورة الرمزية (رابط URL)",
+  avatarOptional: "· اختياري",
+  darkModeLabel: "الوضع الداكن",
+  darkModeSub: (active) => active ? "مفعّل" : "معطّل",
+  languageLabel: "اللغة",
+  languageSub: "اختر لغة التطبيق",
+  saveSettingsError: "تعذر حفظ الإعدادات.",
+  saveSettingsSuccess: "تم حفظ الإعدادات بنجاح.",
+  saveSettingsBtn: "حفظ الإعدادات",
+  savingSettingsBtn: "جاري الحفظ…",
+  onboardingPersonalize: "خصص تجربتك في PlAIner",
+  onboardingDefaultProfile: "ملفك الشخصي",
+};
+
+const zh: Translations = {
+  destination: "目的地",
+  dates: "日期",
+  transport: "交通方式",
+  origin: "出发地",
+  people: "出行人数",
+  budgetPerPerson: "人均预算",
+  preferences: "旅行偏好",
+  preferencesHint: "可选 — 自定义餐厅和活动偏好",
+
+  whichDestination: "想去哪里旅行？",
+  whenTravel: "什么时候出发？",
+  howTravel: "想怎么去？",
+  originPlaceholder: "机场代码 (IATA)，例如：BCN",
+
+  person: "人",
+  persons: "人",
+  peopleCount: (n) => `${n}人`,
+
+  traveler: "旅客",
+  travelerN: (n) => `旅客 ${n}`,
+  ageMinor: "未成年",
+  ageYoung: "青年",
+  ageAdult: "小童",
+  ageSenior: "老年",
+  ageGroupLabel: "年龄分组",
+
+  budgetEconomic: "经济型",
+  budgetBalanced: "均衡型",
+  budgetComfortable: "舒适型",
+  budgetPremium: "奢华型",
+  budgetEconomicSub: "欧洲短期游",
+  budgetBalancedSub: "欧洲5-7天游",
+  budgetComfortableSub: "跨国/洲际游",
+  budgetPremiumSub: "无妥协高品质",
+  perPersonAllInclusive: "人均 · 全包",
+
+  transportPlane: "飞机",
+  transportPlaneSub: "最快",
+  transportTrain: "火车",
+  transportTrainSub: "环保低碳",
+  transportBus: "巴士 / 轮渡",
+  transportBusSub: "经济实惠",
+  transportCar: "自驾",
+  transportCarSub: "自由灵活",
+
+  months: ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"],
+  calendarMonths: ["一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+  calendarWeekdays: ["一", "二", "三", "四", "五", "六", "日"],
+
+  day: "天",
+  days: "天",
+  daysCount: (n) => `${n}天`,
+
+  confirmDates: "确认日期",
+  confirmTransport: "确认交通方式",
+  confirmBudget: "确认",
+  confirmOrigin: "确认出发地",
+  generateTrip: "生成我的行程",
+  completeAllFields: "请填完所有字段",
+
+  chooseDestination: "选择目的地",
+  whenDoYouTravel: "您想什么时候旅行？",
+  howDoYouTravel: "您想怎么去？",
+  whatBudget: "您的预算是多少？",
+  tripOrigin: "旅行出发地",
+  airportCode: "机场代码 (IATA)",
+  airportCodePlaceholder: "例如：BCN",
+  chooseDatesInCalendar: "在日历上选择日期",
+
+  destinations: "目的地",
+  popularDestinations: "热门目的地",
+  whereToGo: "您想去哪里？",
+  fromPrice: "起",
+
+  tagRecommended: "推荐",
+  tagPopular: "热门",
+  tagPremium: "高端",
+  tagDeal: "特惠",
+  tagClassic: "经典",
+  tagTrending: "趋势",
+  tagIconic: "标志性",
+  tagRomantic: "浪漫",
+
+  hello: "你好",
+  whereAreWeGoing: "我们要去哪里？",
+  configureTrip: "配置您的旅行偏好，让 AI 帮您搞定一切。",
+
+  switchAccount: "切换账户",
+  signOut: "退出登录",
+  myAccount: "我的账户",
+
+  voiceIdle: "说话，让 AI 自动填充",
+  voiceIdleSub: "例如：«六月份去罗马玩4天，预算800欧元»",
+  voiceIdleExample: "例如：«六月份去罗马玩4天，预算800欧元»",
+  voiceRecording: "正在倾听… 点击停止",
+  voiceProcessing: "正在规划您的行程…",
+  voiceError: "无法识别，请重试。",
+  voiceMicPermission: "请允许麦克风访问权限以使用语音。",
+  voiceRecordFailed: "录音失败。",
+  voiceTooShort: "时间太短。请说几秒钟以上。",
+  voiceFormFilled: "表格已自动填充！",
+
+  genSearchingFlights: "正在搜寻最佳机票…",
+  genComparingHotels: "正在对比酒店住宿…",
+  genDesigningPlan: "正在设计您的理想行程…",
+
+  tabSearch: "搜索",
+  tabTrips: "行程",
+  tabProfile: "个人资料",
+
+  preferencesPlaceholder: "我们是素食主义者，喜欢地下艺术和科技电子乐…",
+
+  stepTransport: "第 1 步 · 交通方式",
+  stepAccommodation: "第 2 步 · 酒店住宿",
+  stepSummary: "第 3 步 · 行程摘要",
+  reserve: "预订",
+  searchAgain: "重新搜索",
+  noTransportTitle: "无可用交通方式",
+  noTransportSub: "请尝试更改出发日期或出发地。",
+  noHotelTitle: "无可用酒店住宿",
+  noHotelSub: "请尝试更改出发日期。",
+  costSummary: "费用明细摘要",
+  activitiesGastronomy: "活动与美食预算",
+  tripTotal: "行程总费用",
+  budgetLabel: "预算",
+  exceeded: "已超出",
+  dayByDayItinerary: "每日行程路线规划",
+  preparingItinerary: "正在生成您的行程路线…",
+  noItinerary: "行程路线生成失败。",
+  markedFavorite: "已添加收藏",
+  markFavorite: "添加收藏",
+  savingLabel: "正在保存…",
+  saveTripLabel: "保存行程",
+  tripSaved: "行程已保存！",
+  tripSaveFailed: "保存行程失败。",
+  stepWord: "步",
+  peopleWord: "人",
+  perPersonWord: "人",
+  backWord: "返回",
+  slotMorning: "上午",
+  slotLunch: "午餐",
+  slotAfternoon: "下午",
+  slotDinner: "晚餐",
+  dayWord: "天",
+  nightWord: "晚",
+  accommodation: "住宿",
+  ageMinorRange: "未成年 (-18)",
+  ageYoungRange: "青年 (18-30)",
+  ageAdultRange: "中年 (31-60)",
+  ageSeniorRange: "老年 (+60)",
+  tripSingle: "行程",
+  tripPlural: "行程",
+  myTripsTitle: "我的行程",
+  newTrip: "新行程",
+  noFavoritesYet: "暂无收藏行程",
+  startFirstTrip: "开始您的第一次旅行",
+  favoritesHint: "在任何行程上点击心形图标即可将其保存到收藏夹中。",
+  startFirstTripHint: "设定您的目的地，让 AI 为您打造完美的专属计划。",
+  planATrip: "计划旅行",
+  upcomingBadge: "即将开始",
+  completedBadge: "已结束",
+  activeBadge: "进行中",
+  removeFavorite: "取消收藏",
+  addFavorite: "添加收藏",
+  totalCostLabel: "总花费",
+  viewDetail: "查看详情",
+  tabFilterAll: "全部",
+  tabFilterUpcoming: "即将开始",
+  tabFilterPast: "已结束",
+  tabFilterFavorites: "收藏夹",
+  yourTransport: "您的交通方式",
+  yourAccommodation: "您的酒店住宿",
+  perNight: " /晚",
+  searchResultsTitle: "搜索结果",
+  cacheExpired: "缓存已过期",
+  noOffersYet: "暂无报价方案",
+  noOffersYetSub: "返回搜索页并点击“生成行程”以查找航班和酒店。",
+  flightsLabel: "航班机票",
+  hotelsLabel: "酒店住宿",
+  invalidParamsTitle: "无效的请求参数",
+  invalidParamsSub: "搜索请求数据缺失或格式错误。",
+  tripDetailsTitle: "行程详情",
+  surpriseBadge: "惊喜出行",
+  bookYourTrip: "开始预订行程",
+  notBookedYetSub: "还没有预订？现在就去锁定机票和酒店吧。",
+  bookFlights: "预订航班机票",
+  bookAccommodation: "预订酒店住宿",
+  payWord: "付款",
+  itineraryWord: "行程图",
+  noActivitiesYet: "暂未规划活动内容。",
+  towardsCity: (n, city) => `前往 ${city} · 共 ${n} 位旅客`,
+  nightsInCity: (n, city) => `在 ${city} 入住 ${n} 晚`,
+  inRangeBadge: "符合您的预算",
+  tightBudgetBadge: "预算偏紧",
+  costTotalLabel: "总费用",
+  flightLabel: "航班机票",
+  hotelLabel: "酒店住宿",
+  activitiesLabel: "活动行程",
+  estimatedDailyLabel: "预计每日花销",
+  perDaySuffix: "/天",
+  dragActivityAria: "拖拽活动",
+  dayNTitle: (n, title) => `第 ${n} 天 — ${title}`,
+  activitiesCount: (n) => `${n} 个活动`,
+  dragActivitiesHere: "拖拽活动至此处",
+  itinerarySavedToast: "行程路线已成功保存。",
+  itinerarySaveFailedToast: "保存更改失败。",
+  dragActivitiesHint: "通过拖拽对活动重新排序，或移动至其他天。",
+  savingText: "正在保存…",
+  saveText: "保存",
+  noChangesText: "无任何修改",
+  settingsTitle: "设置",
+  myProfileSubtitle: "您的 PlAIner 账户资料",
+  nicknameLabel: "用户昵称",
+  nicknameRequired: "昵称必填。",
+  ageLabel: "年龄",
+  ageInvalid: "请输入有效的年龄。",
+  genderLabel: "性别",
+  genderSelectPlaceholder: "请选择…",
+  gendersList: ["女", "男", "非二元性别", "不愿透露", "其他"],
+  nationalityLabel: "国籍",
+  nationalityPlaceholder: "中国",
+  hobbiesLabel: "个人兴趣/爱好",
+  hobbiesPlaceholder: "徒步、品尝当地美食、逛博物馆",
+  avatarLabel: "个人头像 (URL)",
+  avatarOptional: "· 可选",
+  darkModeLabel: "夜间/暗黑模式",
+  darkModeSub: (active) => active ? "已开启" : "已关闭",
+  languageLabel: "应用语言",
+  languageSub: "选择应用的主语言",
+  saveSettingsError: "保存设置失败。",
+  saveSettingsSuccess: "设置已成功保存。",
+  saveSettingsBtn: "保存设置",
+  savingSettingsBtn: "正在保存…",
+  onboardingPersonalize: "个性化您的 PlAIner 体验",
+  onboardingDefaultProfile: "个人资料",
+};
+
+const hi: Translations = {
+  // HomeSearch labels
+  destination: "गंतव्य",
+  dates: "तिथियाँ",
+  transport: "परिवहन",
+  origin: "प्रस्थान स्थल",
+  people: "यात्री",
+  budgetPerPerson: "प्रति व्यक्ति बजट",
+  preferences: "प्राथमिकताएं",
+  preferencesHint: "वैकल्पिक — रेस्तरां और गतिविधियों को अनुकूलित करें",
+
+  // Placeholders
+  whichDestination: "कौन सा गंतव्य?",
+  whenTravel: "आप कब यात्रा करना चाहते हैं?",
+  howTravel: "आप कैसे यात्रा करना चाहते हैं?",
+  originPlaceholder: "एयरपोर्ट कोड (IATA), जैसे: BCN",
+
+  // People
+  person: "व्यक्ति",
+  persons: "लोग",
+  peopleCount: (n) => `${n} ${n === 1 ? "व्यक्ति" : "लोग"}`,
+
+  // Traveler age groups
+  traveler: "यात्री",
+  travelerN: (n) => `यात्री ${n}`,
+  ageMinor: "नाबालिग",
+  ageYoung: "किशोर",
+  ageAdult: "वयस्क",
+  ageSenior: "वरिष्ठ",
+  ageGroupLabel: "आयु वर्ग",
+
+  // Budget zones
+  budgetEconomic: "किफ़ायती",
+  budgetBalanced: "संतुलित",
+  budgetComfortable: "आरामदायक",
+  budgetPremium: "प्रीमियम",
+  budgetEconomicSub: "यूरोप में छोटी यात्राएं",
+  budgetBalancedSub: "यूरोप में 5-7 दिन",
+  budgetComfortableSub: "अंतरमहाद्वीपीय",
+  budgetPremiumSub: "बिना किसी समझौते के",
+  perPersonAllInclusive: "प्रति व्यक्ति · सर्व-समावेशी",
+
+  // Transport options
+  transportPlane: "हवाई जहाज़",
+  transportPlaneSub: "सबसे तेज़",
+  transportTrain: "ट्रेन",
+  transportTrainSub: "पर्यावरण के अनुकूल",
+  transportBus: "बस / फ़ेरी",
+  transportBusSub: "किफ़ायती",
+  transportCar: "अपनी कार",
+  transportCarSub: "लचीला",
+
+  // Month abbreviations
+  months: ["जन", "फर", "मार्च", "अप्रैल", "मई", "जून", "जुल", "अग", "सित", "अक्तू", "नव", "दिस"],
+  calendarMonths: ["जनवरी", "फरवरी", "मार्च", "अप्रैल", "मई", "जून", "जुलाई", "अगस्त", "सितंबर", "अक्टूबर", "नवंबर", "दिसंबर"],
+  calendarWeekdays: ["सोम", "मंगल", "बुध", "गुरु", "शुक्र", "शनि", "रवि"],
+
+  // Days
+  day: "दिन",
+  days: "दिन",
+  daysCount: (n) => `${n} दिन`,
+
+  // Buttons / actions
+  confirmDates: "तिथियों की पुष्टि करें",
+  confirmTransport: "परिवहन की पुष्टि करें",
+  confirmBudget: "पुष्टि करें",
+  confirmOrigin: "प्रस्थान की पुष्टि करें",
+  generateTrip: "मेरी यात्रा बनाएं",
+  completeAllFields: "कृपया सभी फ़ील्ड भरें",
+
+  // Sheet titles
+  chooseDestination: "गंतव्य चुनें",
+  whenDoYouTravel: "आप कब यात्रा करना चाहते हैं?",
+  howDoYouTravel: "आप कैसे यात्रा करना चाहते हैं?",
+  whatBudget: "आपका बजट क्या है?",
+  tripOrigin: "यात्रा का प्रस्थान स्थल",
+  airportCode: "एयरपोर्ट कोड (IATA)",
+  airportCodePlaceholder: "जैसे: BCN",
+  chooseDatesInCalendar: "कैलेंडर में तिथियां चुनें",
+
+  // Destination cards
+  destinations: "गंतव्य",
+  popularDestinations: "लोकप्रिय गंतव्य",
+  whereToGo: "आप कहाँ जाना चाहेंगे?",
+  fromPrice: "से शुरू",
+
+  // Destination tags
+  tagRecommended: "अनुशंसित",
+  tagPopular: "लोकप्रिय",
+  tagPremium: "प्रीमियम",
+  tagDeal: "ऑफर",
+  tagClassic: "क्लासिक",
+  tagTrending: "ट्रेंडिंग",
+  tagIconic: "प्रतिष्ठित",
+  tagRomantic: "रोमांटिक",
+
+  // PlanHeader
+  hello: "नमस्ते",
+  whereAreWeGoing: "हम कहाँ जा रहे हैं?",
+  configureTrip: "अपनी यात्रा को कॉन्फ़िगर करें और बाकी काम AI को करने दें।",
+
+  // Account menu
+  switchAccount: "खाता बदलें",
+  signOut: "साइन आउट",
+  myAccount: "मेरा खाता",
+
+  // Voice button
+  voiceIdle: "बोलें और AI को फ़ॉर्म भरने दें",
+  voiceIdleSub: "जैसे: «जून में 4 दिनों के लिए रोम की यात्रा, बजट 800 यूरो»",
+  voiceIdleExample: "जैसे: «जून में 4 दिनों के लिए रोम की यात्रा, बजट 800 यूरो»",
+  voiceRecording: "सुन रहा हूँ…",
+  voiceProcessing: "संसाधित किया जा रहा है…",
+  voiceError: "स्पष्ट व्याख्या नहीं मिल सकी।",
+  voiceMicPermission: "बोलने के लिए माइक्रोफ़ोन एक्सेस की अनुमति दें।",
+  voiceRecordFailed: "रिकॉर्ड नहीं किया जा सका।",
+  voiceTooShort: "सुनाई नहीं दिया। कुछ सेकंड तक बोलें।",
+  voiceFormFilled: "फ़ॉर्म भरा गया!",
+
+  // Generating screen
+  genSearchingFlights: "सर्वश्रेष्ठ उड़ानों की खोज की जा रही है…",
+  genComparingHotels: "होटलों की तुलना की जा रही है…",
+  genDesigningPlan: "आपकी आदर्श योजना तैयार की जा रही है…",
+
+  // Bottom tabs
+  tabSearch: "खोजें",
+  tabTrips: "यात्राएं",
+  tabProfile: "प्रोफ़ाइल",
+
+  // Preferences placeholder
+  preferencesPlaceholder: "हम शाकाहारी हैं, हमें भूमिगत कला और टेक्नो पसंद है…",
+
+  // Picker page
+  stepTransport: "चरण 1 · परिवहन",
+  stepAccommodation: "चरण 2 · आवास",
+  stepSummary: "चरण 3 · सारांश",
+  reserve: "बुक करें",
+  searchAgain: "पुनः खोजें",
+  noTransportTitle: "कोई परिवहन उपलब्ध नहीं है",
+  noTransportSub: "अन्य तिथियों या किसी अन्य प्रस्थान स्थल की कोशिश करें।",
+  noHotelTitle: "कोई आवास उपलब्ध नहीं है",
+  noHotelSub: "अन्य तिथियों की कोशिश करें।",
+  costSummary: "लागत सारांश",
+  activitiesGastronomy: "गतिविधियाँ और गैस्ट्रोनॉमी",
+  tripTotal: "यात्रा की कुल लागत",
+  budgetLabel: "बजट",
+  exceeded: "सीमा पार",
+  dayByDayItinerary: "दिन-प्रतिदिन का यात्रा कार्यक्रम",
+  preparingItinerary: "यात्रा कार्यक्रम तैयार किया जा रहा है…",
+  noItinerary: "यात्रा कार्यक्रम तैयार नहीं किया जा सका।",
+  markedFavorite: "पसंदीदा के रूप में चिह्नित",
+  markFavorite: "पसंदीदा बनाएं",
+  savingLabel: "सहेज रहा है…",
+  saveTripLabel: "यात्रा सहेजें",
+  tripSaved: "यात्रा सहेजी गई!",
+  tripSaveFailed: "यात्रा सहेजने में विफल।",
+  stepWord: "चरण",
+  peopleWord: "लोग",
+  perPersonWord: "प्र.",
+  backWord: "पीछे",
+  slotMorning: "सुबह",
+  slotLunch: "दोपहर का भोजन",
+  slotAfternoon: "दोपहर बाद",
+  slotDinner: "रात का खाना",
+  dayWord: "दिन",
+  nightWord: "रात",
+  accommodation: "आवास",
+  ageMinorRange: "नाबालिग (-18)",
+  ageYoungRange: "किशोर (18-30)",
+  ageAdultRange: "वयस्क (31-60)",
+  ageSeniorRange: "वरिष्ठ (+60)",
+  tripSingle: "यात्रा",
+  tripPlural: "यात्राएं",
+  myTripsTitle: "मेरी यात्राएं",
+  newTrip: "नई यात्रा",
+  noFavoritesYet: "अभी तक कोई पसंदीदा नहीं",
+  startFirstTrip: "अपनी पहली यात्रा शुरू करें",
+  favoritesHint: "किसी भी यात्रा पर दिल के निशान को दबाकर उसे पसंदीदा सूची में सहेजें।",
+  startFirstTripHint: "अपना गंतव्य निर्धारित करें और AI को सही योजना बनाने दें।",
+  planATrip: "यात्रा की योजना बनाएं",
+  upcomingBadge: "आगामी",
+  completedBadge: "पूरा हुआ",
+  activeBadge: "सक्रिय",
+  removeFavorite: "पसंदीदा से हटाएं",
+  addFavorite: "पसंदीदा में जोड़ें",
+  totalCostLabel: "कुल लागत",
+  viewDetail: "विवरण देखें",
+  tabFilterAll: "सभी",
+  tabFilterUpcoming: "आगामी",
+  tabFilterPast: "बीती हुई",
+  tabFilterFavorites: "पसंदीदा",
+  yourTransport: "आपका परिवहन",
+  yourAccommodation: "आपका आवास",
+  perNight: " /रात",
+  searchResultsTitle: "खोज परिणाम",
+  cacheExpired: "कैश समाप्त",
+  noOffersYet: "अभी तक कोई ऑफ़र नहीं",
+  noOffersYetSub: "पीछे जाएं और उड़ानें तथा होटल खोजने के लिए «यात्रा बनाएं» दबाएं।",
+  flightsLabel: "उड़ानें",
+  hotelsLabel: "हॉटेल",
+  invalidParamsTitle: "अमान्य पैरामीटर",
+  invalidParamsSub: "खोज डेटा गायब या गलत है।",
+  tripDetailsTitle: "यात्रा विवरण",
+  surpriseBadge: "सरप्राइज",
+  bookYourTrip: "अपनी यात्रा बुक करें",
+  notBookedYetSub: "अभी तक बुक नहीं किया? उड़ानें और आवास अभी सुरक्षित करें।",
+  bookFlights: "उड़ानें बुक करें",
+  bookAccommodation: "आवास बुक करें",
+  payWord: "भुगतान करें",
+  itineraryWord: "यात्रा कार्यक्रम",
+  noActivitiesYet: "अभी तक कोई गतिविधि नियोजित नहीं है।",
+  towardsCity: (n, city) => `${n} ${n === 1 ? "व्यक्ति" : "लोगों"} के लिए ${city} की ओर`,
+  nightsInCity: (n, city) => `${city} में ${n} ${n === 1 ? "रात" : "रातें"}`,
+  inRangeBadge: "आपके बजट के भीतर",
+  tightBudgetBadge: "तंग बजट",
+  costTotalLabel: "कुल लागत",
+  flightLabel: "उड़ान",
+  hotelLabel: "आवास",
+  activitiesLabel: "गतिविधियाँ",
+  estimatedDailyLabel: "अनुमानित दैनिक व्यय",
+  perDaySuffix: "/दिन",
+  dragActivityAria: "गतिविधि खींचें",
+  dayNTitle: (n, title) => `दिन ${n} — ${title}`,
+  activitiesCount: (n) => `${n} गतिविधियाँ`,
+  dragActivitiesHere: "गतिविधियाँ यहाँ खींचें",
+  itinerarySavedToast: "यात्रा कार्यक्रम सफलतापूर्वक सहेजा गया।",
+  itinerarySaveFailedToast: "बदलाव सहेजे नहीं जा सके।",
+  dragActivitiesHint: "गतिविधियों को पुनर्व्यवस्थित करने या दूसरे दिन स्थानांतरित करने के लिए उन्हें खींचें।",
+  savingText: "सहेज रहा है…",
+  saveText: "सहेजें",
+  noChangesText: "कोई बदलाव नहीं",
+  settingsTitle: "सेटिंग्स",
+  myProfileSubtitle: "आपकी PlAIner प्रोफ़ाइल",
+  nicknameLabel: "उपयोगकर्ता नाम",
+  nicknameRequired: "उपयोगकर्ता नाम आवश्यक है।",
+  ageLabel: "आयु",
+  ageInvalid: "एक वैध आयु दर्ज करें।",
+  genderLabel: "लिंग",
+  genderSelectPlaceholder: "चुनें…",
+  gendersList: ["महिला", "पुरुष", "गैर-बाइनरी", "बताना नहीं चाहते", "अन्य"],
+  nationalityLabel: "राष्ट्रीयता",
+  nationalityPlaceholder: "भारतीय",
+  hobbiesLabel: "शौक",
+  hobbiesPlaceholder: "लंबी पैदल यात्रा, स्थानीय भोजन, संग्रहालय",
+  avatarLabel: "अवतार (URL)",
+  avatarOptional: "· वैकल्पिक",
+  darkModeLabel: "डार्क मोड",
+  darkModeSub: (active) => active ? "सक्रिय" : "निष्क्रिय",
+  languageLabel: "भाषा",
+  languageSub: "एप्लिकेशन की भाषा चुनें",
+  saveSettingsError: "सेटिंग्स सहेजी नहीं जा सकीं।",
+  saveSettingsSuccess: "सेटिंग्स सफलतापूर्वक सहेजी गईं।",
+  saveSettingsBtn: "सेटिंग्स सहेजें",
+  savingSettingsBtn: "सहेज रहा है…",
+  onboardingPersonalize: "अपने PlAIner अनुभव को वैयक्तिकृत करें",
+  onboardingDefaultProfile: "आपकी प्रोफ़ाइल",
+};
+
+const ALL: Record<Locale, Translations> = { ca, es, en, de, fr, it, pt, ar, zh, hi };
+
+export function getTranslations(locale: Locale): Translations {
+  return ALL[locale] ?? ALL.ca;
+}
+
+/** Read the user's chosen locale from localStorage (defaults to "ca"). */
+export function readLocale(): Locale {
+  if (typeof window === "undefined") return "ca";
+  try {
+    const v = localStorage.getItem("pl-lang");
+    if (v === "es" || v === "en" || v === "ca" || v === "de" || v === "fr" || v === "it" || v === "pt" || v === "ar" || v === "zh" || v === "hi") return v as Locale;
+  } catch {
+    /* noop */
+  }
+  try {
+    const match = document.cookie.match(/pl-lang=(ca|es|en|de|fr|it|pt|ar|zh|hi)/);
+    if (match) return match[1] as Locale;
+  } catch {
+    /* noop */
+  }
+  return "ca";
+}
+
+
+
+/**
+ * Map a Catalan destination tag to the current locale.
+ * Tags in destinations.ts are stored in Catalan; this maps them.
+ */
+const TAG_MAP: Record<string, keyof Translations> = {
+  Recomanat: "tagRecommended",
+  Popular: "tagPopular",
+  Premium: "tagPremium",
+  Oferta: "tagDeal",
+  Clàssic: "tagClassic",
+  Trending: "tagTrending",
+  Icònic: "tagIconic",
+  Romàntic: "tagRomantic",
+};
+
+export function localizeTag(tag: string, t: Translations): string {
+  const key = TAG_MAP[tag];
+  if (key && typeof t[key] === "string") return t[key] as string;
+  return tag;
+}
+
+export function localizeCountry(countryCode: string, locale: Locale): string {
+  const countries: Record<string, Record<Locale, string>> = {
+    PT: { ca: "Portugal", es: "Portugal", en: "Portugal", de: "Portugal", fr: "Portugal", it: "Portogallo", pt: "Portugal", ar: "البرتغال", zh: "葡萄牙", hi: "पुर्तगाल" },
+    IT: { ca: "Itàlia", es: "Italia", en: "Italy", de: "Italien", fr: "Italie", it: "Italia", pt: "Itália", ar: "إيطاليا", zh: "意大利", hi: "इटली" },
+    JP: { ca: "Japó", es: "Japón", en: "Japan", de: "Japan", fr: "Japon", it: "Giappone", pt: "Japão", ar: "اليابان", zh: "日本", hi: "जापान" },
+    MA: { ca: "Marroc", es: "Marruecos", en: "Morocco", de: "Marokko", fr: "Maroc", it: "Marocco", pt: "Marrocos", ar: "المغرب", zh: "摩洛哥", hi: "मोरक्को" },
+    FR: { ca: "França", es: "Francia", en: "France", de: "Frankreich", fr: "France", it: "Francia", pt: "França", ar: "فرنسا", zh: "法国", hi: "फ्रांस" },
+    ID: { ca: "Indonèsia", es: "Indonesia", en: "Indonesia", de: "Indonesien", fr: "Indonésie", it: "Indonesia", pt: "Indonésia", ar: "إندونيسيا", zh: "印度尼西亚", hi: "इंडोनेशिया" },
+    US: { ca: "EUA", es: "EE.UU.", en: "USA", de: "USA", fr: "États-Unis", it: "USA", pt: "EUA", ar: "الولايات المتحدة", zh: "美国", hi: "यूएसए" },
+    GR: { ca: "Grècia", es: "Grecia", en: "Greece", de: "Griechenland", fr: "Grèce", it: "Grecia", pt: "Grécia", ar: "اليونان", zh: "希腊", hi: "ग्रीस" },
+  };
+  return countries[countryCode.toUpperCase()]?.[locale] ?? countryCode;
+}
+
+export function localizeCity(cityId: string, locale: Locale): string {
+  const norm = cityId.trim().toLowerCase();
+  
+  // Normalize variants to canonical IDs
+  const variantMap: Record<string, string> = {
+    "lisbon": "lisbon",
+    "lisboa": "lisbon",
+    "lisbonne": "lisbon",
+    "rome": "rome",
+    "roma": "rome",
+    "tokyo": "tokyo",
+    "tòquio": "tokyo",
+    "tokio": "tokyo",
+    "marrakech": "marrakech",
+    "marràqueix": "marrakech",
+    "marraqueix": "marrakech",
+    "marrakesh": "marrakech",
+    "paris": "paris",
+    "parís": "paris",
+    "bali": "bali",
+    "new-york": "new-york",
+    "new york": "new-york",
+    "nova york": "new-york",
+    "nueva york": "new-york",
+    "santorini": "santorini",
+    "barcelona": "barcelona",
+    "bcn": "barcelona",
+    "istanbul": "istanbul",
+    "estambul": "istanbul",
+    "copenhagen": "copenhagen",
+    "copenhaguen": "copenhagen",
+    "copenhague": "copenhagen",
+    "athens": "athens",
+    "atenes": "athens",
+    "atenas": "athens",
+    "reykjavik": "reykjavik",
+    "reykjavík": "reykjavik",
+    "dubai": "dubai",
+    "dubái": "dubai",
+    "miami": "miami"
+  };
+
+  const canonicalId = variantMap[norm] ?? norm;
+
+  const cities: Record<string, Record<Locale, string>> = {
+    lisbon: { ca: "Lisboa", es: "Lisboa", en: "Lisbon", de: "Lissabon", fr: "Lisbonne", it: "Lisbona", pt: "Lisboa", ar: "لشبونة", zh: "里斯本", hi: "लिस्बन" },
+    rome: { ca: "Roma", es: "Roma", en: "Rome", de: "Rom", fr: "Rome", it: "Roma", pt: "Roma", ar: "روما", zh: "罗马", hi: "रोम" },
+    tokyo: { ca: "Tòquio", es: "Tokio", en: "Tokyo", de: "Tokio", fr: "Tokyo", it: "Tokyo", pt: "Tóquio", ar: "طوكيو", zh: "东京", hi: "टोक्यो" },
+    marrakech: { ca: "Marràqueix", es: "Marrakech", en: "Marrakech", de: "Marrakesch", fr: "Marrakech", it: "Marrakech", pt: "Marraquexe", ar: "مراكش", zh: "马拉喀什", hi: "माराकेच" },
+    paris: { ca: "París", es: "París", en: "Paris", de: "Paris", fr: "Paris", it: "Parigi", pt: "Paris", ar: "باريس", zh: "巴黎", hi: "पेरिस" },
+    bali: { ca: "Bali", es: "Bali", en: "Bali", de: "Bali", fr: "Bali", it: "Bali", pt: "Bali", ar: "بالي", zh: "巴厘岛", hi: "बाली" },
+    "new-york": { ca: "Nova York", es: "Nueva York", en: "New York", de: "New York", fr: "New York", it: "New York", pt: "Nova Iorque", ar: "نيويورك", zh: "纽约", hi: "न्यूयॉर्क" },
+    santorini: { ca: "Santorini", es: "Santorini", en: "Santorini", de: "Santorin", fr: "Santorin", it: "Santorini", pt: "Santorini", ar: "سانتوريني", zh: "圣托里尼", hi: "सेंटोरिनी" },
+    barcelona: { ca: "Barcelona", es: "Barcelona", en: "Barcelona", de: "Barcelona", fr: "Barcelone", it: "Barcellona", pt: "Barcelona", ar: "برشلونة", zh: "巴塞罗那", hi: "बार्सिलोना" },
+    istanbul: { ca: "Istanbul", es: "Estambul", en: "Istanbul", de: "Istanbul", fr: "Istanbul", it: "Istanbul", pt: "Istambul", ar: "إسطنبول", zh: "伊斯坦布尔", hi: "इस्तांबुल" },
+    copenhagen: { ca: "Copenhaguen", es: "Copenhague", en: "Copenhagen", de: "Kopenhagen", fr: "Copenhague", it: "Copenaghen", pt: "Copenhaga", ar: "كوبنهاغن", zh: "哥本哈根", hi: "कोपेनहेगन" },
+    athens: { ca: "Atenes", es: "Atenas", en: "Athens", de: "Athen", fr: "Athènes", it: "Atene", pt: "Atenas", ar: "أثينا", zh: "雅典", hi: "एथेंस" },
+    reykjavik: { ca: "Reykjavík", es: "Reykjavík", en: "Reykjavik", de: "Reykjavík", fr: "Reykjavik", it: "Reykjavík", pt: "Reiquiavique", ar: "ريكيافيك", zh: "雷克雅未克", hi: "रेक्याविक" },
+    dubai: { ca: "Dubai", es: "Dubái", en: "Dubai", de: "Dubai", fr: "Dubaï", it: "Dubai", pt: "Dubai", ar: "دبي", zh: "迪拜", hi: "दुबई" },
+    miami: { ca: "Miami", es: "Miami", en: "Miami", de: "Miami", fr: "Miami", it: "Miami", pt: "Miami", ar: "ميامي", zh: "迈阿密", hi: "मियामी" },
+  };
+
+  const localized = cities[canonicalId]?.[locale];
+  if (localized) return localized;
+
+  // Fallback: capitalize the input cityId
+  return cityId
+    .split(/([\s\-_]+)/)
+    .map((word) => {
+      if (/^[\s\-_]+$/.test(word)) return word;
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join("");
+}
+
+export function localizeCountryName(countryName: string | null, locale: Locale): string {
+  if (!countryName) return "";
+  const name = countryName.trim().toLowerCase();
+  
+  const caToLocale: Record<string, Record<Locale, string>> = {
+    "portugal": { ca: "Portugal", es: "Portugal", en: "Portugal", de: "Portugal", fr: "Portugal", it: "Portogallo", pt: "Portugal", ar: "البرتغال", zh: "葡萄牙", hi: "पुर्तगाल" },
+    "itàlia": { ca: "Itàlia", es: "Italia", en: "Italy", de: "Italien", fr: "Italie", it: "Italia", pt: "Itália", ar: "إيطاليا", zh: "意大利", hi: "इटली" },
+    "italia": { ca: "Itàlia", es: "Italia", en: "Italy", de: "Italien", fr: "Italie", it: "Italia", pt: "Itália", ar: "إيطاليا", zh: "意大利", hi: "इटली" },
+    "italy": { ca: "Itàlia", es: "Italia", en: "Italy", de: "Italien", fr: "Italie", it: "Italia", pt: "Itália", ar: "إيطاليا", zh: "意大利", hi: "इटली" },
+    "japó": { ca: "Japó", es: "Japón", en: "Japan", de: "Japan", fr: "Japon", it: "Giappone", pt: "Japão", ar: "اليابان", zh: "日本", hi: "जापान" },
+    "japon": { ca: "Japó", es: "Japón", en: "Japan", de: "Japan", fr: "Japon", it: "Giappone", pt: "Japão", ar: "اليابان", zh: "日本", hi: "जापान" },
+    "japan": { ca: "Japó", es: "Japón", en: "Japan", de: "Japan", fr: "Japon", it: "Giappone", pt: "Japão", ar: "اليابان", zh: "日本", hi: "जापान" },
+    "marroc": { ca: "Marroc", es: "Marruecos", en: "Morocco", de: "Marokko", fr: "Maroc", it: "Marocco", pt: "Marrocos", ar: "المغرب", zh: "摩洛哥", hi: "मोरक्को" },
+    "marruecos": { ca: "Marroc", es: "Marruecos", en: "Morocco", de: "Marokko", fr: "Maroc", it: "Marocco", pt: "Marrocos", ar: "المغرب", zh: "摩洛哥", hi: "मोरक्को" },
+    "morocco": { ca: "Marroc", es: "Marruecos", en: "Morocco", de: "Marokko", fr: "Maroc", it: "Marocco", pt: "Marrocos", ar: "المغرب", zh: "摩洛哥", hi: "मोरक्को" },
+    "frança": { ca: "França", es: "Francia", en: "France", de: "Frankreich", fr: "France", it: "Francia", pt: "França", ar: "فرنسا", zh: "法国", hi: "फ्रांस" },
+    "francia": { ca: "França", es: "Francia", en: "France", de: "Frankreich", fr: "France", it: "Francia", pt: "França", ar: "فرنسا", zh: "法国", hi: "फ्रांस" },
+    "france": { ca: "França", es: "Francia", en: "France", de: "Frankreich", fr: "France", it: "Francia", pt: "França", ar: "فرنسا", zh: "法国", hi: "फ्रांस" },
+    "indonèsia": { ca: "Indonèsia", es: "Indonesia", en: "Indonesia", de: "Indonesien", fr: "Indonésie", it: "Indonesia", pt: "Indonésia", ar: "إندونيسيا", zh: "印度尼西亚", hi: "इंडोनेशिया" },
+    "indonesia": { ca: "Indonèsia", es: "Indonesia", en: "Indonesia", de: "Indonesien", fr: "Indonésie", it: "Indonesia", pt: "Indonésia", ar: "إندونيسيا", zh: "印度尼西亚", hi: "इंडोनेशिया" },
+    "eua": { ca: "EUA", es: "EE.UU.", en: "USA", de: "USA", fr: "États-Unis", it: "USA", pt: "EUA", ar: "الولايات المتحدة", zh: "美国", hi: "यूएसए" },
+    "ee.uu.": { ca: "EUA", es: "EE.UU.", en: "USA", de: "USA", fr: "États-Unis", it: "USA", pt: "EUA", ar: "الولايات المتحدة", zh: "美国", hi: "यूएसए" },
+    "usa": { ca: "EUA", es: "EE.UU.", en: "USA", de: "USA", fr: "États-Unis", it: "USA", pt: "EUA", ar: "الولايات المتحدة", zh: "美国", hi: "यूएसए" },
+    "grècia": { ca: "Grècia", es: "Grecia", en: "Greece", de: "Griechenland", fr: "Grèce", it: "Grecia", pt: "Grécia", ar: "اليونان", zh: "希腊", hi: "ग्रीस" },
+    "grecia": { ca: "Grècia", es: "Grecia", en: "Greece", de: "Griechenland", fr: "Grèce", it: "Grecia", pt: "Grécia", ar: "اليونان", zh: "希腊", hi: "ग्रीस" },
+    "greece": { ca: "Grècia", es: "Grecia", en: "Greece", de: "Griechenland", fr: "Grèce", it: "Grecia", pt: "Grécia", ar: "اليونان", zh: "希腊", hi: "ग्रीस" },
+  };
+
+  return caToLocale[name]?.[locale] ?? countryName;
+}

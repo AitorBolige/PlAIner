@@ -232,6 +232,8 @@ export interface GenerateItineraryParams {
   people: number;
   remainingBudget: number;
   preferences: string;
+  travelerAgeGroups?: string[];
+  locale?: string;
 }
 
 export async function generateItinerary(
@@ -248,6 +250,8 @@ export async function generateItinerary(
         people: p.people,
         remainingBudget: p.remainingBudget,
         preferences: p.preferences,
+        travelerAgeGroups: p.travelerAgeGroups,
+        locale: p.locale,
       }),
     });
     const data = await res.json().catch(() => null);
@@ -266,6 +270,7 @@ export interface SaveTripParams {
   people: number;
   costs: CostBreakdown;
   itinerary: Itinerary | null;
+  travelerAgeGroups?: string[];
 }
 
 export async function saveTrip(
@@ -278,6 +283,7 @@ export async function saveTrip(
     startDate: p.startDate.toISOString(),
     endDate: p.endDate.toISOString(),
     people: p.people,
+    travelerAgeGroups: p.travelerAgeGroups,
     totalCost: p.costs.grandTotal,
     flightCost: p.costs.flightCost,
     hotelCost: p.costs.hotelCost,
