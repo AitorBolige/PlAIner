@@ -63,10 +63,10 @@ function SlotRow({
   return (
     <div className="flex items-start gap-2.5">
       <span className="mt-0.5 flex-none text-[color:var(--green)]">{icon}</span>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 overflow-hidden">
         <div className="text-[10px] uppercase tracking-[0.06em] text-faint">{label}</div>
         <div className="truncate text-sm font-medium text-text">{slot.name}</div>
-        {sub ? <div className="line-clamp-1 text-xs text-muted">{sub}</div> : null}
+        {sub ? <div className="truncate text-xs text-muted">{sub}</div> : null}
       </div>
       {slot.estimated_cost_eur ? (
         <span className="tnum flex-none text-xs font-semibold text-text">
@@ -79,12 +79,12 @@ function SlotRow({
 
 function DaySection({ day, index, locale, t }: { day: ItineraryDay; index: number; locale: string; t: Translations }) {
   return (
-    <div className="rounded-[var(--r-md)] border border-border bg-[color:var(--surface-2)] p-3">
-      <div className="mb-2.5 flex items-center gap-2">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[color:var(--green)] text-[11px] font-bold text-white">
+    <div className="w-full overflow-hidden rounded-[var(--r-md)] border border-border bg-[color:var(--surface-2)] p-3">
+      <div className="mb-2.5 flex min-w-0 items-center gap-2">
+        <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-[color:var(--green)] text-[11px] font-bold text-white">
           {day.day_number ?? index + 1}
         </span>
-        <span className="display text-sm font-bold text-text">
+        <span className="display min-w-0 flex-1 truncate text-sm font-bold text-text">
           {day.theme ?? `${t.dayWord} ${index + 1}`}
         </span>
       </div>
@@ -399,8 +399,9 @@ export function Picker() {
     {/* ── Unified flight + hotel transition overlay ── */}
     {showTransitionOverlay && destination && (
       <TripTransitionOverlay
+        flightOffer={selectedFlight}
         originCode={origin}
-        originCity={origin}
+
         destCity={localizedDest}
         destCoords={destCoords}
         hotels={hotels}

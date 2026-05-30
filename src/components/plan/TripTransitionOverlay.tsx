@@ -3,7 +3,7 @@
 import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import mapboxgl from "mapbox-gl";
-import type { Offer } from "@/components/plan/PlanProvider";
+import type { Offer, OfferMetadata } from "@/components/plan/PlanProvider";
 
 // ─── Airport → coords + city name ────────────────────────────────────────────
 const AIRPORTS: Record<string, { coords: [number, number]; city: string }> = {
@@ -91,6 +91,12 @@ function estimateFlightTime(km: number): string {
   return m > 0 ? `${h}h ${m}min` : `${h}h`;
 }
 
+function formatMinutes(minutes: number): string {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m > 0 ? `${h}h ${m}min` : `${h}h`;
+}
+
 function greatCircleArc([lng1, lat1]: [number, number], [lng2, lat2]: [number, number], steps = 120): [number, number][] {
   return Array.from({ length: steps + 1 }, (_, i) => {
     const f = i / steps;
@@ -111,9 +117,12 @@ const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 type Phase = "flying" | "city" | "hotel-select" | "hotel-zoom" | "done";
 
 export interface TripTransitionOverlayProps {
+  /** The flight offer selected by the user. Metadata fields drive the animation. */
+  flightOffer?: Offer | null;
+  /** IATA code fallback when flightOffer.metadata.originCode is absent. */
   originCode: string;
-  originCity: string;
   destCity: string;
+  /** Geocoded destination coords (used when metadata.destCode is absent). */
   destCoords: [number, number] | null;
   hotels: Offer[];
   onHotelSelected: (hotel: Offer) => void;
@@ -121,7 +130,7 @@ export interface TripTransitionOverlayProps {
 }
 
 export function TripTransitionOverlay({
-  originCode, originCity, destCity, destCoords,
+  flightOffer, originCode, destCity, destCoords,
   hotels, onHotelSelected, onComplete,
 }: TripTransitionOverlayProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -135,23 +144,53 @@ export function TripTransitionOverlay({
   const [visible, setVisible] = React.useState(true);
   const [flightStatus, setFlightStatus] = React.useState("En vol");
   const [selectedHotel, setSelectedHotel] = React.useState<Offer | null>(null);
-  const [pinDropped, setPinDropped] = React.useState(false);
 
-  const origin: [number, number] = airportCoords(originCode);
-  const resolvedOriginCity = airportCity(originCode);
-  const dest: [number, number] = destCoords ?? [2.0785, 41.2971];
-  const arc = React.useMemo(() => greatCircleArc(origin, dest), [origin[0], dest[0]]); // eslint-disable-line
+  // ── Derive flight parameters: prefer real metadata, fall back to IATA lookup ─
+  const meta: OfferMetadata = flightOffer?.metadata ?? {};
+  const realOriginCode = meta.originCode ?? originCode;
+  const realDestCode   = meta.destCode ?? null;
+
+  const origin: [number, number] = airportCoords(realOriginCode);
+  const resolvedOriginCity = airportCity(realOriginCode);
+
+  // Destination coords: real destCode airport > geocoded city > default
+  const dest: [number, number] = (() => {
+    if (realDestCode) return airportCoords(realDestCode);
+    return destCoords ?? [2.0785, 41.2971];
+  })();
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const arc = React.useMemo(() => greatCircleArc(origin, dest), [origin[0], origin[1], dest[0], dest[1]]);
   const distKm = haversineKm(origin, dest);
-  const flightTime = estimateFlightTime(distKm);
+
+  // Flight time: real metadata > estimated from distance
+  const flightTime = meta.durationMinutes
+    ? formatMinutes(meta.durationMinutes)
+    : estimateFlightTime(distKm);
+
+  // Stop info label
+  const stopLabel = meta.stops != null
+    ? meta.stops === 0
+      ? "Vol directe"
+      : meta.stops === 1
+        ? `1 escala${meta.layoverCodes?.length ? ` · ${meta.layoverCodes.map(c => airportCity(c)).join(", ")}` : ""}`
+        : `${meta.stops} escales${meta.layoverCodes?.length ? ` · ${meta.layoverCodes.map(c => airportCity(c)).join(", ")}` : ""}`
+    : null;
   const initZoom = distKm > 8000 ? 2.0 : distKm > 5000 ? 2.5 : distKm > 2000 ? 3.2 : distKm > 800 ? 4.0 : 5.0;
   const midLng = lerp(origin[0], dest[0], 0.5);
   const midLat = lerp(origin[1], dest[1], 0.5) + (distKm > 5000 ? 8 : distKm > 2000 ? 4 : 2);
 
-  // Geocode hotel on selection
+  // Geocode hotel: real coords from metadata > Nominatim by address > by name+city
   async function geocodeHotel(hotel: Offer): Promise<[number, number] | null> {
+    const hm = hotel.metadata;
+    if (typeof hm?.lat === "number" && typeof hm?.lng === "number") {
+      return [hm.lng, hm.lat];
+    }
     try {
-      const q = encodeURIComponent(`${hotel.title}, ${destCity}`);
-      const r = await fetch(`/api/geocode?q=${q}&dest=1`);
+      const query = hm?.address
+        ? encodeURIComponent(hm.address)
+        : encodeURIComponent(`${hotel.title}, ${destCity}`);
+      const r = await fetch(`/api/geocode?q=${query}&dest=1`);
       const d = await r.json() as [number, number] | null;
       return Array.isArray(d) && d.length === 2 ? d : null;
     } catch { return null; }
@@ -159,7 +198,9 @@ export function TripTransitionOverlay({
 
   // ─── Init map + fly animation ─────────────────────────────────────────────
   React.useEffect(() => {
-    if (!containerRef.current || !destCoords || !TOKEN) {
+    // We need: a container, a token, and a valid route (destCode from metadata OR geocoded coords)
+    const hasRoute = realDestCode !== null || destCoords !== null;
+    if (!containerRef.current || !TOKEN || !hasRoute) {
       setTimeout(() => { setVisible(false); onComplete(); }, 800);
       return;
     }
@@ -254,10 +295,15 @@ export function TripTransitionOverlay({
             pitch: 0, bearing: 0, duration: 1800, essential: true,
             easing: x => 1 - Math.pow(1 - x, 2.5),
           });
-          // Enable map interaction for hotel phase
+          // Enable map interaction for hotel phase (or skip if no hotels)
           setTimeout(() => {
             map.dragPan.disable();
-            setPhase("hotel-select");
+            if (hotels.length === 0) {
+              setVisible(false);
+              setTimeout(onComplete, 480);
+            } else {
+              setPhase("hotel-select");
+            }
           }, 1900);
         }, 750);
       }
@@ -290,15 +336,14 @@ export function TripTransitionOverlay({
 
     // Drop pin after map arrives
     setTimeout(() => {
-      setPinDropped(true);
-
       const pinEl = document.createElement("div");
       pinEl.style.cssText = "display:flex;flex-direction:column;align-items:center;cursor:default;transform:translateY(-100px);opacity:0;transition:transform 0.6s cubic-bezier(0.34,1.56,0.64,1),opacity 0.3s";
       pinEl.innerHTML = `
         <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(145deg,#0D9E7A,#0a7d61);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(13,158,122,0.45),0 2px 8px rgba(0,0,0,0.12);border:3px solid white;font-size:20px">🏨</div>
         <div style="width:3px;height:14px;background:linear-gradient(to bottom,#0D9E7A,transparent);border-radius:2px"></div>
       `;
-      new mapboxgl.Marker({ element: pinEl, anchor: "bottom" }).setLngLat(target).addTo(map);
+      const pinMkr = new mapboxgl.Marker({ element: pinEl, anchor: "bottom" }).setLngLat(target).addTo(map);
+      pinRef.current = pinMkr;
 
       // Trigger drop animation
       requestAnimationFrame(() => {
@@ -307,8 +352,6 @@ export function TripTransitionOverlay({
           pinEl.style.opacity = "1";
         });
       });
-
-      pinRef.current = null;
 
       // Complete after pin settles
       setTimeout(() => {
@@ -364,8 +407,14 @@ export function TripTransitionOverlay({
                       style={{ display: "flex", alignItems: "center", gap: 7, background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 999, padding: "9px 20px", boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}>
                       <span style={{ fontSize: 15 }}>🕐</span>
                       <span style={{ fontSize: 14, fontWeight: 700, color: "#0D9E7A" }}>{flightTime}</span>
-                      <span style={{ fontSize: 12, color: "#7a7570", fontWeight: 500 }}>vol estimat</span>
+                      <span style={{ fontSize: 12, color: "#7a7570", fontWeight: 500 }}>{meta.durationMinutes ? "durada" : "vol estimat"}</span>
                     </motion.div>
+                    {stopLabel && (
+                      <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}
+                        style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.75)", border: "1px solid rgba(0,0,0,0.06)", borderRadius: 999, padding: "5px 14px", backdropFilter: "blur(8px)" }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, color: "#7a7570" }}>{stopLabel}</span>
+                      </motion.div>
+                    )}
                     <motion.div key={flightStatus} initial={{ opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }}
                       style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.75)", border: "1px solid rgba(0,0,0,0.06)", borderRadius: 999, padding: "5px 12px", backdropFilter: "blur(8px)" }}>
                       <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#0D9E7A", boxShadow: "0 0 5px rgba(13,158,122,0.6)", animation: "pdot 1.2s ease-in-out infinite" }} />

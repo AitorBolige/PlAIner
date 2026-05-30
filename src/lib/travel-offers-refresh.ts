@@ -574,9 +574,9 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
         await searchFlightsMetasearchForQuery(normalizedQuery);
       if (flightOffers.length > 0) collected.push(...flightOffers);
     } catch (error) {
-      errors.push(
-        `Flights API: ${error instanceof Error ? error.message : String(error)}`,
-      );
+      const msg = error instanceof Error ? error.message : String(error);
+      console.error(`[refreshTravelOffers] Flights error: ${msg}`);
+      errors.push(`Flights API: ${msg}`);
     }
   }
 

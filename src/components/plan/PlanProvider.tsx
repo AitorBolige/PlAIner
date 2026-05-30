@@ -19,6 +19,39 @@ export interface DateRange {
   days: number;
 }
 
+/**
+ * Metadata embedded in offers by the travel-offers ingestion pipeline.
+ *
+ * TRANSPORT offers should include:
+ *   originCode       — IATA code of departure airport (e.g. "BCN")
+ *   destCode         — IATA code of arrival airport  (e.g. "DPS")
+ *   durationMinutes  — total door-to-door travel time in minutes
+ *   stops            — 0 = direct, 1+ = connections
+ *   layoverCodes     — IATA codes of connection airports
+ *   departureAt      — ISO-8601 departure datetime
+ *   arrivalAt        — ISO-8601 arrival datetime
+ *
+ * HOTEL offers should include:
+ *   lat  — latitude  of the property (WGS-84)
+ *   lng  — longitude of the property (WGS-84)
+ *   address — human-readable address (optional, used as geocode fallback)
+ */
+export interface OfferMetadata {
+  // TRANSPORT
+  originCode?: string;
+  destCode?: string;
+  durationMinutes?: number;
+  stops?: number;
+  layoverCodes?: string[];
+  departureAt?: string;
+  arrivalAt?: string;
+  // HOTEL
+  lat?: number;
+  lng?: number;
+  address?: string;
+  [key: string]: unknown;
+}
+
 /** A flight/hotel offer as returned by /api/travel-offers. */
 export interface Offer {
   id: string;
@@ -34,6 +67,8 @@ export interface Offer {
   availabilityText?: string | null;
   rating?: number | null;
   reviewCount?: number | null;
+  /** Production flight/hotel data from the ingestion pipeline. */
+  metadata?: OfferMetadata | null;
 }
 
 export type AgeGroup = "minor" | "young" | "adult" | "senior";

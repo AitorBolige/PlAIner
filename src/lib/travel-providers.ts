@@ -940,10 +940,12 @@ function resolveFlightDestinationIata(query: TravelOfferQuery) {
     // Asia
     tokyo: "HND",
     tokio: "HND",
+    toquio: "HND",   // Catalan: Tòquio
     osaka: "KIX",
     kyoto: "ITM",
     bangkok: "BKK",
     singapore: "SIN",
+    singapur: "SIN",
     "kuala lumpur": "KUL",
     bali: "DPS",
     hong: "HKG",
