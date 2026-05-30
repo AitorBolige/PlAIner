@@ -62,29 +62,18 @@ export const authOptions: NextAuthOptions = {
         const password = credentials?.password ?? "";
         if (!email || !password) return null;
 
-        const { data: user } = await getSupabaseAdmin()
-          .from("User")
-          .select("id, email, name, image, passwordHash, ageGroup, nickname")
-          .eq("email", email)
-          .single();
+        const user = await prisma.user.findUnique({
+          where: { email },
+          select: { id: true, email: true, name: true, image: true, passwordHash: true, nickname: true, onboarded: true },
+        });
 
         if (!user?.passwordHash) {
-          await logLogin({
-            userId: null,
-            email,
-            method: "credentials",
-            success: false,
-          });
+          await logLogin({ userId: null, email, method: "credentials", success: false });
           return null;
         }
 
         const ok = await bcrypt.compare(password, user.passwordHash);
-        await logLogin({
-          userId: user.id,
-          email,
-          method: "credentials",
-          success: ok,
-        });
+        await logLogin({ userId: user.id, email, method: "credentials", success: ok });
 
         if (!ok) return null;
         return {
@@ -93,9 +82,7 @@ export const authOptions: NextAuthOptions = {
           name: user.name,
           image: user.image,
           nickname: user.nickname,
-          // Logging in via credentials means the account already exists in the
-          // DB, so onboarding (which only runs for brand-new sign-ups) is done.
-          onboarded: true,
+          onboarded: user.onboarded,
         };
       },
     }),

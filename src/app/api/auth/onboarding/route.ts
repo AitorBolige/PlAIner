@@ -19,12 +19,13 @@ export async function POST(req: Request) {
       await prisma.user.update({
         where: { id: userId },
         data: {
+          onboarded: true,
           nickname,
           age,
           gender,
           nationality,
           hobbies,
-          image: avatar || undefined, // Map avatar to image column
+          image: avatar || undefined,
         },
       });
     } catch (dbError) {
