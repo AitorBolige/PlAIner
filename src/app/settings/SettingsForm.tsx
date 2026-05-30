@@ -218,6 +218,7 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
   );
   const [hobbies, setHobbies] = React.useState(initialData.hobbies || "");
   const [avatar, setAvatar] = React.useState(initialData.image || "");
+  const [avatarFile, setAvatarFile] = React.useState<File | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState(false);
@@ -258,6 +259,25 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
     }
 
     setLoading(true);
+
+    // Upload new avatar file if one was selected
+    let avatarUrl = avatar;
+    if (avatarFile) {
+      const formData = new FormData();
+      formData.append("file", avatarFile);
+      try {
+        const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json() as { url?: string };
+          avatarUrl = uploadData.url ?? avatar;
+          setAvatar(avatarUrl);
+          setAvatarFile(null);
+        }
+      } catch {
+        // Non-fatal: keep existing avatar
+      }
+    }
+
     const res = await fetch("/api/auth/onboarding", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -268,19 +288,19 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
         gender,
         nationality,
         hobbies,
-        avatar,
+        avatar: avatarUrl,
       }),
     });
     setLoading(false);
 
     if (!res.ok) {
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json().catch(() => ({})) as { error?: string };
       setError(data.error ?? t.saveSettingsError);
       return;
     }
 
     setSuccess(true);
-    await update({ nickname, image: avatar });
+    await update({ nickname, image: avatarUrl });
     window.setTimeout(() => setSuccess(false), 3200);
   }
 
@@ -390,30 +410,43 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
           />
         </Field>
 
-        <Field
-          id="avatar"
-          icon={<Camera size={17} />}
-          className="mb-5"
-          label={
-            <>
-              {t.avatarLabel}{" "}
-              <span className="font-medium normal-case opacity-70">
-                {t.avatarOptional}
-              </span>
-            </>
-          }
-        >
-          <input
-            type="url"
-            value={avatar}
-            onChange={(e) => {
-              setAvatar(e.target.value);
-              setAvatarOk(true);
-            }}
-            placeholder="https://..."
-            className={inputCls}
-          />
-        </Field>
+        <div className="mb-5">
+          <label className={labelCls}>
+            {t.avatarLabel}{" "}
+            <span className="font-medium normal-case opacity-70">{t.avatarOptional}</span>
+          </label>
+          <div className="flex items-center gap-3">
+            <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-full border-[1.5px] border-[color:var(--border)] bg-[color:var(--surface-2)]">
+              {showAvatar
+                // eslint-disable-next-line @next/next/no-img-element
+                ? <img src={avatar} alt="" className="h-full w-full object-cover" onError={() => setAvatarOk(false)} />
+                : <span className="flex h-full w-full items-center justify-center text-[color:var(--text-faint)]"><Camera size={20} /></span>
+              }
+            </div>
+            <div className="relative flex-1">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    setAvatarFile(file);
+                    setAvatar(URL.createObjectURL(file));
+                    setAvatarOk(true);
+                  }
+                }}
+                className="absolute inset-0 z-10 cursor-pointer opacity-0"
+              />
+              <button
+                type="button"
+                className="flex h-[52px] w-full items-center gap-2 rounded-[14px] border-[1.5px] border-[color:var(--border)] bg-[color:var(--surface-2)] px-4 text-[15px] text-[color:var(--text)]"
+              >
+                <Camera size={16} className="flex-shrink-0 text-[color:var(--text-faint)]" />
+                <span className="truncate">{avatarFile ? "Foto seleccionada" : "Pujar nova foto..."}</span>
+              </button>
+            </div>
+          </div>
+        </div>
 
         <div className="my-[14px] flex items-center gap-2.5">
           <div className="h-px flex-1 bg-[color:var(--border-md)]" />
