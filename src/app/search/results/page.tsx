@@ -12,14 +12,19 @@ import {
 import { OfferCard } from "@/components/trip/OfferCard";
 import { Badge } from "@/components/ui/Badge";
 import { PageTransition } from "@/components/motion/PageTransition";
+import { getServerLocale } from "@/lib/i18n-server";
 
-export const metadata = {
-  title: "Resultats - PlAIner",
-};
+export async function generateMetadata() {
+  const { t } = getServerLocale();
+  return {
+    title: `${t.searchResultsTitle} - PlAIner`,
+  };
+}
 
-function formatDateRange(start: Date | null, end: Date | null) {
+function formatDateRange(start: Date | null, end: Date | null, locale: string) {
   if (!start || !end) return "";
-  const fmt = new Intl.DateTimeFormat("ca-ES", {
+  const code = locale === "en" ? "en-US" : locale === "es" ? "es-ES" : "ca-ES";
+  const fmt = new Intl.DateTimeFormat(code, {
     day: "numeric",
     month: "short",
   });
@@ -40,6 +45,8 @@ export default async function SearchResultsPage({
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/auth/login");
 
+  const { locale, t } = getServerLocale();
+
   const sp = await searchParams;
   const parsed = travelOfferQuerySchema.safeParse({
     destination: first(sp.destination) ?? "",
@@ -59,14 +66,14 @@ export default async function SearchResultsPage({
           href="/plan"
           className="inline-flex items-center gap-2 text-sm text-muted"
         >
-          <ArrowLeft size={16} /> Tornar
+          <ArrowLeft size={16} /> {t.backWord}
         </Link>
         <div className="mt-8 rounded-[var(--r-lg)] border border-border bg-surface p-6 text-center">
           <h1 className="display text-xl font-extrabold text-text">
-            Paràmetres no vàlids
+            {t.invalidParamsTitle}
           </h1>
           <p className="mt-2 text-sm text-muted">
-            Falten dades de cerca o estan mal formades.
+            {t.invalidParamsSub}
           </p>
         </div>
       </PageTransition>
@@ -93,7 +100,7 @@ export default async function SearchResultsPage({
       >
         <Link
           href="/plan"
-          aria-label="Tornar"
+          aria-label={t.backWord}
           className="absolute left-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/15 backdrop-blur-md transition hover:bg-white/25"
         >
           <ArrowLeft size={18} />
@@ -102,7 +109,7 @@ export default async function SearchResultsPage({
         <div className="mt-6">
           <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-[0.12em] opacity-90">
             <MapPin size={12} />
-            <span>Resultats</span>
+            <span>{t.searchResultsTitle}</span>
           </div>
           <h1 className="display mt-1 text-3xl font-extrabold tracking-[-0.02em]">
             {query.destination}
@@ -114,20 +121,20 @@ export default async function SearchResultsPage({
                 {formatDateRange(
                   snapshot.search.startDate,
                   snapshot.search.endDate,
+                  locale
                 )}
               </span>
             ) : null}
             <span className="inline-flex items-center gap-1.5">
               <Users size={13} />
-              {query.people}{" "}
-              {query.people === 1 ? "viatger" : "viatgers"}
+              {t.peopleCount(query.people)}
             </span>
             {query.budgetMax ? (
               <span className="opacity-80">
-                Pressupost: {query.budgetMax} {query.currency ?? "EUR"}
+                {t.budgetLabel}: {query.budgetMax} {query.currency ?? "EUR"}
               </span>
             ) : null}
-            {isStale ? <Badge variant="warning">Caché expirada</Badge> : null}
+            {isStale ? <Badge variant="warning">{t.cacheExpired}</Badge> : null}
           </div>
         </div>
       </header>
@@ -136,11 +143,10 @@ export default async function SearchResultsPage({
         {isEmpty ? (
           <div className="rounded-[var(--r-lg)] border border-border bg-surface p-8 text-center">
             <h2 className="display text-lg font-extrabold text-text">
-              Encara no tenim ofertes
+              {t.noOffersYet}
             </h2>
             <p className="mt-2 text-sm text-muted">
-              Torna al cercador i prem &quot;Generar viatge&quot; per buscar
-              vols i hotels.
+              {t.noOffersYetSub}
             </p>
           </div>
         ) : (
@@ -148,7 +154,7 @@ export default async function SearchResultsPage({
             {flights.length > 0 ? (
               <section className="mb-6">
                 <h2 className="display mb-3 px-1 text-xl font-extrabold tracking-[-0.02em] text-text">
-                  Vols ({flights.length})
+                  {t.flightsLabel} ({flights.length})
                 </h2>
                 <div className="grid gap-3">
                   {flights.map((o) => (
@@ -172,7 +178,7 @@ export default async function SearchResultsPage({
             {hotels.length > 0 ? (
               <section>
                 <h2 className="display mb-3 px-1 text-xl font-extrabold tracking-[-0.02em] text-text">
-                  Hotels ({hotels.length})
+                  {t.hotelsLabel} ({hotels.length})
                 </h2>
                 <div className="grid gap-3">
                   {hotels.map((o) => (

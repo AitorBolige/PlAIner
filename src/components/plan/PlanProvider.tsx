@@ -36,6 +36,8 @@ export interface Offer {
   reviewCount?: number | null;
 }
 
+export type AgeGroup = "minor" | "young" | "adult" | "senior";
+
 export type FlowStep = "search" | "generating" | "picker";
 
 // --- Context shape ---------------------------------------------------------
@@ -49,6 +51,7 @@ interface PlanState {
   people: number;
   budget: number; // per person, EUR
   preferences: string;
+  travelerAgeGroups: AgeGroup[];
 
   // flow
   step: FlowStep;
@@ -71,6 +74,7 @@ interface PlanContextValue extends PlanState {
   setPeople: (n: number) => void;
   setBudget: (n: number) => void;
   setPreferences: (s: string) => void;
+  setTravelerAgeGroup: (index: number, group: AgeGroup) => void;
   setStep: (s: FlowStep) => void;
   setOffers: (o: Offer[] | null) => void;
   setOffersLoading: (b: boolean) => void;
@@ -92,14 +96,23 @@ export function usePlan(): PlanContextValue {
   return ctx;
 }
 
+/** Build an age groups array of a given length, filling new slots with "adult". */
+function buildAgeGroups(current: AgeGroup[], newLength: number): AgeGroup[] {
+  if (newLength <= 0) return [];
+  if (newLength <= current.length) return current.slice(0, newLength);
+  const extra = Array<AgeGroup>(newLength - current.length).fill("adult");
+  return [...current, ...extra];
+}
+
 export function PlanProvider({ children }: { children: React.ReactNode }) {
   const [destination, setDestination] = React.useState<Destination | null>(null);
   const [dates, setDates] = React.useState<DateRange | null>(null);
   const [transport, setTransport] = React.useState<TransportOption | null>(null);
   const [origin, setOrigin] = React.useState("BCN");
-  const [people, setPeople] = React.useState(2);
+  const [people, _setPeople] = React.useState(2);
   const [budget, setBudget] = React.useState(1200);
   const [preferences, setPreferences] = React.useState("");
+  const [travelerAgeGroups, setTravelerAgeGroups] = React.useState<AgeGroup[]>(["adult", "adult"]);
   const [step, setStep] = React.useState<FlowStep>("search");
   const [offers, setOffers] = React.useState<Offer[] | null>(null);
   const [offersLoading, setOffersLoading] = React.useState(false);
@@ -108,6 +121,26 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
   const [selectedHotel, setSelectedHotel] = React.useState<Offer | null>(null);
   const [itinerary, setItinerary] = React.useState<unknown | null>(null);
   const [itineraryLoading, setItineraryLoading] = React.useState(false);
+
+  // When people count changes, auto-adjust age groups array.
+  const setPeople = React.useCallback(
+    (n: number) => {
+      _setPeople(n);
+      setTravelerAgeGroups((prev) => buildAgeGroups(prev, n));
+    },
+    [],
+  );
+
+  const setTravelerAgeGroup = React.useCallback(
+    (index: number, group: AgeGroup) => {
+      setTravelerAgeGroups((prev) => {
+        const next = [...prev];
+        if (index >= 0 && index < next.length) next[index] = group;
+        return next;
+      });
+    },
+    [],
+  );
 
   const ready = Boolean(destination && dates);
 
@@ -128,6 +161,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
     people,
     budget,
     preferences,
+    travelerAgeGroups,
     step,
     offers,
     offersLoading,
@@ -143,6 +177,7 @@ export function PlanProvider({ children }: { children: React.ReactNode }) {
     setPeople,
     setBudget,
     setPreferences,
+    setTravelerAgeGroup,
     setStep,
     setOffers,
     setOffersLoading,

@@ -6,6 +6,7 @@ import { ChevronDown, Pencil } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { useLocale } from "@/lib/i18n-client";
 
 export interface ActivityDTO {
   id: string;
@@ -37,8 +38,35 @@ function euro(v: number) {
   }).format(v);
 }
 
+function getLocalizedStartTime(val: string | null, targetLocale: string): string {
+  if (!val) return "";
+  const name = val.trim().toLowerCase();
+  const timesMap: Record<string, Record<string, string>> = {
+    "matí": { ca: "Matí", es: "Mañana", en: "Morning" },
+    "morning": { ca: "Matí", es: "Mañana", en: "Morning" },
+    "mañana": { ca: "Matí", es: "Mañana", en: "Morning" },
+
+    "dinar": { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
+    "lunch": { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
+    "almuerzo": { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
+
+    "tarda": { ca: "Tarda", es: "Tarde", en: "Afternoon" },
+    "afternoon": { ca: "Tarda", es: "Tarde", en: "Afternoon" },
+    "tarde": { ca: "Tarda", es: "Tarde", en: "Afternoon" },
+
+    "sopar": { ca: "Sopar", es: "Cena", en: "Dinner" },
+    "dinner": { ca: "Sopar", es: "Cena", en: "Dinner" },
+    "cena": { ca: "Sopar", es: "Cena", en: "Dinner" },
+  };
+  return timesMap[name]?.[targetLocale] ?? val;
+}
+
 export function DayAccordion({ days }: DayAccordionProps) {
   const [open, setOpen] = React.useState<number>(1);
+  const { locale } = useLocale();
+
+  const dayLabel = locale === "en" ? "Day" : locale === "es" ? "Día" : "Dia";
+  const activitiesLabel = locale === "en" ? "activities" : locale === "es" ? "actividades" : "activitats";
 
   return (
     <div className="grid gap-3">
@@ -58,10 +86,10 @@ export function DayAccordion({ days }: DayAccordionProps) {
               >
                 <div className="min-w-0">
                   <div className="font-display text-lg font-extrabold tracking-wide">
-                    Dia {d.dayNumber} — {d.title}
+                    {dayLabel} {d.dayNumber} — {d.title}
                   </div>
                   <div className="mt-1 text-sm text-[color:var(--color-text-muted)]">
-                    {d.activities.length} activitats · {euro(total)}
+                    {d.activities.length} {activitiesLabel} · {euro(total)}
                   </div>
                 </div>
                 <ChevronDown
@@ -87,7 +115,7 @@ export function DayAccordion({ days }: DayAccordionProps) {
                           <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
                               <div className="text-sm font-semibold">
-                                {a.startTime ? `${a.startTime} · ` : ""}
+                                {a.startTime ? `${getLocalizedStartTime(a.startTime, locale)} · ` : ""}
                                 {a.name}
                               </div>
                               {a.description ? (

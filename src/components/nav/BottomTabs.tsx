@@ -1,5 +1,8 @@
+"use client";
+
 import * as React from "react";
 import Link from "next/link";
+import { useLocale } from "@/lib/i18n-client";
 
 type TabId = "search" | "trips" | "settings";
 
@@ -65,15 +68,14 @@ function ProfileIcon({ active }: { active: boolean }) {
   );
 }
 
-const TABS: {
+const TAB_DEFS: {
   id: TabId;
-  label: string;
   href: string;
   Icon: (p: { active: boolean }) => React.ReactElement;
 }[] = [
-  { id: "search", label: "Cerca", href: "/plan", Icon: SearchIcon },
-  { id: "trips", label: "Viatges", href: "/trips", Icon: TripsIcon },
-  { id: "settings", label: "Perfil", href: "/settings", Icon: ProfileIcon },
+  { id: "search", href: "/plan", Icon: SearchIcon },
+  { id: "trips", href: "/trips", Icon: TripsIcon },
+  { id: "settings", href: "/settings", Icon: ProfileIcon },
 ];
 
 /**
@@ -81,6 +83,14 @@ const TABS: {
  * legacy BottomTabs so navigation feels seamless across the migrated routes.
  */
 export function BottomTabs({ active }: { active: TabId }) {
+  const { t } = useLocale();
+
+  const labels: Record<TabId, string> = {
+    search: t.tabSearch,
+    trips: t.tabTrips,
+    settings: t.tabProfile,
+  };
+
   return (
     <nav
       className="fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[480px]"
@@ -92,12 +102,12 @@ export function BottomTabs({ active }: { active: TabId }) {
       }}
     >
       <div className="safe-bottom mx-auto flex h-14 max-w-[300px] items-center justify-evenly pb-0.5">
-        {TABS.map((t) => {
-          const isActive = t.id === active;
+        {TAB_DEFS.map((tab) => {
+          const isActive = tab.id === active;
           return (
             <Link
-              key={t.id}
-              href={t.href}
+              key={tab.id}
+              href={tab.href}
               className="pl-tap flex flex-1 max-w-[100px] flex-col items-center justify-center gap-0.5 no-underline"
             >
               <span
@@ -106,7 +116,7 @@ export function BottomTabs({ active }: { active: TabId }) {
                   transform: isActive ? "scale(1.08)" : "scale(1)",
                 }}
               >
-                <t.Icon active={isActive} />
+                <tab.Icon active={isActive} />
               </span>
               <span
                 style={{
@@ -117,7 +127,7 @@ export function BottomTabs({ active }: { active: TabId }) {
                   fontFamily: "var(--font-body)",
                 }}
               >
-                {t.label}
+                {labels[tab.id]}
               </span>
             </Link>
           );

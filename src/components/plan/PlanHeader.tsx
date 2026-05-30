@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { LogOut, RefreshCw } from "lucide-react";
+import { useLocale } from "@/lib/i18n-client";
 
 interface SessionUser {
   name: string;
@@ -25,6 +26,7 @@ async function signOutTo(target: string) {
 }
 
 export function PlanHeader() {
+  const { t } = useLocale();
   const [user, setUser] = React.useState<SessionUser | null>(null);
   const [open, setOpen] = React.useState(false);
 
@@ -52,13 +54,13 @@ export function PlanHeader() {
       <div className="flex items-start gap-3">
         <div className="flex-1">
           <p className="text-[13px] text-muted">
-            Hola{user?.name ? `, ${user.name.split(" ")[0]}` : ""} 👋
+            {t.hello}{user?.name ? `, ${user.name.split(" ")[0]}` : ""} 👋
           </p>
           <h1 className="display mt-1 text-[34px] font-extrabold leading-[1.05] tracking-[-0.03em] text-text">
-            On anem?
+            {t.whereAreWeGoing}
           </h1>
           <p className="mb-5 mt-2 max-w-[280px] text-sm text-muted">
-            Configura el teu viatge i deixa que la IA faci la resta.
+            {t.configureTrip}
           </p>
         </div>
 
@@ -66,7 +68,7 @@ export function PlanHeader() {
           <button
             type="button"
             onClick={() => setOpen((o) => !o)}
-            aria-label="El meu compte"
+            aria-label={t.myAccount}
             className="mt-1 inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border border-border bg-[color:var(--green-subtle)] font-display text-[15px] font-bold text-[color:var(--green-deep)]"
           >
             {user?.image ? (
@@ -92,7 +94,7 @@ export function PlanHeader() {
                   onClick={() => signOutTo("/auth/login")}
                   className="flex w-full items-center gap-2 rounded-[10px] px-3 py-2 text-left text-sm font-medium text-text transition hover:bg-bg"
                 >
-                  <RefreshCw size={15} /> Canviar de compte
+                  <RefreshCw size={15} /> {t.switchAccount}
                 </button>
                 <button
                   type="button"
@@ -100,7 +102,7 @@ export function PlanHeader() {
                   className="flex w-full items-center gap-2 rounded-[10px] px-3 py-2 text-left text-sm font-bold transition"
                   style={{ color: "#DC2626", background: "rgba(239,68,68,0.07)" }}
                 >
-                  <LogOut size={15} /> Tancar sessió
+                  <LogOut size={15} /> {t.signOut}
                 </button>
               </div>
             </>

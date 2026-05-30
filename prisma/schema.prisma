@@ -65,6 +65,7 @@ model Trip {
   startDate      DateTime
   endDate        DateTime
   people         Int       @default(2)
+  travelerAgeGroups String[] // "minor" | "young" | "adult" | "senior" per traveler
   totalCost      Float
   flightCost     Float
   hotelCost      Float

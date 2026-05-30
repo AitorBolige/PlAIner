@@ -169,6 +169,10 @@ export async function POST(req: NextRequest) {
   const preferences = sanitizeItineraryPreferences(
     body.preferences ?? body.travelPreferences,
   );
+  const travelerAgeGroups = Array.isArray(body.travelerAgeGroups)
+    ? body.travelerAgeGroups.map(String)
+    : undefined;
+  const locale = String(body.locale || "ca").trim().toLowerCase();
 
   if (!destination) {
     geminiLog("validation failed", {
@@ -250,7 +254,7 @@ export async function POST(req: NextRequest) {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const systemInstruction = buildItinerarySystemInstruction(preferences);
+    const systemInstruction = buildItinerarySystemInstruction(preferences, locale);
     const model = genAI.getGenerativeModel({
       model: GEMINI_MODEL,
       systemInstruction,
@@ -267,6 +271,7 @@ export async function POST(req: NextRequest) {
       startDate,
       endDate,
       preferences,
+      travelerAgeGroups,
     );
     geminiLog("prompt built", {
       requestId,

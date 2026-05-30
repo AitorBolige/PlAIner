@@ -6,6 +6,7 @@ import { Mic, Square, Loader2, Sparkles } from "lucide-react";
 
 import { usePlan } from "@/components/plan/PlanProvider";
 import { toast } from "@/components/ui/Toast";
+import { useLocale } from "@/lib/i18n-client";
 import { DESTINATIONS, getDestinationImage, type Destination } from "@/lib/destinations";
 import {
   BUDGET_MAX,
@@ -75,6 +76,7 @@ function synthDestination(city: string, country: string | null): Destination {
 
 export function VoiceButton() {
   const plan = usePlan();
+  const { t } = useLocale();
   const recorderRef = React.useRef<MediaRecorder | null>(null);
   const streamRef = React.useRef<MediaStream | null>(null);
   const chunksRef = React.useRef<Blob[]>([]);
@@ -133,15 +135,15 @@ export function VoiceButton() {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.plan) {
-        toast.error(data?.error ?? "No s'ha pogut interpretar.");
+        toast.error(data?.error ?? t.voiceError);
         setPhase("idle");
         return;
       }
       applyPlan(data.plan as VoicePlan);
-      toast.success("Formulari omplert!");
+      toast.success(t.voiceFormFilled);
       setPhase("idle");
     } catch {
-      toast.error("Error de connexió.");
+      toast.error(t.voiceError);
       setPhase("idle");
     }
   }
@@ -152,7 +154,7 @@ export function VoiceButton() {
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     } catch {
-      toast.error("Permet l'accés al micròfon per parlar.");
+      toast.error(t.voiceMicPermission);
       return;
     }
     streamRef.current = stream;
@@ -163,7 +165,7 @@ export function VoiceButton() {
       recorder = new MediaRecorder(stream, mimeRef.current ? { mimeType: mimeRef.current } : undefined);
     } catch {
       release();
-      toast.error("No s'ha pogut gravar.");
+      toast.error(t.voiceRecordFailed);
       return;
     }
     recorder.ondataavailable = (e) => {
@@ -174,7 +176,7 @@ export function VoiceButton() {
       const blob = new Blob(chunksRef.current, { type: mimeRef.current || "audio/webm" });
       if (blob.size < 800) {
         setPhase("idle");
-        toast.error("No t'he sentit. Parla un parell de segons.");
+        toast.error(t.voiceTooShort);
         return;
       }
       void send(blob);
@@ -247,13 +249,13 @@ export function VoiceButton() {
         <span className="relative min-w-0 flex-1">
           <span className="display block text-[15px] font-extrabold tracking-[-0.01em]">
             {isRec
-              ? "Escoltant… toca per acabar"
+              ? t.voiceRecording
               : isProc
-                ? "Pensant el teu pla…"
-                : "Parla i la IA ho omple per tu"}
+                ? t.voiceProcessing
+                : t.voiceIdle}
           </span>
           {idle ? (
-            <span className="block text-xs opacity-85">Ex: «Roma 4 dies al juny, 800 €»</span>
+            <span className="block text-xs opacity-85">{t.voiceIdleSub}</span>
           ) : null}
         </span>
 

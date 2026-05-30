@@ -1,12 +1,20 @@
 "use client";
 
 import React from "react";
+import { useLocale } from "@/lib/i18n-client";
 
-export function SettingsBottomTabs({ user }: { user: any }) {
+export interface SettingsBottomTabsProps {
+  user: {
+    image?: string | null;
+  };
+}
+
+export function SettingsBottomTabs({ user }: SettingsBottomTabsProps) {
+  const { t } = useLocale();
   const TABS = [
     {
       id: "search",
-      label: "Cerca",
+      label: t.tabSearch,
       iconInactive: (
         <svg width={26} height={26} viewBox="0 0 24 24" fill="none">
           <circle cx={11} cy={11} r={7.5} stroke="currentColor" strokeWidth={1.7} fill="none" />
@@ -16,7 +24,7 @@ export function SettingsBottomTabs({ user }: { user: any }) {
     },
     {
       id: "trips",
-      label: "Viatges",
+      label: t.tabTrips,
       iconInactive: (
         <svg width={26} height={26} viewBox="0 0 24 24" fill="none">
           <path
@@ -32,7 +40,7 @@ export function SettingsBottomTabs({ user }: { user: any }) {
     },
     {
       id: "settings",
-      label: "Perfil",
+      label: t.tabProfile,
       iconActive: user?.image ? (
         <img
           src={user.image}

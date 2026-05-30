@@ -6,16 +6,22 @@ import { prisma } from "@/lib/prisma";
 import { HistoryClient } from "@/components/history/HistoryClient";
 import { BottomTabs } from "@/components/nav/BottomTabs";
 import { PageTransition } from "@/components/motion/PageTransition";
+import { getServerLocale } from "@/lib/i18n-server";
 
-export const metadata = {
-  title: "Els meus viatges - PlAIner",
-};
+export async function generateMetadata() {
+  const { t } = getServerLocale();
+  return {
+    title: `${t.myTripsTitle} - PlAIner`,
+  };
+}
 
 export default async function TripsPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
     redirect("/auth/login");
   }
+
+  const { locale } = getServerLocale();
 
   const trips = await prisma.trip.findMany({
     where: { userId: session.user.id },
@@ -44,7 +50,7 @@ export default async function TripsPage() {
   return (
     <div className="flex min-h-dvh justify-center bg-[color:var(--surface-2)]">
       <PageTransition className="relative min-h-dvh w-full max-w-[480px] border-x border-border bg-bg">
-        <HistoryClient trips={tripsDto} />
+        <HistoryClient trips={tripsDto} initialLocale={locale} />
         <BottomTabs active="trips" />
       </PageTransition>
     </div>

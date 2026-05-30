@@ -61,13 +61,16 @@ export function sanitizeItineraryPreferences(raw: unknown): string {
   return raw.trim().slice(0, MAX_ITINERARY_PREFERENCES_LENGTH);
 }
 
-export function buildItinerarySystemInstruction(preferences?: string): string {
+export function buildItinerarySystemInstruction(preferences?: string, locale: string = "ca"): string {
   const profile = sanitizeItineraryPreferences(preferences);
-  if (!profile) return GEMINI_SYSTEM_INSTRUCTION;
-  return `${GEMINI_SYSTEM_INSTRUCTION}
+  const langName = locale === "en" ? "English" : locale === "es" ? "Spanish" : "Catalan";
+  const langRule = `CRITICAL: You must write the entire output (including trip_title, themes, activity names, activity descriptions, restaurant names, and cuisines) in the ${langName} language. Do NOT use any other language.`;
+  const baseInstruction = `${GEMINI_SYSTEM_INSTRUCTION}\n\n${langRule}`;
+  if (!profile) return baseInstruction;
+  return `${baseInstruction}
 
 USER TRAVEL PROFILE (highest priority for venue choice): "${profile}"
-Heavily tailor every morning_activity, lunch_restaurant, afternoon_activity, and dinner_restaurant to match this profile (diet, interests, pace, nightlife, family-friendly, etc.). Still obey: sit-down lunch/dinner rule, valid Maps_url, exact JSON schema, and remainingBudget hard cap.`;
+Heavily tailor every morning_activity, lunch_restaurant, afternoon_activity, and dinner_restaurant to match this profile (diet, interests, pace, nightlife, family-friendly, etc.). Still obey: sit-down lunch/dinner rule, write in ${langName}, valid Maps_url, exact JSON schema, and remainingBudget hard cap.`;
 }
 
 function isValidMapsUrl(v: unknown): boolean {
@@ -317,6 +320,37 @@ function buildDayCalendarLines(startDate: string, days: number): string {
   return lines.join("\n");
 }
 
+const AGE_GROUP_LABELS: Record<string, string> = {
+  minor: "minor (under 18)",
+  young: "young adult (18-30)",
+  adult: "adult (31-60)",
+  senior: "senior (60+)",
+};
+
+function buildAgeGroupBlock(ageGroups?: string[]): string {
+  if (!ageGroups || ageGroups.length === 0) return "";
+  const counts: Record<string, number> = {};
+  for (const g of ageGroups) {
+    const label = AGE_GROUP_LABELS[g] ?? g;
+    counts[label] = (counts[label] || 0) + 1;
+  }
+  const parts = Object.entries(counts).map(([label, count]) => `${count} ${label}`);
+  let block = `\nTraveler ages: ${parts.join(", ")}.`;
+  const hasMinor = ageGroups.includes("minor");
+  const hasSenior = ageGroups.includes("senior");
+  const hasYoung = ageGroups.includes("young");
+  if (hasMinor) {
+    block += "\nIMPORTANT: There are minors in the group. Avoid bars, nightclubs, and venues with age restrictions. Prefer family-friendly activities and restaurants.";
+  }
+  if (hasSenior) {
+    block += "\nIMPORTANT: There are seniors in the group. Prefer accessible venues, avoid steep climbs and long walks. Include rest-friendly schedules.";
+  }
+  if (hasYoung && !hasMinor) {
+    block += "\nThe group includes young adults — feel free to include vibrant nightlife, trendy restaurants, and adventure activities.";
+  }
+  return block + "\n";
+}
+
 export function buildItineraryUserPrompt(
   destination: string,
   people: number,
@@ -325,6 +359,7 @@ export function buildItineraryUserPrompt(
   startDate: string,
   endDate: string,
   preferences?: string,
+  travelerAgeGroups?: string[],
 ): string {
   const profile = sanitizeItineraryPreferences(preferences);
   const profileBlock = profile
@@ -335,8 +370,9 @@ export function buildItineraryUserPrompt(
     startDate && endDate
       ? `\nTrip dates: ${startDate} to ${endDate} (${days} days, inclusive). Match day_number to these calendar dates:\n${calendarLines}\nPrioritize festivals, seasonal events, markets, holidays, and other happenings that occur during this period.\n`
       : "";
+  const ageBlock = buildAgeGroupBlock(travelerAgeGroups);
 
-  return `Create a daily itinerary for ${destination} for a group of ${people}. The trip is ${days} days long.${dateBlock}
+  return `Create a daily itinerary for ${destination} for a group of ${people}. The trip is ${days} days long.${dateBlock}${ageBlock}
 Flight and hotel are already booked and paid separately. You have exactly ${remainingBudget} EUR remaining for ALL food and activities on this trip — this is a hard cap for the whole group across every day.${profileBlock}
 Return ONLY valid JSON matching this exact structure (no markdown, no extra keys):
 {
@@ -359,9 +395,9 @@ Requirements:
 - Use the exact key Maps_url (capital M) for every slot. Every Maps_url must be a valid https:// Google Maps link for that venue.
 - Every activity needs description; every restaurant needs cuisine. All ${days} days must be complete with all four slots.
 - When trip dates are provided, theme each day around what is actually on during that calendar date (festivals, fairs, concerts, public holidays, seasonal highlights).
-- HARD BUDGET: The sum of every estimated_cost_eur (all slots on all ${days} days) must be ≤ ${remainingBudget} EUR. Do not exceed ${remainingBudget} EUR under any circumstances.${
+- HARD BUDGET: The sum of every estimated_cost_eur (all slots on all ${days} days) must be \u2264 ${remainingBudget} EUR. Do not exceed ${remainingBudget} EUR under any circumstances.${
     profile
-      ? `\n- PERSONALIZATION: Reflect the traveler profile in every slot — restaurant choices (diet/cuisine), activities (interests), and day themes.`
+      ? `\n- PERSONALIZATION: Reflect the traveler profile in every slot \u2014 restaurant choices (diet/cuisine), activities (interests), and day themes.`
       : ""
   }`;
 }

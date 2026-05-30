@@ -11,13 +11,19 @@ import type { DayDTO } from "@/components/trip/DayAccordion";
 import { EditableItinerary } from "@/components/trip/EditableItinerary";
 import { Badge } from "@/components/ui/Badge";
 import { PageTransition } from "@/components/motion/PageTransition";
+import { getServerLocale } from "@/lib/i18n-server";
+import { localizeCountryName, localizeCity } from "@/lib/i18n";
 
-export const metadata = {
-  title: "Detall del viatge - PlAIner",
-};
+export async function generateMetadata() {
+  const { t } = getServerLocale();
+  return {
+    title: `${t.tripDetailsTitle} - PlAIner`,
+  };
+}
 
-function formatDateRange(start: Date, end: Date) {
-  const fmt = new Intl.DateTimeFormat("ca-ES", {
+function formatDateRange(start: Date, end: Date, locale: string) {
+  const code = locale === "en" ? "en-US" : locale === "es" ? "es-ES" : "ca-ES";
+  const fmt = new Intl.DateTimeFormat(code, {
     day: "numeric",
     month: "short",
   });
@@ -42,6 +48,8 @@ export default async function TripDetailPage({
   if (!session?.user?.id) {
     redirect("/auth/login");
   }
+
+  const { locale, t } = getServerLocale();
 
   const trip = await prisma.trip.findUnique({
     where: { id },
@@ -73,16 +81,21 @@ export default async function TripDetailPage({
   }));
 
   const nights = nightsBetween(trip.startDate, trip.endDate);
+  const localizedCity = localizeCity(trip.destination, locale);
 
   // Booking deep-links so the user can still pay for flights/hotels.
   const startIso = trip.startDate.toISOString().slice(0, 10);
   const endIso = trip.endDate.toISOString().slice(0, 10);
   const flightsUrl = `https://www.google.com/travel/flights?q=${encodeURIComponent(
-    `vols a ${trip.destination}`,
+    locale === "en" ? `flights to ${localizedCity}` : locale === "es" ? `vuelos a ${localizedCity}` : `vols a ${localizedCity}`,
   )}`;
   const hotelUrl = `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(
-    trip.destination,
+    localizedCity,
   )}&checkin=${startIso}&checkout=${endIso}&group_adults=${trip.people}`;
+
+  const nightsLabel = nights === 1 
+    ? t.nightWord 
+    : (locale === "en" ? "nights" : locale === "es" ? "noches" : "nits");
 
   return (
     <div className="flex min-h-dvh justify-center bg-[color:var(--surface-2)]">
@@ -92,7 +105,7 @@ export default async function TripDetailPage({
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={trip.imageUrl}
-            alt={trip.destination}
+            alt={localizedCity}
             className="absolute inset-0 h-full w-full object-cover"
           />
         ) : (
@@ -115,7 +128,7 @@ export default async function TripDetailPage({
 
         <Link
           href="/trips"
-          aria-label="Tornar"
+          aria-label={t.backWord}
           className="absolute left-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md transition hover:bg-white/25"
         >
           <ArrowLeft size={18} />
@@ -123,7 +136,7 @@ export default async function TripDetailPage({
 
         {trip.isFavorite ? (
           <span
-            aria-label="Favorit"
+            aria-label={t.markedFavorite}
             className="absolute right-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full bg-white/15 text-white backdrop-blur-md"
           >
             <Heart size={18} fill="currentColor" />
@@ -133,25 +146,25 @@ export default async function TripDetailPage({
         <div className="absolute inset-x-0 bottom-0 px-6 pb-5 text-white">
           <div className="flex items-center gap-1.5 text-xs uppercase tracking-[0.12em] opacity-90">
             <MapPin size={12} />
-            <span>{trip.country ?? "Viatge"}</span>
+            <span>{localizeCountryName(trip.country, locale) || t.tripSingle}</span>
           </div>
           <h1 className="display mt-1 text-3xl font-extrabold tracking-[-0.02em]">
-            {trip.destination}
+            {localizedCity}
           </h1>
           <div className="mt-2 flex flex-wrap items-center gap-3 text-xs opacity-90">
             <span className="inline-flex items-center gap-1.5">
               <Calendar size={13} />
-              {formatDateRange(trip.startDate, trip.endDate)}
+              {formatDateRange(trip.startDate, trip.endDate, locale)}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Users size={13} />
-              {trip.people} {trip.people === 1 ? "viatger" : "viatgers"}
+              {t.peopleCount(trip.people)}
             </span>
             <span className="opacity-80">
-              {nights} {nights === 1 ? "nit" : "nits"}
+              {nights} {nightsLabel}
             </span>
             {trip.isSurprise ? (
-              <Badge variant="warning">Sorpresa</Badge>
+              <Badge variant="warning">{t.surpriseBadge}</Badge>
             ) : null}
           </div>
         </div>
@@ -164,16 +177,17 @@ export default async function TripDetailPage({
           hotel={trip.hotelCost}
           activities={trip.activitiesCost}
           daily={trip.dailyCost}
+          initialLocale={locale}
         />
 
         {/* Reserva — encara pots pagar vols i allotjament */}
         <section className="mt-6 overflow-hidden rounded-[var(--r-xl)] border border-border bg-surface shadow-[var(--shadow-sm)]">
           <div className="border-b border-border px-4 py-3">
             <h2 className="display text-base font-extrabold tracking-[-0.02em] text-text">
-              Reserva el teu viatge
+              {t.bookYourTrip}
             </h2>
             <p className="mt-0.5 text-xs text-muted">
-              Encara no has reservat? Assegura vols i allotjament ara.
+              {t.notBookedYetSub}
             </p>
           </div>
 
@@ -187,14 +201,13 @@ export default async function TripDetailPage({
               <Plane size={18} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-sm font-semibold text-text">Reservar vols</span>
+              <span className="block text-sm font-semibold text-text">{t.bookFlights}</span>
               <span className="block text-xs text-muted">
-                Cap a {trip.destination} · {trip.people}{" "}
-                {trip.people === 1 ? "viatger" : "viatgers"}
+                {t.towardsCity(trip.people, localizedCity)}
               </span>
             </span>
             <span className="inline-flex flex-none items-center gap-1 text-xs font-semibold text-[color:var(--green)]">
-              Pagar <ExternalLink size={13} />
+              {t.payWord} <ExternalLink size={13} />
             </span>
           </a>
 
@@ -208,13 +221,13 @@ export default async function TripDetailPage({
               <Hotel size={18} />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block text-sm font-semibold text-text">Reservar allotjament</span>
+              <span className="block text-sm font-semibold text-text">{t.bookAccommodation}</span>
               <span className="block text-xs text-muted">
-                {nights} {nights === 1 ? "nit" : "nits"} a {trip.destination}
+                {t.nightsInCity(nights, localizedCity)}
               </span>
             </span>
             <span className="inline-flex flex-none items-center gap-1 text-xs font-semibold text-[color:var(--green)]">
-              Pagar <ExternalLink size={13} />
+              {t.payWord} <ExternalLink size={13} />
             </span>
           </a>
         </section>
@@ -222,14 +235,14 @@ export default async function TripDetailPage({
         {days.length > 0 ? (
           <section className="mt-6">
             <h2 className="display mb-3 px-1 text-xl font-extrabold tracking-[-0.02em] text-text">
-              Itinerari
+              {t.itineraryWord}
             </h2>
-            <EditableItinerary tripId={trip.id} initialDays={days} />
+            <EditableItinerary tripId={trip.id} initialDays={days} initialLocale={locale} />
           </section>
         ) : (
           <section className="mt-6 rounded-[var(--r-lg)] border border-border bg-surface p-6 text-center">
             <p className="text-sm text-muted">
-              Encara no hi ha activitats planificades.
+              {t.noActivitiesYet}
             </p>
           </section>
         )}
