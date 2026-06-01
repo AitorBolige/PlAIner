@@ -1,0 +1,118 @@
+import type { Locale } from "./i18n";
+
+export interface NationalityEntry {
+  /** ISO 3166-1 alpha-2 code */
+  code: string;
+  /** Flag emoji */
+  flag: string;
+  /** Nationality label per locale */
+  labels: Record<Locale, string>;
+}
+
+/**
+ * All countries where the app's supported languages are natively spoken.
+ * Grouped by primary language, then alphabetically.
+ */
+export const NATIONALITIES: NationalityEntry[] = [
+  // ── Catalan-speaking ──
+  { code: "AD", flag: "🇦🇩", labels: { ca: "Andorrana", es: "Andorrana", en: "Andorran", de: "Andorranisch", fr: "Andorrane", it: "Andorrana", pt: "Andorrana", ar: "أندورية", zh: "安道尔", hi: "अंडोरन" } },
+
+  // ── Spanish-speaking ──
+  { code: "ES", flag: "🇪🇸", labels: { ca: "Espanyola", es: "Española", en: "Spanish", de: "Spanisch", fr: "Espagnole", it: "Spagnola", pt: "Espanhola", ar: "إسبانية", zh: "西班牙", hi: "स्पैनिश" } },
+  { code: "MX", flag: "🇲🇽", labels: { ca: "Mexicana", es: "Mexicana", en: "Mexican", de: "Mexikanisch", fr: "Mexicaine", it: "Messicana", pt: "Mexicana", ar: "مكسيكية", zh: "墨西哥", hi: "मैक्सिकन" } },
+  { code: "AR", flag: "🇦🇷", labels: { ca: "Argentina", es: "Argentina", en: "Argentine", de: "Argentinisch", fr: "Argentine", it: "Argentina", pt: "Argentina", ar: "أرجنتينية", zh: "阿根廷", hi: "अर्जेंटीनी" } },
+  { code: "CO", flag: "🇨🇴", labels: { ca: "Colombiana", es: "Colombiana", en: "Colombian", de: "Kolumbianisch", fr: "Colombienne", it: "Colombiana", pt: "Colombiana", ar: "كولومبية", zh: "哥伦比亚", hi: "कोलम्बियाई" } },
+  { code: "CL", flag: "🇨🇱", labels: { ca: "Xilena", es: "Chilena", en: "Chilean", de: "Chilenisch", fr: "Chilienne", it: "Cilena", pt: "Chilena", ar: "تشيلية", zh: "智利", hi: "चिलीयन" } },
+  { code: "PE", flag: "🇵🇪", labels: { ca: "Peruana", es: "Peruana", en: "Peruvian", de: "Peruanisch", fr: "Péruvienne", it: "Peruviana", pt: "Peruana", ar: "بيروفية", zh: "秘鲁", hi: "पेरूवियन" } },
+  { code: "VE", flag: "🇻🇪", labels: { ca: "Veneçolana", es: "Venezolana", en: "Venezuelan", de: "Venezolanisch", fr: "Vénézuélienne", it: "Venezuelana", pt: "Venezuelana", ar: "فنزويلية", zh: "委内瑞拉", hi: "वेनेज़ुएलाई" } },
+  { code: "EC", flag: "🇪🇨", labels: { ca: "Equatoriana", es: "Ecuatoriana", en: "Ecuadorian", de: "Ecuadorianisch", fr: "Équatorienne", it: "Ecuadoriana", pt: "Equatoriana", ar: "إكوادورية", zh: "厄瓜多尔", hi: "इक्वाडोरियन" } },
+  { code: "GT", flag: "🇬🇹", labels: { ca: "Guatemalenca", es: "Guatemalteca", en: "Guatemalan", de: "Guatemaltekisch", fr: "Guatémaltèque", it: "Guatemalteca", pt: "Guatemalteca", ar: "غواتيمالية", zh: "危地马拉", hi: "ग्वाटेमालाई" } },
+  { code: "CU", flag: "🇨🇺", labels: { ca: "Cubana", es: "Cubana", en: "Cuban", de: "Kubanisch", fr: "Cubaine", it: "Cubana", pt: "Cubana", ar: "كوبية", zh: "古巴", hi: "क्यूबाई" } },
+  { code: "BO", flag: "🇧🇴", labels: { ca: "Boliviana", es: "Boliviana", en: "Bolivian", de: "Bolivianisch", fr: "Bolivienne", it: "Boliviana", pt: "Boliviana", ar: "بوليفية", zh: "玻利维亚", hi: "बोलीवियाई" } },
+  { code: "DO", flag: "🇩🇴", labels: { ca: "Dominicana", es: "Dominicana", en: "Dominican", de: "Dominikanisch", fr: "Dominicaine", it: "Dominicana", pt: "Dominicana", ar: "دومينيكية", zh: "多米尼加", hi: "डोमिनिकन" } },
+  { code: "HN", flag: "🇭🇳", labels: { ca: "Hondurenya", es: "Hondureña", en: "Honduran", de: "Honduranisch", fr: "Hondurienne", it: "Honduregna", pt: "Hondurenha", ar: "هندوراسية", zh: "洪都拉斯", hi: "होन्डूरन" } },
+  { code: "PY", flag: "🇵🇾", labels: { ca: "Paraguaiana", es: "Paraguaya", en: "Paraguayan", de: "Paraguayisch", fr: "Paraguayenne", it: "Paraguayana", pt: "Paraguaia", ar: "باراغوايية", zh: "巴拉圭", hi: "पैराग्वेयन" } },
+  { code: "SV", flag: "🇸🇻", labels: { ca: "Salvadorenca", es: "Salvadoreña", en: "Salvadoran", de: "Salvadorianisch", fr: "Salvadorienne", it: "Salvadoregna", pt: "Salvadorenha", ar: "سلفادورية", zh: "萨尔瓦多", hi: "साल्वाडोरन" } },
+  { code: "NI", flag: "🇳🇮", labels: { ca: "Nicaragüenca", es: "Nicaragüense", en: "Nicaraguan", de: "Nicaraguanisch", fr: "Nicaraguayenne", it: "Nicaraguense", pt: "Nicaraguense", ar: "نيكاراغوية", zh: "尼加拉瓜", hi: "निकारागुआई" } },
+  { code: "CR", flag: "🇨🇷", labels: { ca: "Costarricense", es: "Costarricense", en: "Costa Rican", de: "Costa-ricanisch", fr: "Costaricaine", it: "Costaricana", pt: "Costarriquenha", ar: "كوستاريكية", zh: "哥斯达黎加", hi: "कोस्टा रिकन" } },
+  { code: "PA", flag: "🇵🇦", labels: { ca: "Panamenya", es: "Panameña", en: "Panamanian", de: "Panamaisch", fr: "Panaméenne", it: "Panamense", pt: "Panamenha", ar: "بنمية", zh: "巴拿马", hi: "पनामाई" } },
+  { code: "UY", flag: "🇺🇾", labels: { ca: "Uruguaiana", es: "Uruguaya", en: "Uruguayan", de: "Uruguayisch", fr: "Uruguayenne", it: "Uruguayana", pt: "Uruguaia", ar: "أوروغوايية", zh: "乌拉圭", hi: "उरुग्वेयन" } },
+  { code: "GQ", flag: "🇬🇶", labels: { ca: "Equatoguineana", es: "Ecuatoguineana", en: "Equatorial Guinean", de: "Äquatorialguineisch", fr: "Équato-guinéenne", it: "Equatoguineana", pt: "Equato-guineense", ar: "غينية استوائية", zh: "赤道几内亚", hi: "इक्वेटोरियल गिनीयन" } },
+
+  // ── English-speaking ──
+  { code: "GB", flag: "🇬🇧", labels: { ca: "Britànica", es: "Británica", en: "British", de: "Britisch", fr: "Britannique", it: "Britannica", pt: "Britânica", ar: "بريطانية", zh: "英国", hi: "ब्रिटिश" } },
+  { code: "US", flag: "🇺🇸", labels: { ca: "Estatunidenca", es: "Estadounidense", en: "American", de: "Amerikanisch", fr: "Américaine", it: "Americana", pt: "Americana", ar: "أمريكية", zh: "美国", hi: "अमेरिकी" } },
+  { code: "CA", flag: "🇨🇦", labels: { ca: "Canadenca", es: "Canadiense", en: "Canadian", de: "Kanadisch", fr: "Canadienne", it: "Canadese", pt: "Canadense", ar: "كندية", zh: "加拿大", hi: "कनाडाई" } },
+  { code: "AU", flag: "🇦🇺", labels: { ca: "Australiana", es: "Australiana", en: "Australian", de: "Australisch", fr: "Australienne", it: "Australiana", pt: "Australiana", ar: "أسترالية", zh: "澳大利亚", hi: "ऑस्ट्रेलियाई" } },
+  { code: "NZ", flag: "🇳🇿", labels: { ca: "Neozelandesa", es: "Neozelandesa", en: "New Zealander", de: "Neuseeländisch", fr: "Néo-zélandaise", it: "Neozelandese", pt: "Neozelandesa", ar: "نيوزيلندية", zh: "新西兰", hi: "न्यूज़ीलैंडर" } },
+  { code: "IE", flag: "🇮🇪", labels: { ca: "Irlandesa", es: "Irlandesa", en: "Irish", de: "Irisch", fr: "Irlandaise", it: "Irlandese", pt: "Irlandesa", ar: "أيرلندية", zh: "爱尔兰", hi: "आइरिश" } },
+  { code: "ZA", flag: "🇿🇦", labels: { ca: "Sud-africana", es: "Sudafricana", en: "South African", de: "Südafrikanisch", fr: "Sud-africaine", it: "Sudafricana", pt: "Sul-africana", ar: "جنوب أفريقية", zh: "南非", hi: "दक्षिण अफ़्रीकी" } },
+  { code: "JM", flag: "🇯🇲", labels: { ca: "Jamaicana", es: "Jamaicana", en: "Jamaican", de: "Jamaikanisch", fr: "Jamaïcaine", it: "Giamaicana", pt: "Jamaicana", ar: "جامايكية", zh: "牙买加", hi: "जमैकन" } },
+  { code: "TT", flag: "🇹🇹", labels: { ca: "Trinidadiana", es: "Trinitense", en: "Trinidadian", de: "Trinidadisch", fr: "Trinidadienne", it: "Trinidadiana", pt: "Trinidadiana", ar: "ترينيدادية", zh: "特立尼达", hi: "त्रिनिदादियन" } },
+  { code: "SG", flag: "🇸🇬", labels: { ca: "Singapuriana", es: "Singapurense", en: "Singaporean", de: "Singapurisch", fr: "Singapourienne", it: "Singaporiana", pt: "Singapurense", ar: "سنغافورية", zh: "新加坡", hi: "सिंगापुरी" } },
+  { code: "PH", flag: "🇵🇭", labels: { ca: "Filipina", es: "Filipina", en: "Filipino", de: "Philippinisch", fr: "Philippine", it: "Filippina", pt: "Filipina", ar: "فلبينية", zh: "菲律宾", hi: "फिलिपीनो" } },
+  { code: "GH", flag: "🇬🇭", labels: { ca: "Ghanesa", es: "Ghanesa", en: "Ghanaian", de: "Ghanaisch", fr: "Ghanéenne", it: "Ghanese", pt: "Ganesa", ar: "غانية", zh: "加纳", hi: "घानाई" } },
+  { code: "NG", flag: "🇳🇬", labels: { ca: "Nigeriana", es: "Nigeriana", en: "Nigerian", de: "Nigerianisch", fr: "Nigériane", it: "Nigeriana", pt: "Nigeriana", ar: "نيجيرية", zh: "尼日利亚", hi: "नाइजीरियाई" } },
+  { code: "KE", flag: "🇰🇪", labels: { ca: "Kenyana", es: "Keniana", en: "Kenyan", de: "Kenianisch", fr: "Kenyane", it: "Kenyana", pt: "Queniana", ar: "كينية", zh: "肯尼亚", hi: "केन्याई" } },
+
+  // ── German-speaking ──
+  { code: "DE", flag: "🇩🇪", labels: { ca: "Alemanya", es: "Alemana", en: "German", de: "Deutsch", fr: "Allemande", it: "Tedesca", pt: "Alemã", ar: "ألمانية", zh: "德国", hi: "जर्मन" } },
+  { code: "AT", flag: "🇦🇹", labels: { ca: "Austríaca", es: "Austríaca", en: "Austrian", de: "Österreichisch", fr: "Autrichienne", it: "Austriaca", pt: "Austríaca", ar: "نمساوية", zh: "奥地利", hi: "ऑस्ट्रियाई" } },
+  { code: "CH", flag: "🇨🇭", labels: { ca: "Suïssa", es: "Suiza", en: "Swiss", de: "Schweizerisch", fr: "Suisse", it: "Svizzera", pt: "Suíça", ar: "سويسرية", zh: "瑞士", hi: "स्विस" } },
+  { code: "LI", flag: "🇱🇮", labels: { ca: "Liechtensteiniana", es: "Liechtensteiniana", en: "Liechtensteiner", de: "Liechtensteinisch", fr: "Liechtensteinoise", it: "Liechtensteiniana", pt: "Liechtensteiniana", ar: "ليختنشتاينية", zh: "列支敦士登", hi: "लिख्तेंश्ताइनी" } },
+  { code: "LU", flag: "🇱🇺", labels: { ca: "Luxemburguesa", es: "Luxemburguesa", en: "Luxembourgish", de: "Luxemburgisch", fr: "Luxembourgeoise", it: "Lussemburghese", pt: "Luxemburguesa", ar: "لوكسمبورغية", zh: "卢森堡", hi: "लक्ज़मबर्गी" } },
+
+  // ── French-speaking ──
+  { code: "FR", flag: "🇫🇷", labels: { ca: "Francesa", es: "Francesa", en: "French", de: "Französisch", fr: "Française", it: "Francese", pt: "Francesa", ar: "فرنسية", zh: "法国", hi: "फ़्रांसीसी" } },
+  { code: "BE", flag: "🇧🇪", labels: { ca: "Belga", es: "Belga", en: "Belgian", de: "Belgisch", fr: "Belge", it: "Belga", pt: "Belga", ar: "بلجيكية", zh: "比利时", hi: "बेल्जियन" } },
+  { code: "SN", flag: "🇸🇳", labels: { ca: "Senegalesa", es: "Senegalesa", en: "Senegalese", de: "Senegalesisch", fr: "Sénégalaise", it: "Senegalese", pt: "Senegalesa", ar: "سنغالية", zh: "塞内加尔", hi: "सेनेगली" } },
+  { code: "CI", flag: "🇨🇮", labels: { ca: "Ivoriana", es: "Marfileña", en: "Ivorian", de: "Ivorisch", fr: "Ivoirienne", it: "Ivoriana", pt: "Marfinense", ar: "إيفوارية", zh: "科特迪瓦", hi: "आइवरी कोस्ट" } },
+  { code: "CD", flag: "🇨🇩", labels: { ca: "Congolesa (RDC)", es: "Congoleña (RDC)", en: "Congolese (DRC)", de: "Kongolesisch (DR)", fr: "Congolaise (RDC)", it: "Congolese (RDC)", pt: "Congolesa (RDC)", ar: "كونغولية (ج.د.ك)", zh: "刚果(金)", hi: "कांगोली (DRC)" } },
+  { code: "CM", flag: "🇨🇲", labels: { ca: "Camerunesa", es: "Camerunesa", en: "Cameroonian", de: "Kamerunisch", fr: "Camerounaise", it: "Camerunese", pt: "Camaronesa", ar: "كاميرونية", zh: "喀麦隆", hi: "कैमरूनी" } },
+  { code: "MG", flag: "🇲🇬", labels: { ca: "Malgaixa", es: "Malgache", en: "Malagasy", de: "Madagassisch", fr: "Malgache", it: "Malgascia", pt: "Malgaxe", ar: "مدغشقرية", zh: "马达加斯加", hi: "मालागासी" } },
+  { code: "HT", flag: "🇭🇹", labels: { ca: "Haitiana", es: "Haitiana", en: "Haitian", de: "Haitianisch", fr: "Haïtienne", it: "Haitiana", pt: "Haitiana", ar: "هايتية", zh: "海地", hi: "हाइटियन" } },
+  { code: "MC", flag: "🇲🇨", labels: { ca: "Monegasca", es: "Monegasca", en: "Monegasque", de: "Monegassisch", fr: "Monégasque", it: "Monegasca", pt: "Monegasca", ar: "موناكية", zh: "摩纳哥", hi: "मोनेगास्क" } },
+
+  // ── Italian-speaking ──
+  { code: "IT", flag: "🇮🇹", labels: { ca: "Italiana", es: "Italiana", en: "Italian", de: "Italienisch", fr: "Italienne", it: "Italiana", pt: "Italiana", ar: "إيطالية", zh: "意大利", hi: "इतालवी" } },
+  { code: "SM", flag: "🇸🇲", labels: { ca: "Sanmarinenca", es: "Sanmarinense", en: "Sammarinese", de: "San-marinesisch", fr: "Saint-marinaise", it: "Sammarinese", pt: "São-marinense", ar: "سانمارينية", zh: "圣马力诺", hi: "सैन मैरिनीज़" } },
+  { code: "VA", flag: "🇻🇦", labels: { ca: "Vaticana", es: "Vaticana", en: "Vatican", de: "Vatikanisch", fr: "Vaticane", it: "Vaticana", pt: "Vaticana", ar: "فاتيكانية", zh: "梵蒂冈", hi: "वेटिकन" } },
+
+  // ── Portuguese-speaking ──
+  { code: "PT", flag: "🇵🇹", labels: { ca: "Portuguesa", es: "Portuguesa", en: "Portuguese", de: "Portugiesisch", fr: "Portugaise", it: "Portoghese", pt: "Portuguesa", ar: "برتغالية", zh: "葡萄牙", hi: "पुर्तगाली" } },
+  { code: "BR", flag: "🇧🇷", labels: { ca: "Brasilera", es: "Brasileña", en: "Brazilian", de: "Brasilianisch", fr: "Brésilienne", it: "Brasiliana", pt: "Brasileira", ar: "برازيلية", zh: "巴西", hi: "ब्राज़ीलियाई" } },
+  { code: "AO", flag: "🇦🇴", labels: { ca: "Angolesa", es: "Angoleña", en: "Angolan", de: "Angolanisch", fr: "Angolaise", it: "Angolana", pt: "Angolana", ar: "أنغولية", zh: "安哥拉", hi: "अंगोलाई" } },
+  { code: "MZ", flag: "🇲🇿", labels: { ca: "Moçambiquesa", es: "Mozambiqueña", en: "Mozambican", de: "Mosambikanisch", fr: "Mozambicaine", it: "Mozambicana", pt: "Moçambicana", ar: "موزمبيقية", zh: "莫桑比克", hi: "मोज़ाम्बिकन" } },
+  { code: "CV", flag: "🇨🇻", labels: { ca: "Caboverdiana", es: "Caboverdiana", en: "Cape Verdean", de: "Kapverdisch", fr: "Cap-verdienne", it: "Capoverdiana", pt: "Cabo-verdiana", ar: "كابوفيردية", zh: "佛得角", hi: "केप वर्डियन" } },
+
+  // ── Arabic-speaking ──
+  { code: "SA", flag: "🇸🇦", labels: { ca: "Saudita", es: "Saudí", en: "Saudi", de: "Saudi-arabisch", fr: "Saoudienne", it: "Saudita", pt: "Saudita", ar: "سعودية", zh: "沙特阿拉伯", hi: "सऊदी" } },
+  { code: "EG", flag: "🇪🇬", labels: { ca: "Egípcia", es: "Egipcia", en: "Egyptian", de: "Ägyptisch", fr: "Égyptienne", it: "Egiziana", pt: "Egípcia", ar: "مصرية", zh: "埃及", hi: "मिस्री" } },
+  { code: "MA", flag: "🇲🇦", labels: { ca: "Marroquina", es: "Marroquí", en: "Moroccan", de: "Marokkanisch", fr: "Marocaine", it: "Marocchina", pt: "Marroquina", ar: "مغربية", zh: "摩洛哥", hi: "मोरक्कन" } },
+  { code: "DZ", flag: "🇩🇿", labels: { ca: "Algeriana", es: "Argelina", en: "Algerian", de: "Algerisch", fr: "Algérienne", it: "Algerina", pt: "Argelina", ar: "جزائرية", zh: "阿尔及利亚", hi: "अल्जीरियाई" } },
+  { code: "TN", flag: "🇹🇳", labels: { ca: "Tunisiana", es: "Tunecina", en: "Tunisian", de: "Tunesisch", fr: "Tunisienne", it: "Tunisina", pt: "Tunisiana", ar: "تونسية", zh: "突尼斯", hi: "ट्यूनिशियन" } },
+  { code: "IQ", flag: "🇮🇶", labels: { ca: "Iraquiana", es: "Iraquí", en: "Iraqi", de: "Irakisch", fr: "Irakienne", it: "Irachena", pt: "Iraquiana", ar: "عراقية", zh: "伊拉克", hi: "इराक़ी" } },
+  { code: "JO", flag: "🇯🇴", labels: { ca: "Jordana", es: "Jordana", en: "Jordanian", de: "Jordanisch", fr: "Jordanienne", it: "Giordana", pt: "Jordana", ar: "أردنية", zh: "约旦", hi: "जॉर्डनियन" } },
+  { code: "LB", flag: "🇱🇧", labels: { ca: "Libanesa", es: "Libanesa", en: "Lebanese", de: "Libanesisch", fr: "Libanaise", it: "Libanese", pt: "Libanesa", ar: "لبنانية", zh: "黎巴嫩", hi: "लेबनानी" } },
+  { code: "AE", flag: "🇦🇪", labels: { ca: "Emiradenca", es: "Emiratí", en: "Emirati", de: "Emiratisch", fr: "Émiratie", it: "Emiratina", pt: "Emiradense", ar: "إماراتية", zh: "阿联酋", hi: "एमिराती" } },
+  { code: "KW", flag: "🇰🇼", labels: { ca: "Kuwaitiana", es: "Kuwaití", en: "Kuwaiti", de: "Kuwaitisch", fr: "Koweïtienne", it: "Kuwaitiana", pt: "Kuwaitiana", ar: "كويتية", zh: "科威特", hi: "कुवैती" } },
+  { code: "QA", flag: "🇶🇦", labels: { ca: "Qatariana", es: "Catarí", en: "Qatari", de: "Katarisch", fr: "Qatarienne", it: "Qatariana", pt: "Catariana", ar: "قطرية", zh: "卡塔尔", hi: "क़तरी" } },
+  { code: "BH", flag: "🇧🇭", labels: { ca: "Bahrainiana", es: "Bareiní", en: "Bahraini", de: "Bahrainisch", fr: "Bahreïnienne", it: "Bahrainiana", pt: "Barenita", ar: "بحرينية", zh: "巴林", hi: "बहरीनी" } },
+  { code: "OM", flag: "🇴🇲", labels: { ca: "Omanita", es: "Omaní", en: "Omani", de: "Omanisch", fr: "Omanaise", it: "Omanita", pt: "Omanita", ar: "عمانية", zh: "阿曼", hi: "ओमानी" } },
+  { code: "SY", flag: "🇸🇾", labels: { ca: "Siriana", es: "Siria", en: "Syrian", de: "Syrisch", fr: "Syrienne", it: "Siriana", pt: "Síria", ar: "سورية", zh: "叙利亚", hi: "सीरियाई" } },
+  { code: "LY", flag: "🇱🇾", labels: { ca: "Líbia", es: "Libia", en: "Libyan", de: "Libysch", fr: "Libyenne", it: "Libica", pt: "Líbia", ar: "ليبية", zh: "利比亚", hi: "लीबियाई" } },
+  { code: "SD", flag: "🇸🇩", labels: { ca: "Sudanesa", es: "Sudanesa", en: "Sudanese", de: "Sudanesisch", fr: "Soudanaise", it: "Sudanese", pt: "Sudanesa", ar: "سودانية", zh: "苏丹", hi: "सूडानी" } },
+  { code: "YE", flag: "🇾🇪", labels: { ca: "Iemenita", es: "Yemení", en: "Yemeni", de: "Jemenitisch", fr: "Yéménite", it: "Yemenita", pt: "Iemenita", ar: "يمنية", zh: "也门", hi: "यमनी" } },
+  { code: "PS", flag: "🇵🇸", labels: { ca: "Palestina", es: "Palestina", en: "Palestinian", de: "Palästinensisch", fr: "Palestinienne", it: "Palestinese", pt: "Palestina", ar: "فلسطينية", zh: "巴勒斯坦", hi: "फ़िलिस्तीनी" } },
+
+  // ── Chinese-speaking ──
+  { code: "CN", flag: "🇨🇳", labels: { ca: "Xinesa", es: "China", en: "Chinese", de: "Chinesisch", fr: "Chinoise", it: "Cinese", pt: "Chinesa", ar: "صينية", zh: "中国", hi: "चीनी" } },
+  { code: "TW", flag: "🇹🇼", labels: { ca: "Taiwanesa", es: "Taiwanesa", en: "Taiwanese", de: "Taiwanisch", fr: "Taïwanaise", it: "Taiwanese", pt: "Taiwanesa", ar: "تايوانية", zh: "台湾", hi: "ताइवानी" } },
+  { code: "HK", flag: "🇭🇰", labels: { ca: "Hongkonguesa", es: "Hongkonesa", en: "Hong Konger", de: "Hongkonger", fr: "Hongkongaise", it: "Hongkonghese", pt: "Hongkonguesa", ar: "هونغ كونغية", zh: "香港", hi: "हांगकांगी" } },
+  { code: "MO", flag: "🇲🇴", labels: { ca: "Macanesa", es: "Macanesa", en: "Macanese", de: "Macanesisch", fr: "Macanaise", it: "Macanesa", pt: "Macaense", ar: "ماكاوية", zh: "澳门", hi: "मकाऊ" } },
+
+  // ── Hindi-speaking ──
+  { code: "IN", flag: "🇮🇳", labels: { ca: "Índia", es: "India", en: "Indian", de: "Indisch", fr: "Indienne", it: "Indiana", pt: "Indiana", ar: "هندية", zh: "印度", hi: "भारतीय" } },
+  { code: "FJ", flag: "🇫🇯", labels: { ca: "Fijiana", es: "Fiyiana", en: "Fijian", de: "Fidschianisch", fr: "Fidjienne", it: "Figiana", pt: "Fijiana", ar: "فيجية", zh: "斐济", hi: "फ़िजियन" } },
+  { code: "NP", flag: "🇳🇵", labels: { ca: "Nepalesa", es: "Nepalesa", en: "Nepalese", de: "Nepalesisch", fr: "Népalaise", it: "Nepalese", pt: "Nepalesa", ar: "نيبالية", zh: "尼泊尔", hi: "नेपाली" } },
+];

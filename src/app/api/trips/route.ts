@@ -53,6 +53,7 @@ const createTripSchema = z.object({
   dailyCost: z.coerce.number().nonnegative().default(0),
   status: z.string().trim().default("draft"),
   isSurprise: z.boolean().default(false),
+  isPublic: z.boolean().default(false),
   searchCacheKey: z.string().trim().optional(),
   itinerary: itinerarySchema.optional(),
   flightOffer: z.unknown().optional(),
@@ -175,6 +176,7 @@ export async function POST(request: NextRequest) {
       flightOffer: (data.flightOffer as any) ?? undefined,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       hotelOffer: (data.hotelOffer as any) ?? undefined,
+      isPublic: data.isPublic,
       searchId,
       days: data.itinerary
         ? { create: mapItineraryToDaysCreate(data.itinerary) }

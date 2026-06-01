@@ -273,6 +273,7 @@ export interface SaveTripParams {
   travelerAgeGroups?: string[];
   flightOffer?: unknown | null;
   hotelOffer?: unknown | null;
+  isPublic?: boolean;
 }
 
 export async function saveTrip(
@@ -293,6 +294,7 @@ export async function saveTrip(
     dailyCost: Math.round(p.costs.grandTotal / Math.max(1, p.days)),
     status: "confirmed",
     isSurprise: false,
+    isPublic: p.isPublic ?? false,
     itinerary: p.itinerary || undefined,
     flightOffer: p.flightOffer ?? undefined,
     hotelOffer: p.hotelOffer ?? undefined,
