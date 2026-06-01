@@ -9,10 +9,12 @@ import {
   Sparkles,
   Moon,
   Check,
+  Search,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useLocale } from "@/lib/i18n-client";
 import { type Locale } from "@/lib/i18n";
+import { NATIONALITIES } from "@/lib/nationalities";
 
 interface SettingsFormProps {
   userId: string;
@@ -205,6 +207,143 @@ function CustomSelect({ id, value, onChange, options, placeholder, icon, classNa
   );
 }
 
+/* ── Searchable Nationality Dropdown ── */
+interface NationalitySelectProps {
+  id?: string;
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  searchPlaceholder: string;
+  locale: Locale;
+}
+
+function NationalitySelect({ id, value, onChange, placeholder, searchPlaceholder, locale }: NationalitySelectProps) {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [search, setSearch] = React.useState("");
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const searchRef = React.useRef<HTMLInputElement>(null);
+
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+        setSearch("");
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  React.useEffect(() => {
+    if (isOpen && searchRef.current) {
+      searchRef.current.focus();
+    }
+  }, [isOpen]);
+
+  const options = React.useMemo(() =>
+    NATIONALITIES.map((n) => ({
+      code: n.code,
+      flag: n.flag,
+      label: n.labels[locale] || n.labels.en,
+    })),
+    [locale]
+  );
+
+  const filtered = React.useMemo(() => {
+    if (!search.trim()) return options;
+    const q = search.toLowerCase();
+    return options.filter(
+      (o) =>
+        o.label.toLowerCase().startsWith(q) ||
+        o.code.toLowerCase().startsWith(q)
+    );
+  }, [options, search]);
+
+  const selected = options.find((o) => o.code === value);
+
+  return (
+    <div ref={containerRef} className="relative w-full">
+      <button
+        id={id}
+        type="button"
+        onClick={() => { setIsOpen(!isOpen); setSearch(""); }}
+        className={`w-full rounded-[14px] border-[1.5px] border-[color:var(--border)] bg-[color:var(--surface-2)] py-0 pl-11 pr-4 h-[52px] text-[15px] text-[color:var(--text)] outline-none transition-[border-color,box-shadow] duration-[180ms] flex items-center justify-between cursor-pointer relative ${
+          isOpen ? "border-[color:var(--green)] shadow-[0_0_0_4px_var(--green-subtle)]" : ""
+        }`}
+      >
+        <span className="absolute left-[15px] top-1/2 -translate-y-1/2 text-[color:var(--text-faint)] flex pointer-events-none">
+          <Globe2 size={17} />
+        </span>
+        <span className={selected ? "text-[color:var(--text)] font-semibold flex items-center gap-2" : "text-[color:var(--text-faint)]"}>
+          {selected ? <>{selected.flag} {selected.label}</> : placeholder}
+        </span>
+        <span className={`text-[10px] text-[color:var(--text-faint)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
+          ▼
+        </span>
+      </button>
+
+      {isOpen && (
+        <div
+          className="absolute left-0 z-50 mt-1.5 w-full overflow-hidden rounded-[14px] border border-[color:var(--border-md)] bg-[color:var(--surface)] shadow-[var(--shadow-lg)] pl-fadein"
+          style={{ transformOrigin: "top" }}
+        >
+          {/* Search bar */}
+          <div className="sticky top-0 z-10 bg-[color:var(--surface)] p-2 border-b border-[color:var(--border)]">
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--text-faint)] pointer-events-none">
+                <Search size={14} />
+              </span>
+              <input
+                ref={searchRef}
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder={searchPlaceholder}
+                className="w-full h-9 rounded-[10px] bg-[color:var(--surface-2)] border border-[color:var(--border)] pl-8 pr-3 text-[13px] text-[color:var(--text)] outline-none placeholder:text-[color:var(--text-faint)] focus:border-[color:var(--green)] transition-[border-color] duration-150"
+              />
+            </div>
+          </div>
+
+          {/* Options list */}
+          <div className="max-h-[220px] overflow-y-auto p-1">
+            {filtered.length === 0 ? (
+              <div className="px-3.5 py-3 text-[13px] text-[color:var(--text-faint)] text-center">
+                —
+              </div>
+            ) : (
+              filtered.map((opt) => {
+                const isSelected = opt.code === value;
+                return (
+                  <button
+                    key={opt.code}
+                    type="button"
+                    onClick={() => {
+                      onChange(opt.code);
+                      setIsOpen(false);
+                      setSearch("");
+                    }}
+                    className={`flex w-full items-center justify-between rounded-[10px] px-3.5 py-3 text-left text-[14px] font-medium transition-[background,color] duration-[150ms] outline-none ${
+                      isSelected
+                        ? "bg-[color:var(--green-subtle)] text-[color:var(--green-deep)]"
+                        : "text-[color:var(--text)] hover:bg-[color:var(--surface-2)] hover:text-[color:var(--text)] focus:bg-[color:var(--surface-2)]"
+                    }`}
+                  >
+                    <span className="flex items-center gap-2.5">
+                      <span className="text-base">{opt.flag}</span>
+                      <span>{opt.label}</span>
+                    </span>
+                    {isSelected && <Check size={15} className="text-[color:var(--green)]" />}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function SettingsForm({ userId, initialData, initialLocale }: SettingsFormProps) {
   const { update } = useSession();
   const [dark, toggleTheme] = useTheme();
@@ -370,15 +509,19 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
           />
         </div>
 
-        <Field id="nationality" label={t.nationalityLabel} icon={<Globe2 size={17} />}>
-          <input
-            type="text"
+        <div className="mb-4">
+          <label htmlFor="nationality" className={labelCls}>
+            {t.nationalityLabel}
+          </label>
+          <NationalitySelect
+            id="nationality"
             value={nationality}
-            onChange={(e) => setNationality(e.target.value)}
+            onChange={(val) => setNationality(val)}
             placeholder={t.nationalityPlaceholder}
-            className={inputCls}
+            searchPlaceholder={t.nationalitySearchPlaceholder}
+            locale={locale}
           />
-        </Field>
+        </div>
 
         <Field id="hobbies" label={t.hobbiesLabel} icon={<Sparkles size={17} />}>
           <input

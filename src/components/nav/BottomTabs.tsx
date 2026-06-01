@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useLocale } from "@/lib/i18n-client";
 
-type TabId = "search" | "trips" | "settings";
+type TabId = "search" | "recommendations" | "trips" | "settings";
 
 const ACTIVE = "var(--green)";
 const INACTIVE = "#A0998E";
@@ -68,12 +68,29 @@ function ProfileIcon({ active }: { active: boolean }) {
   );
 }
 
+function RecommendationsIcon({ active }: { active: boolean }) {
+  const c = active ? ACTIVE : INACTIVE;
+  return (
+    <svg width={26} height={26} viewBox="0 0 24 24" fill="none">
+      {active ? <circle cx={12} cy={12} r={8} fill={ACTIVE} opacity={0.18} /> : null}
+      <path
+        d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"
+        stroke={c}
+        strokeWidth={active ? 2 : 1.7}
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </svg>
+  );
+}
+
 const TAB_DEFS: {
   id: TabId;
   href: string;
   Icon: (p: { active: boolean }) => React.ReactElement;
 }[] = [
   { id: "search", href: "/plan", Icon: SearchIcon },
+  { id: "recommendations", href: "/recommendations", Icon: RecommendationsIcon },
   { id: "trips", href: "/trips", Icon: TripsIcon },
   { id: "settings", href: "/settings", Icon: ProfileIcon },
 ];
@@ -87,6 +104,7 @@ export function BottomTabs({ active }: { active: TabId }) {
 
   const labels: Record<TabId, string> = {
     search: t.tabSearch,
+    recommendations: t.tabRecommendations,
     trips: t.tabTrips,
     settings: t.tabProfile,
   };
@@ -101,7 +119,7 @@ export function BottomTabs({ active }: { active: TabId }) {
         borderTop: "0.5px solid rgba(0,0,0,0.12)",
       }}
     >
-      <div className="safe-bottom mx-auto flex h-14 max-w-[300px] items-center justify-evenly pb-0.5">
+      <div className="safe-bottom mx-auto flex h-14 max-w-[380px] items-center justify-evenly pb-0.5">
         {TAB_DEFS.map((tab) => {
           const isActive = tab.id === active;
           return (

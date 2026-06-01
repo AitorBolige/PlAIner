@@ -53,6 +53,7 @@ const createTripSchema = z.object({
   dailyCost: z.coerce.number().nonnegative().default(0),
   status: z.string().trim().default("draft"),
   isSurprise: z.boolean().default(false),
+  isPublic: z.boolean().default(false),
   searchCacheKey: z.string().trim().optional(),
   itinerary: itinerarySchema.optional(),
 });
@@ -169,6 +170,7 @@ export async function POST(request: NextRequest) {
       dailyCost: data.dailyCost,
       status: data.status,
       isSurprise: data.isSurprise,
+      isPublic: data.isPublic,
       searchId,
       days: data.itinerary
         ? { create: mapItineraryToDaysCreate(data.itinerary) }

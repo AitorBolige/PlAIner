@@ -19,6 +19,7 @@ import {
   Moon,
   SearchX,
   RotateCw,
+  Globe,
 } from "lucide-react";
 
 import { usePlan, type Offer } from "@/components/plan/PlanProvider";
@@ -287,6 +288,7 @@ export function Picker() {
 
   const [step, setStep] = React.useState<Step>("flights");
   const [fav, setFav] = React.useState(false);
+  const [isPublic, setIsPublic] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
   const reduce = useReducedMotion();
   const stepAnim = reduce
@@ -360,6 +362,7 @@ export function Picker() {
       costs,
       itinerary: itinerary as Itinerary | null,
       travelerAgeGroups,
+      isPublic,
     });
     if (!id) {
       toast.error(error ?? t.tripSaveFailed);
@@ -562,19 +565,33 @@ export function Picker() {
               )}
             </Card>
 
-            {/* Favorite toggle */}
-            <button
-              type="button"
-              onClick={() => setFav((f) => !f)}
-              className="inline-flex items-center gap-2 self-start rounded-full border border-border bg-surface px-4 py-2 text-sm text-text"
-            >
-              <Heart
-                size={16}
-                className={fav ? "text-[color:#E85D3A]" : "text-muted"}
-                fill={fav ? "#E85D3A" : "none"}
-              />
-              {fav ? t.markedFavorite : t.markFavorite}
-            </button>
+            {/* Action Toggles */}
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => setFav((f) => !f)}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-text transition-colors"
+              >
+                <Heart
+                  size={16}
+                  className={fav ? "text-[color:#E85D3A]" : "text-muted"}
+                  fill={fav ? "#E85D3A" : "none"}
+                />
+                {fav ? t.markedFavorite : t.markFavorite}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsPublic((p) => !p)}
+                className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-text transition-colors"
+              >
+                <Globe
+                  size={16}
+                  className={isPublic ? "text-[color:var(--green)]" : "text-muted"}
+                />
+                {isPublic ? t.shareWithCommunity : t.shareWithCommunity}
+              </button>
+            </div>
           </div>
         ) : null}
           </motion.div>

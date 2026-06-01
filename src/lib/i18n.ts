@@ -243,6 +243,7 @@ export interface Translations {
   gendersList: string[];
   nationalityLabel: string;
   nationalityPlaceholder: string;
+  nationalitySearchPlaceholder: string;
   hobbiesLabel: string;
   hobbiesPlaceholder: string;
   avatarLabel: string;
@@ -257,6 +258,27 @@ export interface Translations {
   savingSettingsBtn: string;
   onboardingPersonalize: string;
   onboardingDefaultProfile: string;
+
+  // Recommendations
+  tabRecommendations: string;
+  recommendationsTitle: string;
+  recommendationsSub: string;
+  filterDestination: string;
+  filterBudget: string;
+  filterPeople: string;
+  filterDuration: string;
+  filterDurationDays: string;
+  sortRecent: string;
+  sortCheapest: string;
+  sortExpensive: string;
+  clearFilters: string;
+  noRecommendations: string;
+  noRecommendationsSub: string;
+  shareWithCommunity: string;
+  shareWithCommunitySub: string;
+  authorLabel: string;
+  communityTrip: string;
+  loadingMore: string;
 }
 
 const ca: Translations = {
@@ -480,7 +502,8 @@ const ca: Translations = {
   genderSelectPlaceholder: "Selecciona…",
   gendersList: ["Dona", "Home", "No binari", "Prefereixo no dir-ho", "Altre"],
   nationalityLabel: "Nacionalitat",
-  nationalityPlaceholder: "Catalana",
+  nationalityPlaceholder: "Selecciona…",
+  nationalitySearchPlaceholder: "Cercar país…",
   hobbiesLabel: "Hobbies",
   hobbiesPlaceholder: "Senderisme, menjar local, museus",
   avatarLabel: "Avatar (URL)",
@@ -495,6 +518,27 @@ const ca: Translations = {
   savingSettingsBtn: "Guardant…",
   onboardingPersonalize: "Personalitza la teva experiència PlAIner",
   onboardingDefaultProfile: "El teu perfil",
+
+  // Recommendations
+  tabRecommendations: "Descobrir",
+  recommendationsTitle: "Recomanacions",
+  recommendationsSub: "Descobreix viatges de la comunitat",
+  filterDestination: "Destinació",
+  filterBudget: "Pressupost",
+  filterPeople: "Persones",
+  filterDuration: "Durada",
+  filterDurationDays: "dies",
+  sortRecent: "Recents",
+  sortCheapest: "Més barat",
+  sortExpensive: "Més car",
+  clearFilters: "Netejar filtres",
+  noRecommendations: "Encara no hi ha recomanacions",
+  noRecommendationsSub: "Quan altres usuaris comparteixin viatges, apareixeran aquí",
+  shareWithCommunity: "Compartir amb la comunitat",
+  shareWithCommunitySub: "Altres usuaris podran veure el teu viatge",
+  authorLabel: "Creat per",
+  communityTrip: "Viatge de la comunitat",
+  loadingMore: "Carregant més…",
 };
 
 const es: Translations = {
@@ -718,7 +762,8 @@ const es: Translations = {
   genderSelectPlaceholder: "Selecciona…",
   gendersList: ["Mujer", "Hombre", "No binario", "Prefiero no decirlo", "Otro"],
   nationalityLabel: "Nacionalidad",
-  nationalityPlaceholder: "Española",
+  nationalityPlaceholder: "Selecciona…",
+  nationalitySearchPlaceholder: "Buscar país…",
   hobbiesLabel: "Hobbies",
   hobbiesPlaceholder: "Senderismo, comida local, museos",
   avatarLabel: "Avatar (URL)",
@@ -733,6 +778,27 @@ const es: Translations = {
   savingSettingsBtn: "Guardando…",
   onboardingPersonalize: "Personaliza tu experiencia PlAIner",
   onboardingDefaultProfile: "Tu perfil",
+
+  // Recommendations
+  tabRecommendations: "Descubrir",
+  recommendationsTitle: "Recomendaciones",
+  recommendationsSub: "Descubre viajes de la comunidad",
+  filterDestination: "Destino",
+  filterBudget: "Presupuesto",
+  filterPeople: "Personas",
+  filterDuration: "Duración",
+  filterDurationDays: "días",
+  sortRecent: "Recientes",
+  sortCheapest: "Más barato",
+  sortExpensive: "Más caro",
+  clearFilters: "Limpiar filtros",
+  noRecommendations: "Aún no hay recomendaciones",
+  noRecommendationsSub: "Cuando otros usuarios compartan viajes, aparecerán aquí",
+  shareWithCommunity: "Compartir con la comunidad",
+  shareWithCommunitySub: "Otros usuarios podrán ver tu viaje",
+  authorLabel: "Creado por",
+  communityTrip: "Viaje de la comunidad",
+  loadingMore: "Cargando más…",
 };
 
 const en: Translations = {
@@ -956,7 +1022,8 @@ const en: Translations = {
   genderSelectPlaceholder: "Select…",
   gendersList: ["Woman", "Man", "Non-binary", "Prefer not to say", "Other"],
   nationalityLabel: "Nationality",
-  nationalityPlaceholder: "American",
+  nationalityPlaceholder: "Select…",
+  nationalitySearchPlaceholder: "Search country…",
   hobbiesLabel: "Hobbies",
   hobbiesPlaceholder: "Hiking, local food, museums",
   avatarLabel: "Avatar (URL)",
@@ -971,6 +1038,27 @@ const en: Translations = {
   savingSettingsBtn: "Saving…",
   onboardingPersonalize: "Personalize your PlAIner experience",
   onboardingDefaultProfile: "Your profile",
+
+  // Recommendations
+  tabRecommendations: "Discover",
+  recommendationsTitle: "Recommendations",
+  recommendationsSub: "Discover trips from the community",
+  filterDestination: "Destination",
+  filterBudget: "Budget",
+  filterPeople: "People",
+  filterDuration: "Duration",
+  filterDurationDays: "days",
+  sortRecent: "Recent",
+  sortCheapest: "Cheapest",
+  sortExpensive: "Most expensive",
+  clearFilters: "Clear filters",
+  noRecommendations: "No recommendations yet",
+  noRecommendationsSub: "When other users share trips, they will appear here",
+  shareWithCommunity: "Share with community",
+  shareWithCommunitySub: "Other users will be able to see your trip",
+  authorLabel: "Created by",
+  communityTrip: "Community trip",
+  loadingMore: "Loading more…",
 };
 
 const de: Translations = {
@@ -1194,7 +1282,8 @@ const de: Translations = {
   genderSelectPlaceholder: "Auswählen…",
   gendersList: ["Frau", "Mann", "Non-binär", "Keine Angabe", "Andere"],
   nationalityLabel: "Nationalität",
-  nationalityPlaceholder: "Deutsche",
+  nationalityPlaceholder: "Auswählen…",
+  nationalitySearchPlaceholder: "Land suchen…",
   hobbiesLabel: "Hobbys",
   hobbiesPlaceholder: "Wandern, lokales Essen, Museen",
   avatarLabel: "Avatar (URL)",
@@ -1209,6 +1298,27 @@ const de: Translations = {
   savingSettingsBtn: "Wird gespeichert…",
   onboardingPersonalize: "Personalisieren Sie Ihr PlAIner-Erlebnis",
   onboardingDefaultProfile: "Ihr Profil",
+
+  // Recommendations
+  tabRecommendations: "Entdecken",
+  recommendationsTitle: "Empfehlungen",
+  recommendationsSub: "Entdecke Reisen aus der Community",
+  filterDestination: "Reiseziel",
+  filterBudget: "Budget",
+  filterPeople: "Personen",
+  filterDuration: "Dauer",
+  filterDurationDays: "Tage",
+  sortRecent: "Neueste",
+  sortCheapest: "Günstigste",
+  sortExpensive: "Teuerste",
+  clearFilters: "Filter löschen",
+  noRecommendations: "Noch keine Empfehlungen",
+  noRecommendationsSub: "Wenn andere Benutzer Reisen teilen, erscheinen sie hier",
+  shareWithCommunity: "Mit der Community teilen",
+  shareWithCommunitySub: "Andere Benutzer können deine Reise sehen",
+  authorLabel: "Erstellt von",
+  communityTrip: "Community-Reise",
+  loadingMore: "Mehr laden…",
 };
 
 const fr: Translations = {
@@ -1432,7 +1542,8 @@ const fr: Translations = {
   genderSelectPlaceholder: "Sélectionnez…",
   gendersList: ["Femme", "Homme", "Non-binaire", "Préfère ne pas le dire", "Autre"],
   nationalityLabel: "Nationalité",
-  nationalityPlaceholder: "Française",
+  nationalityPlaceholder: "Sélectionner…",
+  nationalitySearchPlaceholder: "Chercher pays…",
   hobbiesLabel: "Loisirs",
   hobbiesPlaceholder: "Randonnée, cuisine locale, musées",
   avatarLabel: "Avatar (URL)",
@@ -1447,6 +1558,27 @@ const fr: Translations = {
   savingSettingsBtn: "Enregistrement…",
   onboardingPersonalize: "Personnalisez votre expérience PlAIner",
   onboardingDefaultProfile: "Votre profil",
+
+  // Recommendations
+  tabRecommendations: "Découvrir",
+  recommendationsTitle: "Recommandations",
+  recommendationsSub: "Découvrez les voyages de la communauté",
+  filterDestination: "Destination",
+  filterBudget: "Budget",
+  filterPeople: "Personnes",
+  filterDuration: "Durée",
+  filterDurationDays: "jours",
+  sortRecent: "Récents",
+  sortCheapest: "Moins chers",
+  sortExpensive: "Plus chers",
+  clearFilters: "Effacer les filtres",
+  noRecommendations: "Aucune recommandation pour le moment",
+  noRecommendationsSub: "Quand d'autres utilisateurs partageront leurs voyages, ils apparaîtront ici",
+  shareWithCommunity: "Partager avec la communauté",
+  shareWithCommunitySub: "Les autres utilisateurs pourront voir votre voyage",
+  authorLabel: "Créé par",
+  communityTrip: "Voyage de la communauté",
+  loadingMore: "Chargement…",
 };
 
 const it: Translations = {
@@ -1670,7 +1802,8 @@ const it: Translations = {
   genderSelectPlaceholder: "Seleziona…",
   gendersList: ["Donna", "Uomo", "Non binario", "Preferisco non dirlo", "Altro"],
   nationalityLabel: "Nazionalità",
-  nationalityPlaceholder: "Italiana",
+  nationalityPlaceholder: "Seleziona…",
+  nationalitySearchPlaceholder: "Cerca paese…",
   hobbiesLabel: "Hobby",
   hobbiesPlaceholder: "Escursionismo, cucina locale, musei",
   avatarLabel: "Avatar (URL)",
@@ -1685,6 +1818,27 @@ const it: Translations = {
   savingSettingsBtn: "Salvataggio…",
   onboardingPersonalize: "Personalizza la tua esperienza PlAIner",
   onboardingDefaultProfile: "Il tuo profilo",
+
+  // Recommendations
+  tabRecommendations: "Scopri",
+  recommendationsTitle: "Raccomandazioni",
+  recommendationsSub: "Scopri i viaggi della comunità",
+  filterDestination: "Destinazione",
+  filterBudget: "Budget",
+  filterPeople: "Persone",
+  filterDuration: "Durata",
+  filterDurationDays: "giorni",
+  sortRecent: "Recenti",
+  sortCheapest: "Più economici",
+  sortExpensive: "Più costosi",
+  clearFilters: "Cancella filtri",
+  noRecommendations: "Ancora nessuna raccomandazione",
+  noRecommendationsSub: "Quando altri utenti condivideranno i loro viaggi, appariranno qui",
+  shareWithCommunity: "Condividi con la comunità",
+  shareWithCommunitySub: "Gli altri utenti potranno vedere il tuo viaggio",
+  authorLabel: "Creato da",
+  communityTrip: "Viaggio della comunità",
+  loadingMore: "Caricamento…",
 };
 
 const pt: Translations = {
@@ -1908,7 +2062,8 @@ const pt: Translations = {
   genderSelectPlaceholder: "Selecione…",
   gendersList: ["Mulher", "Homem", "Não-binário", "Prefiro não dizer", "Outro"],
   nationalityLabel: "Nacionalidade",
-  nationalityPlaceholder: "Portuguesa",
+  nationalityPlaceholder: "Selecionar…",
+  nationalitySearchPlaceholder: "Procurar país…",
   hobbiesLabel: "Hobbies",
   hobbiesPlaceholder: "Caminhadas, comida local, museus",
   avatarLabel: "Avatar (URL)",
@@ -1923,6 +2078,27 @@ const pt: Translations = {
   savingSettingsBtn: "Salvando…",
   onboardingPersonalize: "Personalize sua experiência PlAIner",
   onboardingDefaultProfile: "Seu perfil",
+
+  // Recommendations
+  tabRecommendations: "Descobrir",
+  recommendationsTitle: "Recomendações",
+  recommendationsSub: "Descubra viagens da comunidade",
+  filterDestination: "Destino",
+  filterBudget: "Orçamento",
+  filterPeople: "Pessoas",
+  filterDuration: "Duração",
+  filterDurationDays: "dias",
+  sortRecent: "Recentes",
+  sortCheapest: "Mais baratos",
+  sortExpensive: "Mais caros",
+  clearFilters: "Limpar filtros",
+  noRecommendations: "Ainda não há recomendações",
+  noRecommendationsSub: "Quando outros usuários compartilharem viagens, elas aparecerão aqui",
+  shareWithCommunity: "Compartilhar com a comunidade",
+  shareWithCommunitySub: "Outros usuários poderão ver a sua viagem",
+  authorLabel: "Criado por",
+  communityTrip: "Viagem da comunidade",
+  loadingMore: "Carregando mais…",
 };
 
 const ar: Translations = {
@@ -2146,7 +2322,8 @@ const ar: Translations = {
   genderSelectPlaceholder: "اختر…",
   gendersList: ["أنثى", "ذكر", "غير ثنائي", "أفضل عدم الإفصاح", "آخر"],
   nationalityLabel: "الجنسية",
-  nationalityPlaceholder: "عربي",
+  nationalityPlaceholder: "اختر…",
+  nationalitySearchPlaceholder: "ابحث عن بلد…",
   hobbiesLabel: "الهوايات",
   hobbiesPlaceholder: "المشي لمسافات طويلة، تجربة الطعام المحلي، المتاحف",
   avatarLabel: "الصورة الرمزية (رابط URL)",
@@ -2161,6 +2338,27 @@ const ar: Translations = {
   savingSettingsBtn: "جاري الحفظ…",
   onboardingPersonalize: "خصص تجربتك في PlAIner",
   onboardingDefaultProfile: "ملفك الشخصي",
+
+  // Recommendations
+  tabRecommendations: "اكتشف",
+  recommendationsTitle: "التوصيات",
+  recommendationsSub: "اكتشف رحلات من المجتمع",
+  filterDestination: "الوجهة",
+  filterBudget: "الميزانية",
+  filterPeople: "الأشخاص",
+  filterDuration: "المدة",
+  filterDurationDays: "أيام",
+  sortRecent: "الأحدث",
+  sortCheapest: "الأرخص",
+  sortExpensive: "الأغلى",
+  clearFilters: "مسح الفلاتر",
+  noRecommendations: "لا توجد توصيات بعد",
+  noRecommendationsSub: "عندما يشارك مستخدمون آخرون رحلاتهم، ستظهر هنا",
+  shareWithCommunity: "مشاركة مع المجتمع",
+  shareWithCommunitySub: "سيتمكن المستخدمون الآخرون من رؤية رحلتك",
+  authorLabel: "تم الإنشاء بواسطة",
+  communityTrip: "رحلة المجتمع",
+  loadingMore: "جارٍ تحميل المزيد…",
 };
 
 const zh: Translations = {
@@ -2384,7 +2582,8 @@ const zh: Translations = {
   genderSelectPlaceholder: "请选择…",
   gendersList: ["女", "男", "非二元性别", "不愿透露", "其他"],
   nationalityLabel: "国籍",
-  nationalityPlaceholder: "中国",
+  nationalityPlaceholder: "选择…",
+  nationalitySearchPlaceholder: "搜索国家…",
   hobbiesLabel: "个人兴趣/爱好",
   hobbiesPlaceholder: "徒步、品尝当地美食、逛博物馆",
   avatarLabel: "个人头像 (URL)",
@@ -2399,6 +2598,27 @@ const zh: Translations = {
   savingSettingsBtn: "正在保存…",
   onboardingPersonalize: "个性化您的 PlAIner 体验",
   onboardingDefaultProfile: "个人资料",
+
+  // Recommendations
+  tabRecommendations: "发现",
+  recommendationsTitle: "推荐",
+  recommendationsSub: "发现社区的旅行",
+  filterDestination: "目的地",
+  filterBudget: "预算",
+  filterPeople: "人数",
+  filterDuration: "时长",
+  filterDurationDays: "天",
+  sortRecent: "最新",
+  sortCheapest: "最便宜",
+  sortExpensive: "最昂贵",
+  clearFilters: "清除筛选",
+  noRecommendations: "暂无推荐",
+  noRecommendationsSub: "当其他用户分享旅行时，它们将显示在这里",
+  shareWithCommunity: "与社区分享",
+  shareWithCommunitySub: "其他用户将能够看到您的旅行",
+  authorLabel: "创建者",
+  communityTrip: "社区旅行",
+  loadingMore: "加载更多…",
 };
 
 const hi: Translations = {
@@ -2641,7 +2861,8 @@ const hi: Translations = {
   genderSelectPlaceholder: "चुनें…",
   gendersList: ["महिला", "पुरुष", "गैर-बाइनरी", "बताना नहीं चाहते", "अन्य"],
   nationalityLabel: "राष्ट्रीयता",
-  nationalityPlaceholder: "भारतीय",
+  nationalityPlaceholder: "चुनें…",
+  nationalitySearchPlaceholder: "देश खोजें…",
   hobbiesLabel: "शौक",
   hobbiesPlaceholder: "लंबी पैदल यात्रा, स्थानीय भोजन, संग्रहालय",
   avatarLabel: "अवतार (URL)",
@@ -2656,6 +2877,27 @@ const hi: Translations = {
   savingSettingsBtn: "सहेज रहा है…",
   onboardingPersonalize: "अपने PlAIner अनुभव को वैयक्तिकृत करें",
   onboardingDefaultProfile: "आपकी प्रोफ़ाइल",
+
+  // Recommendations
+  tabRecommendations: "खोजें",
+  recommendationsTitle: "सिफारिशें",
+  recommendationsSub: "समुदाय से यात्राओं की खोज करें",
+  filterDestination: "गंतव्य",
+  filterBudget: "बजट",
+  filterPeople: "लोग",
+  filterDuration: "अवधि",
+  filterDurationDays: "दिन",
+  sortRecent: "नवीनतम",
+  sortCheapest: "सबसे सस्ता",
+  sortExpensive: "सबसे महंगा",
+  clearFilters: "फ़िल्टर साफ़ करें",
+  noRecommendations: "अभी तक कोई सिफारिशें नहीं",
+  noRecommendationsSub: "जब अन्य उपयोगकर्ता यात्राएं साझा करेंगे, तो वे यहां दिखाई देंगी",
+  shareWithCommunity: "समुदाय के साथ साझा करें",
+  shareWithCommunitySub: "अन्य उपयोगकर्ता आपकी यात्रा देख सकेंगे",
+  authorLabel: "द्वारा बनाया गया",
+  communityTrip: "सामुदायिक यात्रा",
+  loadingMore: "और लोड हो रहा है…",
 };
 
 const ALL: Record<Locale, Translations> = { ca, es, en, de, fr, it, pt, ar, zh, hi };

@@ -74,6 +74,7 @@ model Trip {
   status         String    @default("draft") // draft | confirmed | completed
   isSurprise     Boolean   @default(false)
   isFavorite     Boolean   @default(false)
+  isPublic       Boolean   @default(false)
   searchId       String?
   search         TravelSearch? @relation(fields: [searchId], references: [id], onDelete: SetNull)
   days           Day[]
@@ -81,6 +82,7 @@ model Trip {
   updatedAt      DateTime  @default(now()) @updatedAt
 
   @@index([userId, createdAt])
+  @@index([isPublic, createdAt])
 }
 
 model TravelSearch {

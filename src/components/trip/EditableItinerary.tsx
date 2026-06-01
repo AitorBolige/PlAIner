@@ -128,11 +128,13 @@ function SortableActivity({
   dayId,
   locale,
   t,
+  readonly,
 }: {
   activity: ActivityDTO;
   dayId: string;
   locale: string;
   t: Translations;
+  readonly?: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: activity.id, data: { dayId, type: "activity" } });
@@ -148,15 +150,17 @@ function SortableActivity({
       className="rounded-[var(--r-md)] border border-border bg-surface p-3"
     >
       <div className="flex items-start gap-3">
-        <button
-          type="button"
-          aria-label={t.dragActivityAria}
-          {...attributes}
-          {...listeners}
-          className="mt-0.5 cursor-grab touch-none rounded text-faint hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:cursor-grabbing"
-        >
-          <GripVertical size={16} />
-        </button>
+        {!readonly && (
+          <button
+            type="button"
+            aria-label={t.dragActivityAria}
+            {...attributes}
+            {...listeners}
+            className="mt-0.5 cursor-grab touch-none rounded text-faint hover:text-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand active:cursor-grabbing"
+          >
+            <GripVertical size={16} />
+          </button>
+        )}
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold text-text">
             {activity.startTime ? `${getLocalizedStartTime(activity.startTime, locale)} · ` : ""}
@@ -179,7 +183,7 @@ function SortableActivity({
 
 // Day column ---------------------------------------------------------------
 
-function DayColumn({ day, locale, t }: { day: DayDTO; locale: string; t: Translations }) {
+function DayColumn({ day, locale, t, readonly }: { day: DayDTO; locale: string; t: Translations; readonly?: boolean; }) {
   const total = dayTotal(day);
   return (
     <Card className="p-4">
@@ -192,10 +196,7 @@ function DayColumn({ day, locale, t }: { day: DayDTO; locale: string; t: Transla
         </div>
       </div>
 
-      <SortableContext
-        items={day.activities.map((a) => a.id)}
-        strategy={verticalListSortingStrategy}
-      >
+      {readonly ? (
         <div className="grid gap-2" data-day-id={day.id}>
           {day.activities.length === 0 ? (
             <div className="rounded-[var(--r-md)] border border-dashed border-border-md p-4 text-center text-xs text-faint">
@@ -203,11 +204,28 @@ function DayColumn({ day, locale, t }: { day: DayDTO; locale: string; t: Transla
             </div>
           ) : (
             day.activities.map((a) => (
-              <SortableActivity key={a.id} activity={a} dayId={day.id} locale={locale} t={t} />
+              <SortableActivity key={a.id} activity={a} dayId={day.id} locale={locale} t={t} readonly={true} />
             ))
           )}
         </div>
-      </SortableContext>
+      ) : (
+        <SortableContext
+          items={day.activities.map((a) => a.id)}
+          strategy={verticalListSortingStrategy}
+        >
+          <div className="grid gap-2" data-day-id={day.id}>
+            {day.activities.length === 0 ? (
+              <div className="rounded-[var(--r-md)] border border-dashed border-border-md p-4 text-center text-xs text-faint">
+                {t.dragActivitiesHere}
+              </div>
+            ) : (
+              day.activities.map((a) => (
+                <SortableActivity key={a.id} activity={a} dayId={day.id} locale={locale} t={t} />
+              ))
+            )}
+          </div>
+        </SortableContext>
+      )}
     </Card>
   );
 }
@@ -218,12 +236,14 @@ export interface EditableItineraryProps {
   tripId: string;
   initialDays: DayDTO[];
   initialLocale?: Locale;
+  readonly?: boolean;
 }
 
 export function EditableItinerary({
   tripId,
   initialDays,
   initialLocale,
+  readonly,
 }: EditableItineraryProps) {
   const { locale, t } = useLocale(initialLocale);
   const [days, setDays] = React.useState<DayDTO[]>(initialDays);
@@ -318,59 +338,69 @@ export function EditableItinerary({
 
   return (
     <div className="grid gap-3">
-      <div className="flex items-center justify-between gap-3">
-        <div className="text-xs text-muted">
-          {t.dragActivitiesHint}
+      {!readonly && (
+        <div className="flex items-center justify-between gap-3">
+          <div className="text-xs text-muted">
+            {t.dragActivitiesHint}
+          </div>
+          {dirty ? (
+            <Button
+              type="button"
+              size="sm"
+              onClick={onSave}
+              disabled={saving}
+              className={cn("normal-case tracking-normal")}
+            >
+              {saving ? (
+                <span className="inline-flex items-center gap-1">
+                  <Loader2 size={14} className="animate-spin" /> {t.savingText}
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1">
+                  <Save size={14} /> {t.saveText}
+                </span>
+              )}
+            </Button>
+          ) : (
+            <span className="inline-flex items-center gap-1 text-xs text-muted">
+              <Check size={12} /> {t.noChangesText}
+            </span>
+          )}
         </div>
-        {dirty ? (
-          <Button
-            type="button"
-            size="sm"
-            onClick={onSave}
-            disabled={saving}
-            className={cn("normal-case tracking-normal")}
-          >
-            {saving ? (
-              <span className="inline-flex items-center gap-1">
-                <Loader2 size={14} className="animate-spin" /> {t.savingText}
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1">
-                <Save size={14} /> {t.saveText}
-              </span>
-            )}
-          </Button>
-        ) : (
-          <span className="inline-flex items-center gap-1 text-xs text-muted">
-            <Check size={12} /> {t.noChangesText}
-          </span>
-        )}
-      </div>
+      )}
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
+      {readonly ? (
         <div className="grid gap-3">
           {days.map((d) => (
-            <DayColumn key={d.id} day={d} locale={locale} t={t} />
+            <DayColumn key={d.id} day={d} locale={locale} t={t} readonly={true} />
           ))}
         </div>
+      ) : (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCorners}
+          onDragStart={handleDragStart}
+          onDragOver={handleDragOver}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="grid gap-3">
+            {days.map((d) => (
+              <DayColumn key={d.id} day={d} locale={locale} t={t} />
+            ))}
+          </div>
 
-        <DragOverlay>
-          {activeActivity ? (
-            <div className="rounded-[var(--r-md)] border border-brand bg-surface p-3 shadow-[var(--shadow-lg)]">
-              <div className="text-sm font-semibold text-text">
-                {activeActivity.startTime ? `${activeActivity.startTime} · ` : ""}
-                {activeActivity.name}
+          <DragOverlay>
+            {activeActivity ? (
+              <div className="rounded-[var(--r-md)] border border-brand bg-surface p-3 shadow-[var(--shadow-lg)]">
+                <div className="text-sm font-semibold text-text">
+                  {activeActivity.startTime ? `${activeActivity.startTime} · ` : ""}
+                  {activeActivity.name}
+                </div>
               </div>
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      )}
     </div>
   );
 }
