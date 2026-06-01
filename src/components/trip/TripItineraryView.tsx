@@ -4,7 +4,7 @@ import * as React from "react";
 import { Clock, Coins, MapPin, Footprints, TrainFront, Car, UtensilsCrossed } from "lucide-react";
 
 import type { DayDTO } from "@/components/trip/DayAccordion";
-import { DayRouteMap, type RouteLeg, type TransportMode, type DayRouteMapActivity } from "@/components/trip/DayRouteMap";
+import { DayRouteMap, type RouteLeg, type TransportMode } from "@/components/trip/DayRouteMap";
 
 const SLOT_COLORS = ["#E85D3A", "#C8860A", "#E85D3A", "#C8860A"];
 const SLOT_LABELS = ["Matí", "Dinar", "Tarda", "Sopar"];
