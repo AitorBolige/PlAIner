@@ -7,6 +7,7 @@ import { ArrowRight, Heart } from "lucide-react";
 import { Card } from "@/components/ui/Card";
 import { Badge, type BadgeVariant } from "@/components/ui/Badge";
 import { cn } from "@/lib/cn";
+import { useDisplayMoney } from "@/lib/use-display-money";
 
 export interface TripCardProps {
   id: string;
@@ -16,14 +17,6 @@ export interface TripCardProps {
   totalCost: number;
   status: string;
   isFavorite?: boolean;
-}
-
-function euro(v: number) {
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(v);
 }
 
 function fmt(d: string) {
@@ -40,6 +33,7 @@ export function TripCard({
   isFavorite = false,
 }: TripCardProps) {
   const router = useRouter();
+  const displayMoney = useDisplayMoney();
   const badge: BadgeVariant =
     status === "confirmed"
       ? "success"
@@ -78,7 +72,7 @@ export function TripCard({
           <div className="mt-3 text-sm">
             <span className="text-[color:var(--color-text-muted)]">Total</span>{" "}
             <span className="font-semibold text-[color:var(--color-text)]">
-              {euro(totalCost)}
+              {displayMoney(totalCost)}
             </span>
           </div>
         </div>

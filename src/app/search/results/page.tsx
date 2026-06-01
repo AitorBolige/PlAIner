@@ -12,7 +12,8 @@ import {
 import { OfferCard } from "@/components/trip/OfferCard";
 import { Badge } from "@/components/ui/Badge";
 import { PageTransition } from "@/components/motion/PageTransition";
-import { getServerLocale } from "@/lib/i18n-server";
+import { formatPriceDisplay } from "@/lib/currency";
+import { getServerCurrency, getServerLocale } from "@/lib/i18n-server";
 
 export async function generateMetadata() {
   const { t } = getServerLocale();
@@ -46,6 +47,7 @@ export default async function SearchResultsPage({
   if (!session?.user?.id) redirect("/auth/login");
 
   const { locale, t } = getServerLocale();
+  const defaultCurrency = getServerCurrency();
 
   const sp = await searchParams;
   const parsed = travelOfferQuerySchema.safeParse({
@@ -56,7 +58,7 @@ export default async function SearchResultsPage({
     endDate: first(sp.endDate) ?? undefined,
     people: first(sp.people) ?? undefined,
     budgetMax: first(sp.budgetMax) ?? undefined,
-    currency: first(sp.currency) ?? undefined,
+    currency: first(sp.currency) ?? defaultCurrency,
   });
 
   if (!parsed.success) {
@@ -131,7 +133,12 @@ export default async function SearchResultsPage({
             </span>
             {query.budgetMax ? (
               <span className="opacity-80">
-                {t.budgetLabel}: {query.budgetMax} {query.currency ?? "EUR"}
+                {t.budgetLabel}:{" "}
+                {formatPriceDisplay(
+                  query.budgetMax,
+                  query.currency ?? defaultCurrency,
+                  locale,
+                )}
               </span>
             ) : null}
             {isStale ? <Badge variant="warning">{t.cacheExpired}</Badge> : null}

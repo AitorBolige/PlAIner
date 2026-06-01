@@ -1,6 +1,7 @@
 "use client";
 
 import { useLocale } from "@/lib/i18n-client";
+import { useDisplayMoney } from "@/lib/use-display-money";
 import { type Locale } from "@/lib/i18n";
 import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
@@ -17,14 +18,6 @@ export interface BudgetBreakdownProps {
   initialLocale?: Locale;
 }
 
-function euro(v: number, locale: string) {
-  const rounded = Math.round(v);
-  if (locale === "en") {
-    return `€${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-  }
-  return `${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} €`;
-}
-
 export function BudgetBreakdown({
   total,
   flight,
@@ -36,6 +29,7 @@ export function BudgetBreakdown({
   initialLocale,
 }: BudgetBreakdownProps) {
   const { locale, t } = useLocale(initialLocale);
+  const displayMoney = useDisplayMoney();
   const inRange = budgetMax ? total <= budgetMax : true;
   const badge = inRange ? (
     <Badge variant="success">{t.inRangeBadge}</Badge>
@@ -51,7 +45,7 @@ export function BudgetBreakdown({
             {t.costTotalLabel}
           </div>
           <div className="mt-2 font-display text-4xl font-extrabold tracking-wide">
-            {euro(total, locale)}
+            {displayMoney(total)}
           </div>
         </div>
         {badge}
@@ -60,22 +54,22 @@ export function BudgetBreakdown({
       <div className="mt-6 grid gap-2 text-sm">
         <div className="flex items-center justify-between text-[color:var(--color-text-muted)]">
           <span>{t.flightLabel}</span>
-          <span className="text-[color:var(--color-text)]">{euro(flight, locale)}</span>
+          <span className="text-[color:var(--color-text)]">{displayMoney(flight)}</span>
         </div>
         <div className="flex items-center justify-between text-[color:var(--color-text-muted)]">
           <span>{t.hotelLabel}</span>
-          <span className="text-[color:var(--color-text)]">{euro(hotel, locale)}</span>
+          <span className="text-[color:var(--color-text)]">{displayMoney(hotel)}</span>
         </div>
         <div className="flex items-center justify-between text-[color:var(--color-text-muted)]">
           <span>{t.activitiesLabel}</span>
           <span className="text-[color:var(--color-text)]">
-            {euro(activities, locale)}
+            {displayMoney(activities)}
           </span>
         </div>
         <div className="flex items-center justify-between text-[color:var(--color-text-muted)]">
           <span>{t.estimatedDailyLabel}</span>
           <span className="text-[color:var(--color-text)]">
-            {euro(daily, locale)}{t.perDaySuffix}
+            {displayMoney(daily)}{t.perDaySuffix}
           </span>
         </div>
       </div>

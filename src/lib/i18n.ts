@@ -255,6 +255,7 @@ export interface Translations {
   darkModeSub: (active: boolean) => string;
   languageLabel: string;
   languageSub: string;
+  currencyLabel: string;
   saveSettingsError: string;
   saveSettingsSuccess: string;
   saveSettingsBtn: string;
@@ -557,6 +558,7 @@ const ca: Translations = {
   darkModeSub: (active) => active ? "Activat" : "Desactivat",
   languageLabel: "Idioma",
   languageSub: "Tria l'idioma de l'aplicació",
+  currencyLabel: "Divisa",
   saveSettingsError: "No hem pogut guardar els ajustaments.",
   saveSettingsSuccess: "Ajustaments guardats correctament.",
   saveSettingsBtn: "Guardar ajustaments",
@@ -855,6 +857,7 @@ const es: Translations = {
   darkModeSub: (active) => active ? "Activado" : "Desactivado",
   languageLabel: "Idioma",
   languageSub: "Elige el idioma de la aplicación",
+  currencyLabel: "Divisa",
   saveSettingsError: "No hemos podido guardar los ajustes.",
   saveSettingsSuccess: "Ajustes guardados correctamente.",
   saveSettingsBtn: "Guardar ajustes",
@@ -1153,6 +1156,7 @@ const en: Translations = {
   darkModeSub: (active) => active ? "Enabled" : "Disabled",
   languageLabel: "Language",
   languageSub: "Choose the application language",
+  currencyLabel: "Currency",
   saveSettingsError: "Could not save settings.",
   saveSettingsSuccess: "Settings saved successfully.",
   saveSettingsBtn: "Save settings",
@@ -1451,6 +1455,7 @@ const de: Translations = {
   darkModeSub: (active) => active ? "Aktiviert" : "Deaktiviert",
   languageLabel: "Sprache",
   languageSub: "Wählen Sie die Anwendungssprache",
+  currencyLabel: "Währung",
   saveSettingsError: "Einstellungen konnten nicht gespeichert werden.",
   saveSettingsSuccess: "Einstellungen erfolgreich gespeichert.",
   saveSettingsBtn: "Einstellungen speichern",
@@ -1749,6 +1754,7 @@ const fr: Translations = {
   darkModeSub: (active) => active ? "Activé" : "Désactivé",
   languageLabel: "Langue",
   languageSub: "Choisissez la langue de l'application",
+  currencyLabel: "Devise",
   saveSettingsError: "Impossible d'enregistrer les paramètres.",
   saveSettingsSuccess: "Paramètres enregistrés avec succès.",
   saveSettingsBtn: "Enregistrer les paramètres",
@@ -2047,6 +2053,7 @@ const it: Translations = {
   darkModeSub: (active) => active ? "Attivata" : "Disattivata",
   languageLabel: "Lingua",
   languageSub: "Scegli la lingua dell'applicazione",
+  currencyLabel: "Valuta",
   saveSettingsError: "Impossibile salvare le impostazioni.",
   saveSettingsSuccess: "Impostazioni salvate con successo.",
   saveSettingsBtn: "Salva impostazioni",
@@ -2345,6 +2352,7 @@ const pt: Translations = {
   darkModeSub: (active) => active ? "Ativado" : "Desativado",
   languageLabel: "Idioma",
   languageSub: "Escolha o idioma do aplicativo",
+  currencyLabel: "Moeda",
   saveSettingsError: "Não foi possível salvar as configurações.",
   saveSettingsSuccess: "Configurações salvas com sucesso.",
   saveSettingsBtn: "Salvar configurações",
@@ -2643,6 +2651,7 @@ const ar: Translations = {
   darkModeSub: (active) => active ? "مفعّل" : "معطّل",
   languageLabel: "اللغة",
   languageSub: "اختر لغة التطبيق",
+  currencyLabel: "العملة",
   saveSettingsError: "تعذر حفظ الإعدادات.",
   saveSettingsSuccess: "تم حفظ الإعدادات بنجاح.",
   saveSettingsBtn: "حفظ الإعدادات",
@@ -2941,6 +2950,7 @@ const zh: Translations = {
   darkModeSub: (active) => active ? "已开启" : "已关闭",
   languageLabel: "应用语言",
   languageSub: "选择应用的主语言",
+  currencyLabel: "货币",
   saveSettingsError: "保存设置失败。",
   saveSettingsSuccess: "设置已成功保存。",
   saveSettingsBtn: "保存设置",
@@ -3258,6 +3268,7 @@ const hi: Translations = {
   darkModeSub: (active) => active ? "सक्रिय" : "निष्क्रिय",
   languageLabel: "भाषा",
   languageSub: "एप्लिकेशन की भाषा चुनें",
+  currencyLabel: "मुद्रा",
   saveSettingsError: "सेटिंग्स सहेजी नहीं जा सकीं।",
   saveSettingsSuccess: "सेटिंग्स सफलतापूर्वक सहेजी गईं।",
   saveSettingsBtn: "सेटिंग्स सहेजें",

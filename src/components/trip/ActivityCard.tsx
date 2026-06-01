@@ -6,6 +6,7 @@ import { Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { useDisplayMoney } from "@/lib/use-display-money";
 
 export interface ActivityCardProps {
   id: string;
@@ -16,14 +17,6 @@ export interface ActivityCardProps {
   onDelete?: (id: string) => void;
 }
 
-function euro(v: number) {
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(v);
-}
-
 export function ActivityCard({
   id,
   title,
@@ -32,6 +25,8 @@ export function ActivityCard({
   imageUrl,
   onDelete,
 }: ActivityCardProps) {
+  const displayMoney = useDisplayMoney();
+
   return (
     <Card className="overflow-hidden">
       {imageUrl ? (
@@ -50,7 +45,9 @@ export function ActivityCard({
               </div>
             ) : null}
           </div>
-          <div className="text-sm font-semibold">{euro(price)}</div>
+          <div className="text-sm font-semibold">
+            {displayMoney(price)}
+          </div>
         </div>
         <div className="mt-4 flex items-center justify-end gap-2">
           <Button

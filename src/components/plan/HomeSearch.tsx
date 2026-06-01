@@ -29,6 +29,7 @@ import { PlanHeader } from "@/components/plan/PlanHeader";
 import { formatDateRangeLocalized, groupThousands, getBudgetZone } from "@/lib/plan";
 import { DESTINATIONS, BLUR_DATA_URL } from "@/lib/destinations";
 import { useLocale } from "@/lib/i18n-client";
+import { useDisplayMoney } from "@/lib/use-display-money";
 import { localizeCity, localizeCountry } from "@/lib/i18n";
 
 type SheetKind = "dest" | "dates" | "transport" | "origin" | "budget" | null;
@@ -198,6 +199,7 @@ export function HomeSearch() {
   const reduce = useReducedMotion();
 
   const bZone = getBudgetZone(budget, t);
+  const displayMoney = useDisplayMoney();
 
   // Staggered entrance for the main blocks — subtle, not flashy.
   const container = reduce
@@ -377,7 +379,7 @@ export function HomeSearch() {
           iconColor="var(--gold)"
           iconBg="var(--gold-subtle)"
           label={t.budgetPerPerson}
-          value={`${groupThousands(budget)} € ${t.person}`}
+          value={`${displayMoney(budget)} ${t.person}`}
           badge={bZone.label}
           placeholder=""
           onClick={() => setSheet("budget")}

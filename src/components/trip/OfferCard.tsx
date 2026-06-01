@@ -1,9 +1,12 @@
+"use client";
+
 import * as React from "react";
 import { Plane, Hotel, Star, ExternalLink } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { cn } from "@/lib/cn";
+import { useDisplayMoney } from "@/lib/use-display-money";
 
 export interface OfferCardProps {
   type: "flight" | "hotel" | string;
@@ -20,14 +23,6 @@ export interface OfferCardProps {
   className?: string;
 }
 
-function money(value: number, currency: string) {
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: currency || "EUR",
-    maximumFractionDigits: 0,
-  }).format(value);
-}
-
 export function OfferCard({
   type,
   provider,
@@ -42,6 +37,7 @@ export function OfferCard({
   availabilityText,
   className,
 }: OfferCardProps) {
+  const displayMoney = useDisplayMoney();
   const Icon = type === "hotel" ? Hotel : Plane;
 
   return (
@@ -102,7 +98,7 @@ export function OfferCard({
           <div className="mt-3 flex items-end justify-between gap-2">
             <div>
               <div className="display text-lg font-extrabold tracking-[-0.02em] text-[color:var(--text)]">
-                {money(price, currency)}
+                {displayMoney(price, currency)}
               </div>
               {availabilityText ? (
                 <div className="text-[10px] uppercase tracking-[0.08em] text-[color:var(--text-faint)]">

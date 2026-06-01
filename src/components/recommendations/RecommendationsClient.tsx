@@ -8,6 +8,7 @@ import { useInView } from "react-intersection-observer";
 
 import { getDestinationImage, BLUR_DATA_URL, DESTINATIONS } from "@/lib/destinations";
 import { useLocale } from "@/lib/i18n-client";
+import { useDisplayMoney } from "@/lib/use-display-money";
 import { localizeCity, type Locale, type Translations } from "@/lib/i18n";
 import { NATIONALITIES } from "@/lib/nationalities";
 
@@ -30,20 +31,7 @@ type RecommendationLite = {
   };
 };
 
-function euro(v: number, locale: string) {
-  const rounded = Math.round(v);
-  if (locale === "en") {
-    return `€${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-  }
-  return `${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} €`;
-}
-
-const BUDGET_OPTIONS = [
-  { label: "< 500 €", value: 500 },
-  { label: "< 1.000 €", value: 1000 },
-  { label: "< 2.000 €", value: 2000 },
-  { label: "< 5.000 €", value: 5000 },
-];
+const BUDGET_FILTER_VALUES = [500, 1000, 2000, 5000] as const;
 
 const DAYS_OPTIONS = [
   { label: "1–3 dies", min: 1, max: 3 },
@@ -56,6 +44,15 @@ const PEOPLE_OPTIONS = [1, 2, 3, 4, 5];
 
 export default function RecommendationsClient() {
   const { locale, t } = useLocale();
+  const displayMoney = useDisplayMoney();
+  const budgetOptions = React.useMemo(
+    () =>
+      BUDGET_FILTER_VALUES.map((value) => ({
+        value,
+        label: `< ${displayMoney(value)}`,
+      })),
+    [displayMoney],
+  );
 
   // Filters
   const [destination, setDestination] = React.useState("");
@@ -291,7 +288,7 @@ export default function RecommendationsClient() {
           {t.filterBudget}
         </p>
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
-          {BUDGET_OPTIONS.map((opt) => {
+          {budgetOptions.map((opt) => {
             const active = maxBudget === opt.value;
             return (
               <button key={opt.value} onClick={() => { setMaxBudget(active ? "" : opt.value); setMinBudget(""); }} style={{
@@ -441,6 +438,7 @@ export default function RecommendationsClient() {
 }
 
 function RecommendationCard({ trip, t, locale }: { trip: RecommendationLite; t: Translations; locale: Locale }) {
+  const displayMoney = useDisplayMoney();
   const router = useRouter();
   const localizedCity = localizeCity(trip.destination, locale);
   const heroImg = trip.imageUrl || getDestinationImage(trip.destination, "hero");
@@ -565,7 +563,7 @@ function RecommendationCard({ trip, t, locale }: { trip: RecommendationLite; t: 
                 letterSpacing: "-0.02em",
               }}
             >
-              {euro(trip.totalCost, locale)}
+              {displayMoney(trip.totalCost)}
             </p>
           </div>
           <div

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { CheckCircle2, ExternalLink, Globe, Hotel, Lock, Plane, Sparkles, Star } from "lucide-react";
 import { useLocale } from "@/lib/i18n-client";
+import { useDisplayMoney } from "@/lib/use-display-money";
 
 export interface OfferSnapshot {
   id?: string;
@@ -30,10 +31,6 @@ interface BookingCardProps {
   t: Translations;
 }
 
-function euro(v: number) {
-  return `${Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} €`;
-}
-
 function BookingCard({
   type,
   offer,
@@ -46,6 +43,7 @@ function BookingCard({
   nights = 1,
   t,
 }: BookingCardProps) {
+  const displayMoney = useDisplayMoney();
   const [booked, setBooked] = React.useState(initialBooked);
   const [marking, setMarking] = React.useState(false);
 
@@ -136,7 +134,7 @@ function BookingCard({
           {offer ? (
             <span className="flex-none text-right">
               <span className="block font-display text-[17px] font-extrabold text-text">
-                {euro(offer.price)}
+                {displayMoney(offer.price)}
               </span>
               <span className="block text-[10px] text-muted">{type === "hotel" ? `× ${t.nightsSuffix(nights)}` : t.perPersonWord}</span>
             </span>

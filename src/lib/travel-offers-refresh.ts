@@ -6,6 +6,7 @@ import {
   travelOfferQuerySchema,
   upsertTravelSearchOffers,
 } from "@/lib/travel-offers";
+import { fromEur, normalizeCurrency } from "@/lib/currency";
 import {
   searchFlightsMetasearchForQuery,
   searchHotelsApiDojo,
@@ -198,7 +199,9 @@ function buildFallbackTrivagoBookingUrl(title: string, sourceUrl: string) {
 function parseTrivagoOffers(
   html: string,
   sourceUrl: string,
+  targetCurrency: string,
 ): ParsedTrivagoOffer[] {
+  const displayCurrency = normalizeCurrency(targetCurrency);
   const text = stripHtmlTags(html);
   const lines = text
     .split("\n")
@@ -244,8 +247,8 @@ function parseTrivagoOffers(
       provider: TRIVAGO_PROVIDER_NAME,
       title,
       description: availabilityText,
-      price,
-      currency: "EUR",
+      price: fromEur(price, displayCurrency),
+      currency: displayCurrency,
       bookingUrl:
         bookingUrl ?? buildFallbackTrivagoBookingUrl(title, sourceUrl),
       sourceUrl,
@@ -642,7 +645,7 @@ function buildFallbackOffers(query: TravelOfferQuery): TravelOfferInput[] {
   ];
 }
 
-async function scrapeSource(source: TravelSource) {
+async function scrapeSource(source: TravelSource, targetCurrency: string) {
   const response = await fetch(source.urlTemplate, {
     headers: {
       "user-agent": "Mozilla/5.0 (compatible; PlAInerBot/1.0)",
@@ -657,7 +660,11 @@ async function scrapeSource(source: TravelSource) {
   const html = await response.text();
 
   if (source.kind === "hotel" && isTrivagoSource(source)) {
-    const trivagoOffers = parseTrivagoOffers(html, source.urlTemplate);
+    const trivagoOffers = parseTrivagoOffers(
+      html,
+      source.urlTemplate,
+      targetCurrency,
+    );
     if (trivagoOffers.length > 0) return trivagoOffers;
   }
 
@@ -744,7 +751,7 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
   for (const source of sources) {
     if (source.kind === "hotel" && hotelHandledViaApi) continue;
     try {
-      const offers = await scrapeSource(source);
+      const offers = await scrapeSource(source, normalizedQuery.currency);
       collected.push(...offers);
     } catch (error) {
       errors.push(error instanceof Error ? error.message : String(error));

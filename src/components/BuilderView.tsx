@@ -3,6 +3,7 @@
 import * as React from "react";
 import { ArrowLeft, Bookmark, Check, Loader2 } from "lucide-react";
 import type { Destination } from "@/lib/data";
+import { useDisplayMoney } from "@/lib/use-display-money";
 
 export type BuilderStep = "flight" | "hotel" | "summary";
 
@@ -25,8 +26,18 @@ export function BuilderView({
 }: BuilderViewProps) {
   const [step, setStep] = React.useState<BuilderStep>("flight");
   const [saving, setSaving] = React.useState(false);
+  const displayMoney = useDisplayMoney();
 
   const totalBudget = budget * people;
+  const flightOptions = [
+    { airline: "Vueling", time: "08:30 - 10:45", extraEur: 0, id: 1 },
+    { airline: "Ryanair", time: "14:15 - 16:30", extraEur: 12, id: 2 },
+    { airline: "Iberia", time: "18:00 - 20:15", extraEur: 45, id: 3 },
+  ];
+  const hotelOptions = [
+    { name: "NH Collection Istanbul", rating: "4.5★", desc: "A prop del centre", extraEur: 0, id: 1 },
+    { name: "Hilton Bosphorus", rating: "4.8★", desc: "Vistes al mar", extraEur: 120, id: 2 },
+  ];
 
   const handleComplete = async () => {
     setSaving(true);
@@ -102,7 +113,7 @@ export function BuilderView({
             style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}
           >
             {dates.days} dies · {people} persones ·{" "}
-            {budget.toLocaleString("ca")} €/p.
+            {displayMoney(budget)}/p.
           </div>
         </div>
       </div>
@@ -230,26 +241,7 @@ export function BuilderView({
         {step === "flight" && (
           <div className="pl-fadein">
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {[
-                {
-                  airline: "Vueling",
-                  time: "08:30 - 10:45",
-                  price: "+0 €",
-                  id: 1,
-                },
-                {
-                  airline: "Ryanair",
-                  time: "14:15 - 16:30",
-                  price: "+12 €",
-                  id: 2,
-                },
-                {
-                  airline: "Iberia",
-                  time: "18:00 - 20:15",
-                  price: "+45 €",
-                  id: 3,
-                },
-              ].map((flight) => (
+              {flightOptions.map((flight) => (
                 <div
                   key={flight.id}
                   onClick={() => setStep("hotel")}
@@ -280,7 +272,9 @@ export function BuilderView({
                     </div>
                   </div>
                   <div style={{ fontWeight: 700, color: "var(--green)" }}>
-                    {flight.price}
+                    {flight.extraEur === 0
+                      ? `+${displayMoney(0)}`
+                      : `+${displayMoney(flight.extraEur)}`}
                   </div>
                 </div>
               ))}
@@ -309,22 +303,7 @@ export function BuilderView({
         {step === "hotel" && (
           <div className="pl-fadein">
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {[
-                {
-                  name: "NH Collection Istanbul",
-                  rating: "4.5★",
-                  desc: "A prop del centre",
-                  price: "+0 €",
-                  id: 1,
-                },
-                {
-                  name: "Hilton Bosphorus",
-                  rating: "4.8★",
-                  desc: "Vistes al mar",
-                  price: "+120 €",
-                  id: 2,
-                },
-              ].map((hotel) => (
+              {hotelOptions.map((hotel) => (
                 <div
                   key={hotel.id}
                   onClick={() => setStep("summary")}
@@ -355,7 +334,9 @@ export function BuilderView({
                     </div>
                   </div>
                   <div style={{ fontWeight: 700, color: "var(--green)" }}>
-                    {hotel.price}
+                    {hotel.extraEur === 0
+                      ? `+${displayMoney(0)}`
+                      : `+${displayMoney(hotel.extraEur)}`}
                   </div>
                 </div>
               ))}
@@ -461,7 +442,7 @@ export function BuilderView({
                     color: "var(--green)",
                   }}
                 >
-                  {totalBudget.toLocaleString("ca")} €
+                  {displayMoney(totalBudget)}
                 </span>
               </div>
             </div>
