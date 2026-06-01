@@ -4,10 +4,11 @@ import * as React from "react";
 import { Clock, Coins, MapPin, Footprints, TrainFront, Car, UtensilsCrossed } from "lucide-react";
 
 import type { DayDTO } from "@/components/trip/DayAccordion";
-import { DayRouteMap, type RouteLeg, type TransportMode, type DayRouteMapActivity } from "@/components/trip/DayRouteMap";
+import { DayRouteMap, type RouteLeg, type TransportMode } from "@/components/trip/DayRouteMap";
+import { useLocale } from "@/lib/i18n-client";
+import type { Translations } from "@/lib/i18n";
 
 const SLOT_COLORS = ["#E85D3A", "#C8860A", "#E85D3A", "#C8860A"];
-const SLOT_LABELS = ["Matí", "Dinar", "Tarda", "Sopar"];
 
 function isRestaurant(category: string | null | undefined): boolean {
   return category === "lunch_restaurant" || category === "dinner_restaurant";
@@ -157,12 +158,14 @@ function TravelConnector({
   arriveAt,
   freeMin,
   nextSlotAt,
+  t,
 }: {
   leg: RouteLeg;
   departAt: string;
   arriveAt: string;
   freeMin: number;
   nextSlotAt: string;
+  t: Translations;
 }) {
   const cfg = MODE_CONFIG[leg.mode];
   return (
@@ -190,9 +193,9 @@ function TravelConnector({
         </div>
         {/* Departure → Arrival (real travel times) */}
         <div className="flex items-center gap-1.5 text-[11px]" style={{ color: "var(--text-faint)" }}>
-          <span>Surt <strong style={{ color: "var(--text-muted)" }}>{departAt}</strong></span>
+          <span>{t.departsAt} <strong style={{ color: "var(--text-muted)" }}>{departAt}</strong></span>
           <span style={{ opacity: 0.5 }}>→</span>
-          <span>Arriba <strong style={{ color: "var(--text-muted)" }}>{arriveAt}</strong></span>
+          <span>{t.arrivesAt} <strong style={{ color: "var(--text-muted)" }}>{arriveAt}</strong></span>
         </div>
         {/* Free time gap (if >5 min between arrival and next slot) */}
         {freeMin > 5 && (
@@ -200,7 +203,7 @@ function TravelConnector({
             className="mt-0.5 inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
             style={{ background: "var(--surface-2)", color: "var(--text-faint)" }}
           >
-            ☕ {fmtDuration(freeMin * 60)} lliures fins les {nextSlotAt}
+            ☕ {fmtDuration(freeMin * 60)} {t.freeUntil(nextSlotAt)}
           </div>
         )}
       </div>
@@ -218,9 +221,10 @@ interface ActivityCardProps {
   time: string;
   coord: [number, number] | null | undefined;
   destination: string;
+  t: Translations;
 }
 
-function ActivityCard({ activity, index, color, label, time, coord, destination }: ActivityCardProps) {
+function ActivityCard({ activity, index, color, label, time, coord, destination, t }: ActivityCardProps) {
   const rest    = isRestaurant(activity.category);
   const menuUrl = useMenuUrl(activity.id, activity.name, activity.menuUrl, destination, coord);
 
@@ -265,7 +269,7 @@ function ActivityCard({ activity, index, color, label, time, coord, destination 
               className="inline-flex items-center gap-1 font-semibold"
               style={{ color: "var(--green)" }}
             >
-              <MapPin size={11} />Veure al mapa
+              <MapPin size={11} />{t.viewOnMap}
             </a>
 
             {rest && (
@@ -276,7 +280,7 @@ function ActivityCard({ activity, index, color, label, time, coord, destination 
                 className="inline-flex items-center gap-1 font-semibold"
                 style={{ color: "var(--coral)" }}
               >
-                <UtensilsCrossed size={11} />Veure menú
+                <UtensilsCrossed size={11} />{t.viewMenu}
               </a>
             )}
           </div>
@@ -291,9 +295,11 @@ function ActivityCard({ activity, index, color, label, time, coord, destination 
 export interface TripItineraryViewProps {
   days: DayDTO[];
   destination: string;
+  initialLocale?: import("@/lib/i18n").Locale;
 }
 
-export function TripItineraryView({ days, destination }: TripItineraryViewProps) {
+export function TripItineraryView({ days, destination, initialLocale }: TripItineraryViewProps) {
+  const { t } = useLocale(initialLocale);
   const sorted = React.useMemo(
     () => [...days].sort((a, b) => a.dayNumber - b.dayNumber),
     [days],
@@ -366,7 +372,7 @@ export function TripItineraryView({ days, destination }: TripItineraryViewProps)
                 boxShadow: active ? "0 2px 8px rgba(0,0,0,0.18)" : "none",
               }}
             >
-              Dia {d.dayNumber}
+              {t.dayWord} {d.dayNumber}
             </button>
           );
         })}
@@ -374,7 +380,7 @@ export function TripItineraryView({ days, destination }: TripItineraryViewProps)
 
       {/* ── Day heading ── */}
       <div className="px-1">
-        <p className="micro">DIA {day.dayNumber}</p>
+        <p className="micro">{t.dayWord.toUpperCase()} {day.dayNumber}</p>
         <h3 className="display mt-0.5 text-lg font-extrabold tracking-[-0.02em] text-text">
           {day.title}
         </h3>
@@ -383,8 +389,9 @@ export function TripItineraryView({ days, destination }: TripItineraryViewProps)
       {/* ── Activity cards + travel connectors ── */}
       <div className="grid">
         {activitiesSorted.map((activity, i) => {
+          const SLOT_LABELS = [t.slotMorning, t.slotLunch, t.slotAfternoon, t.slotDinner];
           const color     = SLOT_COLORS[i] ?? "#0D9E7A";
-          const label     = SLOT_LABELS[i] ?? `Activitat ${i + 1}`;
+          const label     = SLOT_LABELS[i] ?? t.activityN(i + 1);
           const time      = scheduledTimes[i];
           const leg       = legs[i];
           const departAt  = addMinutes(scheduledTimes[i], activity.duration || 60) ?? "";
@@ -405,6 +412,7 @@ export function TripItineraryView({ days, destination }: TripItineraryViewProps)
                 time={time}
                 coord={coords[i] ?? null}
                 destination={destination}
+                t={t}
               />
 
               {/* Travel connector to next activity */}
@@ -415,6 +423,7 @@ export function TripItineraryView({ days, destination }: TripItineraryViewProps)
                   arriveAt={arriveAt}
                   freeMin={freeMin}
                   nextSlotAt={nextSlotAt}
+                  t={t}
                 />
               )}
             </React.Fragment>

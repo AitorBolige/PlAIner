@@ -4,6 +4,8 @@ import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import mapboxgl from "mapbox-gl";
 import type { Offer } from "@/components/plan/PlanProvider";
+import { useLocale } from "@/lib/i18n-client";
+import type { Locale } from "@/lib/i18n";
 
 const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 
@@ -12,6 +14,7 @@ export interface HotelTransitionOverlayProps {
   destCity: string;
   destCoords: [number, number] | null;
   onComplete: () => void;
+  initialLocale?: Locale;
 }
 
 export function HotelTransitionOverlay({
@@ -19,7 +22,9 @@ export function HotelTransitionOverlay({
   destCity,
   destCoords,
   onComplete,
+  initialLocale,
 }: HotelTransitionOverlayProps) {
+  const { t } = useLocale(initialLocale);
   const containerRef = React.useRef<HTMLDivElement>(null);
   const mapRef = React.useRef<mapboxgl.Map | null>(null);
   const [visible, setVisible] = React.useState(true);
@@ -132,7 +137,7 @@ export function HotelTransitionOverlay({
                   className="mt-1.5 text-xs text-muted"
                 >
                   {"★".repeat(Math.round(hotel.rating))} {hotel.rating.toFixed(1)}
-                  {hotel.reviewCount ? ` · ${hotel.reviewCount.toLocaleString()} opinions` : ""}
+                  {hotel.reviewCount ? ` · ${hotel.reviewCount.toLocaleString()} ${t.opinionsWord}` : ""}
                 </motion.p>
               )}
             </div>

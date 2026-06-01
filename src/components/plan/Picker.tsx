@@ -6,6 +6,9 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import {
   ArrowLeft,
   Plane,
+  TrainFront,
+  Bus,
+  Car,
   Hotel,
   Star,
   Check,
@@ -38,6 +41,16 @@ import {
   type ItineraryDay,
   type ItinerarySlot,
 } from "@/lib/plan-flow";
+
+/** Pick the right lucide icon for a transport offer based on `transportKind`. */
+function transportIcon(kind?: string | null) {
+  switch (kind) {
+    case "train": return TrainFront;
+    case "bus":   return Bus;
+    case "car":   return Car;
+    default:      return Plane;
+  }
+}
 
 function money(value: number, locale: string, currency = "EUR") {
   const code = locale === "en" ? "en-US" : "es-ES";
@@ -111,7 +124,7 @@ function BookingCard({
   t: Translations;
 }) {
   const isHotel = offer.type === "HOTEL";
-  const Icon = isHotel ? Hotel : Plane;
+  const Icon = isHotel ? Hotel : transportIcon(offer.transportKind);
   return (
     <Card className="flex items-center gap-3 p-3.5">
       <span
@@ -199,7 +212,7 @@ function SelectableOffer({
   locale: string;
 }) {
   const isHotel = offer.type === "HOTEL";
-  const Icon = isHotel ? Hotel : Plane;
+  const Icon = isHotel ? Hotel : transportIcon(offer.transportKind);
   return (
     <motion.button
       type="button"
@@ -324,7 +337,7 @@ export function Picker() {
   React.useEffect(() => {
     if (step !== "summary" || !destination || !dates) return;
     if (itinerary || itineraryLoading) return;
-    const remaining = remainingActivitiesBudget(budget, people, selectedFlight, selectedHotel);
+    const remaining = remainingActivitiesBudget(budget, people, selectedFlight, selectedHotel, dates.days);
     plan.setItineraryLoading(true);
     void generateItinerary({
       destination: destination.city,
@@ -359,6 +372,7 @@ export function Picker() {
     selectedHotel,
     itinerary as Itinerary | null,
     people,
+    dates?.days ?? 1,
   );
   const totalBudget = Math.round(budget * people);
   const usagePct =
@@ -404,7 +418,8 @@ export function Picker() {
       <TripTransitionOverlay
         flightOffer={selectedFlight}
         originCode={origin}
-
+        initialLocale={locale}
+        transportKind={(plan.transport?.id as "plane" | "train" | "bus" | "car" | undefined) ?? "plane"}
         destCity={localizedDest}
         destCoords={destCoords}
         hotels={hotels}

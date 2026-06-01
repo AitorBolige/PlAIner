@@ -80,6 +80,7 @@ model Trip {
   flightBooked   Boolean   @default(false)
   hotelBooked    Boolean   @default(false)
   isPublic       Boolean   @default(false)
+  clonedFromId   String?
   searchId       String?
   search         TravelSearch? @relation(fields: [searchId], references: [id], onDelete: SetNull)
   days           Day[]

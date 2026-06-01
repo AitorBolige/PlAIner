@@ -23,6 +23,21 @@ export function SettingsBottomTabs({ user }: SettingsBottomTabsProps) {
       ),
     },
     {
+      id: "recommendations",
+      label: t.tabRecommendations,
+      iconInactive: (
+        <svg width={26} height={26} viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"
+            stroke="currentColor"
+            strokeWidth={1.7}
+            strokeLinejoin="round"
+            fill="none"
+          />
+        </svg>
+      ),
+    },
+    {
       id: "trips",
       label: t.tabTrips,
       iconInactive: (
@@ -73,7 +88,7 @@ export function SettingsBottomTabs({ user }: SettingsBottomTabsProps) {
         transitionTimingFunction: "var(--ease)",
       }}
     >
-      <div className="safe-bottom mx-auto flex h-14 max-w-[300px] items-center justify-evenly pb-0.5">
+      <div className="safe-bottom mx-auto flex h-14 max-w-[380px] items-center justify-evenly pb-0.5">
         {TABS.map((t) => {
           const active = t.id === "settings";
           return (
@@ -82,6 +97,7 @@ export function SettingsBottomTabs({ user }: SettingsBottomTabsProps) {
               type="button"
               onClick={() => {
                 if (t.id === "search") window.location.href = "/plan";
+                else if (t.id === "recommendations") window.location.href = "/recommendations";
                 else if (t.id === "trips") window.location.href = "/trips";
               }}
               className="flex max-w-[100px] flex-1 flex-col items-center justify-center gap-0.5 border-0 bg-transparent"

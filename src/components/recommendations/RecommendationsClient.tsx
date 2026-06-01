@@ -3,10 +3,10 @@
 import * as React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Calendar, MapPin, Users, ChevronRight, X } from "lucide-react";
+import { Calendar, MapPin, Users, ChevronRight, X, Sparkles } from "lucide-react";
 import { useInView } from "react-intersection-observer";
 
-import { getDestinationImage, BLUR_DATA_URL } from "@/lib/destinations";
+import { getDestinationImage, BLUR_DATA_URL, DESTINATIONS } from "@/lib/destinations";
 import { useLocale } from "@/lib/i18n-client";
 import { localizeCity, type Locale, type Translations } from "@/lib/i18n";
 import { NATIONALITIES } from "@/lib/nationalities";
@@ -22,6 +22,7 @@ type RecommendationLite = {
   totalCost: number;
   status: string;
   createdAt: string;
+  isOwn: boolean;
   author: {
     nickname: string | null;
     nationality: string | null;
@@ -37,6 +38,22 @@ function euro(v: number, locale: string) {
   return `${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} €`;
 }
 
+const BUDGET_OPTIONS = [
+  { label: "< 500 €", value: 500 },
+  { label: "< 1.000 €", value: 1000 },
+  { label: "< 2.000 €", value: 2000 },
+  { label: "< 5.000 €", value: 5000 },
+];
+
+const DAYS_OPTIONS = [
+  { label: "1–3 dies", min: 1, max: 3 },
+  { label: "4–7 dies", min: 4, max: 7 },
+  { label: "8–14 dies", min: 8, max: 14 },
+  { label: "15+ dies", min: 15, max: 999 },
+];
+
+const PEOPLE_OPTIONS = [1, 2, 3, 4, 5];
+
 export default function RecommendationsClient() {
   const { locale, t } = useLocale();
 
@@ -48,6 +65,7 @@ export default function RecommendationsClient() {
   const [maxDays, setMaxDays] = React.useState<number | "">("");
   const [people, setPeople] = React.useState<number | "">("");
   const [sortBy, setSortBy] = React.useState<"recent" | "cheapest" | "expensive">("recent");
+
 
   // Data
   const [trips, setTrips] = React.useState<RecommendationLite[]>([]);
@@ -120,7 +138,7 @@ export default function RecommendationsClient() {
   };
 
   const hasActiveFilters =
-    destination !== "" || minBudget !== "" || maxBudget !== "" || minDays !== "" || maxDays !== "" || people !== "";
+    destination !== "" || maxBudget !== "" || minDays !== "" || people !== "";
 
   return (
     <div style={{ background: "var(--bg)", minHeight: "100dvh", paddingBottom: "100px" }}>
@@ -241,78 +259,107 @@ export default function RecommendationsClient() {
         )}
       </div>
 
-      <div
-        style={{
-          padding: "0 20px 20px",
-          display: "grid",
-          gridTemplateColumns: "1fr 1fr",
-          gap: "8px",
-        }}
-      >
-        <input
-          type="text"
-          placeholder={t.filterDestination}
-          value={destination}
-          onChange={(e) => setDestination(e.target.value)}
-          style={{
-            height: "44px",
-            padding: "0 16px",
-            borderRadius: "var(--r-xl)",
-            border: "1px solid var(--border)",
-            background: "var(--surface)",
-            fontSize: "14px",
-            color: "var(--text)",
-            outline: "none",
-          }}
-        />
-        <input
-          type="number"
-          placeholder={`${t.filterBudget} (max)`}
-          value={maxBudget}
-          onChange={(e) => setMaxBudget(e.target.value === "" ? "" : Number(e.target.value))}
-          style={{
-            height: "44px",
-            padding: "0 16px",
-            borderRadius: "var(--r-xl)",
-            border: "1px solid var(--border)",
-            background: "var(--surface)",
-            fontSize: "14px",
-            color: "var(--text)",
-            outline: "none",
-          }}
-        />
-        <input
-          type="number"
-          placeholder={t.filterPeople}
-          value={people}
-          onChange={(e) => setPeople(e.target.value === "" ? "" : Number(e.target.value))}
-          style={{
-            height: "44px",
-            padding: "0 16px",
-            borderRadius: "var(--r-xl)",
-            border: "1px solid var(--border)",
-            background: "var(--surface)",
-            fontSize: "14px",
-            color: "var(--text)",
-            outline: "none",
-          }}
-        />
-        <input
-          type="number"
-          placeholder={`${t.filterDuration} (${t.filterDurationDays})`}
-          value={maxDays}
-          onChange={(e) => setMaxDays(e.target.value === "" ? "" : Number(e.target.value))}
-          style={{
-            height: "44px",
-            padding: "0 16px",
-            borderRadius: "var(--r-xl)",
-            border: "1px solid var(--border)",
-            background: "var(--surface)",
-            fontSize: "14px",
-            color: "var(--text)",
-            outline: "none",
-          }}
-        />
+      {/* Destination chips */}
+      <div style={{ padding: "0 0 12px" }}>
+        <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: "8px", paddingLeft: "20px" }}>
+          {t.filterDestination}
+        </p>
+        <div style={{ display: "flex", gap: "8px", overflowX: "auto", scrollbarWidth: "none", padding: "0 20px 4px" }}>
+          {DESTINATIONS.map((d) => {
+            const active = destination === d.city;
+            return (
+              <button key={d.id} onClick={() => setDestination(active ? "" : d.city)} style={{
+                flexShrink: 0, display: "flex", alignItems: "center", gap: "6px",
+                height: "36px", padding: "0 12px", borderRadius: "var(--r-pill)",
+                border: active ? "none" : "1px solid var(--border-md)",
+                background: active ? "var(--green)" : "var(--surface)",
+                color: active ? "#fff" : "var(--text-muted)",
+                fontSize: "13px", fontWeight: 600, cursor: "pointer",
+                transition: "all 150ms var(--ease)",
+              }}>
+                <span>{d.emoji}</span>
+                <span>{localizeCity(d.city, locale)}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Budget chips */}
+      <div style={{ padding: "0 20px 12px" }}>
+        <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: "8px" }}>
+          {t.filterBudget}
+        </p>
+        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+          {BUDGET_OPTIONS.map((opt) => {
+            const active = maxBudget === opt.value;
+            return (
+              <button key={opt.value} onClick={() => { setMaxBudget(active ? "" : opt.value); setMinBudget(""); }} style={{
+                height: "34px", padding: "0 14px", borderRadius: "var(--r-pill)",
+                border: active ? "none" : "1px solid var(--border-md)",
+                background: active ? "var(--green)" : "var(--surface)",
+                color: active ? "#fff" : "var(--text-muted)",
+                fontSize: "13px", fontWeight: 600, cursor: "pointer",
+                transition: "all 150ms var(--ease)",
+              }}>
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* People chips */}
+      <div style={{ padding: "0 20px 12px" }}>
+        <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: "8px" }}>
+          {t.filterPeople}
+        </p>
+        <div style={{ display: "flex", gap: "6px" }}>
+          {[1, 2, 3, 4, 5].map((p) => (
+            <button key={p} onClick={() => setPeople(people === p ? "" : p)} style={{
+              width: "40px", height: "40px", borderRadius: "50%",
+              border: people === p ? "none" : "1px solid var(--border-md)",
+              background: people === p ? "var(--green)" : "var(--surface)",
+              color: people === p ? "#fff" : "var(--text-muted)",
+              fontSize: "14px", fontWeight: 600, cursor: "pointer",
+              transition: "all 150ms var(--ease)",
+            }}>
+              {p}
+            </button>
+          ))}
+          <button onClick={() => setPeople(people === 6 ? "" : 6)} style={{
+            height: "40px", padding: "0 12px", borderRadius: "var(--r-pill)",
+            border: people === 6 ? "none" : "1px solid var(--border-md)",
+            background: people === 6 ? "var(--green)" : "var(--surface)",
+            color: people === 6 ? "#fff" : "var(--text-muted)",
+            fontSize: "13px", fontWeight: 600, cursor: "pointer",
+            transition: "all 150ms var(--ease)",
+          }}>6+</button>
+        </div>
+      </div>
+
+      {/* Duration chips */}
+      <div style={{ padding: "0 20px 16px" }}>
+        <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: "8px" }}>
+          {t.filterDuration}
+        </p>
+        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+          {DAYS_OPTIONS.map((opt) => {
+            const active = minDays === opt.min && maxDays === opt.max;
+            return (
+              <button key={opt.min} onClick={() => { if (active) { setMinDays(""); setMaxDays(""); } else { setMinDays(opt.min); setMaxDays(opt.max); } }} style={{
+                height: "34px", padding: "0 14px", borderRadius: "var(--r-pill)",
+                border: active ? "none" : "1px solid var(--border-md)",
+                background: active ? "var(--green)" : "var(--surface)",
+                color: active ? "#fff" : "var(--text-muted)",
+                fontSize: "13px", fontWeight: 600, cursor: "pointer",
+                transition: "all 150ms var(--ease)",
+              }}>
+                {opt.label}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div
@@ -413,11 +460,13 @@ function RecommendationCard({ trip, t, locale }: { trip: RecommendationLite; t: 
       className="pl-tap"
       onClick={() => router.push(`/recommendations/${trip.id}`)}
       style={{
-        background: "var(--surface)",
+        background: trip.isOwn
+          ? "linear-gradient(135deg, rgba(13,158,122,0.12) 0%, rgba(13,158,122,0.05) 100%)"
+          : "var(--surface)",
         borderRadius: "var(--r-xl)",
         overflow: "hidden",
         boxShadow: "var(--shadow-md)",
-        border: "1px solid var(--border)",
+        border: trip.isOwn ? "1px solid rgba(13,158,122,0.25)" : "1px solid var(--border)",
         cursor: "pointer",
       }}
     >
@@ -438,6 +487,18 @@ function RecommendationCard({ trip, t, locale }: { trip: RecommendationLite; t: 
             background: "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%)",
           }}
         />
+        {trip.isOwn && (
+          <div style={{
+            position: "absolute", top: "10px", left: "12px",
+            display: "flex", alignItems: "center", gap: "4px",
+            background: "rgba(13,158,122,0.9)", backdropFilter: "blur(8px)",
+            color: "#fff", fontSize: "10px", fontWeight: 700,
+            padding: "4px 10px", borderRadius: "var(--r-pill)",
+            letterSpacing: "0.05em", textTransform: "uppercase",
+          }}>
+            <Sparkles size={10} /> {t.ownTripBadge}
+          </div>
+        )}
         <div style={{ position: "absolute", bottom: "12px", left: "14px" }}>
           <h3
             style={{

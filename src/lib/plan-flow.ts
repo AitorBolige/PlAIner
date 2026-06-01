@@ -55,9 +55,10 @@ export function computeCostBreakdown(
   hotel: Offer | null,
   itinerary: Itinerary | null,
   people: number,
+  nights = 1,
 ): CostBreakdown {
   const flightCost = flight ? Math.round((flight.price || 0) * (people || 1)) : 0;
-  const hotelCost = hotel ? Math.round(hotel.price || 0) : 0;
+  const hotelCost = hotel ? Math.round((hotel.price || 0) * Math.max(1, nights)) : 0;
   const activitiesCost = sumItineraryActivities(itinerary);
   return {
     flightCost,
@@ -73,10 +74,11 @@ export function remainingActivitiesBudget(
   people: number,
   flight: Offer | null,
   hotel: Offer | null,
+  nights = 1,
 ): number {
   const totalBudget = Math.round((budgetPerPerson || 0) * (people || 1));
   const flightCost = flight ? Math.round((flight.price || 0) * (people || 1)) : 0;
-  const hotelCost = hotel ? Math.round(hotel.price || 0) : 0;
+  const hotelCost = hotel ? Math.round((hotel.price || 0) * Math.max(1, nights)) : 0;
   return Math.max(0, totalBudget - flightCost - hotelCost);
 }
 
@@ -176,6 +178,7 @@ export async function fetchOffers(
     maxPrice: params.budget || 1200,
     currency,
     origin: params.origin || undefined,
+    transportId: params.transportId || "plane",
   };
 
   const url = new URL("/api/travel-offers", window.location.origin);
@@ -189,6 +192,7 @@ export async function fetchOffers(
   url.searchParams.set("budgetMax", String(params.budget || 1200));
   url.searchParams.set("maxPrice", String(params.budget || 1200));
   url.searchParams.set("currency", currency);
+  url.searchParams.set("transportId", params.transportId || "plane");
 
   async function refresh(): Promise<{ offers: Offer[]; error: string | null }> {
     const res = await fetchWithTimeout(
@@ -198,7 +202,7 @@ export async function fetchOffers(
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ query: refreshQuery }),
       },
-      10_000,
+      35_000,
     );
     const payload = await res.json().catch(() => null);
     if (res.ok && Array.isArray(payload?.cache?.offers) && payload.cache.offers.length > 0) {

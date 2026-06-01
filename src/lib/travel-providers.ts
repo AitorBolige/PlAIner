@@ -1,5 +1,20 @@
 import { TravelOfferInput, TravelOfferQuery } from "./travel-offers";
 
+/** Server-side fetch with AbortController timeout (default 8 s). */
+async function serverFetch(
+  input: string,
+  init: RequestInit = {},
+  ms = 8_000,
+): Promise<Response> {
+  const ctrl = new AbortController();
+  const id = setTimeout(() => ctrl.abort(), ms);
+  try {
+    return await fetch(input, { ...init, signal: ctrl.signal });
+  } finally {
+    clearTimeout(id);
+  }
+}
+
 // Approximate exchange rates to EUR (updated 2025). Used when the API returns prices
 // in a currency other than EUR so the UI always shows a consistent currency.
 const EUR_RATES: Record<string, number> = {
@@ -104,7 +119,7 @@ export async function searchHotelsApiDojo(
   const acUrl = `https://${host}/locations/auto-complete?text=${encodeURIComponent(params.query)}&languagecode=en-us`;
   console.log(`[searchHotelsApiDojo] Auto-complete URL: ${acUrl}`);
 
-  const acRes = await fetch(acUrl, { headers });
+  const acRes = await serverFetch(acUrl, { headers }, 8_000);
   console.log(`[searchHotelsApiDojo] Auto-complete status: ${acRes.status}`);
 
   if (!acRes.ok) {
@@ -174,7 +189,7 @@ export async function searchHotelsApiDojo(
   const searchUrl = `https://${host}/properties/list?${search.toString()}`;
   console.log(`[searchHotelsApiDojo] Search URL: ${searchUrl}`);
 
-  const sRes = await fetch(searchUrl, { headers });
+  const sRes = await serverFetch(searchUrl, { headers }, 10_000);
   console.log(`[searchHotelsApiDojo] Search status: ${sRes.status}`);
 
   if (!sRes.ok) {
@@ -373,6 +388,11 @@ function mapApiDojoHotelOffer(
   const rawCurrency = String(currency).toUpperCase().slice(0, 3);
   const priceEur = toEur(price, rawCurrency);
 
+  const latRaw = item.latitude ?? item.lat;
+  const lngRaw = item.longitude ?? item.lng;
+  const lat = typeof latRaw === "number" ? latRaw : (latRaw != null ? Number(latRaw) : undefined);
+  const lng = typeof lngRaw === "number" ? lngRaw : (lngRaw != null ? Number(lngRaw) : undefined);
+
   return {
     type: "hotel",
     provider: "Booking.com via APIDojo",
@@ -386,7 +406,11 @@ function mapApiDojoHotelOffer(
     rating,
     reviewCount,
     availabilityText,
-    metadata: item,
+    metadata: {
+      ...item,
+      ...(lat != null && Number.isFinite(lat) ? { lat } : {}),
+      ...(lng != null && Number.isFinite(lng) ? { lng } : {}),
+    },
     rank: index,
   };
 }
@@ -469,25 +493,38 @@ function trimSkyScraperSkyId(value: unknown): string | null {
   return t.length > 0 ? t : null;
 }
 
-/** When autocomplete fails, use known-good place ids (same idea as the working commit). */
+/** Known-good place ids for flights-sky `search-roundtrip`. Skips autocomplete when present. */
 function getAutocompleteFallbackPlaceId(iataCode: string): string | null {
   const k = iataCode.trim().toUpperCase();
   const fallbacks: Record<string, string> = {
-    LHR: "LOND",
-    JFK: "JFK",
-    PARI: "PARI",
-    BCN: "BCN",
-    MAD: "MAD",
-    LIS: "LIS",
-    CDG: "CDG",
-    FCO: "FCO",
-    AMS: "AMS",
-    MUC: "MUC",
-    BER: "BER",
-    DPS: "DPS",
-    RAK: "RAK",
-    HND: "HND",
-    JTR: "JTR",
+    // Iberian Peninsula
+    BCN: "BCN", MAD: "MAD", LIS: "LIS", OPO: "OPO", SVQ: "SVQ", VLC: "VLC",
+    AGP: "AGP", PMI: "PMI", IBZ: "IBZ", TFS: "TFS", ACE: "ACE", FUE: "FUE",
+    // France
+    CDG: "CDG", ORY: "ORY", NCE: "NCE", LYS: "LYS", MRS: "MRS", BOD: "BOD",
+    // UK
+    LHR: "LOND", LGW: "LOND", EDI: "EDI", MAN: "MAN",
+    // Germany
+    FRA: "FRA", MUC: "MUC", BER: "BER", HAM: "HAM", DUS: "DUS",
+    // Italy
+    FCO: "FCO", MXP: "MXP", VCE: "VCE", FLR: "FLR", NAP: "NAP",
+    // Benelux / Scandinavia
+    AMS: "AMS", BRU: "BRU", CPH: "CPH", ARN: "ARN", OSL: "OSL", HEL: "HEL",
+    // Central / Eastern Europe
+    VIE: "VIE", ZRH: "ZRH", PRG: "PRG", BUD: "BUD", WAW: "WAW", KRK: "KRK",
+    // Mediterranean
+    ATH: "ATH", IST: "IST", JTR: "JTR", JMK: "JMK", DBV: "DBV",
+    // Middle East / Africa
+    DXB: "DXB", DOH: "DOH", RAK: "RAK", CMN: "CMN", CAI: "CAI",
+    // Asia
+    HND: "HND", NRT: "NRT", KIX: "KIX", BKK: "BKK", SIN: "SIN",
+    HKG: "HKG", PEK: "PEK", PVG: "PVG", DEL: "DEL", BOM: "BOM",
+    DPS: "DPS", KUL: "KUL", ICN: "ICN",
+    // Americas
+    JFK: "JFK", EWR: "NYC", LAX: "LAX", MIA: "MIA", CUN: "CUN",
+    MEX: "MEX", BOG: "BOG", LIM: "LIM", EZE: "BUE", GRU: "SAO",
+    // Other
+    SYD: "SYD",
   };
   return fallbacks[k] ?? null;
 }
@@ -505,6 +542,13 @@ function getAutocompleteFallbackPlaceId(iataCode: string): string | null {
 async function getEntityIdFromAutoComplete(
   iataCode: string,
 ): Promise<string | null> {
+  // Use known-good place ids immediately — avoids a slow/failing autocomplete round-trip.
+  const fast = getAutocompleteFallbackPlaceId(iataCode);
+  if (fast) {
+    console.log(`[getEntityIdFromAutoComplete] Using known place id for ${iataCode}: ${fast}`);
+    return fast;
+  }
+
   const { host, key } = getRapidApiFlightConfig();
   const headers = {
     "X-RapidAPI-Key": key,
@@ -568,7 +612,7 @@ async function getEntityIdFromAutoComplete(
     );
 
     try {
-      const response = await fetch(url, { headers });
+      const response = await serverFetch(url, { headers }, 8_000);
 
       if (!response.ok) {
         const body = await response.text().catch(() => "");
@@ -633,7 +677,11 @@ function buildRapidApiFlightSearchUrlWithEntityIds(
   const searchParams = new URLSearchParams();
   const curr = String(currency.toUpperCase()).slice(0, 3);
 
-  // flights-sky `search-roundtrip` expects `placeIdFrom` / `placeIdTo`.
+  // flights-sky `search-roundtrip` expects `fromEntityId` / `toEntityId` (per the
+  // current API error `"fromEntityId is required"`). Send both names for safety
+  // across endpoint variants.
+  searchParams.set("fromEntityId", fromPlaceId);
+  searchParams.set("toEntityId", toPlaceId);
   searchParams.set("placeIdFrom", fromPlaceId);
   searchParams.set("placeIdTo", toPlaceId);
 
@@ -1357,11 +1405,10 @@ function mapRapidApiFlightOffer(
 export async function searchFlightsMetasearch(
   params: MetasearchFlightParams,
 ): Promise<TravelOfferInput[]> {
-  const fromId = await getEntityIdFromAutoComplete(params.originIata);
-  // Space out calls — the free RapidAPI tier rate-limits rapid bursts.
-  await new Promise((r) => setTimeout(r, 800));
-  const toId = await getEntityIdFromAutoComplete(params.destinationIata);
-  await new Promise((r) => setTimeout(r, 800));
+  const [fromId, toId] = await Promise.all([
+    getEntityIdFromAutoComplete(params.originIata),
+    getEntityIdFromAutoComplete(params.destinationIata),
+  ]);
 
   if (!fromId || !toId) {
     console.warn(
@@ -1400,7 +1447,7 @@ export async function searchFlightsMetasearch(
   const MAX_SEARCH_ATTEMPTS = 4;
   let payload: unknown = null;
   for (let attempt = 1; attempt <= MAX_SEARCH_ATTEMPTS; attempt++) {
-    const response = await fetch(url, { headers: flightHeaders });
+    const response = await serverFetch(url, { headers: flightHeaders }, 25_000);
     console.log(
       `[searchFlightsMetasearch] Response status: ${response.status} (attempt ${attempt}/${MAX_SEARCH_ATTEMPTS})`,
     );
@@ -1521,13 +1568,13 @@ export async function searchFlightsMetasearch(
           console.log(
             `[searchFlightsMetasearch] Trying poll URL: ${candidate}`,
           );
-          const probe = await fetch(candidate, {
+          const probe = await serverFetch(candidate, {
             headers: {
               "X-RapidAPI-Key": key,
               "X-RapidAPI-Host": host,
               accept: "application/json",
             },
-          });
+          }, 8_000);
           if (probe.ok) {
             activePollUrl = candidate;
             const probePayload = await probe.json().catch(() => null);
@@ -1559,13 +1606,13 @@ export async function searchFlightsMetasearch(
       console.log(
         `[searchFlightsMetasearch] Polling attempt ${attempt}/${MAX_POLLS}`,
       );
-      const pollResponse = await fetch(activePollUrl, {
+      const pollResponse = await serverFetch(activePollUrl, {
         headers: {
           "X-RapidAPI-Key": key,
           "X-RapidAPI-Host": host,
           accept: "application/json",
         },
-      });
+      }, 8_000);
 
       if (!pollResponse.ok) {
         console.warn(

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Plane, Hotel, Sparkles, MapPin } from "lucide-react";
+import { Plane, TrainFront, Bus, Car, Hotel, Sparkles, MapPin } from "lucide-react";
 
 import { usePlan } from "@/components/plan/PlanProvider";
 import { fetchOffers, buildMockOffers } from "@/lib/plan-flow";
@@ -18,13 +18,23 @@ export function GeneratingScreen() {
   const done = React.useRef(false);
   const [phase, setPhase] = React.useState(0);
 
+  const transportKind = plan.transport?.id ?? "plane";
+  const transportPhase = React.useMemo(() => {
+    switch (transportKind) {
+      case "train": return { icon: TrainFront, label: t.genSearchingTrains };
+      case "bus":   return { icon: Bus,        label: t.genSearchingBuses };
+      case "car":   return { icon: Car,        label: t.genSearchingRoute };
+      default:      return { icon: Plane,      label: t.genSearchingFlights };
+    }
+  }, [transportKind, t]);
+
   const PHASES = React.useMemo(() => [
-    { icon: Plane, label: t.genSearchingFlights },
+    transportPhase,
     { icon: Hotel, label: t.genComparingHotels },
     { icon: Sparkles, label: t.genDesigningPlan },
-  ], [t]);
+  ], [transportPhase, t]);
 
-  const SAFETY_TIMEOUT_MS = 20_000;
+  const SAFETY_TIMEOUT_MS = 42_000;
 
   // Cycle the phase messages while loading.
   React.useEffect(() => {

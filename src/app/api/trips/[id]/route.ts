@@ -21,6 +21,7 @@ const updateTripSchema = z
     status: z.string().trim().optional(),
     isFavorite: z.boolean().optional(),
     isSurprise: z.boolean().optional(),
+    isPublic: z.boolean().optional(),
   })
   .strict();
 

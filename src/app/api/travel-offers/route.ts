@@ -33,7 +33,10 @@ function parseQuery(request: NextRequest) {
     endDate: searchParams.get("endDate") ?? undefined,
     people: searchParams.get("people") ?? undefined,
     budgetMax: searchParams.get("budgetMax") ?? undefined,
+    maxPrice: searchParams.get("maxPrice") ?? undefined,
     currency: searchParams.get("currency") ?? undefined,
+    origin: searchParams.get("origin") ?? undefined,
+    transportId: searchParams.get("transportId") ?? undefined,
   });
 }
 
@@ -54,13 +57,34 @@ export async function GET(request: NextRequest) {
   const query = parsed.data;
   const snapshot = await getTravelSearchSnapshot(query);
 
-  // If the cache exists but has no HOTEL offers, treat it as empty so the frontend
-  // triggers a refresh. This handles the case where a previous run only collected flights
-  // (e.g. because all hotels were filtered out by the old maxPrice logic).
+  // If the cache exists but has no HOTEL offers, OR only fallback transports
+  // (meaning the last refresh failed to get real flights), treat it as empty so
+  // the frontend triggers a fresh refresh attempt.
   const hasHotels = snapshot.offers.some(
     (o) => String(o.type).toUpperCase() === "HOTEL",
   );
-  const effectiveCache = hasHotels ? snapshot : { ...snapshot, offers: [] };
+  const expectedKind = query.transportId ?? "plane";
+  const transports = snapshot.offers.filter(
+    (o) => String(o.type).toUpperCase() === "TRANSPORT",
+  );
+  const hasMatchingTransports = transports.some((o) => {
+    const meta = o.metadata as { fallback?: boolean; transportKind?: string } | null;
+    const kindMatches = !meta?.transportKind || meta.transportKind === expectedKind;
+    if (!kindMatches) return false;
+    // Plane: require non-fallback. Ground modes: any matching-kind transport is OK
+    // (we don't have a real API for trains/buses, the curated offers are the real product).
+    return expectedKind !== "plane" || meta?.fallback !== true;
+  });
+  const cacheUsable = hasHotels && hasMatchingTransports;
+  // Hoist `metadata.transportKind` to top-level so the client `Offer` shape
+  // gets it without poking into metadata.
+  const normalizedOffers = cacheUsable
+    ? snapshot.offers.map((o) => {
+        const meta = o.metadata as { transportKind?: string } | null;
+        return meta?.transportKind ? { ...o, transportKind: meta.transportKind } : o;
+      })
+    : [];
+  const effectiveCache = { ...snapshot, offers: normalizedOffers };
 
   return NextResponse.json({
     ok: true,

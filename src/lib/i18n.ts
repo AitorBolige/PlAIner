@@ -122,6 +122,9 @@ export interface Translations {
 
   // Generating screen
   genSearchingFlights: string;
+  genSearchingTrains: string;
+  genSearchingBuses: string;
+  genSearchingRoute: string;
   genComparingHotels: string;
   genDesigningPlan: string;
 
@@ -279,6 +282,45 @@ export interface Translations {
   authorLabel: string;
   communityTrip: string;
   loadingMore: string;
+  addToMyTrips: string;
+  addingToTrips: string;
+  alreadyMyTrip: string;
+  ownTripBadge: string;
+  communityBadge: string;
+  inspiredByCommunity: string;
+  inspiredByCommunityDesc: string;
+  cantShareCommunityTrip: string;
+  payNow: string;
+  bookedWord: string;
+  allBooked: string;
+  allBooked2: string;
+  allReady: string;
+  flightToCity: (city: string) => string;
+  accommodationInCity: (city: string) => string;
+  nightsSuffix: (n: number) => string;
+  travelerSuffix: (n: number) => string;
+  visibleOnDiscover: string;
+  onlyYouCanSee: string;
+  viewOnMap: string;
+  viewMenu: string;
+  departsAt: string;
+  arrivesAt: string;
+  freeUntil: (time: string) => string;
+  activityN: (n: number) => string;
+
+  // Flight + hotel transition overlay
+  flightStatusInFlight: string;
+  flightStatusLanding: string;
+  flightDurationLabel: string;
+  flightEstimatedLabel: string;
+  flightDirect: string;
+  flightStopsCount: (n: number) => string;
+  whereStayQuestion: string;
+  opinionsWord: string;
+
+  // Generic transit status (works for plane/train/bus/car)
+  transitStatusEnRoute: string;
+  transitStatusArriving: string;
 }
 
 const ca: Translations = {
@@ -385,6 +427,9 @@ const ca: Translations = {
   voiceFormFilled: "Formulari omplert!",
 
   genSearchingFlights: "Buscant els millors vols…",
+  genSearchingTrains: "Buscant trens…",
+  genSearchingBuses: "Buscant autobusos…",
+  genSearchingRoute: "Calculant la ruta…",
   genComparingHotels: "Comparant allotjaments…",
   genDesigningPlan: "Dissenyant el teu pla ideal…",
 
@@ -539,6 +584,41 @@ const ca: Translations = {
   authorLabel: "Creat per",
   communityTrip: "Viatge de la comunitat",
   loadingMore: "Carregant més…",
+  addToMyTrips: "Afegir als meus viatges",
+  addingToTrips: "Afegint…",
+  alreadyMyTrip: "Aquest viatge ja és teu",
+  ownTripBadge: "El meu viatge",
+  communityBadge: "De la comunitat",
+  inspiredByCommunity: "Inspirat per la comunitat",
+  inspiredByCommunityDesc: "Aquest viatge ve de la pestanya Descobrir",
+  cantShareCommunityTrip: "No es pot compartir un viatge de la comunitat",
+  payNow: "Pagar ara",
+  bookedWord: "Reservat",
+  allBooked: "Tot reservat — bon viatge! 🎉",
+  allBooked2: "Tot reservat",
+  allReady: "Tot llest",
+  flightToCity: (city) => `Vol cap a ${city}`,
+  accommodationInCity: (city) => `Allotjament a ${city}`,
+  nightsSuffix: (n) => `${n} ${n === 1 ? "nit" : "nits"}`,
+  travelerSuffix: (n) => `${n} ${n === 1 ? "viatger" : "viatgers"}`,
+  visibleOnDiscover: "Visible a la pestanya Descobrir",
+  onlyYouCanSee: "Només tu pots veure aquest viatge",
+  viewOnMap: "Veure al mapa",
+  viewMenu: "Veure menú",
+  departsAt: "Surt",
+  arrivesAt: "Arriba",
+  freeUntil: (time) => `lliures fins les ${time}`,
+  activityN: (n) => `Activitat ${n}`,
+  flightStatusInFlight: "En vol",
+  flightStatusLanding: "Aterrant…",
+  flightDurationLabel: "durada",
+  flightEstimatedLabel: "vol estimat",
+  flightDirect: "Vol directe",
+  flightStopsCount: (n) => `${n} ${n === 1 ? "escala" : "escales"}`,
+  whereStayQuestion: "On t'allotges?",
+  opinionsWord: "opinions",
+  transitStatusEnRoute: "En camí",
+  transitStatusArriving: "Arribant…",
 };
 
 const es: Translations = {
@@ -645,6 +725,9 @@ const es: Translations = {
   voiceFormFilled: "¡Formulario rellenado!",
 
   genSearchingFlights: "Buscando los mejores vuelos…",
+  genSearchingTrains: "Buscando trenes…",
+  genSearchingBuses: "Buscando autobuses…",
+  genSearchingRoute: "Calculando la ruta…",
   genComparingHotels: "Comparando alojamientos…",
   genDesigningPlan: "Diseñando tu plan ideal…",
 
@@ -799,6 +882,41 @@ const es: Translations = {
   authorLabel: "Creado por",
   communityTrip: "Viaje de la comunidad",
   loadingMore: "Cargando más…",
+  addToMyTrips: "Añadir a mis viajes",
+  addingToTrips: "Añadiendo…",
+  alreadyMyTrip: "Este viaje ya es tuyo",
+  ownTripBadge: "Mi viaje",
+  communityBadge: "De la comunidad",
+  inspiredByCommunity: "Inspirado por la comunidad",
+  inspiredByCommunityDesc: "Este viaje viene de la pestaña Descubrir",
+  cantShareCommunityTrip: "No se puede compartir un viaje de la comunidad",
+  payNow: "Pagar ahora",
+  bookedWord: "Reservado",
+  allBooked: "Todo reservado — ¡buen viaje! 🎉",
+  allBooked2: "Todo reservado",
+  allReady: "Todo listo",
+  flightToCity: (city) => `Vuelo hacia ${city}`,
+  accommodationInCity: (city) => `Alojamiento en ${city}`,
+  nightsSuffix: (n) => `${n} ${n === 1 ? "noche" : "noches"}`,
+  travelerSuffix: (n) => `${n} ${n === 1 ? "viajero" : "viajeros"}`,
+  visibleOnDiscover: "Visible en la pestaña Descubrir",
+  onlyYouCanSee: "Solo tú puedes ver este viaje",
+  viewOnMap: "Ver en el mapa",
+  viewMenu: "Ver menú",
+  departsAt: "Sale",
+  arrivesAt: "Llega",
+  freeUntil: (time) => `libre hasta las ${time}`,
+  activityN: (n) => `Actividad ${n}`,
+  flightStatusInFlight: "En vuelo",
+  flightStatusLanding: "Aterrizando…",
+  flightDurationLabel: "duración",
+  flightEstimatedLabel: "vuelo estimado",
+  flightDirect: "Vuelo directo",
+  flightStopsCount: (n) => `${n} ${n === 1 ? "escala" : "escalas"}`,
+  whereStayQuestion: "¿Dónde te alojas?",
+  opinionsWord: "opiniones",
+  transitStatusEnRoute: "En camino",
+  transitStatusArriving: "Llegando…",
 };
 
 const en: Translations = {
@@ -905,6 +1023,9 @@ const en: Translations = {
   voiceFormFilled: "Form filled!",
 
   genSearchingFlights: "Searching best flights…",
+  genSearchingTrains: "Searching trains…",
+  genSearchingBuses: "Searching buses…",
+  genSearchingRoute: "Calculating the route…",
   genComparingHotels: "Comparing accommodations…",
   genDesigningPlan: "Designing your ideal plan…",
 
@@ -1059,6 +1180,41 @@ const en: Translations = {
   authorLabel: "Created by",
   communityTrip: "Community trip",
   loadingMore: "Loading more…",
+  addToMyTrips: "Add to my trips",
+  addingToTrips: "Adding…",
+  alreadyMyTrip: "This trip is already yours",
+  ownTripBadge: "My trip",
+  communityBadge: "From community",
+  inspiredByCommunity: "Inspired by the community",
+  inspiredByCommunityDesc: "This trip comes from the Discover tab",
+  cantShareCommunityTrip: "Community trips cannot be re-shared",
+  payNow: "Pay now",
+  bookedWord: "Booked",
+  allBooked: "All booked — have a great trip! 🎉",
+  allBooked2: "All booked",
+  allReady: "All set",
+  flightToCity: (city) => `Flight to ${city}`,
+  accommodationInCity: (city) => `Accommodation in ${city}`,
+  nightsSuffix: (n) => `${n} ${n === 1 ? "night" : "nights"}`,
+  travelerSuffix: (n) => `${n} ${n === 1 ? "traveler" : "travelers"}`,
+  visibleOnDiscover: "Visible in the Discover tab",
+  onlyYouCanSee: "Only you can see this trip",
+  viewOnMap: "View on map",
+  viewMenu: "View menu",
+  departsAt: "Departs",
+  arrivesAt: "Arrives",
+  freeUntil: (time) => `free until ${time}`,
+  activityN: (n) => `Activity ${n}`,
+  flightStatusInFlight: "In flight",
+  flightStatusLanding: "Landing…",
+  flightDurationLabel: "duration",
+  flightEstimatedLabel: "estimated flight",
+  flightDirect: "Direct flight",
+  flightStopsCount: (n) => `${n} ${n === 1 ? "stop" : "stops"}`,
+  whereStayQuestion: "Where are you staying?",
+  opinionsWord: "reviews",
+  transitStatusEnRoute: "En route",
+  transitStatusArriving: "Arriving…",
 };
 
 const de: Translations = {
@@ -1165,6 +1321,9 @@ const de: Translations = {
   voiceFormFilled: "Formular ausgefüllt!",
 
   genSearchingFlights: "Suche nach besten Flügen…",
+  genSearchingTrains: "Suche Züge…",
+  genSearchingBuses: "Suche Busse…",
+  genSearchingRoute: "Route wird berechnet…",
   genComparingHotels: "Vergleiche Unterkünfte…",
   genDesigningPlan: "Erstelle Ihren idealen Reiseplan…",
 
@@ -1319,6 +1478,41 @@ const de: Translations = {
   authorLabel: "Erstellt von",
   communityTrip: "Community-Reise",
   loadingMore: "Mehr laden…",
+  addToMyTrips: "Zu meinen Reisen hinzufügen",
+  addingToTrips: "Wird hinzugefügt…",
+  alreadyMyTrip: "Diese Reise gehört dir bereits",
+  ownTripBadge: "Meine Reise",
+  communityBadge: "Aus der Community",
+  inspiredByCommunity: "Von der Community inspiriert",
+  inspiredByCommunityDesc: "Diese Reise kommt vom Entdecken-Tab",
+  cantShareCommunityTrip: "Community-Reisen können nicht erneut geteilt werden",
+  payNow: "Jetzt bezahlen",
+  bookedWord: "Gebucht",
+  allBooked: "Alles gebucht — gute Reise! 🎉",
+  allBooked2: "Alles gebucht",
+  allReady: "Alles bereit",
+  flightToCity: (city) => `Flug nach ${city}`,
+  accommodationInCity: (city) => `Unterkunft in ${city}`,
+  nightsSuffix: (n) => `${n} ${n === 1 ? "Nacht" : "Nächte"}`,
+  travelerSuffix: (n) => `${n} ${n === 1 ? "Reisender" : "Reisende"}`,
+  visibleOnDiscover: "Sichtbar im Entdecken-Tab",
+  onlyYouCanSee: "Nur du kannst diese Reise sehen",
+  viewOnMap: "Auf Karte anzeigen",
+  viewMenu: "Menü anzeigen",
+  departsAt: "Abfahrt",
+  arrivesAt: "Ankunft",
+  freeUntil: (time) => `frei bis ${time}`,
+  activityN: (n) => `Aktivität ${n}`,
+  flightStatusInFlight: "Im Flug",
+  flightStatusLanding: "Landet…",
+  flightDurationLabel: "Dauer",
+  flightEstimatedLabel: "geschätzte Flugzeit",
+  flightDirect: "Direktflug",
+  flightStopsCount: (n) => `${n} ${n === 1 ? "Stopp" : "Stopps"}`,
+  whereStayQuestion: "Wo wohnst du?",
+  opinionsWord: "Bewertungen",
+  transitStatusEnRoute: "Unterwegs",
+  transitStatusArriving: "Ankunft…",
 };
 
 const fr: Translations = {
@@ -1425,6 +1619,9 @@ const fr: Translations = {
   voiceFormFilled: "Formulaire rempli !",
 
   genSearchingFlights: "Recherche des meilleurs vols…",
+  genSearchingTrains: "Recherche des trains…",
+  genSearchingBuses: "Recherche des bus…",
+  genSearchingRoute: "Calcul de l'itinéraire…",
   genComparingHotels: "Comparaison des hébergements…",
   genDesigningPlan: "Conception de votre plan idéal…",
 
@@ -1579,6 +1776,41 @@ const fr: Translations = {
   authorLabel: "Créé par",
   communityTrip: "Voyage de la communauté",
   loadingMore: "Chargement…",
+  addToMyTrips: "Ajouter à mes voyages",
+  addingToTrips: "Ajout en cours…",
+  alreadyMyTrip: "Ce voyage est déjà le vôtre",
+  ownTripBadge: "Mon voyage",
+  communityBadge: "De la communauté",
+  inspiredByCommunity: "Inspiré par la communauté",
+  inspiredByCommunityDesc: "Ce voyage vient de l'onglet Découvrir",
+  cantShareCommunityTrip: "Les voyages communautaires ne peuvent pas être partagés à nouveau",
+  payNow: "Payer maintenant",
+  bookedWord: "Réservé",
+  allBooked: "Tout réservé — bon voyage! 🎉",
+  allBooked2: "Tout réservé",
+  allReady: "Tout est prêt",
+  flightToCity: (city) => `Vol vers ${city}`,
+  accommodationInCity: (city) => `Hébergement à ${city}`,
+  nightsSuffix: (n) => `${n} ${n === 1 ? "nuit" : "nuits"}`,
+  travelerSuffix: (n) => `${n} ${n === 1 ? "voyageur" : "voyageurs"}`,
+  visibleOnDiscover: "Visible dans l'onglet Découvrir",
+  onlyYouCanSee: "Seulement vous pouvez voir ce voyage",
+  viewOnMap: "Voir sur la carte",
+  viewMenu: "Voir le menu",
+  departsAt: "Départ",
+  arrivesAt: "Arrivée",
+  freeUntil: (time) => `libre jusqu'à ${time}`,
+  activityN: (n) => `Activité ${n}`,
+  flightStatusInFlight: "En vol",
+  flightStatusLanding: "Atterrissage…",
+  flightDurationLabel: "durée",
+  flightEstimatedLabel: "vol estimé",
+  flightDirect: "Vol direct",
+  flightStopsCount: (n) => `${n} ${n === 1 ? "escale" : "escales"}`,
+  whereStayQuestion: "Où loges-tu ?",
+  opinionsWord: "avis",
+  transitStatusEnRoute: "En route",
+  transitStatusArriving: "Arrivée…",
 };
 
 const it: Translations = {
@@ -1685,6 +1917,9 @@ const it: Translations = {
   voiceFormFilled: "Formulario compilato!",
 
   genSearchingFlights: "Ricerca dei voli migliori…",
+  genSearchingTrains: "Ricerca treni…",
+  genSearchingBuses: "Ricerca autobus…",
+  genSearchingRoute: "Calcolo del percorso…",
   genComparingHotels: "Confronto degli alloggi…",
   genDesigningPlan: "Creazione del tuo piano ideale…",
 
@@ -1839,6 +2074,41 @@ const it: Translations = {
   authorLabel: "Creato da",
   communityTrip: "Viaggio della comunità",
   loadingMore: "Caricamento…",
+  addToMyTrips: "Aggiungi ai miei viaggi",
+  addingToTrips: "Aggiunta in corso…",
+  alreadyMyTrip: "Questo viaggio è già tuo",
+  ownTripBadge: "Il mio viaggio",
+  communityBadge: "Dalla comunità",
+  inspiredByCommunity: "Ispirato dalla comunità",
+  inspiredByCommunityDesc: "Questo viaggio viene dalla scheda Scopri",
+  cantShareCommunityTrip: "I viaggi della comunità non possono essere ricondivisi",
+  payNow: "Paga ora",
+  bookedWord: "Prenotato",
+  allBooked: "Tutto prenotato — buon viaggio! 🎉",
+  allBooked2: "Tutto prenotato",
+  allReady: "Tutto pronto",
+  flightToCity: (city) => `Volo verso ${city}`,
+  accommodationInCity: (city) => `Alloggio a ${city}`,
+  nightsSuffix: (n) => `${n} ${n === 1 ? "notte" : "notti"}`,
+  travelerSuffix: (n) => `${n} ${n === 1 ? "viaggiatore" : "viaggiatori"}`,
+  visibleOnDiscover: "Visibile nella scheda Scopri",
+  onlyYouCanSee: "Solo tu puoi vedere questo viaggio",
+  viewOnMap: "Vedi sulla mappa",
+  viewMenu: "Vedi menu",
+  departsAt: "Partenza",
+  arrivesAt: "Arrivo",
+  freeUntil: (time) => `libero fino alle ${time}`,
+  activityN: (n) => `Attività ${n}`,
+  flightStatusInFlight: "In volo",
+  flightStatusLanding: "Atterraggio…",
+  flightDurationLabel: "durata",
+  flightEstimatedLabel: "volo stimato",
+  flightDirect: "Volo diretto",
+  flightStopsCount: (n) => `${n} ${n === 1 ? "scalo" : "scali"}`,
+  whereStayQuestion: "Dove alloggi?",
+  opinionsWord: "recensioni",
+  transitStatusEnRoute: "In viaggio",
+  transitStatusArriving: "In arrivo…",
 };
 
 const pt: Translations = {
@@ -1945,6 +2215,9 @@ const pt: Translations = {
   voiceFormFilled: "Formulário preenchido!",
 
   genSearchingFlights: "Buscando voos ideais…",
+  genSearchingTrains: "Procurando comboios…",
+  genSearchingBuses: "Procurando autocarros…",
+  genSearchingRoute: "A calcular a rota…",
   genComparingHotels: "Comparando acomodações…",
   genDesigningPlan: "Criando seu plano perfeito…",
 
@@ -2099,6 +2372,41 @@ const pt: Translations = {
   authorLabel: "Criado por",
   communityTrip: "Viagem da comunidade",
   loadingMore: "Carregando mais…",
+  addToMyTrips: "Adicionar às minhas viagens",
+  addingToTrips: "Adicionando…",
+  alreadyMyTrip: "Esta viagem já é sua",
+  ownTripBadge: "Minha viagem",
+  communityBadge: "Da comunidade",
+  inspiredByCommunity: "Inspirado pela comunidade",
+  inspiredByCommunityDesc: "Esta viagem vem da aba Descobrir",
+  cantShareCommunityTrip: "Viagens da comunidade não podem ser compartilhadas novamente",
+  payNow: "Pagar agora",
+  bookedWord: "Reservado",
+  allBooked: "Tudo reservado — boa viagem! 🎉",
+  allBooked2: "Tudo reservado",
+  allReady: "Tudo pronto",
+  flightToCity: (city) => `Voo para ${city}`,
+  accommodationInCity: (city) => `Acomodação em ${city}`,
+  nightsSuffix: (n) => `${n} ${n === 1 ? "noite" : "noites"}`,
+  travelerSuffix: (n) => `${n} ${n === 1 ? "viajante" : "viajantes"}`,
+  visibleOnDiscover: "Visível na aba Descobrir",
+  onlyYouCanSee: "Só você pode ver esta viagem",
+  viewOnMap: "Ver no mapa",
+  viewMenu: "Ver menu",
+  departsAt: "Parte",
+  arrivesAt: "Chega",
+  freeUntil: (time) => `livre até ${time}`,
+  activityN: (n) => `Atividade ${n}`,
+  flightStatusInFlight: "Em voo",
+  flightStatusLanding: "A aterrar…",
+  flightDurationLabel: "duração",
+  flightEstimatedLabel: "voo estimado",
+  flightDirect: "Voo direto",
+  flightStopsCount: (n) => `${n} ${n === 1 ? "escala" : "escalas"}`,
+  whereStayQuestion: "Onde te hospedas?",
+  opinionsWord: "avaliações",
+  transitStatusEnRoute: "A caminho",
+  transitStatusArriving: "A chegar…",
 };
 
 const ar: Translations = {
@@ -2205,6 +2513,9 @@ const ar: Translations = {
   voiceFormFilled: "تم ملء النموذج!",
 
   genSearchingFlights: "جاري البحث عن أفضل الرحلات…",
+  genSearchingTrains: "جاري البحث عن القطارات…",
+  genSearchingBuses: "جاري البحث عن الحافلات…",
+  genSearchingRoute: "حساب المسار…",
   genComparingHotels: "جاري مقارنة الفنادق…",
   genDesigningPlan: "جاري تصميم خطتك المثالية…",
 
@@ -2359,6 +2670,41 @@ const ar: Translations = {
   authorLabel: "تم الإنشاء بواسطة",
   communityTrip: "رحلة المجتمع",
   loadingMore: "جارٍ تحميل المزيد…",
+  addToMyTrips: "إضافة إلى رحلاتي",
+  addingToTrips: "جارٍ الإضافة…",
+  alreadyMyTrip: "هذه الرحلة ملكك بالفعل",
+  ownTripBadge: "رحلتي",
+  communityBadge: "من المجتمع",
+  inspiredByCommunity: "مستوحى من المجتمع",
+  inspiredByCommunityDesc: "هذه الرحلة من علامة الاستكشاف",
+  cantShareCommunityTrip: "لا يمكن مشاركة رحلات المجتمع مرة أخرى",
+  payNow: "ادفع الآن",
+  bookedWord: "محجوز",
+  allBooked: "تم الحجز — رحلة سعيدة! 🎉",
+  allBooked2: "تم الحجز",
+  allReady: "كل شيء جاهز",
+  flightToCity: (city) => `رحلة إلى ${city}`,
+  accommodationInCity: (city) => `إقامة في ${city}`,
+  nightsSuffix: (n) => `${n} ${n === 1 ? "ليلة" : "ليالي"}`,
+  travelerSuffix: (n) => `${n} ${n === 1 ? "مسافر" : "مسافرين"}`,
+  visibleOnDiscover: "مرئي في علامة الاستكشاف",
+  onlyYouCanSee: "فقط أنت يمكنك رؤية هذه الرحلة",
+  viewOnMap: "في الخريطة",
+  viewMenu: "عرض القائمة",
+  departsAt: "المغادرة",
+  arrivesAt: "الوصول",
+  freeUntil: (time) => `وقت حر حتى ${time}`,
+  activityN: (n) => `نشاط ${n}`,
+  flightStatusInFlight: "في الرحلة",
+  flightStatusLanding: "الهبوط…",
+  flightDurationLabel: "المدة",
+  flightEstimatedLabel: "الرحلة المقدرة",
+  flightDirect: "رحلة مباشرة",
+  flightStopsCount: (n) => `${n} توقف`,
+  whereStayQuestion: "أين تقيم؟",
+  opinionsWord: "آراء",
+  transitStatusEnRoute: "في الطريق",
+  transitStatusArriving: "الوصول…",
 };
 
 const zh: Translations = {
@@ -2465,6 +2811,9 @@ const zh: Translations = {
   voiceFormFilled: "表格已自动填充！",
 
   genSearchingFlights: "正在搜寻最佳机票…",
+  genSearchingTrains: "正在搜寻列车…",
+  genSearchingBuses: "正在搜寻巴士…",
+  genSearchingRoute: "正在计算路线…",
   genComparingHotels: "正在对比酒店住宿…",
   genDesigningPlan: "正在设计您的理想行程…",
 
@@ -2619,6 +2968,41 @@ const zh: Translations = {
   authorLabel: "创建者",
   communityTrip: "社区旅行",
   loadingMore: "加载更多…",
+  addToMyTrips: "添加到我的行程",
+  addingToTrips: "正在添加…",
+  alreadyMyTrip: "这个行程已经是你的了",
+  ownTripBadge: "我的行程",
+  communityBadge: "来自社区",
+  inspiredByCommunity: "受社区启发",
+  inspiredByCommunityDesc: "此行程来自发现标签",
+  cantShareCommunityTrip: "社区行程无法重新分享",
+  payNow: "立即支付",
+  bookedWord: "已预订",
+  allBooked: "全部预订完成 — 旅途愉快！🎉",
+  allBooked2: "全部预订完成",
+  allReady: "一切就绪",
+  flightToCity: (city) => `飞往${city}的航班`,
+  accommodationInCity: (city) => `${city}的住宿`,
+  nightsSuffix: (n) => `${n}晚`,
+  travelerSuffix: (n) => `${n}位旅客`,
+  visibleOnDiscover: "在发现标签中可见",
+  onlyYouCanSee: "只有你能看到这个行程",
+  viewOnMap: "地图上查看",
+  viewMenu: "查看菜单",
+  departsAt: "出发",
+  arrivesAt: "到达",
+  freeUntil: (time) => `空闲至 ${time}`,
+  activityN: (n) => `活动 ${n}`,
+  flightStatusInFlight: "飞行中",
+  flightStatusLanding: "降落中…",
+  flightDurationLabel: "时长",
+  flightEstimatedLabel: "预计飞行",
+  flightDirect: "直飞",
+  flightStopsCount: (n) => `${n} 次中转`,
+  whereStayQuestion: "你住在哪里？",
+  opinionsWord: "评价",
+  transitStatusEnRoute: "途中",
+  transitStatusArriving: "即将到达…",
 };
 
 const hi: Translations = {
@@ -2741,6 +3125,9 @@ const hi: Translations = {
 
   // Generating screen
   genSearchingFlights: "सर्वश्रेष्ठ उड़ानों की खोज की जा रही है…",
+  genSearchingTrains: "ट्रेनों की खोज…",
+  genSearchingBuses: "बसों की खोज…",
+  genSearchingRoute: "मार्ग की गणना…",
   genComparingHotels: "होटलों की तुलना की जा रही है…",
   genDesigningPlan: "आपकी आदर्श योजना तैयार की जा रही है…",
 
@@ -2898,6 +3285,41 @@ const hi: Translations = {
   authorLabel: "द्वारा बनाया गया",
   communityTrip: "सामुदायिक यात्रा",
   loadingMore: "और लोड हो रहा है…",
+  addToMyTrips: "मेरी यात्राओं में जोड़ें",
+  addingToTrips: "जोड़ा जा रहा है…",
+  alreadyMyTrip: "यह यात्रा पहले से आपकी है",
+  ownTripBadge: "मेरी यात्रा",
+  communityBadge: "समुदाय से",
+  inspiredByCommunity: "समुदाय से प्रेरित",
+  inspiredByCommunityDesc: "यह यात्रा डिस्कवर टैब से है",
+  cantShareCommunityTrip: "समुदाय यात्राओं को पुनः साझा नहीं किया जा सकता",
+  payNow: "अभी भुगतान करें",
+  bookedWord: "बुक किया गया",
+  allBooked: "सब बुक हो गया — शुभ यात्रा! 🎉",
+  allBooked2: "सब बुक हो गया",
+  allReady: "सब तैयार है",
+  flightToCity: (city) => `${city} के लिए उड़ान`,
+  accommodationInCity: (city) => `${city} में आवास`,
+  nightsSuffix: (n) => `${n} रात`,
+  travelerSuffix: (n) => `${n} यात्री`,
+  visibleOnDiscover: "डिस्कवर टैब में दिखाई देता है",
+  onlyYouCanSee: "केवल आप इस यात्रा को देख सकते हैं",
+  viewOnMap: "मानचित्र पर देखें",
+  viewMenu: "मेनू देखें",
+  departsAt: "प्रस्थान",
+  arrivesAt: "आगमन",
+  freeUntil: (time) => `${time} तक खाली`,
+  activityN: (n) => `गतिविधि ${n}`,
+  flightStatusInFlight: "उड़ान में",
+  flightStatusLanding: "उतर रहा है…",
+  flightDurationLabel: "अवधि",
+  flightEstimatedLabel: "अनुमानित उड़ान",
+  flightDirect: "सीधी उड़ान",
+  flightStopsCount: (n) => `${n} ${n === 1 ? "स्टॉप" : "स्टॉप्स"}`,
+  whereStayQuestion: "आप कहाँ ठहर रहे हैं?",
+  opinionsWord: "समीक्षाएँ",
+  transitStatusEnRoute: "रास्ते में",
+  transitStatusArriving: "पहुँच रहे हैं…",
 };
 
 const ALL: Record<Locale, Translations> = { ca, es, en, de, fr, it, pt, ar, zh, hi };

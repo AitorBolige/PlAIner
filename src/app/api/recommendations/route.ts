@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const where: any = {
     isPublic: true,
-    userId: { not: session.user.id },
+    days: { some: {} },
   };
 
   if (destination) {
@@ -137,6 +137,7 @@ export async function GET(request: NextRequest) {
     totalCost: t.totalCost,
     status: t.status,
     createdAt: t.createdAt.toISOString(),
+    isOwn: t.userId === session.user?.id,
     author: {
       nickname: t.user.nickname || null,
       nationality: t.user.nationality || null,

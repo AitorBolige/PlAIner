@@ -34,6 +34,7 @@ export default async function TripsPage() {
       totalCost: true,
       status: true,
       isFavorite: true,
+      clonedFromId: true,
     },
   });
 
@@ -45,6 +46,7 @@ export default async function TripsPage() {
     totalCost: t.totalCost,
     status: t.status,
     isFavorite: t.isFavorite,
+    isFromCommunity: !!t.clonedFromId,
   }));
 
   return (

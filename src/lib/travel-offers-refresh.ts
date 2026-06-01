@@ -454,6 +454,152 @@ function collectOffersFromJsonLd(
   return offers;
 }
 
+/** Ground transport (train/bus/car) is not behind a live API — return curated, real-link offers. */
+function buildGroundTransports(
+  query: TravelOfferQuery,
+  mode: "train" | "bus" | "car",
+): TravelOfferInput[] {
+  const city = query.city ?? query.destination;
+  const origin = (query.origin ?? "BCN").toUpperCase().slice(0, 3);
+  const currency = query.currency ?? "EUR";
+  const route = `${origin} → ${city}`;
+  const encodedCity = encodeURIComponent(city);
+
+  if (mode === "train") {
+    return [
+      {
+        type: "transport", provider: "Renfe",
+        title: `${route} · Renfe AVE`,
+        description: "Alta velocitat · Directe",
+        price: 79, currency,
+        bookingUrl: `https://www.renfe.com/es/es/cercanias/buscar-tren?destination=${encodedCity}`,
+        availabilityText: "Directe",
+        metadata: { transportKind: "train" },
+        rank: 0,
+      },
+      {
+        type: "transport", provider: "TGV InOui",
+        title: `${route} · TGV InOui`,
+        description: "Alta velocitat · Directe",
+        price: 95, currency,
+        bookingUrl: `https://www.thetrainline.com/es/buscar-trenes/${encodedCity}`,
+        availabilityText: "Directe",
+        metadata: { transportKind: "train" },
+        rank: 1,
+      },
+      {
+        type: "transport", provider: "Trenitalia",
+        title: `${route} · Trenitalia`,
+        description: "Alta velocitat · 1 transbord",
+        price: 110, currency,
+        bookingUrl: `https://www.trenitalia.com/`,
+        availabilityText: "1 transbord",
+        metadata: { transportKind: "train" },
+        rank: 2,
+      },
+    ];
+  }
+
+  if (mode === "bus") {
+    return [
+      {
+        type: "transport", provider: "FlixBus",
+        title: `${route} · FlixBus`,
+        description: "Directe · Wifi i endolls",
+        price: 39, currency,
+        bookingUrl: `https://www.flixbus.es/buscar?to=${encodedCity}`,
+        availabilityText: "Directe",
+        metadata: { transportKind: "bus" },
+        rank: 0,
+      },
+      {
+        type: "transport", provider: "ALSA",
+        title: `${route} · ALSA`,
+        description: "1 parada intermèdia",
+        price: 34, currency,
+        bookingUrl: `https://www.alsa.com/web/bus/`,
+        availabilityText: "1 parada",
+        metadata: { transportKind: "bus" },
+        rank: 1,
+      },
+      {
+        type: "transport", provider: "BlaBlaCar Bus",
+        title: `${route} · BlaBlaCar Bus`,
+        description: "Directe",
+        price: 29, currency,
+        bookingUrl: `https://www.blablacar.es/bus`,
+        availabilityText: "Directe",
+        metadata: { transportKind: "bus" },
+        rank: 2,
+      },
+    ];
+  }
+
+  // Car: single offer with Google Maps directions to the destination.
+  return [
+    {
+      type: "transport", provider: "Cotxe propi",
+      title: `${route} · Cotxe propi`,
+      description: "Ruta flexible · peatges a part",
+      price: 60, currency,
+      bookingUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodedCity}`,
+      availabilityText: "Flexible",
+      metadata: { transportKind: "car" },
+      rank: 0,
+    },
+  ];
+}
+
+/** Realistic-looking transport fallbacks when the live flight API is unavailable. */
+function buildFallbackTransports(query: TravelOfferQuery): TravelOfferInput[] {
+  const city = query.city ?? query.destination;
+  const origin = (query.origin ?? "BCN").toUpperCase().slice(0, 3);
+  const dest = city.toUpperCase().slice(0, 3).replace(/[^A-Z]/g, "X");
+  const route = `${origin} → ${dest}`;
+  const currency = query.currency ?? "EUR";
+  const budget = query.budgetMax ?? 800;
+  const base = Math.max(49, Math.round(budget * 0.1));
+
+  return [
+    {
+      type: "transport",
+      provider: "Vueling",
+      title: `${route} · Vueling`,
+      description: "Vol directe · Preu estimat",
+      price: base,
+      currency,
+      bookingUrl: `https://www.google.com/travel/flights?q=${encodeURIComponent(`vuelos a ${city}`)}`,
+      availabilityText: "Directe",
+      metadata: { fallback: true, transportKind: "plane" },
+      rank: 0,
+    },
+    {
+      type: "transport",
+      provider: "Ryanair",
+      title: `${route} · Ryanair`,
+      description: "Vol directe · Preu estimat",
+      price: Math.round(base * 0.85),
+      currency,
+      bookingUrl: `https://www.google.com/travel/flights?q=${encodeURIComponent(`vuelos a ${city}`)}`,
+      availabilityText: "Directe",
+      metadata: { fallback: true, transportKind: "plane" },
+      rank: 1,
+    },
+    {
+      type: "transport",
+      provider: "Iberia",
+      title: `${route} · Iberia`,
+      description: "1 escala · Preu estimat",
+      price: Math.round(base * 1.2),
+      currency,
+      bookingUrl: `https://www.google.com/travel/flights?q=${encodeURIComponent(`vuelos a ${city}`)}`,
+      availabilityText: "1 escala",
+      metadata: { fallback: true, transportKind: "plane" },
+      rank: 2,
+    },
+  ];
+}
+
 function buildFallbackOffers(query: TravelOfferQuery): TravelOfferInput[] {
   const city = query.city ?? query.destination;
   const hotelPrice = Math.max(90, Math.round((query.budgetMax ?? 180) * 0.58));
@@ -490,7 +636,7 @@ function buildFallbackOffers(query: TravelOfferQuery): TravelOfferInput[] {
       rating: 4.1,
       reviewCount: 61,
       availabilityText: "Seats available",
-      metadata: { fallback: true },
+      metadata: { fallback: true, transportKind: "plane" },
       rank: 0,
     },
   ];
@@ -527,15 +673,22 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
   const collected: TravelOfferInput[] = [];
   const errors: string[] = [];
 
-  // 1. Hotels via APIDojo Booking-v1 (always attempted when credentials present)
+  // 1 + 2. Hotels and flights run in parallel so a slow/failing flight API
+  //         never delays the hotel results that the UI needs.
   const hasApiDojoHotelCreds = Boolean(
     process.env.RAPIDAPI_HOST?.trim() && process.env.RAPIDAPI_KEY?.trim(),
   );
+  const hasFlightCreds = Boolean(
+    (process.env.RAPIDAPI_FLIGHTS_HOST?.trim() ||
+      process.env.RAPIDAPI_HOST?.trim()) &&
+    (process.env.RAPIDAPI_FLIGHTS_KEY?.trim() ||
+      process.env.RAPIDAPI_KEY?.trim()),
+  );
+
   let hotelHandledViaApi = false;
 
-  if (hasApiDojoHotelCreds) {
-    try {
-      const offers = await searchHotelsApiDojo({
+  const hotelPromise = hasApiDojoHotelCreds
+    ? searchHotelsApiDojo({
         query: normalizedQuery.city || normalizedQuery.destination,
         checkin: normalizedQuery.startDate
           ? normalizedQuery.startDate.toISOString().slice(0, 10)
@@ -546,37 +699,44 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
         adults: normalizedQuery.people ?? 2,
         rooms: 1,
         currency: normalizedQuery.currency,
-        // Don't filter hotels by maxPrice: the user's budget covers the whole trip
-        // (flights + hotels + activities), so applying it to hotels alone cuts most results.
-      });
-      if (offers.length > 0) {
-        collected.push(...offers);
-        hotelHandledViaApi = true;
-      }
-    } catch (error) {
-      errors.push(
-        `Hotels API: ${error instanceof Error ? error.message : String(error)}`,
-      );
-    }
+      })
+    : Promise.resolve([]);
+
+  const mode = normalizedQuery.transportId ?? "plane";
+  const flightPromise =
+    mode === "plane"
+      ? hasFlightCreds
+        ? searchFlightsMetasearchForQuery(normalizedQuery)
+        : Promise.resolve([] as TravelOfferInput[])
+      : Promise.resolve(buildGroundTransports(normalizedQuery, mode));
+
+  const [hotelResult, flightResult] = await Promise.allSettled([
+    hotelPromise,
+    flightPromise,
+  ]);
+
+  if (hotelResult.status === "fulfilled" && hotelResult.value.length > 0) {
+    collected.push(...hotelResult.value);
+    hotelHandledViaApi = true;
+  } else if (hotelResult.status === "rejected") {
+    errors.push(`Hotels API: ${hotelResult.reason instanceof Error ? hotelResult.reason.message : String(hotelResult.reason)}`);
   }
 
-  // 2. Flights via RapidAPI metasearch (always attempted when credentials present)
-  const hasFlightCreds = Boolean(
-    (process.env.RAPIDAPI_FLIGHTS_HOST?.trim() ||
-      process.env.RAPIDAPI_HOST?.trim()) &&
-    (process.env.RAPIDAPI_FLIGHTS_KEY?.trim() ||
-      process.env.RAPIDAPI_KEY?.trim()),
-  );
+  const hasRealFlights =
+    flightResult.status === "fulfilled" && flightResult.value.length > 0;
 
-  if (hasFlightCreds) {
-    try {
-      const flightOffers =
-        await searchFlightsMetasearchForQuery(normalizedQuery);
-      if (flightOffers.length > 0) collected.push(...flightOffers);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : String(error);
-      console.error(`[refreshTravelOffers] Flights error: ${msg}`);
-      errors.push(`Flights API: ${msg}`);
+  if (hasRealFlights) {
+    collected.push(...(flightResult as PromiseFulfilledResult<TravelOfferInput[]>).value);
+  } else {
+    if (flightResult.status === "rejected") {
+      const msg = flightResult.reason instanceof Error ? flightResult.reason.message : String(flightResult.reason);
+      console.error(`[refreshTravelOffers] Transport API error: ${msg}`);
+      errors.push(`Transport API: ${msg}`);
+    }
+    // Plane mode with no live flights → curated fallback so the Picker isn't empty.
+    // Ground modes already populated via buildGroundTransports above.
+    if (mode === "plane") {
+      collected.push(...buildFallbackTransports(normalizedQuery));
     }
   }
 

@@ -21,6 +21,7 @@ const baseQuerySchema = z.object({
   budgetMax: z.coerce.number().int().positive().optional(),
   maxPrice: z.coerce.number().int().positive().optional(),
   currency: z.string().trim().length(3).default("EUR"),
+  transportId: z.enum(["plane", "train", "bus", "car"]).optional(),
 });
 
 export const travelOfferQuerySchema = baseQuerySchema.superRefine(
@@ -109,6 +110,7 @@ export function buildTravelSearchCacheKey(query: TravelOfferQuery) {
     budgetMax: query.budgetMax ?? null,
     maxPrice: query.maxPrice ?? null,
     currency: query.currency.trim().toUpperCase(),
+    transportId: query.transportId ?? "plane",
   });
 }
 
@@ -126,6 +128,7 @@ export function serializeTravelSearchQuery(
     budgetMax: query.budgetMax ?? null,
     maxPrice: query.maxPrice ?? null,
     currency: query.currency.trim().toUpperCase(),
+    transportId: query.transportId ?? "plane",
   };
 }
 

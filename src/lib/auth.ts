@@ -117,7 +117,7 @@ export const authOptions: NextAuthOptions = {
 
         const existing = await prisma.user.findUnique({
           where: { email },
-          select: { id: true, ageGroup: true, nickname: true, image: true },
+          select: { id: true, ageGroup: true, nickname: true, image: true, onboarded: true },
         });
 
         let userId: string;
@@ -129,13 +129,13 @@ export const authOptions: NextAuthOptions = {
           });
           token.onboarded = false;
         } else {
-          // Account already exists in the DB → onboarding does not re-trigger.
+          // Account already exists in the DB → onboarding does not re-trigger if they are actually onboarded.
           userId = existing.id;
           await prisma.user.update({
             where: { id: userId },
             data: { name, image },
           });
-          token.onboarded = true;
+          token.onboarded = existing.onboarded;
           token.nickname = existing.nickname;
           if (existing.image) token.image = existing.image;
         }

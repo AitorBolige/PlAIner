@@ -155,38 +155,46 @@ export async function POST(request: NextRequest) {
       ? sumItineraryActivitiesCost(data.itinerary)
       : (data.activitiesCost ?? 0);
 
-  const trip = await prisma.trip.create({
-    data: {
-      userId: session.user.id,
-      destination: data.destination,
-      country: data.country ?? null,
-      imageUrl: data.imageUrl ?? null,
-      startDate: data.startDate,
-      endDate: data.endDate,
-      people: data.people,
-      travelerAgeGroups: data.travelerAgeGroups ?? [],
-      totalCost: data.totalCost,
-      flightCost: data.flightCost,
-      hotelCost: data.hotelCost,
-      activitiesCost,
-      dailyCost: data.dailyCost,
-      status: data.status,
-      isSurprise: data.isSurprise,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      flightOffer: (data.flightOffer as any) ?? undefined,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      hotelOffer: (data.hotelOffer as any) ?? undefined,
-      isPublic: data.isPublic,
-      searchId,
-      days: data.itinerary
-        ? { create: mapItineraryToDaysCreate(data.itinerary) }
-        : undefined,
-    },
-    include: tripInclude,
-  });
+  try {
+    const trip = await prisma.trip.create({
+      data: {
+        userId: session.user.id,
+        destination: data.destination,
+        country: data.country ?? null,
+        imageUrl: data.imageUrl ?? null,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        people: data.people,
+        travelerAgeGroups: data.travelerAgeGroups ?? [],
+        totalCost: data.totalCost,
+        flightCost: data.flightCost,
+        hotelCost: data.hotelCost,
+        activitiesCost,
+        dailyCost: data.dailyCost,
+        status: data.status,
+        isSurprise: data.isSurprise,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        flightOffer: (data.flightOffer as any) ?? undefined,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        hotelOffer: (data.hotelOffer as any) ?? undefined,
+        isPublic: data.isPublic,
+        searchId,
+        days: data.itinerary
+          ? { create: mapItineraryToDaysCreate(data.itinerary) }
+          : undefined,
+      },
+      include: tripInclude,
+    });
 
-  return NextResponse.json(
-    { ok: true, trip: tripWithItinerary(trip) },
-    { status: 201 },
-  );
+    return NextResponse.json(
+      { ok: true, trip: tripWithItinerary(trip) },
+      { status: 201 },
+    );
+  } catch (err) {
+    console.error("[POST /api/trips] Prisma error:", err instanceof Error ? err.message : err);
+    return NextResponse.json(
+      { ok: false, error: "No s'ha pogut desar el viatge. Torna-ho a intentar." },
+      { status: 500 },
+    );
+  }
 }

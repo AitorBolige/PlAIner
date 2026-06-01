@@ -346,40 +346,107 @@ export function BudgetSheet({ open, onClose }: SheetCommon) {
 
 // --- Origin ----------------------------------------------------------------
 
+const ORIGIN_AIRPORTS = [
+  { code: "BCN", city: "Barcelona", airport: "El Prat", flag: "🇪🇸" },
+  { code: "MAD", city: "Madrid", airport: "Barajas", flag: "🇪🇸" },
+  { code: "VLC", city: "València", airport: "Manises", flag: "🇪🇸" },
+  { code: "PMI", city: "Palma", airport: "Son Sant Joan", flag: "🇪🇸" },
+  { code: "AGP", city: "Màlaga", airport: "Costa del Sol", flag: "🇪🇸" },
+  { code: "ALC", city: "Alacant", airport: "L'Altet", flag: "🇪🇸" },
+  { code: "BIO", city: "Bilbao", airport: "Loiu", flag: "🇪🇸" },
+  { code: "SVQ", city: "Sevilla", airport: "San Pablo", flag: "🇪🇸" },
+  { code: "SCQ", city: "Santiago", airport: "Rosalía de Castro", flag: "🇪🇸" },
+  { code: "TFS", city: "Tenerife", airport: "Tenerife Sur", flag: "🇪🇸" },
+  { code: "LPA", city: "Gran Canària", airport: "Las Palmas", flag: "🇪🇸" },
+  { code: "ZAZ", city: "Saragossa", airport: "Zaragoza", flag: "🇪🇸" },
+  { code: "CDG", city: "París", airport: "Charles de Gaulle", flag: "🇫🇷" },
+  { code: "LHR", city: "Londres", airport: "Heathrow", flag: "🇬🇧" },
+  { code: "AMS", city: "Amsterdam", airport: "Schiphol", flag: "🇳🇱" },
+  { code: "FCO", city: "Roma", airport: "Fiumicino", flag: "🇮🇹" },
+  { code: "MXP", city: "Milà", airport: "Malpensa", flag: "🇮🇹" },
+  { code: "FRA", city: "Frankfurt", airport: "Frankfurt am Main", flag: "🇩🇪" },
+  { code: "LIS", city: "Lisboa", airport: "Humberto Delgado", flag: "🇵🇹" },
+  { code: "ZRH", city: "Zurich", airport: "Kloten", flag: "🇨🇭" },
+];
+
 export function OriginSheet({ open, onClose }: SheetCommon) {
   const { origin, setOrigin } = usePlan();
   const { t } = useLocale();
-  const [v, setV] = React.useState(origin);
+  const [query, setQuery] = React.useState("");
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    if (open) setV(origin);
-  }, [open, origin]);
+    if (open) { setQuery(""); setTimeout(() => inputRef.current?.focus(), 100); }
+  }, [open]);
 
-  const clean = v.trim().toUpperCase().slice(0, 3);
+  const filtered = query.trim().length === 0
+    ? ORIGIN_AIRPORTS
+    : ORIGIN_AIRPORTS.filter((a) =>
+        a.city.toLowerCase().includes(query.toLowerCase()) ||
+        a.code.toLowerCase().includes(query.toLowerCase()) ||
+        a.airport.toLowerCase().includes(query.toLowerCase())
+      );
+
+  const currentAirport = ORIGIN_AIRPORTS.find((a) => a.code === origin);
+
   return (
     <Sheet open={open} onOpenChange={(o) => !o && onClose()} title={t.tripOrigin}>
-      <div className="grid gap-4">
-        <label className="grid gap-1.5">
-          <span className="micro">{t.airportCode}</span>
+      <div className="grid gap-3">
+        {/* Search */}
+        <div className="relative">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--text-faint)]" />
           <input
-            value={v}
-            onChange={(e) => setV(e.target.value.toUpperCase().slice(0, 3))}
-            placeholder={t.airportCodePlaceholder}
-            maxLength={3}
-            className="w-full rounded-[var(--r-md)] border border-border bg-surface px-3 py-2.5 text-sm uppercase tracking-[0.2em] text-text outline-none focus-visible:border-brand"
+            ref={inputRef}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Barcelona, MAD, Lisboa..."
+            className="w-full rounded-[var(--r-xl)] border border-border bg-surface py-2.5 pl-9 pr-3 text-sm text-text outline-none focus-visible:border-[color:var(--green)]"
           />
-        </label>
-        <Button
-          type="button"
-          disabled={clean.length < 3}
-          className="normal-case tracking-normal"
-          onClick={() => {
-            setOrigin(clean);
-            onClose();
-          }}
-        >
-          {t.confirmOrigin}
-        </Button>
+        </div>
+
+        {/* Airport list */}
+        <div className="max-h-[320px] overflow-y-auto rounded-[var(--r-xl)] border border-border bg-surface">
+          {filtered.length === 0 ? (
+            <p className="px-4 py-6 text-center text-sm text-muted">Sense resultats</p>
+          ) : (
+            filtered.map((a, i) => {
+              const active = a.code === origin;
+              return (
+                <button
+                  key={a.code}
+                  type="button"
+                  onClick={() => { setOrigin(a.code); onClose(); }}
+                  className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[color:var(--surface-2)]"
+                  style={{
+                    borderTop: i > 0 ? "1px solid var(--border)" : "none",
+                    background: active ? "var(--green-subtle)" : undefined,
+                  }}
+                >
+                  <span className="text-xl leading-none">{a.flag}</span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-[14px] font-semibold text-text">{a.city}</span>
+                    <span className="block text-[11px] text-muted truncate">{a.airport}</span>
+                  </span>
+                  <span
+                    className="flex-none rounded-md px-2 py-0.5 text-[11px] font-bold tracking-[0.1em]"
+                    style={{
+                      background: active ? "var(--green)" : "var(--surface-2)",
+                      color: active ? "#fff" : "var(--text-faint)",
+                    }}
+                  >
+                    {a.code}
+                  </span>
+                </button>
+              );
+            })
+          )}
+        </div>
+
+        {currentAirport && (
+          <p className="text-center text-xs text-muted">
+            Origen actual: <span className="font-semibold text-text">{currentAirport.flag} {currentAirport.city} ({currentAirport.code})</span>
+          </p>
+        )}
       </div>
     </Sheet>
   );

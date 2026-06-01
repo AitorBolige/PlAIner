@@ -4,6 +4,8 @@ import * as React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import mapboxgl from "mapbox-gl";
 import type { Offer, OfferMetadata } from "@/components/plan/PlanProvider";
+import { useLocale } from "@/lib/i18n-client";
+import type { Locale } from "@/lib/i18n";
 
 // ─── Airport → coords + city name ────────────────────────────────────────────
 const AIRPORTS: Record<string, { coords: [number, number]; city: string }> = {
@@ -127,12 +129,23 @@ export interface TripTransitionOverlayProps {
   hotels: Offer[];
   onHotelSelected: (hotel: Offer) => void;
   onComplete: () => void;
+  initialLocale?: Locale;
+  /** Selected transport mode — drives marker icon and motion model. */
+  transportKind?: "plane" | "train" | "bus" | "car";
 }
 
 export function TripTransitionOverlay({
   flightOffer, originCode, destCity, destCoords,
-  hotels, onHotelSelected, onComplete,
+  hotels, onHotelSelected, onComplete, initialLocale,
+  transportKind = "plane",
 }: TripTransitionOverlayProps) {
+  const { t } = useLocale(initialLocale);
+  const markerEmoji =
+    transportKind === "train" ? "🚆" :
+    transportKind === "bus"   ? "🚌" :
+    transportKind === "car"   ? "🚗" :
+    "✈";
+  const isAir = transportKind === "plane";
   const containerRef = React.useRef<HTMLDivElement>(null);
   const mapRef = React.useRef<mapboxgl.Map | null>(null);
   const planeRef = React.useRef<mapboxgl.Marker | null>(null);
@@ -142,7 +155,7 @@ export function TripTransitionOverlay({
 
   const [phase, setPhase] = React.useState<Phase>("flying");
   const [visible, setVisible] = React.useState(true);
-  const [flightStatus, setFlightStatus] = React.useState("En vol");
+  const [flightStatus, setFlightStatus] = React.useState(t.transitStatusEnRoute);
   const [selectedHotel, setSelectedHotel] = React.useState<Offer | null>(null);
 
   // ── Derive flight parameters: prefer real metadata, fall back to IATA lookup ─
@@ -171,10 +184,8 @@ export function TripTransitionOverlay({
   // Stop info label
   const stopLabel = meta.stops != null
     ? meta.stops === 0
-      ? "Vol directe"
-      : meta.stops === 1
-        ? `1 escala${meta.layoverCodes?.length ? ` · ${meta.layoverCodes.map(c => airportCity(c)).join(", ")}` : ""}`
-        : `${meta.stops} escales${meta.layoverCodes?.length ? ` · ${meta.layoverCodes.map(c => airportCity(c)).join(", ")}` : ""}`
+      ? t.flightDirect
+      : `${t.flightStopsCount(meta.stops)}${meta.layoverCodes?.length ? ` · ${meta.layoverCodes.map(c => airportCity(c)).join(", ")}` : ""}`
     : null;
   const initZoom = distKm > 8000 ? 2.0 : distKm > 5000 ? 2.5 : distKm > 2000 ? 3.2 : distKm > 800 ? 4.0 : 5.0;
   const midLng = lerp(origin[0], dest[0], 0.5);
@@ -231,7 +242,7 @@ export function TripTransitionOverlay({
 
       // Plane
       const planeEl = document.createElement("div");
-      planeEl.innerHTML = `<div id="pl" style="font-size:18px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7)) drop-shadow(0 0 8px rgba(13,158,122,0.5))">✈</div>`;
+      planeEl.innerHTML = `<div id="pl" style="font-size:20px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7)) drop-shadow(0 0 8px rgba(13,158,122,0.5))">${markerEmoji}</div>`;
       planeEl.style.color = "#18160f";
       planeElRef.current = planeEl;
       const planeMkr = new mapboxgl.Marker({ element: planeEl, anchor: "center" }).setLngLat(arc[0]).addTo(map);
@@ -244,6 +255,7 @@ export function TripTransitionOverlay({
 
       // ── Fly animation ──────────────────────────────────────────────────────
       const FLIGHT_MS = 5000;
+      const landingLabel = t.transitStatusArriving;
       let start: number | null = null, lastCam = 0, done = false;
 
       function tick(ts: number) {
@@ -265,7 +277,8 @@ export function TripTransitionOverlay({
         const ni = Math.min(idx + 1, arc.length - 1);
         const angle = toDeg(Math.atan2(arc[ni][1] - arc[idx][1], arc[ni][0] - arc[idx][0])) - 45;
         const plIcon = planeEl.querySelector<HTMLElement>("#pl");
-        if (plIcon) plIcon.style.transform = `rotate(${angle}deg)`;
+        // Planes bank along the heading; ground vehicles stay upright.
+        if (plIcon) plIcon.style.transform = isAir ? `rotate(${angle}deg)` : "rotate(0deg)";
 
         if (ts - lastCam > 200) {
           lastCam = ts;
@@ -273,8 +286,9 @@ export function TripTransitionOverlay({
           map.easeTo({
             center: [lerp(lng, arc[la][0], 0.4), lerp(lat, arc[la][1], 0.4)],
             zoom: lerp(initZoom, initZoom + 1.5, te),
-            pitch: lerp(25, 45, te),
-            bearing: angle + 45,
+            // Ground modes: flatter camera, no aerial bank.
+            pitch: isAir ? lerp(25, 45, te) : lerp(0, 10, te),
+            bearing: isAir ? angle + 45 : 0,
             duration: 250, easing: x => x,
           });
         }
@@ -284,7 +298,7 @@ export function TripTransitionOverlay({
         // Landed → vertical drop onto city
         done = true;
         mkD.style.opacity = "1";
-        setFlightStatus("Aterrant…");
+        setFlightStatus(landingLabel);
         planeMkr.setLngLat(dest);
         planeEl.style.opacity = "0";
 
@@ -395,7 +409,7 @@ export function TripTransitionOverlay({
                   <div style={{ position: "absolute", inset: "0 0 auto 0", display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 58, gap: 6 }}>
                     <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em", color: "#18160f" }}>{resolvedOriginCity}</span>
-                      <motion.span animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.8 }} style={{ color: "#0D9E7A", fontSize: 18 }}>✈</motion.span>
+                      <motion.span animate={{ x: [0, 5, 0] }} transition={{ repeat: Infinity, duration: 1.8 }} style={{ color: "#0D9E7A", fontSize: 18 }}>{markerEmoji}</motion.span>
                       <span style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 22, letterSpacing: "-0.02em", color: "#18160f" }}>{destCity}</span>
                     </motion.div>
                     <motion.div initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ delay: 0.45, duration: 0.35 }} style={{ height: 2, width: 36, borderRadius: 2, background: "#0D9E7A" }} />
@@ -403,13 +417,15 @@ export function TripTransitionOverlay({
 
                   {/* Bottom: time + status */}
                   <div style={{ position: "absolute", inset: "auto 0 0 0", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, paddingBottom: 52 }}>
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
-                      style={{ display: "flex", alignItems: "center", gap: 7, background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 999, padding: "9px 20px", boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}>
-                      <span style={{ fontSize: 15 }}>🕐</span>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: "#0D9E7A" }}>{flightTime}</span>
-                      <span style={{ fontSize: 12, color: "#7a7570", fontWeight: 500 }}>{meta.durationMinutes ? "durada" : "vol estimat"}</span>
-                    </motion.div>
-                    {stopLabel && (
+                    {isAir && (
+                      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}
+                        style={{ display: "flex", alignItems: "center", gap: 7, background: "#fff", border: "1px solid rgba(0,0,0,0.08)", borderRadius: 999, padding: "9px 20px", boxShadow: "0 4px 16px rgba(0,0,0,0.08)" }}>
+                        <span style={{ fontSize: 15 }}>🕐</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: "#0D9E7A" }}>{flightTime}</span>
+                        <span style={{ fontSize: 12, color: "#7a7570", fontWeight: 500 }}>{meta.durationMinutes ? t.flightDurationLabel : t.flightEstimatedLabel}</span>
+                      </motion.div>
+                    )}
+                    {isAir && stopLabel && (
                       <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.9 }}
                         style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.75)", border: "1px solid rgba(0,0,0,0.06)", borderRadius: 999, padding: "5px 14px", backdropFilter: "blur(8px)" }}>
                         <span style={{ fontSize: 11, fontWeight: 600, color: "#7a7570" }}>{stopLabel}</span>
@@ -443,11 +459,11 @@ export function TripTransitionOverlay({
                     </motion.p>
                     <motion.p initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}
                       style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 800, letterSpacing: "-0.02em", color: "#18160f", marginTop: 2 }}>
-                      On t&apos;allotges?
+                      {t.whereStayQuestion}
                     </motion.p>
                   </div>
 
-                  {/* Hotel cards list — scrollable bottom sheet */}
+                  {/* Hotel cards — horizontal swipeable carousel (max 3) */}
                   {phase === "hotel-select" && (
                     <motion.div
                       initial={{ y: "100%" }}
@@ -455,21 +471,27 @@ export function TripTransitionOverlay({
                       transition={{ type: "spring", stiffness: 280, damping: 30, delay: 0.1 }}
                       style={{
                         position: "absolute", inset: "auto 0 0 0",
-                        background: "linear-gradient(to bottom, transparent 0%, #f4f1ec 12%)",
-                        paddingTop: 24,
+                        background: "linear-gradient(to bottom, transparent 0%, #f4f1ec 14%)",
+                        paddingTop: 24, paddingBottom: 36,
                       }}
                     >
-                      <div style={{ maxHeight: "62dvh", overflowY: "auto", padding: "0 16px 32px" }}>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                          {hotels.map((hotel) => (
-                            <HotelCard
-                              key={hotel.id}
-                              hotel={hotel}
-                              onSelect={() => handleHotelSelect(hotel)}
-                              disabled={phase !== "hotel-select"}
-                            />
-                          ))}
-                        </div>
+                      <div
+                        style={{
+                          display: "flex", flexDirection: "row", gap: 12,
+                          overflowX: "auto", padding: "4px 16px 8px",
+                          scrollSnapType: "x mandatory",
+                          WebkitOverflowScrolling: "touch",
+                          scrollbarWidth: "none",
+                        }}
+                      >
+                        {hotels.map((hotel) => (
+                          <HotelCard
+                            key={hotel.id}
+                            hotel={hotel}
+                            onSelect={() => handleHotelSelect(hotel)}
+                            disabled={phase !== "hotel-select"}
+                          />
+                        ))}
                       </div>
                     </motion.div>
                   )}
@@ -519,31 +541,39 @@ function HotelCard({ hotel, onSelect, disabled }: { hotel: Offer; onSelect: () =
     <motion.button
       type="button"
       onClick={disabled ? undefined : onSelect}
-      whileTap={disabled ? undefined : { scale: 0.98 }}
+      whileTap={disabled ? undefined : { scale: 0.97 }}
       style={{
-        width: "100%", textAlign: "left", background: "#fff",
-        border: "1px solid rgba(0,0,0,0.07)", borderRadius: 18,
-        padding: "12px 14px", cursor: disabled ? "default" : "pointer",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
-        display: "flex", alignItems: "center", gap: 12,
+        flexShrink: 0,
+        width: "calc(85vw - 32px)",
+        maxWidth: 320,
+        scrollSnapAlign: "center",
+        textAlign: "left", background: "#fff",
+        border: "1px solid rgba(0,0,0,0.07)", borderRadius: 20,
+        padding: 0, cursor: disabled ? "default" : "pointer",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.09)",
+        overflow: "hidden",
       }}
     >
       {hotel.imageUrl ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={hotel.imageUrl} alt="" style={{ width: 52, height: 52, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
+        <img src={hotel.imageUrl} alt="" style={{ width: "100%", height: 130, objectFit: "cover", display: "block" }} />
       ) : (
-        <div style={{ width: 52, height: 52, borderRadius: 10, background: "rgba(13,158,122,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>🏨</div>
+        <div style={{ width: "100%", height: 130, background: "rgba(13,158,122,0.08)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 36 }}>🏨</div>
       )}
-      <div style={{ minWidth: 0, flex: 1 }}>
-        {hotel.provider && <p style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.1em", color: "#7a7570", margin: 0 }}>{hotel.provider}</p>}
-        <p style={{ fontSize: 13, fontWeight: 700, color: "#18160f", margin: "1px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{hotel.title}</p>
-        {hotel.rating != null && (
-          <p style={{ fontSize: 11, color: "#7a7570", margin: "2px 0 0" }}>★ {hotel.rating.toFixed(1)}{hotel.reviewCount ? ` · ${hotel.reviewCount.toLocaleString()}` : ""}</p>
-        )}
-      </div>
-      <div style={{ flexShrink: 0, textAlign: "right" }}>
-        <p style={{ fontSize: 15, fontWeight: 800, color: "#0D9E7A", margin: 0 }}>€{Math.round(hotel.price)}</p>
-        {hotel.availabilityText && <p style={{ fontSize: 10, color: "#7a7570", margin: "1px 0 0" }}>{hotel.availabilityText}</p>}
+      <div style={{ padding: "10px 14px 14px", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
+        <div style={{ minWidth: 0, flex: 1 }}>
+          <p style={{ fontSize: 13, fontWeight: 700, color: "#18160f", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{hotel.title}</p>
+          {hotel.rating != null && (
+            <p style={{ fontSize: 11, color: "#7a7570", margin: "3px 0 0" }}>★ {hotel.rating.toFixed(1)}{hotel.reviewCount ? ` · ${hotel.reviewCount.toLocaleString()}` : ""}</p>
+          )}
+          {hotel.description && (
+            <p style={{ fontSize: 11, color: "#7a7570", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{hotel.description}</p>
+          )}
+        </div>
+        <div style={{ flexShrink: 0, textAlign: "right" }}>
+          <p style={{ fontSize: 16, fontWeight: 800, color: "#0D9E7A", margin: 0 }}>€{Math.round(hotel.price)}</p>
+          {hotel.availabilityText && <p style={{ fontSize: 10, color: "#7a7570", margin: "1px 0 0" }}>{hotel.availabilityText}</p>}
+        </div>
       </div>
     </motion.button>
   );

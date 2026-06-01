@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Calendar, ChevronRight, Heart, MapPin, Plus } from "lucide-react";
+import { Calendar, ChevronRight, Heart, MapPin, Plus, Sparkles } from "lucide-react";
 
 import { getDestinationImage, BLUR_DATA_URL } from "@/lib/destinations";
 
@@ -18,6 +18,7 @@ type TripLite = {
   totalCost: number;
   status: string;
   isFavorite: boolean;
+  isFromCommunity?: boolean;
 };
 
 type TabFilter = "all" | "upcoming" | "past" | "favorites";
@@ -379,6 +380,18 @@ export function HistoryClient({ trips, initialLocale }: { trips: TripLite[]; ini
               color={isFav ? "#E85D3A" : "#888"}
             />
           </button>
+          {trip.isFromCommunity && (
+            <div style={{
+              position: "absolute", bottom: "42px", left: "12px",
+              display: "flex", alignItems: "center", gap: "4px",
+              background: "rgba(13,158,122,0.85)", backdropFilter: "blur(8px)",
+              color: "#fff", fontSize: "10px", fontWeight: 700,
+              padding: "3px 8px", borderRadius: "var(--r-pill)",
+              letterSpacing: "0.04em", textTransform: "uppercase",
+            }}>
+              <Sparkles size={10} /> {t.communityBadge}
+            </div>
+          )}
           <div style={{ position: "absolute", bottom: "12px", left: "14px" }}>
             <h3
               style={{

@@ -211,6 +211,9 @@ export default async function TripDetailPage({
           destination={localizedCity}
           people={trip.people}
           nights={nights}
+          isPublic={trip.isPublic}
+          isFromCommunity={!!trip.clonedFromId}
+          initialLocale={locale}
         />
 
         {days.length > 0 ? (
@@ -218,7 +221,7 @@ export default async function TripDetailPage({
             <h2 className="display mb-3 px-1 text-xl font-extrabold tracking-[-0.02em] text-text">
               {t.itineraryWord}
             </h2>
-            <TripItineraryView days={days} destination={localizedCity} />
+            <TripItineraryView days={days} destination={localizedCity} initialLocale={locale} />
           </section>
         ) : (
           <section className="mt-6 rounded-[var(--r-lg)] border border-border bg-surface p-6 text-center">
