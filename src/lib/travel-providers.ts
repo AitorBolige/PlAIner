@@ -34,6 +34,8 @@ export type ApiDojoHotelParams = {
   rooms?: number;
   currency?: string;
   maxPrice?: number;
+  /** Number of nights in the stay; used to normalize the total stay price to a per-night price. */
+  nights?: number;
 };
 
 type FlightRouteContext = {
@@ -215,16 +217,27 @@ export async function searchHotelsApiDojo(
 
   console.log(`[searchHotelsApiDojo] Found ${list.length} properties`);
 
+  const nights = Math.max(1, Math.round(params.nights ?? 1));
   const offers = list
-    .map((item, idx) => mapApiDojoHotelOffer(item, idx, fallbackCurrency))
-    .filter((o): o is TravelOfferInput => o !== null);
+    .map((item, idx) => mapApiDojoHotelOffer(item, idx, fallbackCurrency, nights))
+    .filter((o): o is TravelOfferInput => o !== null)
+    .sort((a, b) => a.price - b.price);
 
   if (
     typeof params.maxPrice === "number" &&
     Number.isFinite(params.maxPrice) &&
     params.maxPrice > 0
   ) {
-    return offers.filter((o) => o.price <= (params.maxPrice as number));
+    const withinCap = offers.filter(
+      (o) => o.price <= (params.maxPrice as number),
+    );
+    // Best-effort: never hand back an empty list just because the budget is
+    // tight — show the cheapest options instead so the Picker isn't blank.
+    if (withinCap.length > 0) return withinCap;
+    console.warn(
+      `[searchHotelsApiDojo] No hotels within per-night cap ${params.maxPrice}; returning cheapest ${Math.min(10, offers.length)}.`,
+    );
+    return offers.slice(0, 10);
   }
   return offers;
 }
@@ -233,6 +246,7 @@ function mapApiDojoHotelOffer(
   item: Record<string, unknown>,
   index: number,
   fallbackCurrency: string,
+  nights = 1,
 ): TravelOfferInput | null {
   const title =
     pickFirstString([
@@ -356,8 +370,13 @@ function mapApiDojoHotelOffer(
         : undefined,
     ]) ?? undefined;
 
+  // APIDojo's `min_total_price` is the TOTAL for the whole stay. The rest of the
+  // app treats `hotel.price` as per-night (UI shows "/night", computeCostBreakdown
+  // multiplies by nights), so normalize here to avoid double-counting nights.
+  const perNightPrice = price / Math.max(1, nights);
+
   const rawCurrency = String(currency).toUpperCase().slice(0, 3);
-  const priceEur = toEur(price, rawCurrency);
+  const priceEur = toEur(perNightPrice, rawCurrency);
   const displayCurrency = normalizeCurrency(fallbackCurrency);
   const displayPrice = fromEur(priceEur, displayCurrency);
 
@@ -1365,7 +1384,15 @@ function mapRapidApiFlightOffer(
     rating: undefined,
     reviewCount: undefined,
     availabilityText,
-    metadata: offer,
+    metadata: {
+      ...offer,
+      stops: stopsTotal,
+      durationMinutes:
+        (outbound?.durationMinutes ?? 0) + (inbound?.durationMinutes ?? 0) ||
+        undefined,
+      originCode: route.originIata,
+      destCode: route.destinationIata,
+    },
     rank: index,
   };
 }
@@ -1414,56 +1441,55 @@ export async function searchFlightsMetasearch(
     accept: "application/json",
   };
 
-  // flights-sky returns a transient error envelope (`data.status === false`,
-  // no `itineraries`) when requests arrive too fast — the free RapidAPI tier
-  // rate-limits the autocomplete + search burst. Retry with backoff.
-  const MAX_SEARCH_ATTEMPTS = 4;
+  // flights-sky frequently returns an error envelope (`data.status === false`,
+  // no `itineraries`) — either the free tier rate-limits the autocomplete+search
+  // burst, or its upstream Skyscanner scraper is momentarily down (502). Both are
+  // intermittent, so we retry within a time budget to catch a good response when
+  // it flickers back, then give up gracefully (caller falls back to estimates).
+  const searchStart = Date.now();
+  const SEARCH_RETRY_BUDGET_MS = 16_000;
+  const SEARCH_RETRY_GAP_MS = 2_000;
   let payload: unknown = null;
-  for (let attempt = 1; attempt <= MAX_SEARCH_ATTEMPTS; attempt++) {
-    const response = await serverFetch(url, { headers: flightHeaders }, 25_000);
+  let attempt = 0;
+  while (Date.now() - searchStart < SEARCH_RETRY_BUDGET_MS) {
+    attempt++;
+    const response = await serverFetch(
+      url,
+      { headers: flightHeaders },
+      12_000,
+    ).catch(() => null);
     console.log(
-      `[searchFlightsMetasearch] Response status: ${response.status} (attempt ${attempt}/${MAX_SEARCH_ATTEMPTS})`,
+      `[searchFlightsMetasearch] Response status: ${response?.status ?? "fetch-failed"} (attempt ${attempt})`,
     );
 
-    if (response.status === 429) {
-      console.warn(`[searchFlightsMetasearch] Rate limited (429), backing off`);
-      if (attempt < MAX_SEARCH_ATTEMPTS) {
-        await new Promise((r) => setTimeout(r, 2500 * attempt));
-        continue;
-      }
-      throw new Error("RapidAPI flight search rate limited (429)");
-    }
+    if (response?.ok) {
+      payload = await response.json().catch(() => null);
+      logFlightResponseDebug(payload, `after-parse (attempt ${attempt})`);
 
-    if (!response.ok) {
-      const text = await response.text().catch(() => "");
-      console.error(`[searchFlightsMetasearch] Error response: ${text}`);
-      throw new Error(
-        `RapidAPI flight search responded ${response.status}: ${text}`,
+      // A usable response exposes `data.itineraries`; the error/rate-limit
+      // envelope only has `data.status`/`data.errors` and no `itineraries`.
+      const dataObj =
+        payload && typeof payload === "object"
+          ? ((payload as Record<string, unknown>).data as
+              | Record<string, unknown>
+              | null
+              | undefined)
+          : null;
+      const hasItineraries = Boolean(
+        dataObj && typeof dataObj === "object" && "itineraries" in dataObj,
       );
+      if (hasItineraries) break;
     }
 
-    payload = await response.json().catch(() => null);
-    logFlightResponseDebug(payload, `after-parse (attempt ${attempt})`);
-
-    // A usable response exposes `data.itineraries`. The transient rate-limit
-    // envelope only has `data.status`/`data.errors` and no `itineraries`.
-    const dataObj =
-      payload && typeof payload === "object"
-        ? ((payload as Record<string, unknown>).data as
-            | Record<string, unknown>
-            | null
-            | undefined)
-        : null;
-    const hasItineraries = Boolean(
-      dataObj && typeof dataObj === "object" && "itineraries" in dataObj,
-    );
-    if (hasItineraries) break;
-
+    // Not usable yet (429, transient 5xx, fetch error, or error envelope) —
+    // wait briefly and retry until the budget is spent.
     console.warn(
-      `[searchFlightsMetasearch] No itineraries in response (likely rate limit), retrying...`,
+      `[searchFlightsMetasearch] No itineraries yet (attempt ${attempt}), retrying...`,
     );
-    if (attempt < MAX_SEARCH_ATTEMPTS) {
-      await new Promise((r) => setTimeout(r, 2500 * attempt));
+    if (Date.now() - searchStart + SEARCH_RETRY_GAP_MS < SEARCH_RETRY_BUDGET_MS) {
+      await new Promise((r) => setTimeout(r, SEARCH_RETRY_GAP_MS));
+    } else {
+      break;
     }
   }
 
@@ -1510,11 +1536,12 @@ export async function searchFlightsMetasearch(
     `[searchFlightsMetasearch] Initial status: ${initialStatus}, sessionId: ${sessionId}, offers: ${initialOffers.length}`,
   );
 
-  // The initial response usually already contains itineraries in
-  // `data.itineraries.buckets[]`; only poll when it came back empty.
-  if (initialOffers.length === 0 && initialStatus === "incomplete" && sessionId) {
-    // The flights-sky API uses a polling pattern: re-call the same search endpoint
-    // adding sessionId as a query param to retrieve progressive results.
+  // flights-sky streams results progressively: while `status === "incomplete"`
+  // each poll returns a (usually larger) set of itineraries. In practice the API
+  // often never flips to "complete", so we poll only until the result set stops
+  // growing (stabilizes) or a short time budget elapses — never burning the full
+  // request timeout, which previously made the whole refresh abort at ~35s.
+  if (initialStatus === "incomplete" && sessionId) {
     const { path } = getRapidApiFlightConfig();
     const curr = (params.currency || "EUR").toUpperCase();
 
@@ -1528,27 +1555,51 @@ export async function searchFlightsMetasearch(
       `https://${host}/web/flights/poll?sessionId=${encodeURIComponent(sessionId)}&currency=${curr}`,
     ];
 
-    const MAX_POLLS = 5;
+    const MAX_POLLS = 18;
     const POLL_DELAY_MS = 2000;
+    // Use whatever's left of an overall ~42s budget (search + polling) so the
+    // total request stays under the ~45s client cap.
+    const OVERALL_BUDGET_MS = 42_000;
+    const startedAt = Date.now();
+    const TIME_BUDGET_MS = Math.max(
+      4_000,
+      OVERALL_BUDGET_MS - (startedAt - searchStart),
+    );
     let activePollUrl: string | null = null;
 
+    // Track the payload that yielded the most offers so a later, emptier poll
+    // (the API sometimes returns transient `status:false` envelopes) can't
+    // shrink our result set.
+    let bestPayload: unknown = payload;
+    let bestCount = initialOffers.length;
+    let stableCount = 0; // consecutive polls where the count didn't grow
+    const remember = (p: unknown, count: number) => {
+      if (count > bestCount) {
+        bestCount = count;
+        bestPayload = p;
+        stableCount = 0;
+      } else if (count > 0) {
+        stableCount += 1;
+      }
+    };
+
+    const headers = {
+      "X-RapidAPI-Key": key,
+      "X-RapidAPI-Host": host,
+      accept: "application/json",
+    };
+
     for (let attempt = 1; attempt <= MAX_POLLS; attempt++) {
+      if (Date.now() - startedAt > TIME_BUDGET_MS) break;
       await new Promise((res) => setTimeout(res, POLL_DELAY_MS));
 
-      // On first attempt, discover which poll URL works
+      // On first attempt, discover which poll URL works.
       if (attempt === 1) {
         for (const candidate of pollUrls) {
-          console.log(
-            `[searchFlightsMetasearch] Trying poll URL: ${candidate}`,
+          const probe = await serverFetch(candidate, { headers }, 7_000).catch(
+            () => null,
           );
-          const probe = await serverFetch(candidate, {
-            headers: {
-              "X-RapidAPI-Key": key,
-              "X-RapidAPI-Host": host,
-              accept: "application/json",
-            },
-          }, 8_000);
-          if (probe.ok) {
+          if (probe?.ok) {
             activePollUrl = candidate;
             const probePayload = await probe.json().catch(() => null);
             const probeStatus = getStatus(probePayload);
@@ -1556,43 +1607,23 @@ export async function searchFlightsMetasearch(
             console.log(
               `[searchFlightsMetasearch] Poll URL works, status: ${probeStatus}, offers: ${probeOffers.length}`,
             );
-            payload = probePayload;
-            if (
-              probeOffers.length > 0 ||
-              probeStatus === "complete" ||
-              probeStatus === "error"
-            ) {
+            remember(probePayload, probeOffers.length);
+            if (probeStatus === "complete" || probeStatus === "error") {
               activePollUrl = null;
             }
             break;
           }
-          console.warn(
-            `[searchFlightsMetasearch] Poll URL returned ${probe.status}: ${candidate}`,
-          );
         }
-        if (!activePollUrl) break; // already got results or no URL works
+        if (!activePollUrl) break; // search finished or no URL works
         continue;
       }
 
       if (!activePollUrl) break;
 
-      console.log(
-        `[searchFlightsMetasearch] Polling attempt ${attempt}/${MAX_POLLS}`,
-      );
       const pollResponse = await serverFetch(activePollUrl, {
-        headers: {
-          "X-RapidAPI-Key": key,
-          "X-RapidAPI-Host": host,
-          accept: "application/json",
-        },
-      }, 8_000);
-
-      if (!pollResponse.ok) {
-        console.warn(
-          `[searchFlightsMetasearch] Poll ${attempt} returned ${pollResponse.status}, stopping`,
-        );
-        break;
-      }
+        headers,
+      }, 7_000).catch(() => null);
+      if (!pollResponse?.ok) break;
 
       const pollPayload = await pollResponse.json().catch(() => null);
       const pollOffers = extractRapidApiFlightOffers(pollPayload);
@@ -1601,14 +1632,14 @@ export async function searchFlightsMetasearch(
         `[searchFlightsMetasearch] Poll ${attempt} status: ${pollStatus}, offers: ${pollOffers.length}`,
       );
 
-      payload = pollPayload;
-      if (
-        pollOffers.length > 0 ||
-        pollStatus === "complete" ||
-        pollStatus === "error"
-      )
-        break;
+      remember(pollPayload, pollOffers.length);
+      // Stop when finished, errored, or the result set has stabilized (no growth
+      // over two consecutive polls) — otherwise keep gathering until the budget.
+      if (pollStatus === "complete" || pollStatus === "error") break;
+      if (bestCount > 0 && stableCount >= 2) break;
     }
+
+    payload = bestPayload;
   }
 
   logFlightResponseDebug(payload, "pre-extract");
@@ -1624,20 +1655,33 @@ export async function searchFlightsMetasearch(
 
   console.log(`[searchFlightsMetasearch] Final offers found: ${list.length}`);
 
-  return (Array.isArray(list) ? list : [])
-    .map((offer: unknown, idx: number) => {
-      if (!offer || typeof offer !== "object") return null;
-      return mapRapidApiFlightOffer(
-        offer as Record<string, unknown>,
-        route,
-        idx,
-        maxPrice,
-        currency,
-        params.departureDate,
-        params.returnDate,
-      );
-    })
-    .filter((offer): offer is TravelOfferInput => Boolean(offer));
+  const rawList = Array.isArray(list) ? list : [];
+  const mapAll = (cap?: number) =>
+    rawList
+      .map((offer: unknown, idx: number) => {
+        if (!offer || typeof offer !== "object") return null;
+        return mapRapidApiFlightOffer(
+          offer as Record<string, unknown>,
+          route,
+          idx,
+          cap,
+          currency,
+          params.departureDate,
+          params.returnDate,
+        );
+      })
+      .filter((offer): offer is TravelOfferInput => Boolean(offer))
+      .sort((a, b) => a.price - b.price);
+
+  const withinCap = mapAll(maxPrice);
+  if (withinCap.length > 0 || !maxPrice) return withinCap;
+
+  // Best-effort: budget too tight for any flight → show the cheapest available
+  // instead of an empty transport step.
+  console.warn(
+    `[searchFlightsMetasearch] No flights within per-person cap ${maxPrice}; returning cheapest available.`,
+  );
+  return mapAll(undefined).slice(0, 10);
 }
 
 export async function searchFlightsMetasearchForQuery(

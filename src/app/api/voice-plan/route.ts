@@ -7,7 +7,10 @@ import { rateLimit } from "@/lib/rate-limit";
 
 const RATE_LIMIT = 8;
 const RATE_WINDOW_MS = 60_000;
-const GEMINI_MODEL = "gemini-2.5-flash";
+// Try the model that works on the configured key/project first, then fall back
+// if it hits its daily quota. (gemini-2.5-flash is the one available on the
+// current key; gemini-2.0-flash is kept as a secondary.)
+const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"];
 const MAX_TRANSCRIPT = 500;
 const MAX_AUDIO_B64 = 8_000_000; // ~6MB of audio once decoded
 const LOG_PREFIX = "[api/voice-plan]";
@@ -16,9 +19,17 @@ const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
+/** A hard daily/free-tier quota error won't clear on retry — switch models instead. */
+function isQuotaError(err: unknown): boolean {
+  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  return msg.includes("quota") || msg.includes("exceeded your current");
+}
+
 function isOverloaded(err: unknown): boolean {
   const status = (err as { status?: number })?.status;
   const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  // Quota exhaustion is not transient — don't waste retries on it.
+  if (isQuotaError(err)) return false;
   return (
     status === 503 ||
     status === 429 ||
@@ -176,7 +187,7 @@ export async function POST(req: NextRequest) {
     "The user speaks naturally in Spanish, Catalan or English.",
     `Today's date is ${today}. Resolve relative dates ("next weekend", "en junio", "this summer") to concrete calendar dates relative to today.`,
     "Return ONLY a JSON object with these exact keys:",
-    `- destination: city name (string) or null. Write it in ${langName}.`,
+    `- destination: city name (string) or null. Write it in ${langName}. Transcribe the city carefully — it is the most important field. Featured destinations the user often means (bias toward these when the audio is close/ambiguous, but never force one that clearly doesn't match): Lisboa, Roma, Tòquio/Tokyo, Marràqueix/Marrakech, París, Bali, Nova York/New York, Santorini, Barcelona, Istanbul, Copenhaguen, Atenes, Reykjavík, Dubai, Miami.`,
     `- country: country name (string) or null. Write it in ${langName}.`,
     "- startDate: ISO date YYYY-MM-DD or null",
     "- endDate: ISO date YYYY-MM-DD or null",
@@ -191,11 +202,6 @@ export async function POST(req: NextRequest) {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: GEMINI_MODEL,
-      systemInstruction,
-      generationConfig: { responseMimeType: "application/json" },
-    });
 
     // Audio path: send the recorded clip to Gemini (multimodal) so it both
     // transcribes and extracts the plan — this avoids the browser speech
@@ -211,7 +217,33 @@ export async function POST(req: NextRequest) {
         ]
       : transcript;
 
-    const result = await withRetry(() => model.generateContent(request));
+    // Try each model in order; if one is out of daily quota, fall back to the
+    // next instead of failing the whole request.
+    const generate = async () => {
+      let lastErr: unknown;
+      for (let i = 0; i < GEMINI_MODELS.length; i++) {
+        const modelName = GEMINI_MODELS[i];
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          systemInstruction,
+          generationConfig: { responseMimeType: "application/json" },
+        });
+        try {
+          return await withRetry(() => model.generateContent(request));
+        } catch (err) {
+          lastErr = err;
+          const hasNext = i < GEMINI_MODELS.length - 1;
+          console.warn(
+            `${LOG_PREFIX} model ${modelName} failed${isQuotaError(err) ? " (quota)" : ""}${hasNext ? ", trying next model" : ""}`,
+          );
+          if (hasNext) continue;
+          throw err;
+        }
+      }
+      throw lastErr;
+    };
+
+    const result = await generate();
     const text = result.response.text();
 
     let parsed: unknown;
@@ -236,7 +268,11 @@ export async function POST(req: NextRequest) {
       message.includes("rate");
     console.error(LOG_PREFIX, "Gemini call failed", err);
     return NextResponse.json(
-      { error: "Failed to interpret your request. Please try again." },
+      {
+        error: isQuotaError(err)
+          ? "AI_QUOTA_EXCEEDED"
+          : "Failed to interpret your request. Please try again.",
+      },
       { status: isRateLimit ? 429 : 503 },
     );
   }

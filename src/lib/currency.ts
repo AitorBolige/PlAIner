@@ -24,7 +24,59 @@ export const EUR_RATES: Record<string, number> = {
   ISK: 1 / 150,
   CNY: 1 / 7.8,
   INR: 1 / 90,
+  // Popular travel-destination currencies (hotels are priced locally).
+  IDR: 1 / 17500,
+  THB: 1 / 39,
+  VND: 1 / 27000,
+  MYR: 1 / 5.0,
+  PHP: 1 / 63,
+  KRW: 1 / 1450,
+  HKD: 1 / 8.5,
+  TWD: 1 / 35,
+  ZAR: 1 / 20,
+  AED: 1 / 4.0,
+  SAR: 1 / 4.05,
+  QAR: 1 / 4.0,
+  EGP: 1 / 53,
+  MAD: 1 / 10.8,
+  NZD: 0.57,
+  ILS: 1 / 4.0,
+  COP: 1 / 4400,
+  ARS: 1 / 1050,
+  CLP: 1 / 1050,
+  PEN: 1 / 4.1,
 };
+
+/**
+ * Map an ISO 3166-1 country code to a sensible display currency. Countries whose
+ * local currency we don't have an FX rate for fall back to USD (or EUR for
+ * EUR-pegged zones). Defaults to EUR.
+ */
+const COUNTRY_CURRENCY: Record<string, string> = {
+  // Eurozone & EUR-pegged (incl. CFA franc, escudo)
+  AD: "EUR", ES: "EUR", DE: "EUR", AT: "EUR", FR: "EUR", BE: "EUR", IT: "EUR",
+  SM: "EUR", VA: "EUR", PT: "EUR", LU: "EUR", IE: "EUR", MC: "EUR", GQ: "EUR",
+  SN: "EUR", CI: "EUR", CD: "EUR", CM: "EUR", MG: "EUR", CV: "EUR", DZ: "EUR",
+  TN: "EUR", AO: "EUR", MZ: "EUR",
+  GB: "GBP",
+  CH: "CHF", LI: "CHF",
+  CA: "CAD", AU: "AUD", NZ: "NZD", ZA: "ZAR", SG: "SGD", PH: "PHP",
+  MX: "MXN", AR: "ARS", CO: "COP", CL: "CLP", PE: "PEN", BR: "BRL",
+  SA: "SAR", EG: "EGP", MA: "MAD", AE: "AED", QA: "QAR",
+  CN: "CNY", TW: "TWD", HK: "HKD", MO: "HKD", IN: "INR", NP: "INR",
+  PS: "ILS",
+  // Dollar-using / unsupported-local → USD
+  US: "USD", VE: "USD", EC: "USD", GT: "USD", CU: "USD", BO: "USD", DO: "USD",
+  HN: "USD", PY: "USD", SV: "USD", NI: "USD", CR: "USD", PA: "USD", UY: "USD",
+  JM: "USD", TT: "USD", GH: "USD", NG: "USD", KE: "USD", HT: "USD", IQ: "USD",
+  JO: "USD", LB: "USD", KW: "USD", BH: "USD", OM: "USD", SY: "USD", LY: "USD",
+  SD: "USD", YE: "USD", FJ: "USD",
+};
+
+export function currencyForCountry(code: string | undefined | null): string {
+  const c = String(code || "").toUpperCase().trim().slice(0, 2);
+  return COUNTRY_CURRENCY[c] ?? DEFAULT_CURRENCY;
+}
 
 export function normalizeCurrency(code: string | undefined | null): string {
   const c = String(code || DEFAULT_CURRENCY)

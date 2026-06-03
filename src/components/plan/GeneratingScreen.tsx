@@ -35,7 +35,7 @@ export function GeneratingScreen() {
     { icon: Sparkles, label: t.genDesigningPlan },
   ], [transportPhase, t]);
 
-  const SAFETY_TIMEOUT_MS = 42_000;
+  const SAFETY_TIMEOUT_MS = 50_000;
 
   // Cycle the phase messages while loading.
   React.useEffect(() => {

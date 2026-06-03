@@ -7,6 +7,7 @@ import { Mic, Square, Loader2, Sparkles } from "lucide-react";
 import { usePlan } from "@/components/plan/PlanProvider";
 import { toast } from "@/components/ui/Toast";
 import { useLocale } from "@/lib/i18n-client";
+import { canonicalCityId } from "@/lib/i18n";
 import { DESTINATIONS, getDestinationImage, type Destination } from "@/lib/destinations";
 import {
   BUDGET_MAX,
@@ -51,12 +52,13 @@ function blobToB64(blob: Blob): Promise<string> {
 }
 
 function synthDestination(city: string, country: string | null): Destination {
-  const match = DESTINATIONS.find(
-    (d) =>
-      d.city.toLowerCase() === city.toLowerCase() ||
-      d.city.toLowerCase().includes(city.toLowerCase()) ||
-      city.toLowerCase().includes(d.city.toLowerCase()),
-  );
+  // Resolve the spoken city to a canonical destination id (handles accents and
+  // localized spellings: "Tokio"/"Tòquio"/"Tokyo", "Estambul"/"Istanbul", …)
+  // so we mark the right destination instead of a fuzzy substring mismatch.
+  const wantedId = canonicalCityId(city);
+  const match =
+    DESTINATIONS.find((d) => d.id === wantedId) ??
+    DESTINATIONS.find((d) => canonicalCityId(d.city) === wantedId);
   if (match) return match;
   const img = getDestinationImage(city, "card");
   return {
@@ -145,7 +147,9 @@ export function VoiceButton() {
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.plan) {
-        toast.error(data?.error ?? t.voiceError);
+        toast.error(
+          data?.error === "AI_QUOTA_EXCEEDED" ? t.voiceQuota : t.voiceError,
+        );
         setPhase("idle");
         return;
       }

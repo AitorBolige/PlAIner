@@ -19,7 +19,9 @@ const ITINERARY_RATE_LIMIT = 5;
 const ITINERARY_RATE_WINDOW_MS = 60_000;
 
 const MAX_DAYS = 14;
-const GEMINI_MODEL = "gemini-2.5-flash";
+// Mirror /api/voice-plan: try the model available on the current key/project
+// first, then fall back if it hits its daily quota.
+const GEMINI_MODELS = ["gemini-2.5-flash", "gemini-2.0-flash"];
 const LOG_PREFIX = "[api/itinerary]";
 
 const debugEnabled =
@@ -69,6 +71,12 @@ function serializeGeminiError(err: unknown): Record<string, unknown> {
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/** A hard daily/free-tier quota error won't clear on retry — switch models instead. */
+function isQuotaError(err: unknown): boolean {
+  const msg = (err instanceof Error ? err.message : String(err)).toLowerCase();
+  return msg.includes("quota") || msg.includes("exceeded your current");
+}
 
 function isOverloaded(err: unknown): boolean {
   const status = (err as { status?: number })?.status;
@@ -242,7 +250,7 @@ export async function POST(req: NextRequest) {
 
   geminiLog("calling Gemini", {
     requestId,
-    model: GEMINI_MODEL,
+    models: GEMINI_MODELS,
     destination,
     startDate,
     endDate,
@@ -255,13 +263,6 @@ export async function POST(req: NextRequest) {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const systemInstruction = buildItinerarySystemInstruction(preferences, locale);
-    const model = genAI.getGenerativeModel({
-      model: GEMINI_MODEL,
-      systemInstruction,
-      generationConfig: {
-        responseMimeType: "application/json",
-      },
-    });
 
     const prompt = buildItineraryUserPrompt(
       destination,
@@ -279,8 +280,36 @@ export async function POST(req: NextRequest) {
       promptPreview: prompt.slice(0, 200),
     });
 
+    // Try each model in order; if one is out of daily quota, fall back to next.
+    const generate = async () => {
+      let lastErr: unknown;
+      for (let i = 0; i < GEMINI_MODELS.length; i++) {
+        const modelName = GEMINI_MODELS[i];
+        const model = genAI.getGenerativeModel({
+          model: modelName,
+          systemInstruction,
+          generationConfig: { responseMimeType: "application/json" },
+        });
+        try {
+          return await withRetry(() => model.generateContent(prompt));
+        } catch (err) {
+          lastErr = err;
+          const hasNext = i < GEMINI_MODELS.length - 1;
+          geminiLog("model failed", {
+            requestId,
+            model: modelName,
+            quota: isQuotaError(err),
+            tryingNext: hasNext,
+          });
+          if (hasNext) continue;
+          throw err;
+        }
+      }
+      throw lastErr;
+    };
+
     const startedAt = Date.now();
-    const result = await withRetry(() => model.generateContent(prompt));
+    const result = await generate();
     const elapsedMs = Date.now() - startedAt;
 
     const text = result.response.text();

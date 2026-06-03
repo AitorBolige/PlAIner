@@ -7,6 +7,7 @@ import {
   upsertTravelSearchOffers,
 } from "@/lib/travel-offers";
 import { fromEur, normalizeCurrency } from "@/lib/currency";
+import { computeBudgetCaps } from "@/lib/plan-flow";
 import {
   searchFlightsMetasearchForQuery,
   searchHotelsApiDojo,
@@ -694,6 +695,24 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
 
   let hotelHandledViaApi = false;
 
+  // Split the per-person budget into per-component price caps so a single flight
+  // or hotel can't consume the whole budget — keeps the per-person total within
+  // budget with high probability. When no budget is given, leave caps undefined.
+  const nights =
+    normalizedQuery.startDate && normalizedQuery.endDate
+      ? Math.max(
+          1,
+          Math.round(
+            (normalizedQuery.endDate.getTime() -
+              normalizedQuery.startDate.getTime()) /
+              86_400_000,
+          ),
+        )
+      : 1;
+  const caps = normalizedQuery.budgetMax
+    ? computeBudgetCaps(normalizedQuery.budgetMax, normalizedQuery.people, nights)
+    : null;
+
   const hotelPromise = hasApiDojoHotelCreds
     ? searchHotelsApiDojo({
         query: normalizedQuery.city || normalizedQuery.destination,
@@ -706,14 +725,19 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
         adults: normalizedQuery.people ?? 2,
         rooms: 1,
         currency: normalizedQuery.currency,
+        nights,
+        maxPrice: caps?.hotelCapPerNight,
       })
     : Promise.resolve([]);
 
   const mode = normalizedQuery.transportId ?? "plane";
+  const flightQuery = caps
+    ? { ...normalizedQuery, maxPrice: caps.flightCap }
+    : normalizedQuery;
   const flightPromise =
     mode === "plane"
       ? hasFlightCreds
-        ? searchFlightsMetasearchForQuery(normalizedQuery)
+        ? searchFlightsMetasearchForQuery(flightQuery)
         : Promise.resolve([] as TravelOfferInput[])
       : Promise.resolve(buildGroundTransports(normalizedQuery, mode));
 

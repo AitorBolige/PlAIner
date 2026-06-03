@@ -117,6 +117,7 @@ export interface Translations {
   voiceError: string;
   voiceMicPermission: string;
   voiceNotSupported: string;
+  voiceQuota: string;
   voiceRecordFailed: string;
   voiceTooShort: string;
   voiceFormFilled: string;
@@ -425,6 +426,7 @@ const ca: Translations = {
   voiceError: "No s'ha pogut interpretar.",
   voiceMicPermission: "Permet l'accés al micròfon per parlar.",
   voiceNotSupported: "El micròfon necessita una connexió segura (HTTPS) o localhost.",
+  voiceQuota: "S'ha arribat al límit diari de l'IA. Torna-ho a provar més tard.",
   voiceRecordFailed: "No s'ha pogut gravar.",
   voiceTooShort: "No t'he sentit. Parla un parell de segons.",
   voiceFormFilled: "Formulari omplert!",
@@ -725,6 +727,7 @@ const es: Translations = {
   voiceError: "No se ha podido interpretar.",
   voiceMicPermission: "Permite el acceso al micrófono para hablar.",
   voiceNotSupported: "El micrófono necesita una conexión segura (HTTPS) o localhost.",
+  voiceQuota: "Se alcanzó el límite diario de la IA. Inténtalo de nuevo más tarde.",
   voiceRecordFailed: "No se ha podido grabar.",
   voiceTooShort: "No te he oído. Habla un par de segundos.",
   voiceFormFilled: "¡Formulario rellenado!",
@@ -1025,6 +1028,7 @@ const en: Translations = {
   voiceError: "Could not interpret.",
   voiceMicPermission: "Allow microphone access to speak.",
   voiceNotSupported: "The microphone needs a secure connection (HTTPS) or localhost.",
+  voiceQuota: "Daily AI limit reached. Please try again later.",
   voiceRecordFailed: "Could not record.",
   voiceTooShort: "Didn't catch that. Speak for a few seconds.",
   voiceFormFilled: "Form filled!",
@@ -1325,6 +1329,7 @@ const de: Translations = {
   voiceError: "Konnte nicht interpretiert werden.",
   voiceMicPermission: "Erlauben Sie Mikrofonzugriff zum Sprechen.",
   voiceNotSupported: "Das Mikrofon benötigt eine sichere Verbindung (HTTPS) oder localhost.",
+  voiceQuota: "Tägliches KI-Limit erreicht. Bitte später erneut versuchen.",
   voiceRecordFailed: "Aufnahme fehlgeschlagen.",
   voiceTooShort: "Ich habe nichts gehört. Bitte sprechen Sie länger.",
   voiceFormFilled: "Formular ausgefüllt!",
@@ -1625,6 +1630,7 @@ const fr: Translations = {
   voiceError: "Impossible d'interpréter.",
   voiceMicPermission: "Autorisez l'accès au micro pour parler.",
   voiceNotSupported: "Le micro nécessite une connexion sécurisée (HTTPS) ou localhost.",
+  voiceQuota: "Limite quotidienne de l'IA atteinte. Réessayez plus tard.",
   voiceRecordFailed: "Impossible d'enregistrer.",
   voiceTooShort: "Je ne vous ai pas entendu. Parlez quelques secondes.",
   voiceFormFilled: "Formulaire rempli !",
@@ -1925,6 +1931,7 @@ const it: Translations = {
   voiceError: "Impossibile interpretare.",
   voiceMicPermission: "Consenti l'accesso al microfono per parlare.",
   voiceNotSupported: "Il microfono richiede una connessione sicura (HTTPS) o localhost.",
+  voiceQuota: "Limite giornaliero dell'IA raggiunto. Riprova più tardi.",
   voiceRecordFailed: "Registrazione fallita.",
   voiceTooShort: "Non ti ho sentito. Parla per qualche secondo.",
   voiceFormFilled: "Formulario compilato!",
@@ -2225,6 +2232,7 @@ const pt: Translations = {
   voiceError: "Não foi possível interpretar.",
   voiceMicPermission: "Permita o acesso ao microfone para falar.",
   voiceNotSupported: "O microfone precisa de uma conexão segura (HTTPS) ou localhost.",
+  voiceQuota: "Limite diário da IA atingido. Tente novamente mais tarde.",
   voiceRecordFailed: "Gravação falhou.",
   voiceTooShort: "Não te ouvi. Fale por alguns segundos.",
   voiceFormFilled: "Formulário preenchido!",
@@ -2525,6 +2533,7 @@ const ar: Translations = {
   voiceError: "تعذر التفسير.",
   voiceMicPermission: "يرجى السماح بالوصول إلى الميكروفون للتحدث.",
   voiceNotSupported: "يتطلب الميكروفون اتصالاً آمناً (HTTPS) أو localhost.",
+  voiceQuota: "تم الوصول إلى الحد اليومي للذكاء الاصطناعي. حاول مرة أخرى لاحقاً.",
   voiceRecordFailed: "فشل التسجيل.",
   voiceTooShort: "لم أسمعك جيداً. يرجى التحدث لبضع ثوانٍ.",
   voiceFormFilled: "تم ملء النموذج!",
@@ -2825,6 +2834,7 @@ const zh: Translations = {
   voiceError: "无法识别，请重试。",
   voiceMicPermission: "请允许麦克风访问权限以使用语音。",
   voiceNotSupported: "麦克风需要安全连接（HTTPS）或 localhost。",
+  voiceQuota: "已达到 AI 每日使用上限，请稍后再试。",
   voiceRecordFailed: "录音失败。",
   voiceTooShort: "时间太短。请说几秒钟以上。",
   voiceFormFilled: "表格已自动填充！",
@@ -3140,6 +3150,7 @@ const hi: Translations = {
   voiceError: "स्पष्ट व्याख्या नहीं मिल सकी।",
   voiceMicPermission: "बोलने के लिए माइक्रोफ़ोन एक्सेस की अनुमति दें।",
   voiceNotSupported: "माइक्रोफ़ोन के लिए सुरक्षित कनेक्शन (HTTPS) या localhost ज़रूरी है।",
+  voiceQuota: "AI की दैनिक सीमा पूरी हो गई। कृपया बाद में पुनः प्रयास करें।",
   voiceRecordFailed: "रिकॉर्ड नहीं किया जा सका।",
   voiceTooShort: "सुनाई नहीं दिया। कुछ सेकंड तक बोलें।",
   voiceFormFilled: "फ़ॉर्म भरा गया!",
@@ -3405,49 +3416,66 @@ export function localizeCountry(countryCode: string, locale: Locale): string {
   return countries[countryCode.toUpperCase()]?.[locale] ?? countryCode;
 }
 
+/** Map localized / variant city spellings to a canonical destination id. */
+const CITY_VARIANT_MAP: Record<string, string> = {
+  "lisbon": "lisbon",
+  "lisboa": "lisbon",
+  "lisbonne": "lisbon",
+  "rome": "rome",
+  "roma": "rome",
+  "tokyo": "tokyo",
+  "tòquio": "tokyo",
+  "tokio": "tokyo",
+  "marrakech": "marrakech",
+  "marràqueix": "marrakech",
+  "marraqueix": "marrakech",
+  "marrakesh": "marrakech",
+  "paris": "paris",
+  "parís": "paris",
+  "bali": "bali",
+  "new-york": "new-york",
+  "new york": "new-york",
+  "nova york": "new-york",
+  "nueva york": "new-york",
+  "santorini": "santorini",
+  "barcelona": "barcelona",
+  "bcn": "barcelona",
+  "istanbul": "istanbul",
+  "estambul": "istanbul",
+  "copenhagen": "copenhagen",
+  "copenhaguen": "copenhagen",
+  "copenhague": "copenhagen",
+  "athens": "athens",
+  "atenes": "athens",
+  "atenas": "athens",
+  "reykjavik": "reykjavik",
+  "reykjavík": "reykjavik",
+  "dubai": "dubai",
+  "dubái": "dubai",
+  "miami": "miami",
+};
+
+const stripDiacritics = (s: string) =>
+  s.normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+/** Diacritic-insensitive lookup so "Tòquio"/"Tokio"/"tokyo" all map to "tokyo". */
+const CITY_VARIANT_MAP_NORM: Record<string, string> = Object.fromEntries(
+  Object.entries(CITY_VARIANT_MAP).map(([k, v]) => [stripDiacritics(k), v]),
+);
+
+/**
+ * Resolve any spoken/typed city name (in any supported language, with or
+ * without accents) to its canonical destination id. Falls back to a slugified
+ * form of the input when the city is unknown.
+ */
+export function canonicalCityId(name: string): string {
+  const norm = stripDiacritics(name.trim().toLowerCase());
+  return CITY_VARIANT_MAP_NORM[norm] ?? norm.replace(/\s+/g, "-");
+}
+
 export function localizeCity(cityId: string, locale: Locale): string {
   const norm = cityId.trim().toLowerCase();
-  
-  // Normalize variants to canonical IDs
-  const variantMap: Record<string, string> = {
-    "lisbon": "lisbon",
-    "lisboa": "lisbon",
-    "lisbonne": "lisbon",
-    "rome": "rome",
-    "roma": "rome",
-    "tokyo": "tokyo",
-    "tòquio": "tokyo",
-    "tokio": "tokyo",
-    "marrakech": "marrakech",
-    "marràqueix": "marrakech",
-    "marraqueix": "marrakech",
-    "marrakesh": "marrakech",
-    "paris": "paris",
-    "parís": "paris",
-    "bali": "bali",
-    "new-york": "new-york",
-    "new york": "new-york",
-    "nova york": "new-york",
-    "nueva york": "new-york",
-    "santorini": "santorini",
-    "barcelona": "barcelona",
-    "bcn": "barcelona",
-    "istanbul": "istanbul",
-    "estambul": "istanbul",
-    "copenhagen": "copenhagen",
-    "copenhaguen": "copenhagen",
-    "copenhague": "copenhagen",
-    "athens": "athens",
-    "atenes": "athens",
-    "atenas": "athens",
-    "reykjavik": "reykjavik",
-    "reykjavík": "reykjavik",
-    "dubai": "dubai",
-    "dubái": "dubai",
-    "miami": "miami"
-  };
-
-  const canonicalId = variantMap[norm] ?? norm;
+  const canonicalId = CITY_VARIANT_MAP[norm] ?? CITY_VARIANT_MAP_NORM[stripDiacritics(norm)] ?? norm;
 
   const cities: Record<string, Record<Locale, string>> = {
     lisbon: { ca: "Lisboa", es: "Lisboa", en: "Lisbon", de: "Lissabon", fr: "Lisbonne", it: "Lisbona", pt: "Lisboa", ar: "لشبونة", zh: "里斯本", hi: "लिस्बन" },

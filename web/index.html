@@ -133,6 +133,57 @@
   }
   .cta-appstore-mini { font-size:9px; line-height:1; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
 
+  /* ─── Comparison table (premium) ─── */
+  .cmp-wrap {
+    border-radius:24px; background:var(--surface);
+    border:1px solid var(--line, rgba(0,0,0,.07));
+    box-shadow: var(--shadow-lg, 0 24px 60px rgba(24,22,15,.10));
+    overflow:hidden; position:relative;
+  }
+  .cmp { width:100%; border-collapse:collapse; font-family:'Inter'; }
+  .cmp th, .cmp td {
+    padding:18px 14px; text-align:center; vertical-align:middle;
+    border-bottom:1px solid rgba(0,0,0,.05);
+  }
+  .cmp tbody tr:last-child td { border-bottom:none; }
+  .cmp thead th {
+    font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--muted);
+    text-transform:none; padding-top:24px; padding-bottom:24px;
+    border-bottom:1px solid rgba(0,0,0,.08);
+  }
+  .cmp .cmp-feat {
+    text-align:left; font-size:14px; font-weight:500; color:var(--ink);
+    width:38%; padding-left:26px;
+  }
+  .cmp thead .cmp-feat { width:38%; }
+  /* highlighted PlAIner column */
+  .cmp .cmp-us {
+    position:relative; background:var(--brand-subtle);
+    box-shadow: inset 1px 0 0 rgba(13,158,122,.18), inset -1px 0 0 rgba(13,158,122,.18);
+  }
+  .cmp thead .cmp-us {
+    background:linear-gradient(180deg, var(--brand-h), var(--brand-d)) !important;
+    border-radius:14px 14px 0 0;
+    box-shadow: 0 10px 24px rgba(13,158,122,.30);
+    color:#fff !important;
+  }
+  .cmp tbody tr:last-child .cmp-us { border-radius:0 0 14px 14px; }
+  .cmp-logo { font-family:'Inter'; font-weight:800; font-size:18px; color:#fff !important;
+              letter-spacing:-.01em; text-shadow:0 1px 3px rgba(0,0,0,.35); }
+  .cmp-brand { display:inline-flex; align-items:center; gap:8px; font-weight:600; color:var(--muted); }
+  .cmp-brand img { width:18px; height:18px; border-radius:5px; object-fit:contain; }
+  .cmp .ic { display:inline-flex; align-items:center; justify-content:center;
+             width:26px; height:26px; border-radius:9999px; font-size:14px; font-weight:700; }
+  .cmp .ic.ok   { background:#fff; color:var(--brand-d); box-shadow:0 2px 6px rgba(13,158,122,.25); }
+  .cmp .cmp-us .ic.ok { background:#fff; }
+  .cmp .ic.no   { color:var(--faint); font-weight:600; }
+  @media (max-width: 720px) {
+    .cmp th, .cmp td { padding:12px 6px; }
+    .cmp .cmp-feat { font-size:12px; padding-left:12px; width:34%; }
+    .cmp thead th { font-size:10px; }
+    .cmp-logo { font-size:13px; }
+  }
+
   /* ─── Paper texture (very subtle fibrous noise) ─── */
   .paper-tex { position:relative; }
   .paper-tex::before {
@@ -328,9 +379,9 @@
       <!-- Right: floating mini-stat (Perspective depth) -->
       <div class="hidden lg:block absolute right-4 bottom-24 w-[240px]">
         <div class="rounded-2xl p-5 sh-lg text-white" style="background:linear-gradient(135deg,#0D9E7A,#0A6F5E);">
-          <div class="micro" style="color:rgba(255,255,255,.7)">Latència mitjana</div>
-          <div class="font-display font-extrabold text-3xl mt-1 tnum">412<span class="text-base">ms</span></div>
-          <div class="text-xs mt-2 opacity-80">Edge route · p50</div>
+          <div class="micro" style="color:rgba(255,255,255,.7)">Estalvies</div>
+          <div class="font-display font-extrabold text-3xl mt-1 tnum">4<span class="text-base">h</span></div>
+          <div class="text-xs mt-2 opacity-80">de cerca i comparació</div>
         </div>
         <div class="mt-3 rounded-2xl p-4 sh-md bg-surface border border-line">
           <div class="micro" style="color:var(--coral)">Sorpresa</div>
@@ -363,21 +414,21 @@
       <div class="md:col-span-5 rounded-2xl bg-surface border border-line p-7 sh-sm">
         <div class="micro" style="color:var(--brand)">Onboarding</div>
         <div class="font-display font-bold text-2xl mt-2 leading-tight">3 preguntes. Mai més.</div>
-        <p class="text-sm mt-2" style="color:var(--muted)">Les preferències viuen a Postgres via Prisma; la IA les llegeix com a context inicial.</p>
+        <p class="text-sm mt-2" style="color:var(--muted)">Ens dius pressupost, dates i estil un sol cop. PlAIner ho recorda i cada nou viatge ja surt fet a la teva mida.</p>
         <div class="mt-5 flex gap-2 flex-wrap">
-          <span class="chip">Plus Jakarta</span><span class="chip chip-brand">Pill UI</span><span class="chip">Cream paper</span>
+          <span class="chip">Pressupost</span><span class="chip chip-brand">Dates</span><span class="chip">El teu estil</span>
         </div>
       </div>
       <div class="md:col-span-7 grid grid-cols-2 gap-4">
         <div class="rounded-2xl bg-surface border border-line p-6 sh-sm">
           <div class="micro" style="color:var(--brand)">Transport-aware</div>
           <div class="font-display font-bold text-xl mt-2">Tren, vol o cotxe.</div>
-          <p class="text-xs mt-2" style="color:var(--muted)">Cerca conscient del mode: filtres reals, temps i emissions estimades.</p>
+          <p class="text-xs mt-2" style="color:var(--muted)">Compara preu, durada i emissions de cada opció i tria la que més t'encaixa.</p>
         </div>
         <div class="rounded-2xl bg-surface border border-line p-6 sh-sm">
           <div class="micro" style="color:var(--info)">Mapa viu</div>
-          <div class="font-display font-bold text-xl mt-2">Drag &amp; drop sobre Mapbox.</div>
-          <p class="text-xs mt-2" style="color:var(--muted)">Reordena activitats i el pressupost recalcula a l'instant.</p>
+          <div class="font-display font-bold text-xl mt-2">Reordena amb un dit.</div>
+          <p class="text-xs mt-2" style="color:var(--muted)">Mou activitats pel mapa i el pressupost s'actualitza a l'instant.</p>
         </div>
         <div class="rounded-2xl bg-surface border border-line p-6 sh-sm">
           <div class="micro" style="color:var(--coral)">Sorpresa</div>
@@ -386,10 +437,93 @@
         </div>
         <div class="rounded-2xl bg-ink text-white p-6 sh-md">
           <div class="micro" style="color:rgba(255,255,255,.5)">Veu</div>
-          <div class="font-display font-bold text-xl mt-2">Parla. Plana.</div>
-          <p class="text-xs mt-2 text-white/70">Dictat amb sheen animat — la IA omple el formulari mentre parles.</p>
+          <div class="font-display font-bold text-xl mt-2">Parla.</div>
+          <p class="text-xs mt-2 text-white/70">Digues on vols anar en veu alta i la IA omple el viatge per tu.</p>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── COMPARATIVA ─────────────── -->
+<section id="comparativa" class="paper-tex">
+  <div class="max-w-[1080px] mx-auto px-6 pb-24">
+    <div class="text-center max-w-[720px] mx-auto mb-12">
+      <h2 class="font-display font-extrabold leading-[1.05] tracking-tight mt-3"
+          style="font-size: clamp(30px, 4vw, 52px);">
+        Tot el que avui fas amb <span class="serif italic font-medium" style="color:var(--coral)">cinc pestanyes</span>,
+        en una.
+      </h2>
+      <p class="mt-5 text-base" style="color:var(--muted)">
+        Els comparadors et donen vols o hotels solts. PlAIner et dóna el viatge sencer, fet a la teva mida.
+      </p>
+    </div>
+
+    <div class="cmp-wrap">
+      <table class="cmp">
+        <thead>
+          <tr>
+            <th class="cmp-feat"></th>
+            <th class="cmp-us">
+              <span class="cmp-logo">PlAIner</span>
+            </th>
+            <th><span class="cmp-brand"><img src="https://www.google.com/s2/favicons?domain=skyscanner.com&sz=64" alt="Skyscanner" loading="lazy"/>Skyscanner</span></th>
+            <th><span class="cmp-brand"><img src="https://www.google.com/s2/favicons?domain=booking.com&sz=64" alt="Booking" loading="lazy"/>Booking</span></th>
+            <th><span class="cmp-brand"><img src="https://www.google.com/s2/favicons?domain=kayak.com&sz=64" alt="Kayak" loading="lazy"/>Kayak</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="cmp-feat">Pla complet en 1 minut</td>
+            <td class="cmp-us"><span class="ic ok">✓</span></td>
+            <td><span class="ic no">✕</span></td>
+            <td><span class="ic no">✕</span></td>
+            <td><span class="ic no">✕</span></td>
+          </tr>
+          <tr>
+            <td class="cmp-feat">Tot en un sol lloc</td>
+            <td class="cmp-us"><span class="ic ok">✓</span></td>
+            <td><span class="ic no">✕</span></td>
+            <td><span class="ic ok">✓</span></td>
+            <td><span class="ic no">✕</span></td>
+          </tr>
+          <tr>
+            <td class="cmp-feat">S'ajusta al pressupost</td>
+            <td class="cmp-us"><span class="ic ok">✓</span></td>
+            <td><span class="ic ok">✓</span></td>
+            <td><span class="ic no">✕</span></td>
+            <td><span class="ic ok">✓</span></td>
+          </tr>
+          <tr>
+            <td class="cmp-feat">Recorda preferències</td>
+            <td class="cmp-us"><span class="ic ok">✓</span></td>
+            <td><span class="ic no">✕</span></td>
+            <td><span class="ic ok">✓</span></td>
+            <td><span class="ic no">✕</span></td>
+          </tr>
+          <tr>
+            <td class="cmp-feat">Itinerari dia a dia</td>
+            <td class="cmp-us"><span class="ic ok">✓</span></td>
+            <td><span class="ic no">✕</span></td>
+            <td><span class="ic ok">✓</span></td>
+            <td><span class="ic no">✕</span></td>
+          </tr>
+          <tr>
+            <td class="cmp-feat">La IA tria per tu</td>
+            <td class="cmp-us"><span class="ic ok">✓</span></td>
+            <td><span class="ic ok">✓</span></td>
+            <td><span class="ic ok">✓</span></td>
+            <td><span class="ic ok">✓</span></td>
+          </tr>
+          <tr>
+            <td class="cmp-feat">Planifica per veu</td>
+            <td class="cmp-us"><span class="ic ok">✓</span></td>
+            <td><span class="ic no">✕</span></td>
+            <td><span class="ic no">✕</span></td>
+            <td><span class="ic ok">✓</span></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
@@ -473,21 +607,21 @@
           <svg width="20" height="20" fill="#fff" viewBox="0 0 24 24"><path d="M12 2l1.8 4.6L18 8l-3.5 3 1 4.7L12 13.8 8.5 15.7l1-4.7L6 8l4.2-1.4L12 2z"/></svg>
         </div>
         <div class="font-display font-bold text-xl mt-4">IA generativa</div>
-        <p class="text-sm mt-2" style="color:var(--muted)">Gemini + OpenAI amb fallbacks i validació estricta amb Zod. Mai una resposta trencada al frontend.</p>
+        <p class="text-sm mt-2" style="color:var(--muted)">Models de Gemini i OpenAI generen el pla. Respostes validades, sempre coherents.</p>
       </div>
       <div class="rounded-2xl bg-surface border border-line p-7 sh-sm">
         <div class="w-12 h-12 rounded-pill flex items-center justify-center" style="background:rgba(59,135,232,.15);color:var(--info)">
           <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8 2 5 5 5 9c0 5.3 7 13 7 13s7-7.7 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
         </div>
         <div class="font-display font-bold text-xl mt-4">Mapes en directe</div>
-        <p class="text-sm mt-2" style="color:var(--muted)">Mapbox GL amb capes d'interès, marcadors agrupats i recàlcul de pressupost al moment.</p>
+        <p class="text-sm mt-2" style="color:var(--muted)">Mapa Mapbox amb els teus punts d'interès i recàlcul del pressupost al moment.</p>
       </div>
       <div class="rounded-2xl bg-surface border border-line p-7 sh-sm">
         <div class="w-12 h-12 rounded-pill flex items-center justify-center" style="background:rgba(240,90,53,.15);color:var(--coral)">
           <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3l9 4-9 4-9-4 9-4zm-9 9l9 4 9-4M3 17l9 4 9-4"/></svg>
         </div>
         <div class="font-display font-bold text-xl mt-4">Ofertes en caché</div>
-        <p class="text-sm mt-2" style="color:var(--muted)">Pipeline d'scraping amb TTL i normalització cap a Postgres (Supabase). Refrescos invisibles cada 12h.</p>
+        <p class="text-sm mt-2" style="color:var(--muted)">Ofertes desades a Supabase i refrescades cada 12 h. Resultats a l'instant, sempre actuals.</p>
       </div>
     </div>
 
@@ -528,8 +662,8 @@
         <p class="text-sm mt-2" style="color:var(--muted)">Sprints d'una setmana amb backlog viu, daily i retrospectiva.</p>
       </div>
       <div class="rounded-2xl bg-surface p-6 border border-line sh-sm">
-        <div class="font-oswald uppercase font-bold text-3xl tracking-tight" style="color:var(--brand)">TDD</div>
-        <p class="text-sm mt-2" style="color:var(--muted)">Vitest per a lògica i Playwright per a E2E de rutes crítiques.</p>
+        <div class="font-oswald uppercase font-bold text-3xl tracking-tight" style="color:var(--brand)">Kanban</div>
+        <p class="text-sm mt-2" style="color:var(--muted)">Gestió de tasques amb GitHub Projects: del backlog a fet, tot visible.</p>
       </div>
       <div class="rounded-2xl bg-surface p-6 border border-line sh-sm">
         <div class="font-oswald uppercase font-bold text-3xl tracking-tight" style="color:var(--info)">CI</div>
@@ -537,7 +671,7 @@
       </div>
       <div class="rounded-2xl bg-ink text-white p-6 sh-md">
         <div class="font-oswald uppercase font-bold text-3xl tracking-tight" style="color:var(--coral)">DOC</div>
-        <p class="text-sm mt-2 text-white/70">Product Canvas, ADRs i README com a font única de veritat tècnica.</p>
+        <p class="text-sm mt-2 text-white/70">Product Canvas i README com a font única de veritat tècnica.</p>
       </div>
     </div>
 
@@ -567,7 +701,7 @@
       <div class="rounded-2xl bg-surface p-5 border border-line sh-xs">
         <div class="micro" style="color:var(--faint)">02</div>
         <div class="font-display font-bold text-base mt-1">Disseny</div>
-        <p class="text-xs mt-1" style="color:var(--muted)">Wireframes a Figma i system tokens compartits.</p>
+        <p class="text-xs mt-1" style="color:var(--muted)">Wireframes amb Claude Design i system tokens compartits.</p>
       </div>
       <div class="rounded-2xl bg-surface p-5 border border-line sh-xs">
         <div class="micro" style="color:var(--faint)">03</div>
@@ -582,7 +716,7 @@
       <div class="rounded-2xl bg-surface p-5 border border-line sh-xs">
         <div class="micro" style="color:var(--faint)">05</div>
         <div class="font-display font-bold text-base mt-1">Retro</div>
-        <p class="text-xs mt-1" style="color:var(--muted)">Decisions documentades com a ADRs.</p>
+        <p class="text-xs mt-1" style="color:var(--muted)">Decisions tècniques documentades.</p>
       </div>
     </div>
   </div>

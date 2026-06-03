@@ -23,6 +23,8 @@ import {
   SearchX,
   RotateCw,
   Globe,
+  Clock,
+  Luggage,
 } from "lucide-react";
 
 import { usePlan, type Offer } from "@/components/plan/PlanProvider";
@@ -284,6 +286,55 @@ function SelectableOffer({
             {offer.description ? (
               <p className="mt-0.5 line-clamp-2 text-xs text-muted">{offer.description}</p>
             ) : null}
+            {!isHotel ? (
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                {offer.availabilityText ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--surface-2)] px-2 py-0.5 text-[11px] font-medium text-muted">
+                    <Clock size={11} /> {offer.availabilityText}
+                  </span>
+                ) : null}
+                {typeof offer.metadata?.stops === "number" ? (
+                  <span
+                    className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold"
+                    style={{
+                      background:
+                        offer.metadata.stops === 0
+                          ? "var(--green-subtle)"
+                          : "var(--surface-2)",
+                      color:
+                        offer.metadata.stops === 0
+                          ? "var(--green)"
+                          : "var(--text-muted)",
+                    }}
+                  >
+                    {offer.metadata.stops === 0
+                      ? locale === "en"
+                        ? "Direct"
+                        : locale === "es"
+                          ? "Directo"
+                          : "Directe"
+                      : `${offer.metadata.stops} ${
+                          locale === "en"
+                            ? offer.metadata.stops === 1
+                              ? "stop"
+                              : "stops"
+                            : locale === "es"
+                              ? offer.metadata.stops === 1
+                                ? "escala"
+                                : "escalas"
+                              : offer.metadata.stops === 1
+                                ? "escala"
+                                : "escales"
+                        }`}
+                  </span>
+                ) : null}
+                {typeof offer.metadata?.baggage === "string" ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--surface-2)] px-2 py-0.5 text-[11px] font-medium text-muted">
+                    <Luggage size={11} /> {offer.metadata.baggage as string}
+                  </span>
+                ) : null}
+              </div>
+            ) : null}
             {offer.rating != null ? (
               <div className="mt-1 inline-flex items-center gap-1 text-xs text-muted">
                 <Star size={12} className="text-[color:var(--gold)]" fill="currentColor" />
@@ -352,8 +403,21 @@ export function Picker() {
         transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] as const },
       };
 
-  const flights = React.useMemo(() => (offers ?? []).filter((o) => o.type === "TRANSPORT"), [offers]);
-  const hotels = React.useMemo(() => (offers ?? []).filter((o) => o.type === "HOTEL"), [offers]);
+  // Cheapest first (in the user's currency) so the budget-safe option is on top.
+  const byPrice = React.useCallback(
+    (a: Offer, b: Offer) =>
+      convertCurrency(a.price, a.currency ?? userCurrency, userCurrency) -
+      convertCurrency(b.price, b.currency ?? userCurrency, userCurrency),
+    [userCurrency],
+  );
+  const flights = React.useMemo(
+    () => (offers ?? []).filter((o) => o.type === "TRANSPORT").sort(byPrice),
+    [offers, byPrice],
+  );
+  const hotels = React.useMemo(
+    () => (offers ?? []).filter((o) => o.type === "HOTEL").sort(byPrice),
+    [offers, byPrice],
+  );
 
   // Generate the itinerary once we reach the summary with both selections.
   React.useEffect(() => {
@@ -485,7 +549,7 @@ export function Picker() {
           </div>
           <div className="truncate text-xs text-muted">
             {dates
-              ? `${dates.days} ${dates.days === 1 ? t.day : t.days} · ${people} ${t.peopleCount(people).toLowerCase()} · ${displayMoney(budget, locale, userCurrency, "EUR")}/${t.perPersonWord}`
+              ? `${dates.days} ${dates.days === 1 ? t.day : t.days} · ${t.peopleCount(people).toLowerCase()} · ${displayMoney(budget, locale, userCurrency, "EUR")}/${t.perPersonWord}`
               : ""}
           </div>
         </div>

@@ -17,6 +17,7 @@ import { useLocale } from "@/lib/i18n-client";
 import { type Locale } from "@/lib/i18n";
 import { NATIONALITIES } from "@/lib/nationalities";
 import { useCurrency } from "@/lib/use-currency";
+import { currencyForCountry } from "@/lib/currency";
 
 interface SettingsFormProps {
   userId: string;
@@ -539,7 +540,11 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
           <NationalitySelect
             id="nationality"
             value={nationality}
-            onChange={(val) => setNationality(val)}
+            onChange={(val) => {
+              setNationality(val);
+              // Keep the display currency aligned with the chosen nationality.
+              if (val) setCurrency(currencyForCountry(val));
+            }}
             placeholder={t.nationalityPlaceholder}
             searchPlaceholder={t.nationalitySearchPlaceholder}
             locale={locale}
