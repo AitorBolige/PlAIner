@@ -82,6 +82,7 @@ export function formatMoney(
   return new Intl.NumberFormat(code, {
     style: "currency",
     currency: normalizeCurrency(currency),
+    currencyDisplay: "narrowSymbol",
     maximumFractionDigits: 0,
   }).format(value);
 }

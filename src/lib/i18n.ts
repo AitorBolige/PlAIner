@@ -116,6 +116,7 @@ export interface Translations {
   voiceProcessing: string;
   voiceError: string;
   voiceMicPermission: string;
+  voiceNotSupported: string;
   voiceRecordFailed: string;
   voiceTooShort: string;
   voiceFormFilled: string;
@@ -423,6 +424,7 @@ const ca: Translations = {
   voiceProcessing: "Pensant el teu pla…",
   voiceError: "No s'ha pogut interpretar.",
   voiceMicPermission: "Permet l'accés al micròfon per parlar.",
+  voiceNotSupported: "El micròfon necessita una connexió segura (HTTPS) o localhost.",
   voiceRecordFailed: "No s'ha pogut gravar.",
   voiceTooShort: "No t'he sentit. Parla un parell de segons.",
   voiceFormFilled: "Formulari omplert!",
@@ -722,6 +724,7 @@ const es: Translations = {
   voiceProcessing: "Pensando tu plan…",
   voiceError: "No se ha podido interpretar.",
   voiceMicPermission: "Permite el acceso al micrófono para hablar.",
+  voiceNotSupported: "El micrófono necesita una conexión segura (HTTPS) o localhost.",
   voiceRecordFailed: "No se ha podido grabar.",
   voiceTooShort: "No te he oído. Habla un par de segundos.",
   voiceFormFilled: "¡Formulario rellenado!",
@@ -1021,6 +1024,7 @@ const en: Translations = {
   voiceProcessing: "Thinking up your plan…",
   voiceError: "Could not interpret.",
   voiceMicPermission: "Allow microphone access to speak.",
+  voiceNotSupported: "The microphone needs a secure connection (HTTPS) or localhost.",
   voiceRecordFailed: "Could not record.",
   voiceTooShort: "Didn't catch that. Speak for a few seconds.",
   voiceFormFilled: "Form filled!",
@@ -1320,6 +1324,7 @@ const de: Translations = {
   voiceProcessing: "Reiseplan wird erstellt…",
   voiceError: "Konnte nicht interpretiert werden.",
   voiceMicPermission: "Erlauben Sie Mikrofonzugriff zum Sprechen.",
+  voiceNotSupported: "Das Mikrofon benötigt eine sichere Verbindung (HTTPS) oder localhost.",
   voiceRecordFailed: "Aufnahme fehlgeschlagen.",
   voiceTooShort: "Ich habe nichts gehört. Bitte sprechen Sie länger.",
   voiceFormFilled: "Formular ausgefüllt!",
@@ -1619,6 +1624,7 @@ const fr: Translations = {
   voiceProcessing: "Création de votre plan…",
   voiceError: "Impossible d'interpréter.",
   voiceMicPermission: "Autorisez l'accès au micro pour parler.",
+  voiceNotSupported: "Le micro nécessite une connexion sécurisée (HTTPS) ou localhost.",
   voiceRecordFailed: "Impossible d'enregistrer.",
   voiceTooShort: "Je ne vous ai pas entendu. Parlez quelques secondes.",
   voiceFormFilled: "Formulaire rempli !",
@@ -1918,6 +1924,7 @@ const it: Translations = {
   voiceProcessing: "Creazione del tuo piano…",
   voiceError: "Impossibile interpretare.",
   voiceMicPermission: "Consenti l'accesso al microfono per parlare.",
+  voiceNotSupported: "Il microfono richiede una connessione sicura (HTTPS) o localhost.",
   voiceRecordFailed: "Registrazione fallita.",
   voiceTooShort: "Non ti ho sentito. Parla per qualche secondo.",
   voiceFormFilled: "Formulario compilato!",
@@ -2217,6 +2224,7 @@ const pt: Translations = {
   voiceProcessing: "Criando seu plano…",
   voiceError: "Não foi possível interpretar.",
   voiceMicPermission: "Permita o acesso ao microfone para falar.",
+  voiceNotSupported: "O microfone precisa de uma conexão segura (HTTPS) ou localhost.",
   voiceRecordFailed: "Gravação falhou.",
   voiceTooShort: "Não te ouvi. Fale por alguns segundos.",
   voiceFormFilled: "Formulário preenchido!",
@@ -2516,6 +2524,7 @@ const ar: Translations = {
   voiceProcessing: "جاري التفكير في خطتك…",
   voiceError: "تعذر التفسير.",
   voiceMicPermission: "يرجى السماح بالوصول إلى الميكروفون للتحدث.",
+  voiceNotSupported: "يتطلب الميكروفون اتصالاً آمناً (HTTPS) أو localhost.",
   voiceRecordFailed: "فشل التسجيل.",
   voiceTooShort: "لم أسمعك جيداً. يرجى التحدث لبضع ثوانٍ.",
   voiceFormFilled: "تم ملء النموذج!",
@@ -2815,6 +2824,7 @@ const zh: Translations = {
   voiceProcessing: "正在规划您的行程…",
   voiceError: "无法识别，请重试。",
   voiceMicPermission: "请允许麦克风访问权限以使用语音。",
+  voiceNotSupported: "麦克风需要安全连接（HTTPS）或 localhost。",
   voiceRecordFailed: "录音失败。",
   voiceTooShort: "时间太短。请说几秒钟以上。",
   voiceFormFilled: "表格已自动填充！",
@@ -3129,6 +3139,7 @@ const hi: Translations = {
   voiceProcessing: "संसाधित किया जा रहा है…",
   voiceError: "स्पष्ट व्याख्या नहीं मिल सकी।",
   voiceMicPermission: "बोलने के लिए माइक्रोफ़ोन एक्सेस की अनुमति दें।",
+  voiceNotSupported: "माइक्रोफ़ोन के लिए सुरक्षित कनेक्शन (HTTPS) या localhost ज़रूरी है।",
   voiceRecordFailed: "रिकॉर्ड नहीं किया जा सका।",
   voiceTooShort: "सुनाई नहीं दिया। कुछ सेकंड तक बोलें।",
   voiceFormFilled: "फ़ॉर्म भरा गया!",

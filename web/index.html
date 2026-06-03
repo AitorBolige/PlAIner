@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="ca">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>PlAIner — Planifica viatges com qui dibuixa sobre paper</title>
+<meta name="description" content="PlAIner uneix la simplicitat d'un quadern de viatge amb la potència de la IA: itineraris, pressupost i mapes en menys d'un minut." />
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!--
+  Branding font stack:
+    • Brand: Plus Jakarta Sans + Inter (extrets de globals.css de l'app)
+    • Refined skill:      Playfair Display (serif italic premium)
+    • Perspective skill:  Oswald (display) — només per micro-eyebrows
+    • Mono shared:        JetBrains Mono
+-->
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500;1,700&family=Oswald:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          display: ['"Plus Jakarta Sans"','-apple-system','system-ui','sans-serif'],
+          body:    ['Inter','-apple-system','system-ui','sans-serif'],
+          serif:   ['"Playfair Display"','ui-serif','Georgia','serif'],
+          mono:    ['"JetBrains Mono"','ui-monospace','monospace'],
+          oswald:  ['Oswald','Impact','sans-serif'],
+        },
+        colors: {
+          // ─── PlAIner brand (LIGHT MODE · globals.css) ───
+          bg:        '#F4F1EC',    // cream paper
+          surface:   '#FFFFFF',
+          surface2:  '#EDEAE4',
+          surface3:  '#E4E0D8',
+          ink:       '#18160F',    // tinta càlida
+          muted:     '#7A7570',
+          faint:     '#B8B4AE',
+          brand:     '#0D9E7A',    // verd maragda
+          brandH:    '#0B8A6A',
+          brandD:    '#0A6F5E',
+          coral:     '#F05A35',
+          info:      '#3B87E8',
+          gold:      '#C8860A',
+          line:      'rgba(0,0,0,.07)',
+          lineMd:    'rgba(0,0,0,.12)',
+        },
+        fontSize: {
+          'xxs':'11px','xs':'12px','sm':'14px','base':'16px','lg':'20px',
+          'xl':'24px','2xl':'32px','3xl':'40px','4xl':'56px','5xl':'72px','6xl':'96px',
+        },
+        borderRadius: { sm:'8px', md:'12px', lg:'16px', xl:'20px','2xl':'24px','3xl':'28px', pill:'9999px' },
+      }
+    }
+  }
+</script>
+<style>
+  :root {
+    --bg:#F4F1EC; --surface:#FFFFFF; --surface-2:#EDEAE4; --surface-3:#E4E0D8;
+    --ink:#18160F; --muted:#7A7570; --faint:#B8B4AE;
+    --brand:#0D9E7A; --brand-h:#0B8A6A; --brand-d:#0A6F5E;
+    --brand-subtle: rgba(13,158,122,.10);
+    --brand-glow:   rgba(13,158,122,.22);
+    --coral:#F05A35;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* App-Store-grade layered shadows (extrets de globals.css) */
+    --shadow-xs: 0 1px 2px rgba(17,24,28,.05), 0 1px 1px rgba(17,24,28,.03);
+    --shadow-sm: 0 2px 8px -2px rgba(17,24,28,.06), 0 1px 2px rgba(17,24,28,.04);
+    --shadow-md: 0 8px 24px -6px rgba(17,24,28,.10), 0 2px 6px -2px rgba(17,24,28,.05);
+    --shadow-lg: 0 20px 44px -14px rgba(17,24,28,.18), 0 6px 14px -6px rgba(17,24,28,.08);
+    --shadow-xl: 0 36px 70px -20px rgba(17,24,28,.24), 0 12px 26px -10px rgba(17,24,28,.12);
+    --shadow-cta: 0 10px 30px -6px rgba(13,158,122,.40), 0 2px 8px rgba(13,158,122,.20);
+  }
+  html,body {
+    background:var(--bg); color:var(--ink);
+    font-family:'Inter',-apple-system,system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    font-size:16px; line-height:1.55; letter-spacing:-.006em;
+    font-feature-settings:"cv11","ss01"; font-optical-sizing:auto;
+  }
+  * { scrollbar-width:none } *::-webkit-scrollbar { display:none }
+  ::selection { background: var(--brand); color:#fff; }
+
+  /* ─── Typography helpers ─── */
+  .display { font-family:'Plus Jakarta Sans',system-ui,sans-serif; letter-spacing:-.02em; font-feature-settings:"ss01"; }
+  .serif   { font-family:'Playfair Display',ui-serif,Georgia,serif; }
+  .micro   { font-family:'Inter'; font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); }
+  .tnum    { font-variant-numeric: tabular-nums; font-feature-settings:"tnum"; }
+
+  /* ─── Shadows utility ─── */
+  .sh-xs { box-shadow: var(--shadow-xs); }
+  .sh-sm { box-shadow: var(--shadow-sm); }
+  .sh-md { box-shadow: var(--shadow-md); }
+  .sh-lg { box-shadow: var(--shadow-lg); }
+  .sh-xl { box-shadow: var(--shadow-xl); }
+  .sh-cta{ box-shadow: var(--shadow-cta); }
+
+  /* ─── Chips ─── */
+  .chip {
+    display:inline-flex; align-items:center; gap:8px;
+    height:28px; padding:0 12px; border-radius:9999px;
+    background:var(--surface); border:1px solid var(--line, rgba(0,0,0,.07));
+    font-family:'Inter'; font-size:11px; font-weight:600; letter-spacing:.08em;
+    text-transform:uppercase; color:var(--muted);
+  }
+  .chip-brand { background:rgba(13,158,122,.10); color:var(--brand-d); border-color:rgba(13,158,122,.25); }
+  .chip-dark  { background:#111; color:#fff; border-color:#111; }
+  .chip-coral { background:rgba(240,90,53,.10); color:var(--coral); border-color:rgba(240,90,53,.25); }
+
+  /* ─── Buttons (brand pill + uppercase 0.08em — signatura de l'app) ─── */
+  .btn { display:inline-flex; align-items:center; justify-content:center; gap:8px;
+         height:48px; padding:0 24px; border-radius:9999px;
+         font-family:'Inter'; font-weight:600; font-size:13px;
+         letter-spacing:.08em; text-transform:uppercase;
+         transition: all 200ms var(--ease); white-space:nowrap; }
+  .btn:active { transform: scale(.97); }
+  .btn-primary   { background:var(--brand); color:#fff; box-shadow:var(--shadow-cta); }
+  .btn-primary:hover { background:var(--brand-h); }
+  .btn-secondary { background:var(--surface); color:var(--ink); border:1px solid var(--lineMd, rgba(0,0,0,.12)); }
+  .btn-secondary:hover { background:#fafaf6; }
+  .btn-ghost     { background:transparent; color:var(--ink); }
+  .btn-dark      { background:#111; color:#fff; }
+  .btn-sm { height:36px; padding:0 16px; font-size:12px; }
+
+  /* ─── Floating CTA pill stack (Refined hero pattern) ─── */
+  .cta-stack { display:inline-flex; flex-direction:column; align-items:center; gap:10px; }
+  .cta-appstore {
+    display:inline-flex; align-items:center; gap:8px;
+    background:#fff; color:#111; padding:8px 14px; border-radius:9999px;
+    font-family:'Inter'; font-weight:600; font-size:12px;
+    box-shadow: var(--shadow-md);
+  }
+  .cta-appstore-mini { font-size:9px; line-height:1; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+
+  /* ─── Paper texture (very subtle fibrous noise) ─── */
+  .paper-tex { position:relative; }
+  .paper-tex::before {
+    content:""; position:absolute; inset:0; pointer-events:none;
+    mix-blend-mode:multiply; opacity:.05;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.7'/></svg>");
+  }
+
+  /* ─── Perspective: isometric tilt ─── */
+  .iso-tilt { transform: perspective(1600px) rotateX(8deg) rotateY(-14deg) rotateZ(2deg); transform-style:preserve-3d; }
+  .iso-flat { transform: perspective(1400px) rotateX(5deg) rotateY(-7deg); }
+
+  /* ─── Marquee ─── */
+  .marquee { animation: marquee 38s linear infinite; }
+  @keyframes marquee { from { transform:translateX(0) } to { transform:translateX(-50%) } }
+
+  /* ─── Reveal ─── */
+  .reveal { opacity:0; transform:translateY(14px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+  .reveal.in { opacity:1; transform:none; }
+
+  /* ─── Float ambient ─── */
+  @keyframes pl-float { 0%,100% { transform:translate(0,0) } 50% { transform:translate(8px,-12px) } }
+  .pl-float-1 { animation: pl-float 9s ease-in-out infinite; }
+  .pl-float-2 { animation: pl-float 12s ease-in-out infinite reverse; }
+  .pl-float-3 { animation: pl-float 15s ease-in-out infinite; }
+
+  /* ─── Subtle dotted grid (Perspective backdrop) ─── */
+  .dot-grid {
+    background-image: radial-gradient(rgba(24,22,15,.10) 1px, transparent 1.4px);
+    background-size: 22px 22px;
+  }
+
+  /* ─── Refined dark feature card ─── */
+  .refined-dark {
+    background: radial-gradient(120% 80% at 50% 0%, #1b1a14 0%, #0e0d09 80%);
+    color:#f3efe6;
+  }
+
+  /* ─── Device frame (phone mockup, Refined style) ─── */
+  .phone {
+    width: 280px; aspect-ratio: 9/19;
+    border-radius: 38px; padding: 10px;
+    background: linear-gradient(160deg,#1b1a14,#0a0907);
+    box-shadow: var(--shadow-xl), inset 0 0 0 1px rgba(255,255,255,.06);
+  }
+  .phone-screen { width:100%; height:100%; border-radius:30px; overflow:hidden; background:var(--bg); position:relative; }
+
+  /* ─── Section dividers ─── */
+  .rule { height:1px; background: rgba(0,0,0,.08); }
+
+  /* ─── Coral underline (Refined accent) ─── */
+  .underline-coral {
+    background-image: linear-gradient(transparent 76%, rgba(240,90,53,.30) 76%, rgba(240,90,53,.30) 92%, transparent 92%);
+  }
+</style>
+</head>
+<body>
+
+<!-- ─────────────── NAV ─────────────── -->
+<header class="sticky top-0 z-50 backdrop-blur bg-bg/80 border-b border-black/5">
+  <nav class="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="#top" class="flex items-center gap-3">
+      <span class="w-8 h-8 rounded-md flex items-center justify-center text-white font-display font-extrabold text-sm sh-sm"
+            style="background: linear-gradient(135deg,#0D9E7A,#0A6F5E);">P</span>
+      <span class="font-display font-extrabold text-base tracking-tight">PlAIner</span>
+    </a>
+    <div class="hidden md:flex items-center gap-8 micro" style="color:var(--muted)">
+      <a href="#producte"    class="hover:text-ink">Producte</a>
+      <a href="#demo"        class="hover:text-ink">Demo</a>
+      <a href="#innovacio"   class="hover:text-ink">Innovació</a>
+      <a href="#metodologia" class="hover:text-ink">Mètode</a>
+      <a href="#repo"        class="hover:text-ink">Repo</a>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="https://github.com/AitorBolige/PlAIner" target="_blank" class="btn btn-secondary btn-sm hidden sm:inline-flex">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2.9-.3 2-.4 3-.4s2.1.1 3 .4c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+        GitHub
+      </a>
+      <a href="http://localhost:3000" target="_blank" class="btn btn-primary btn-sm">View demo →</a>
+    </div>
+  </nav>
+</header>
+
+<!-- ─────────────── HERO · REFINED CENTERED ─────────────── -->
+<section id="top" class="relative paper-tex overflow-hidden">
+  <!-- floating ambient blobs -->
+  <div aria-hidden="true" class="pointer-events-none absolute inset-0">
+    <div class="pl-float-1 absolute w-72 h-72 rounded-full opacity-30" style="left:8%;top:14%;background:radial-gradient(circle,rgba(13,158,122,.35),transparent 70%);filter:blur(40px);"></div>
+    <div class="pl-float-2 absolute w-80 h-80 rounded-full opacity-25" style="right:6%;top:8%;background:radial-gradient(circle,rgba(240,90,53,.30),transparent 70%);filter:blur(50px);"></div>
+    <div class="pl-float-3 absolute w-60 h-60 rounded-full opacity-25" style="left:42%;bottom:0;background:radial-gradient(circle,rgba(59,135,232,.25),transparent 70%);filter:blur(40px);"></div>
+  </div>
+
+  <div class="max-w-[1200px] mx-auto px-6 pt-20 pb-12 relative text-center">
+    <div class="micro mb-6">Travel planner · IA generativa · MVP</div>
+
+    <!-- Refined hero: huge centered serif w/ italic accent (à la "real connections") -->
+    <h1 class="font-display font-extrabold leading-[1.02] tracking-tight mx-auto max-w-[920px]"
+        style="font-size: clamp(40px, 7.2vw, 88px);">
+      L'assistent de viatges<br/>
+      que planifica
+      <span class="serif italic font-medium" style="color:var(--brand);">com tu somies</span>,<br/>
+      i reserva com tu pagues.
+    </h1>
+
+    <p class="mt-7 max-w-[560px] mx-auto text-base" style="color:var(--muted)">
+      PlAIner uneix la simplicitat d'un quadern amb la potència d'una IA conscient del context.
+      Itinerari, pressupost, transport i sorpresa — tot en menys d'un minut.
+    </p>
+
+    <!-- CTA stack (Refined pattern: pill flotant + sub badge) -->
+    <div class="mt-10 flex flex-col items-center gap-3">
+      <a href="http://localhost:3000" target="_blank" class="btn btn-primary" style="height:54px;padding:0 32px;">
+        Comença gratis
+      </a>
+      <a href="#demo" class="cta-appstore">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7L8 5z"/></svg>
+        <span>
+          <span class="cta-appstore-mini block">Veure</span>
+          <span class="block font-display font-semibold text-xs">Demo en viu</span>
+        </span>
+      </a>
+    </div>
+
+    <!-- Trust strip -->
+    <div class="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 micro" style="color:var(--faint)">
+      <span>Next.js 14</span><span>·</span>
+      <span>OpenAI + Gemini</span><span>·</span>
+      <span>Mapbox</span><span>·</span>
+      <span>Supabase</span><span>·</span>
+      <span>UPF · Eng. de Software 2026</span>
+    </div>
+
+    <!-- Hero device mockup (Refined dark phone + Perspective floating screen) -->
+    <div class="mt-16 relative flex justify-center items-end gap-12">
+      <!-- Left: floating screen card (Perspective) -->
+      <div class="hidden lg:block absolute left-4 bottom-10 w-[280px] iso-tilt">
+        <div class="bg-surface rounded-2xl sh-lg p-5 border border-line">
+          <div class="micro" style="color:var(--muted)">Itinerari · esborrany</div>
+          <div class="font-display font-bold text-lg mt-1 leading-tight">
+            Cap de setmana a <span class="serif italic font-medium" style="color:var(--brand)">Lisboa</span>
+          </div>
+          <div class="mt-3 tnum font-display font-extrabold text-2xl">320 <span class="text-base font-normal">€</span></div>
+          <div class="mt-4 space-y-2 text-xs" style="color:var(--muted)">
+            <div class="flex justify-between border-b border-black/5 pb-1"><span>09:00 · A Brasileira</span><span style="color:var(--brand)">✓</span></div>
+            <div class="flex justify-between border-b border-black/5 pb-1"><span>11:00 · Tram 28</span><span style="color:var(--brand)">✓</span></div>
+            <div class="flex justify-between border-b border-black/5 pb-1"><span>13:30 · Time Out Market</span><span style="color:var(--brand)">✓</span></div>
+            <div class="flex justify-between"><span>17:00 · Mirador da Graça</span><span style="color:var(--brand)">✓</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center phone -->
+      <div class="phone">
+        <div class="phone-screen flex flex-col">
+          <div class="px-5 pt-5 pb-3">
+            <div class="micro">Hola, Hola</div>
+            <div class="font-display font-extrabold text-xl mt-1 leading-tight">
+              ¿A dónde<br/>vamos?
+            </div>
+            <div class="text-xs mt-2" style="color:var(--muted)">Configura tu viatge o deixa que la IA ho faci.</div>
+          </div>
+
+          <!-- voice cta -->
+          <div class="mx-4 mt-2 rounded-2xl p-4 text-white text-xs flex items-center gap-3"
+               style="background:linear-gradient(135deg,#0F8266,#0A6F5E);box-shadow:var(--shadow-cta);">
+            <span class="w-9 h-9 rounded-full bg-white/15 flex items-center justify-center">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+            </span>
+            <span class="font-semibold leading-tight">Habla y la IA<br/>rellena por ti</span>
+          </div>
+
+          <div class="mx-4 mt-3 space-y-2">
+            <div class="rounded-xl bg-white border border-black/5 p-3 text-xs flex items-center gap-2 sh-xs">
+              <span style="color:var(--brand)">●</span> Lisboa, Portugal
+            </div>
+            <div class="rounded-xl bg-white border border-black/5 p-3 text-xs flex items-center gap-2 sh-xs">
+              <span>📅</span> 3 ago – 10 ago · 8 dies
+            </div>
+            <div class="rounded-xl bg-white border border-black/5 p-3 text-xs flex items-center gap-2 sh-xs">
+              <span>✈️</span> Avió · més ràpid
+            </div>
+          </div>
+
+          <div class="mt-auto px-4 pb-3">
+            <div class="rounded-xl border border-black/5 bg-white p-3 text-xs flex items-center justify-between">
+              <span style="color:var(--muted)">Pressupost</span>
+              <span class="tnum font-display font-bold">1.500€<span class="text-[10px] font-normal" style="color:var(--muted)"> / persona</span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: floating mini-stat (Perspective depth) -->
+      <div class="hidden lg:block absolute right-4 bottom-24 w-[240px]">
+        <div class="rounded-2xl p-5 sh-lg text-white" style="background:linear-gradient(135deg,#0D9E7A,#0A6F5E);">
+          <div class="micro" style="color:rgba(255,255,255,.7)">Latència mitjana</div>
+          <div class="font-display font-extrabold text-3xl mt-1 tnum">412<span class="text-base">ms</span></div>
+          <div class="text-xs mt-2 opacity-80">Edge route · p50</div>
+        </div>
+        <div class="mt-3 rounded-2xl p-4 sh-md bg-surface border border-line">
+          <div class="micro" style="color:var(--coral)">Sorpresa</div>
+          <div class="font-display font-bold text-base mt-1">La IA escull per tu.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── VALUE PROPS ─────────────── -->
+<section id="producte" class="paper-tex">
+  <div class="max-w-[1200px] mx-auto px-6 py-24">
+    <div class="grid md:grid-cols-12 gap-6 items-end mb-10">
+      <div class="md:col-span-7">
+        <div class="micro">01 · Valor</div>
+        <h2 class="font-display font-extrabold leading-[1.05] tracking-tight mt-3"
+            style="font-size: clamp(32px, 4vw, 56px);">
+          Del <span class="serif italic font-medium" style="color:var(--coral)">no sé on anar</span>
+          a un pla complet en menys d'un minut.
+        </h2>
+      </div>
+      <p class="md:col-span-5 text-base md:text-right" style="color:var(--muted)">
+        Sense fulls de càlcul, sense vint pestanyes obertes.
+        Una sola interfície que aprèn de tu i proposa el viatge més ajustat al teu pressupost real.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-12 gap-4">
+      <div class="md:col-span-5 rounded-2xl bg-surface border border-line p-7 sh-sm">
+        <div class="micro" style="color:var(--brand)">Onboarding</div>
+        <div class="font-display font-bold text-2xl mt-2 leading-tight">3 preguntes. Mai més.</div>
+        <p class="text-sm mt-2" style="color:var(--muted)">Les preferències viuen a Postgres via Prisma; la IA les llegeix com a context inicial.</p>
+        <div class="mt-5 flex gap-2 flex-wrap">
+          <span class="chip">Plus Jakarta</span><span class="chip chip-brand">Pill UI</span><span class="chip">Cream paper</span>
+        </div>
+      </div>
+      <div class="md:col-span-7 grid grid-cols-2 gap-4">
+        <div class="rounded-2xl bg-surface border border-line p-6 sh-sm">
+          <div class="micro" style="color:var(--brand)">Transport-aware</div>
+          <div class="font-display font-bold text-xl mt-2">Tren, vol o cotxe.</div>
+          <p class="text-xs mt-2" style="color:var(--muted)">Cerca conscient del mode: filtres reals, temps i emissions estimades.</p>
+        </div>
+        <div class="rounded-2xl bg-surface border border-line p-6 sh-sm">
+          <div class="micro" style="color:var(--info)">Mapa viu</div>
+          <div class="font-display font-bold text-xl mt-2">Drag &amp; drop sobre Mapbox.</div>
+          <p class="text-xs mt-2" style="color:var(--muted)">Reordena activitats i el pressupost recalcula a l'instant.</p>
+        </div>
+        <div class="rounded-2xl bg-surface border border-line p-6 sh-sm">
+          <div class="micro" style="color:var(--coral)">Sorpresa</div>
+          <div class="font-display font-bold text-xl mt-2">La IA escull per tu.</div>
+          <p class="text-xs mt-2" style="color:var(--muted)">Un clic i obtens un viatge complet sense decidir res.</p>
+        </div>
+        <div class="rounded-2xl bg-ink text-white p-6 sh-md">
+          <div class="micro" style="color:rgba(255,255,255,.5)">Veu</div>
+          <div class="font-display font-bold text-xl mt-2">Parla. Plana.</div>
+          <p class="text-xs mt-2 text-white/70">Dictat amb sheen animat — la IA omple el formulari mentre parles.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── DEMO · REFINED DARK FEATURE ─────────────── -->
+<section id="demo" class="refined-dark relative overflow-hidden">
+  <div class="absolute inset-0 dot-grid opacity-30"></div>
+  <div class="max-w-[1200px] mx-auto px-6 py-28 relative text-center">
+    <div class="micro" style="color:rgba(255,255,255,.5)">02 · Demo en viu</div>
+    <h2 class="font-display font-extrabold leading-[1.02] tracking-tight mt-4 mx-auto max-w-[820px]"
+        style="font-size: clamp(36px, 6vw, 76px);">
+      Aixeca PlAIner i veu-la<br/>
+      <span class="serif italic font-medium" style="color:#5fd9bd;">funcionar de veritat.</span>
+    </h2>
+    <p class="mt-6 mx-auto max-w-[520px] text-sm" style="color:rgba(243,239,230,.65)">
+      Tres comandes i tens registre, onboarding, cercador i resultats amb mapa, pressupost i mode sorpresa.
+    </p>
+
+    <!-- Refined CTA stack -->
+    <div class="mt-10 flex flex-col items-center gap-3">
+      <a href="http://localhost:3000" target="_blank" class="btn btn-primary" style="height:54px;padding:0 32px;">
+        Obrir demo →
+      </a>
+      <a href="https://github.com/AitorBolige/PlAIner" target="_blank" class="cta-appstore" style="background:rgba(255,255,255,.08);color:#fff;backdrop-filter:blur(8px);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2.9-.3 2-.4 3-.4s2.1.1 3 .4c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+        <span>
+          <span class="cta-appstore-mini block" style="color:rgba(255,255,255,.55)">Codi obert</span>
+          <span class="block font-display font-semibold text-xs">GitHub</span>
+        </span>
+      </a>
+    </div>
+
+    <!-- Terminal -->
+    <div class="mt-14 max-w-[640px] mx-auto rounded-2xl p-6 text-left font-mono text-xs leading-relaxed sh-xl border border-white/10"
+         style="background:#0a0907;color:#cfd6d3;">
+      <div><span style="color:rgba(255,255,255,.35)">$</span> <span class="text-white">git clone</span> https://github.com/AitorBolige/PlAIner&lt;user&gt;/plainer</div>
+      <div><span style="color:rgba(255,255,255,.35)">$</span> <span class="text-white">cd</span> plainer &amp;&amp; <span class="text-white">npm</span> install</div>
+      <div><span style="color:rgba(255,255,255,.35)">$</span> <span class="text-white">npm run</span> dev</div>
+      <div style="color:#5fd9bd" class="mt-2">▸ ready on <a href="http://localhost:3000" class="underline">http://localhost:3000</a></div>
+    </div>
+
+    <!-- Isometric preview row (Perspective) -->
+    <div class="mt-20 grid md:grid-cols-3 gap-6 text-left">
+      <div class="rounded-2xl p-6 border border-white/10 iso-flat" style="background:rgba(255,255,255,.04)">
+        <div class="micro" style="color:#5fd9bd">/search</div>
+        <div class="font-display font-bold text-base mt-2">Cercador transport-aware</div>
+        <p class="text-xs mt-2" style="color:rgba(243,239,230,.55)">Filtres reals per avió, tren i cotxe amb durada i emissions estimades.</p>
+      </div>
+      <div class="rounded-2xl p-6 border border-white/10 iso-flat" style="background:rgba(255,255,255,.04)">
+        <div class="micro" style="color:#5fd9bd">/results</div>
+        <div class="font-display font-bold text-base mt-2">Mapa + itinerari en directe</div>
+        <p class="text-xs mt-2" style="color:rgba(243,239,230,.55)">Drag &amp; drop d'activitats sobre Mapbox amb recàlcul de pressupost.</p>
+      </div>
+      <div class="rounded-2xl p-6 border border-white/10 iso-flat" style="background:rgba(255,255,255,.04)">
+        <div class="micro" style="color:#5fd9bd">/trip/[id]</div>
+        <div class="font-display font-bold text-base mt-2">Pressupost desglossat</div>
+        <p class="text-xs mt-2" style="color:rgba(243,239,230,.55)">Allotjament, transport, menjar i extres. Tabular tnum per a alineació perfecta.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── INNOVATION ─────────────── -->
+<section id="innovacio" class="paper-tex">
+  <div class="max-w-[1200px] mx-auto px-6 py-28">
+    <div class="text-center max-w-[860px] mx-auto">
+      <div class="micro">03 · Innovació</div>
+      <h2 class="font-display font-extrabold leading-[1.02] tracking-tight mt-4"
+          style="font-size: clamp(36px, 6vw, 72px);">
+        No volíem un altre cercador.<br/>
+        Volíem un <span class="serif italic font-medium underline-coral">company de viatge</span>.
+      </h2>
+      <p class="mt-6 text-base" style="color:var(--muted)">
+        Un model que entén el context, un mapa que respira i un sistema de recomanacions que millora cada vegada que el fas servir.
+      </p>
+    </div>
+
+    <div class="mt-14 grid md:grid-cols-3 gap-4">
+      <div class="rounded-2xl bg-surface border border-line p-7 sh-sm">
+        <div class="w-12 h-12 rounded-pill flex items-center justify-center sh-cta" style="background:var(--brand)">
+          <svg width="20" height="20" fill="#fff" viewBox="0 0 24 24"><path d="M12 2l1.8 4.6L18 8l-3.5 3 1 4.7L12 13.8 8.5 15.7l1-4.7L6 8l4.2-1.4L12 2z"/></svg>
+        </div>
+        <div class="font-display font-bold text-xl mt-4">IA generativa</div>
+        <p class="text-sm mt-2" style="color:var(--muted)">Gemini + OpenAI amb fallbacks i validació estricta amb Zod. Mai una resposta trencada al frontend.</p>
+      </div>
+      <div class="rounded-2xl bg-surface border border-line p-7 sh-sm">
+        <div class="w-12 h-12 rounded-pill flex items-center justify-center" style="background:rgba(59,135,232,.15);color:var(--info)">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8 2 5 5 5 9c0 5.3 7 13 7 13s7-7.7 7-13c0-4-3-7-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+        </div>
+        <div class="font-display font-bold text-xl mt-4">Mapes en directe</div>
+        <p class="text-sm mt-2" style="color:var(--muted)">Mapbox GL amb capes d'interès, marcadors agrupats i recàlcul de pressupost al moment.</p>
+      </div>
+      <div class="rounded-2xl bg-surface border border-line p-7 sh-sm">
+        <div class="w-12 h-12 rounded-pill flex items-center justify-center" style="background:rgba(240,90,53,.15);color:var(--coral)">
+          <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3l9 4-9 4-9-4 9-4zm-9 9l9 4 9-4M3 17l9 4 9-4"/></svg>
+        </div>
+        <div class="font-display font-bold text-xl mt-4">Ofertes en caché</div>
+        <p class="text-sm mt-2" style="color:var(--muted)">Pipeline d'scraping amb TTL i normalització cap a Postgres (Supabase). Refrescos invisibles cada 12h.</p>
+      </div>
+    </div>
+
+    <!-- Marquee values -->
+    <div class="mt-20 overflow-hidden border-y border-black/10 py-5">
+      <div class="flex gap-12 marquee whitespace-nowrap font-serif italic text-2xl" style="color:rgba(24,22,15,.35)">
+        <span>IA contextual</span><span>·</span><span>Mapes en directe</span><span>·</span>
+        <span>Transport-aware</span><span>·</span><span>Drag &amp; drop</span><span>·</span>
+        <span>Mode sorpresa</span><span>·</span><span>Pressupost real</span><span>·</span>
+        <span>IA contextual</span><span>·</span><span>Mapes en directe</span><span>·</span>
+        <span>Transport-aware</span><span>·</span><span>Drag &amp; drop</span><span>·</span>
+        <span>Mode sorpresa</span><span>·</span><span>Pressupost real</span><span>·</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── METHODOLOGY ─────────────── -->
+<section id="metodologia" class="bg-surface2 paper-tex" style="background:var(--surface-2)">
+  <div class="max-w-[1200px] mx-auto px-6 py-28">
+    <div class="grid md:grid-cols-12 gap-6 items-end mb-12">
+      <div class="md:col-span-7">
+        <div class="micro">04 · Metodologia</div>
+        <h2 class="font-display font-extrabold leading-[1.05] tracking-tight mt-3"
+            style="font-size: clamp(32px, 4vw, 56px);">
+          Evidències de les pràctiques <span class="serif italic font-medium" style="color:var(--brand)">d'enginyeria de software</span> del curs.
+        </h2>
+      </div>
+      <p class="md:col-span-5 text-base md:text-right" style="color:var(--muted)">
+        Sprints curts, code review, tests automatitzats i decisions documentades.
+        Cada feature passa per planificació → implementació → revisió → QA.
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-4 gap-4">
+      <div class="rounded-2xl bg-surface p-6 border border-line sh-sm">
+        <div class="font-oswald uppercase font-bold text-3xl tracking-tight">SCRUM</div>
+        <p class="text-sm mt-2" style="color:var(--muted)">Sprints d'una setmana amb backlog viu, daily i retrospectiva.</p>
+      </div>
+      <div class="rounded-2xl bg-surface p-6 border border-line sh-sm">
+        <div class="font-oswald uppercase font-bold text-3xl tracking-tight" style="color:var(--brand)">TDD</div>
+        <p class="text-sm mt-2" style="color:var(--muted)">Vitest per a lògica i Playwright per a E2E de rutes crítiques.</p>
+      </div>
+      <div class="rounded-2xl bg-surface p-6 border border-line sh-sm">
+        <div class="font-oswald uppercase font-bold text-3xl tracking-tight" style="color:var(--info)">CI</div>
+        <p class="text-sm mt-2" style="color:var(--muted)">Lint + build + tests verificats a cada PR abans del merge a main.</p>
+      </div>
+      <div class="rounded-2xl bg-ink text-white p-6 sh-md">
+        <div class="font-oswald uppercase font-bold text-3xl tracking-tight" style="color:var(--coral)">DOC</div>
+        <p class="text-sm mt-2 text-white/70">Product Canvas, ADRs i README com a font única de veritat tècnica.</p>
+      </div>
+    </div>
+
+    <!-- Practices marquee -->
+    <div class="mt-12 overflow-hidden border-y border-black/10 py-4">
+      <div class="flex gap-10 marquee whitespace-nowrap font-mono text-xs" style="color:var(--muted)">
+        <span>GIT FLOW</span><span>·</span><span>PULL REQUESTS</span><span>·</span>
+        <span>CONVENTIONAL COMMITS</span><span>·</span><span>CODE REVIEW</span><span>·</span>
+        <span>PRISMA MIGRATIONS</span><span>·</span><span>TYPE-SAFE APIS</span><span>·</span>
+        <span>VITEST</span><span>·</span><span>PLAYWRIGHT E2E</span><span>·</span>
+        <span>FIGMA → IMPLEMENTATION</span><span>·</span>
+        <span>GIT FLOW</span><span>·</span><span>PULL REQUESTS</span><span>·</span>
+        <span>CONVENTIONAL COMMITS</span><span>·</span><span>CODE REVIEW</span><span>·</span>
+        <span>PRISMA MIGRATIONS</span><span>·</span><span>TYPE-SAFE APIS</span><span>·</span>
+        <span>VITEST</span><span>·</span><span>PLAYWRIGHT E2E</span><span>·</span>
+        <span>FIGMA → IMPLEMENTATION</span><span>·</span>
+      </div>
+    </div>
+
+    <!-- Process timeline -->
+    <div class="mt-12 grid md:grid-cols-5 gap-3">
+      <div class="rounded-2xl bg-surface p-5 border border-line sh-xs">
+        <div class="micro" style="color:var(--faint)">01</div>
+        <div class="font-display font-bold text-base mt-1">Discovery</div>
+        <p class="text-xs mt-1" style="color:var(--muted)">Product Canvas + entrevistes a usuaris.</p>
+      </div>
+      <div class="rounded-2xl bg-surface p-5 border border-line sh-xs">
+        <div class="micro" style="color:var(--faint)">02</div>
+        <div class="font-display font-bold text-base mt-1">Disseny</div>
+        <p class="text-xs mt-1" style="color:var(--muted)">Wireframes a Figma i system tokens compartits.</p>
+      </div>
+      <div class="rounded-2xl bg-surface p-5 border border-line sh-xs">
+        <div class="micro" style="color:var(--faint)">03</div>
+        <div class="font-display font-bold text-base mt-1">Implement</div>
+        <p class="text-xs mt-1" style="color:var(--muted)">Branques curtes per feature i merges revisats.</p>
+      </div>
+      <div class="rounded-2xl bg-surface p-5 border border-line sh-xs">
+        <div class="micro" style="color:var(--faint)">04</div>
+        <div class="font-display font-bold text-base mt-1">Test</div>
+        <p class="text-xs mt-1" style="color:var(--muted)">Vitest unitari + Playwright E2E al CI.</p>
+      </div>
+      <div class="rounded-2xl bg-surface p-5 border border-line sh-xs">
+        <div class="micro" style="color:var(--faint)">05</div>
+        <div class="font-display font-bold text-base mt-1">Retro</div>
+        <p class="text-xs mt-1" style="color:var(--muted)">Decisions documentades com a ADRs.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── STACK ─────────────── -->
+<section class="paper-tex">
+  <div class="max-w-[1200px] mx-auto px-6 py-24">
+    <div class="grid md:grid-cols-12 gap-6 items-end mb-10">
+      <div class="md:col-span-7">
+        <div class="micro">05 · Stack</div>
+        <h2 class="font-display font-extrabold leading-[1.05] tracking-tight mt-3"
+            style="font-size: clamp(32px, 4vw, 48px);">
+          Modern, <span class="serif italic font-medium" style="color:var(--info)">tipat</span> i ràpid.
+        </h2>
+      </div>
+      <p class="md:col-span-5 text-base md:text-right" style="color:var(--muted)">
+        Tot el que envia bytes al navegador és Next.js 14 amb React Server Components.
+        La capa de dades viu sobre Prisma + Supabase.
+      </p>
+    </div>
+    <div class="grid grid-cols-3 sm:grid-cols-5 gap-3 text-sm">
+      <div class="bg-surface border border-line rounded-2xl p-4 text-center sh-xs">Next.js 14</div>
+      <div class="bg-surface border border-line rounded-2xl p-4 text-center sh-xs">TypeScript</div>
+      <div class="bg-surface border border-line rounded-2xl p-4 text-center sh-xs">Tailwind v4</div>
+      <div class="bg-surface border border-line rounded-2xl p-4 text-center sh-xs">Prisma 6</div>
+      <div class="bg-surface border border-line rounded-2xl p-4 text-center sh-xs">Supabase</div>
+      <div class="bg-surface border border-line rounded-2xl p-4 text-center sh-xs">NextAuth</div>
+      <div class="bg-surface border border-line rounded-2xl p-4 text-center sh-xs">Gemini + OpenAI</div>
+      <div class="bg-surface border border-line rounded-2xl p-4 text-center sh-xs">Mapbox GL</div>
+      <div class="bg-surface border border-line rounded-2xl p-4 text-center sh-xs">Framer Motion</div>
+      <div class="bg-surface border border-line rounded-2xl p-4 text-center sh-xs">Zod</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── REPO · FINAL CTA ─────────────── -->
+<section id="repo" class="refined-dark relative overflow-hidden">
+  <div class="absolute inset-0 dot-grid opacity-25"></div>
+  <div class="absolute inset-0 pointer-events-none">
+    <div class="pl-float-1 absolute w-80 h-80 rounded-full opacity-30" style="left:10%;top:10%;background:radial-gradient(circle,rgba(13,158,122,.45),transparent 70%);filter:blur(60px);"></div>
+    <div class="pl-float-2 absolute w-72 h-72 rounded-full opacity-25" style="right:8%;bottom:10%;background:radial-gradient(circle,rgba(240,90,53,.35),transparent 70%);filter:blur(60px);"></div>
+  </div>
+  <div class="max-w-[1200px] mx-auto px-6 py-28 relative text-center">
+    <div class="micro" style="color:rgba(255,255,255,.5)">06 · Open repository</div>
+    <h2 class="font-display font-extrabold leading-[0.98] tracking-tight mt-4 mx-auto max-w-[860px]"
+        style="font-size: clamp(48px, 9vw, 120px);">
+      Explora <span class="serif italic font-medium" style="color:#5fd9bd;">el codi.</span>
+    </h2>
+    <p class="mt-6 mx-auto max-w-[520px] text-sm" style="color:rgba(243,239,230,.65)">
+      Issues, PRs, decisions i tota l'evolució del projecte viuen a GitHub. Mira com s'ha construït PlAIner pas a pas.
+    </p>
+    <div class="mt-10 flex flex-col items-center gap-3">
+      <a href="https://github.com/AitorBolige/PlAIner" target="_blank" class="btn" style="background:#fff;color:#111;height:54px;padding:0 32px;">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.7.5.5 5.7.5 12c0 5.1 3.3 9.4 7.9 10.9.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.5-3.9-1.5-.5-1.3-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.6-.3-5.3-1.3-5.3-5.8 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2.9-.3 2-.4 3-.4s2.1.1 3 .4c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.8 1.2 3.1 0 4.5-2.7 5.5-5.3 5.8.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.6-1.5 7.9-5.8 7.9-10.9C23.5 5.7 18.3.5 12 .5z"/></svg>
+        github.com/AitorBolige/PlAIner
+      </a>
+      <a href="http://localhost:3000" target="_blank" class="cta-appstore" style="background:rgba(255,255,255,.08);color:#fff;backdrop-filter:blur(8px);">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7L8 5z"/></svg>
+        <span>
+          <span class="cta-appstore-mini block" style="color:rgba(255,255,255,.55)">Veure</span>
+          <span class="block font-display font-semibold text-xs">Demo en viu</span>
+        </span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ─────────────── FOOTER ─────────────── -->
+<footer style="background:#0e0d09;color:rgba(255,255,255,.5)">
+  <div class="max-w-[1200px] mx-auto px-6 py-10 flex flex-wrap items-center justify-between gap-4 text-xs">
+    <div class="flex items-center gap-3">
+      <span class="w-6 h-6 rounded-md flex items-center justify-center text-white font-display font-extrabold text-[10px]"
+            style="background: linear-gradient(135deg,#0D9E7A,#0A6F5E);">P</span>
+      <span class="font-display font-extrabold text-white text-sm">PlAIner</span>
+      <span class="ml-2">© 2026 · UPF Enginyeria de Software</span>
+    </div>
+    <div class="flex gap-5">
+      <a href="https://github.com/AitorBolige/PlAIner" class="hover:text-white">GitHub</a>
+      <a href="http://localhost:3000" class="hover:text-white">Demo</a>
+      <a href="#top" class="hover:text-white">↑ Tornar a dalt</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  const io = new IntersectionObserver((entries)=>{
+    for (const e of entries) if (e.isIntersecting) e.target.classList.add('in');
+  }, { threshold:0.1 });
+  document.querySelectorAll('section h2, section h3, .rounded-2xl, .rounded-pill').forEach(el=>{
+    el.classList.add('reveal'); io.observe(el);
+  });
+</script>
+</body>
+</html>

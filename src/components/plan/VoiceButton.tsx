@@ -160,11 +160,31 @@ export function VoiceButton() {
 
   async function start() {
     if (phase === "proc") return;
+
+    // getUserMedia / MediaRecorder only exist in a secure context (HTTPS or
+    // localhost). Over plain http on a LAN IP — e.g. testing from another
+    // machine — `mediaDevices` is undefined, so surface a clear reason instead
+    // of a misleading "allow microphone" toast.
+    if (
+      typeof navigator === "undefined" ||
+      !navigator.mediaDevices?.getUserMedia ||
+      typeof MediaRecorder === "undefined"
+    ) {
+      toast.error(t.voiceNotSupported);
+      return;
+    }
+
     let stream: MediaStream;
     try {
       stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    } catch {
-      toast.error(t.voiceMicPermission);
+    } catch (err) {
+      // Distinguish a real permission denial from "no device / not supported".
+      const name = (err as { name?: string })?.name;
+      toast.error(
+        name === "NotAllowedError" || name === "SecurityError"
+          ? t.voiceMicPermission
+          : t.voiceNotSupported,
+      );
       return;
     }
     streamRef.current = stream;
