@@ -29,15 +29,8 @@ import { toast } from "@/components/ui/Toast";
 import { cn } from "@/lib/cn";
 import type { DayDTO, ActivityDTO } from "@/components/trip/DayAccordion";
 import { useLocale } from "@/lib/i18n-client";
+import { useDisplayMoney } from "@/lib/use-display-money";
 import { type Locale, type Translations } from "@/lib/i18n";
-
-function euro(v: number, locale: string) {
-  const rounded = Math.round(v);
-  if (locale === "en") {
-    return `€${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-  }
-  return `${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} €`;
-}
 
 function getLocalizedStartTime(val: string | null, targetLocale: string): string {
   if (!val) return "";
@@ -136,6 +129,7 @@ function SortableActivity({
   t: Translations;
   readonly?: boolean;
 }) {
+  const displayMoney = useDisplayMoney();
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: activity.id, data: { dayId, type: "activity" } });
 
@@ -173,7 +167,7 @@ function SortableActivity({
           ) : null}
           <div className="mt-2 text-xs text-muted">
             {activity.duration ? `${activity.duration} min · ` : ""}
-            {euro(activity.cost, locale)}
+            {displayMoney(activity.cost)}
           </div>
         </div>
       </div>
@@ -184,6 +178,7 @@ function SortableActivity({
 // Day column ---------------------------------------------------------------
 
 function DayColumn({ day, locale, t, readonly }: { day: DayDTO; locale: string; t: Translations; readonly?: boolean; }) {
+  const displayMoney = useDisplayMoney();
   const total = dayTotal(day);
   return (
     <Card className="p-4">
@@ -192,7 +187,7 @@ function DayColumn({ day, locale, t, readonly }: { day: DayDTO; locale: string; 
           {t.dayNTitle(day.dayNumber, day.title)}
         </div>
         <div className="text-xs text-muted">
-          {t.activitiesCount(day.activities.length)} · {euro(total, locale)}
+          {t.activitiesCount(day.activities.length)} · {displayMoney(total)}
         </div>
       </div>
 

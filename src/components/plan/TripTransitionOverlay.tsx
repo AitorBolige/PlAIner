@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import mapboxgl from "mapbox-gl";
 import type { Offer, OfferMetadata } from "@/components/plan/PlanProvider";
 import { useLocale } from "@/lib/i18n-client";
+import { useDisplayMoney } from "@/lib/use-display-money";
 import type { Locale } from "@/lib/i18n";
 
 // ─── Airport → coords + city name ────────────────────────────────────────────
@@ -518,7 +519,7 @@ export function TripTransitionOverlay({
                           <p style={{ fontSize: 14, fontWeight: 700, color: "#18160f", margin: "2px 0 0", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{selectedHotel.title}</p>
                         </div>
                         <div style={{ flexShrink: 0, textAlign: "right" }}>
-                          <p style={{ fontSize: 16, fontWeight: 800, color: "#0D9E7A", margin: 0 }}>€{Math.round(selectedHotel.price)}</p>
+                          <HotelPrice price={selectedHotel.price} currency={selectedHotel.currency} />
                         </div>
                       </div>
                     </motion.div>
@@ -535,8 +536,18 @@ export function TripTransitionOverlay({
   );
 }
 
+function HotelPrice({ price, currency }: { price: number; currency: string }) {
+  const displayMoney = useDisplayMoney();
+  return (
+    <p style={{ fontSize: 16, fontWeight: 800, color: "#0D9E7A", margin: 0 }}>
+      {displayMoney(price, currency)}
+    </p>
+  );
+}
+
 // ─── Hotel card sub-component ─────────────────────────────────────────────────
 function HotelCard({ hotel, onSelect, disabled }: { hotel: Offer; onSelect: () => void; disabled: boolean }) {
+  const displayMoney = useDisplayMoney();
   return (
     <motion.button
       type="button"
@@ -571,7 +582,9 @@ function HotelCard({ hotel, onSelect, disabled }: { hotel: Offer; onSelect: () =
           )}
         </div>
         <div style={{ flexShrink: 0, textAlign: "right" }}>
-          <p style={{ fontSize: 16, fontWeight: 800, color: "#0D9E7A", margin: 0 }}>€{Math.round(hotel.price)}</p>
+          <p style={{ fontSize: 16, fontWeight: 800, color: "#0D9E7A", margin: 0 }}>
+            {displayMoney(hotel.price, hotel.currency)}
+          </p>
           {hotel.availabilityText && <p style={{ fontSize: 10, color: "#7a7570", margin: "1px 0 0" }}>{hotel.availabilityText}</p>}
         </div>
       </div>

@@ -1,3 +1,4 @@
+import { fromEur, normalizeCurrency, toEur } from "./currency";
 import { TravelOfferInput, TravelOfferQuery } from "./travel-offers";
 
 /** Server-side fetch with AbortController timeout (default 8 s). */
@@ -13,36 +14,6 @@ async function serverFetch(
   } finally {
     clearTimeout(id);
   }
-}
-
-// Approximate exchange rates to EUR (updated 2025). Used when the API returns prices
-// in a currency other than EUR so the UI always shows a consistent currency.
-const EUR_RATES: Record<string, number> = {
-  EUR: 1,
-  DKK: 1 / 7.46,
-  SEK: 1 / 10.55,
-  NOK: 1 / 11.75,
-  GBP: 1.18,
-  USD: 0.92,
-  CHF: 1.06,
-  PLN: 1 / 4.27,
-  CZK: 1 / 25.3,
-  HUF: 1 / 390,
-  RON: 1 / 4.97,
-  TRY: 1 / 36,
-  JPY: 1 / 163,
-  AUD: 0.61,
-  CAD: 0.68,
-  SGD: 0.7,
-  MXN: 1 / 20,
-  BRL: 1 / 6,
-  ISK: 1 / 150,
-};
-
-function toEur(amount: number, currency: string): number {
-  const rate = EUR_RATES[currency.toUpperCase().trim()];
-  if (!rate) return amount; // unknown currency: leave as-is
-  return Math.round(amount * rate);
 }
 
 type MetasearchFlightParams = {
@@ -387,6 +358,8 @@ function mapApiDojoHotelOffer(
 
   const rawCurrency = String(currency).toUpperCase().slice(0, 3);
   const priceEur = toEur(price, rawCurrency);
+  const displayCurrency = normalizeCurrency(fallbackCurrency);
+  const displayPrice = fromEur(priceEur, displayCurrency);
 
   const latRaw = item.latitude ?? item.lat;
   const lngRaw = item.longitude ?? item.lng;
@@ -398,8 +371,8 @@ function mapApiDojoHotelOffer(
     provider: "Booking.com via APIDojo",
     title: String(title),
     description,
-    price: priceEur,
-    currency: "EUR",
+    price: displayPrice,
+    currency: displayCurrency,
     bookingUrl,
     sourceUrl: bookingUrl,
     imageUrl: imageUrl ?? undefined,

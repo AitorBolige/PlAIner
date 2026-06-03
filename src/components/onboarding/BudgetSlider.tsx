@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Slider } from "@/components/ui/Slider";
 import { Input } from "@/components/ui/Input";
+import { useDisplayMoney } from "@/lib/use-display-money";
 
 function labelForBudget(v: number) {
   if (v < 700) return "Econòmic";
@@ -17,13 +18,10 @@ export interface BudgetSliderProps {
 }
 
 export function BudgetSlider({ value, onChange }: BudgetSliderProps) {
+  const displayMoney = useDisplayMoney();
   const label = labelForBudget(value);
 
-  const formatted = new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(value);
+  const formatted = displayMoney(value);
 
   return (
     <div className="grid gap-6">

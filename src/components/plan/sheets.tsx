@@ -20,6 +20,7 @@ import {
 } from "@/lib/plan";
 import { usePlan } from "@/components/plan/PlanProvider";
 import { useLocale } from "@/lib/i18n-client";
+import { useDisplayMoney } from "@/lib/use-display-money";
 import { localizeTag, localizeCountry, localizeCity } from "@/lib/i18n";
 
 type SheetCommon = { open: boolean; onClose: () => void };
@@ -31,6 +32,7 @@ const ZONE_COLORS = ["#3B87E8", "#0D9E7A", "#C8860A", "#9747FF"];
 export function DestinationSheet({ open, onClose }: SheetCommon) {
   const { setDestination } = usePlan();
   const { locale, t } = useLocale();
+  const displayMoney = useDisplayMoney();
   const [query, setQuery] = React.useState("");
 
   React.useEffect(() => {
@@ -92,7 +94,7 @@ export function DestinationSheet({ open, onClose }: SheetCommon) {
               />
               {/* price */}
               <span className="absolute right-2 top-2 rounded-full bg-black/55 px-2 py-1 text-[11px] font-bold text-white backdrop-blur-sm">
-                {t.fromPrice} {d.priceFrom}€
+                {t.fromPrice} {displayMoney(d.priceFrom)}
               </span>
               {/* tag */}
               {d.tag ? (
@@ -249,16 +251,12 @@ export function TransportSheet({ open, onClose }: SheetCommon) {
 
 // --- Budget ----------------------------------------------------------------
 
-const BUDGET_QUICK: { value: number; label: string }[] = [
-  { value: 500, label: "500€" },
-  { value: 1200, label: "1.2k€" },
-  { value: 2500, label: "2.5k€" },
-  { value: 5000, label: "5k€" },
-];
+const BUDGET_QUICK_VALUES = [500, 1200, 2500, 5000] as const;
 
 export function BudgetSheet({ open, onClose }: SheetCommon) {
   const { budget, setBudget } = usePlan();
   const { t } = useLocale();
+  const displayMoney = useDisplayMoney();
   const [v, setV] = React.useState(budget);
 
   React.useEffect(() => {
@@ -274,8 +272,7 @@ export function BudgetSheet({ open, onClose }: SheetCommon) {
         {/* Big amount */}
         <div className="text-center">
           <div className="display text-5xl font-extrabold tracking-[-0.03em] text-text">
-            {groupThousands(v)}{" "}
-            <span className="text-3xl font-bold text-muted">€</span>
+            {displayMoney(v)}
           </div>
           <div className="mt-1 text-sm text-muted">{t.perPersonAllInclusive}</div>
           <div
@@ -301,29 +298,33 @@ export function BudgetSheet({ open, onClose }: SheetCommon) {
             style={{ accentColor: zoneColor }}
           />
           <div className="mt-1 flex justify-between text-[11px] text-faint">
-            <span>&lt; 600€</span>
-            <span>600–1.500€</span>
-            <span>1.500–3.000€</span>
-            <span>&gt; 3.000€</span>
+            <span>&lt; {displayMoney(600)}</span>
+            <span>
+              {displayMoney(600)}–{displayMoney(1500)}
+            </span>
+            <span>
+              {displayMoney(1500)}–{displayMoney(3000)}
+            </span>
+            <span>&gt; {displayMoney(3000)}</span>
           </div>
         </div>
 
         {/* Quick picks */}
         <div className="grid grid-cols-4 gap-2">
-          {BUDGET_QUICK.map((q) => {
-            const active = v === q.value;
+          {BUDGET_QUICK_VALUES.map((amount) => {
+            const active = v === amount;
             return (
               <button
-                key={q.value}
+                key={amount}
                 type="button"
-                onClick={() => setV(q.value)}
+                onClick={() => setV(amount)}
                 className="rounded-full py-2.5 text-sm font-bold transition-colors"
                 style={{
                   background: active ? "var(--text)" : "var(--surface-2)",
                   color: active ? "#fff" : "var(--text-muted)",
                 }}
               >
-                {q.label}
+                {displayMoney(amount)}
               </button>
             );
           })}
@@ -337,7 +338,7 @@ export function BudgetSheet({ open, onClose }: SheetCommon) {
             onClose();
           }}
         >
-          {t.confirmBudget} · {groupThousands(v)} €
+          {t.confirmBudget} · {displayMoney(v)}
         </Button>
       </div>
     </Sheet>

@@ -8,6 +8,7 @@ import { Calendar, ChevronRight, Heart, MapPin, Plus, Sparkles } from "lucide-re
 import { getDestinationImage, BLUR_DATA_URL } from "@/lib/destinations";
 
 import { useLocale } from "@/lib/i18n-client";
+import { useDisplayMoney } from "@/lib/use-display-money";
 import { type Translations, localizeCity, type Locale } from "@/lib/i18n";
 
 type TripLite = {
@@ -22,14 +23,6 @@ type TripLite = {
 };
 
 type TabFilter = "all" | "upcoming" | "past" | "favorites";
-
-function euro(v: number, locale: string) {
-  const rounded = Math.round(v);
-  if (locale === "en") {
-    return `€${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-  }
-  return `${rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} €`;
-}
 
 function fmtDate(iso: string, t: Translations) {
   const d = new Date(iso);
@@ -268,6 +261,7 @@ export function HistoryClient({ trips, initialLocale }: { trips: TripLite[]; ini
   );
 
   function TripHistoryCard({ trip }: { trip: TripLite }) {
+    const displayMoney = useDisplayMoney();
     const [isFav, setIsFav] = React.useState(trip.isFavorite);
     const isUpcoming = new Date(trip.startDate) > now;
     const isPast = new Date(trip.endDate) < now;
@@ -453,7 +447,7 @@ export function HistoryClient({ trips, initialLocale }: { trips: TripLite[]; ini
                   letterSpacing: "-0.02em",
                 }}
               >
-                {euro(trip.totalCost, locale)}
+                {displayMoney(trip.totalCost)}
               </p>
             </div>
             <div

@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import mapboxgl from "mapbox-gl";
 import type { Offer } from "@/components/plan/PlanProvider";
 import { useLocale } from "@/lib/i18n-client";
+import { useDisplayMoney } from "@/lib/use-display-money";
 import type { Locale } from "@/lib/i18n";
 
 const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
@@ -25,6 +26,7 @@ export function HotelTransitionOverlay({
   initialLocale,
 }: HotelTransitionOverlayProps) {
   const { t } = useLocale(initialLocale);
+  const displayMoney = useDisplayMoney();
   const containerRef = React.useRef<HTMLDivElement>(null);
   const mapRef = React.useRef<mapboxgl.Map | null>(null);
   const [visible, setVisible] = React.useState(true);
@@ -237,7 +239,7 @@ export function HotelTransitionOverlay({
                 </div>
                 <div className="flex-none text-right">
                   <p className="text-base font-extrabold text-[color:var(--green)]">
-                    {hotel.price > 0 ? `€${Math.round(hotel.price)}` : ""}
+                    {hotel.price > 0 ? displayMoney(hotel.price, hotel.currency) : ""}
                   </p>
                   {hotel.availabilityText && (
                     <p className="text-[10px] text-muted">{hotel.availabilityText}</p>

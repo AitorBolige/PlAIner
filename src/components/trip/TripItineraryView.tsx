@@ -6,6 +6,7 @@ import { Clock, Coins, MapPin, Footprints, TrainFront, Car, UtensilsCrossed } fr
 import type { DayDTO } from "@/components/trip/DayAccordion";
 import { DayRouteMap, type RouteLeg, type TransportMode } from "@/components/trip/DayRouteMap";
 import { useLocale } from "@/lib/i18n-client";
+import { useDisplayMoney } from "@/lib/use-display-money";
 import type { Translations } from "@/lib/i18n";
 
 const SLOT_COLORS = ["#E85D3A", "#C8860A", "#E85D3A", "#C8860A"];
@@ -77,10 +78,6 @@ function useMenuUrl(
   }, [activityId, !!coord]);
 
   return url;
-}
-
-function euro(v: number) {
-  return `${Math.round(v).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} €`;
 }
 
 function fmtDuration(sec: number): string {
@@ -225,6 +222,7 @@ interface ActivityCardProps {
 }
 
 function ActivityCard({ activity, index, color, label, time, coord, destination, t }: ActivityCardProps) {
+  const displayMoney = useDisplayMoney();
   const rest    = isRestaurant(activity.category);
   const menuUrl = useMenuUrl(activity.id, activity.name, activity.menuUrl, destination, coord);
 
@@ -260,7 +258,7 @@ function ActivityCard({ activity, index, color, label, time, coord, destination,
             {activity.duration ? (
               <span className="inline-flex items-center gap-1"><Clock size={11} />{activity.duration} min</span>
             ) : null}
-            <span className="inline-flex items-center gap-1"><Coins size={11} />{euro(activity.cost)}</span>
+            <span className="inline-flex items-center gap-1"><Coins size={11} />{displayMoney(activity.cost)}</span>
 
             <a
               href={buildMapsUrl(activity.name, activity.mapsUrl, destination, coord)}

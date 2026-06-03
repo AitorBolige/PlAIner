@@ -6,6 +6,7 @@ import { Plane, TrainFront, Bus, Car, Hotel, Sparkles, MapPin } from "lucide-rea
 
 import { usePlan } from "@/components/plan/PlanProvider";
 import { fetchOffers, buildMockOffers } from "@/lib/plan-flow";
+import { getStoredCurrency } from "@/lib/currency";
 import { useLocale } from "@/lib/i18n-client";
 import { localizeCity } from "@/lib/i18n";
 
@@ -51,6 +52,8 @@ export function GeneratingScreen() {
       return;
     }
 
+    const userCurrency = getStoredCurrency();
+
     const advance = (offers: Parameters<typeof plan.setOffers>[0], error: string | null) => {
       if (done.current) return;
       done.current = true;
@@ -70,6 +73,7 @@ export function GeneratingScreen() {
           people,
           budget,
           origin,
+          currency: userCurrency,
           transportId: plan.transport?.id,
         }),
         null,
@@ -86,6 +90,7 @@ export function GeneratingScreen() {
       people,
       budget,
       origin,
+      currency: userCurrency,
       transportId: plan.transport?.id,
     }).then(({ offers, error }) => {
       clearTimeout(safety);

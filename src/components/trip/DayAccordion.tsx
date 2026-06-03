@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { useLocale } from "@/lib/i18n-client";
+import { useDisplayMoney } from "@/lib/use-display-money";
 
 export interface ActivityDTO {
   id: string;
@@ -30,14 +31,6 @@ export interface DayDTO {
 
 export interface DayAccordionProps {
   days: DayDTO[];
-}
-
-function euro(v: number) {
-  return new Intl.NumberFormat("es-ES", {
-    style: "currency",
-    currency: "EUR",
-    maximumFractionDigits: 0,
-  }).format(v);
 }
 
 function getLocalizedStartTime(val: string | null, targetLocale: string): string {
@@ -66,6 +59,7 @@ function getLocalizedStartTime(val: string | null, targetLocale: string): string
 export function DayAccordion({ days }: DayAccordionProps) {
   const [open, setOpen] = React.useState<number>(1);
   const { locale } = useLocale();
+  const displayMoney = useDisplayMoney();
 
   const dayLabel = locale === "en" ? "Day" : locale === "es" ? "Día" : "Dia";
   const activitiesLabel = locale === "en" ? "activities" : locale === "es" ? "actividades" : "activitats";
@@ -91,7 +85,7 @@ export function DayAccordion({ days }: DayAccordionProps) {
                     {dayLabel} {d.dayNumber} — {d.title}
                   </div>
                   <div className="mt-1 text-sm text-[color:var(--color-text-muted)]">
-                    {d.activities.length} {activitiesLabel} · {euro(total)}
+                    {d.activities.length} {activitiesLabel} · {displayMoney(total)}
                   </div>
                 </div>
                 <ChevronDown
@@ -127,7 +121,7 @@ export function DayAccordion({ days }: DayAccordionProps) {
                               ) : null}
                               <div className="mt-2 text-xs text-[color:var(--color-text-muted)]">
                                 {a.duration ? `${a.duration} min · ` : ""}
-                                {euro(a.cost)}
+                                {displayMoney(a.cost)}
                               </div>
                             </div>
                             <Button

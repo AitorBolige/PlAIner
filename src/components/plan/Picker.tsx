@@ -41,6 +41,8 @@ import {
   type ItineraryDay,
   type ItinerarySlot,
 } from "@/lib/plan-flow";
+import { convertCurrency, formatMoney } from "@/lib/currency";
+import { useCurrency } from "@/lib/use-currency";
 
 /** Pick the right lucide icon for a transport offer based on `transportKind`. */
 function transportIcon(kind?: string | null) {
@@ -52,13 +54,14 @@ function transportIcon(kind?: string | null) {
   }
 }
 
-function money(value: number, locale: string, currency = "EUR") {
-  const code = locale === "en" ? "en-US" : "es-ES";
-  return new Intl.NumberFormat(code, {
-    style: "currency",
-    currency: currency || "EUR",
-    maximumFractionDigits: 0,
-  }).format(value);
+function displayMoney(
+  value: number,
+  locale: string,
+  userCurrency: string,
+  sourceCurrency = userCurrency,
+) {
+  const converted = convertCurrency(value, sourceCurrency, userCurrency);
+  return formatMoney(converted, userCurrency, locale);
 }
 
 function SlotRow({
@@ -66,11 +69,13 @@ function SlotRow({
   label,
   slot,
   locale,
+  userCurrency,
 }: {
   icon: React.ReactNode;
   label: string;
   slot?: ItinerarySlot;
   locale: string;
+  userCurrency: string;
 }) {
   if (!slot?.name) return null;
   const sub = slot.description ?? slot.cuisine;
@@ -84,14 +89,26 @@ function SlotRow({
       </div>
       {slot.estimated_cost_eur ? (
         <span className="tnum flex-none text-xs font-semibold text-text">
-          {money(slot.estimated_cost_eur, locale)}
+          {displayMoney(slot.estimated_cost_eur, locale, userCurrency, "EUR")}
         </span>
       ) : null}
     </div>
   );
 }
 
-function DaySection({ day, index, locale, t }: { day: ItineraryDay; index: number; locale: string; t: Translations }) {
+function DaySection({
+  day,
+  index,
+  locale,
+  t,
+  userCurrency,
+}: {
+  day: ItineraryDay;
+  index: number;
+  locale: string;
+  t: Translations;
+  userCurrency: string;
+}) {
   return (
     <div className="w-full overflow-hidden rounded-[var(--r-md)] border border-border bg-[color:var(--surface-2)] p-3">
       <div className="mb-2.5 flex min-w-0 items-center gap-2">
@@ -103,10 +120,10 @@ function DaySection({ day, index, locale, t }: { day: ItineraryDay; index: numbe
         </span>
       </div>
       <div className="grid gap-2.5">
-        <SlotRow icon={<Sun size={14} />} label={t.slotMorning} slot={day.morning_activity} locale={locale} />
-        <SlotRow icon={<Utensils size={14} />} label={t.slotLunch} slot={day.lunch_restaurant} locale={locale} />
-        <SlotRow icon={<MapPin size={14} />} label={t.slotAfternoon} slot={day.afternoon_activity} locale={locale} />
-        <SlotRow icon={<Moon size={14} />} label={t.slotDinner} slot={day.dinner_restaurant} locale={locale} />
+        <SlotRow icon={<Sun size={14} />} label={t.slotMorning} slot={day.morning_activity} locale={locale} userCurrency={userCurrency} />
+        <SlotRow icon={<Utensils size={14} />} label={t.slotLunch} slot={day.lunch_restaurant} locale={locale} userCurrency={userCurrency} />
+        <SlotRow icon={<MapPin size={14} />} label={t.slotAfternoon} slot={day.afternoon_activity} locale={locale} userCurrency={userCurrency} />
+        <SlotRow icon={<Moon size={14} />} label={t.slotDinner} slot={day.dinner_restaurant} locale={locale} userCurrency={userCurrency} />
       </div>
     </div>
   );
@@ -117,11 +134,13 @@ function BookingCard({
   label,
   locale,
   t,
+  userCurrency,
 }: {
   offer: Offer;
   label: string;
   locale: string;
   t: Translations;
+  userCurrency: string;
 }) {
   const isHotel = offer.type === "HOTEL";
   const Icon = isHotel ? Hotel : transportIcon(offer.transportKind);
@@ -141,7 +160,7 @@ function BookingCard({
         <div className="truncate text-sm font-semibold text-text">{offer.title}</div>
         <div className="text-xs text-muted">
           {offer.provider ? `${offer.provider} · ` : ""}
-          {money(offer.price, locale, offer.currency)}
+          {displayMoney(offer.price, locale, userCurrency, offer.currency)}
           {isHotel ? (locale === "en" ? " /night" : locale === "es" ? " /noche" : " /nit") : ""}
         </div>
       </div>
@@ -205,11 +224,13 @@ function SelectableOffer({
   selected,
   onSelect,
   locale,
+  userCurrency,
 }: {
   offer: Offer;
   selected: boolean;
   onSelect: () => void;
   locale: string;
+  userCurrency: string;
 }) {
   const isHotel = offer.type === "HOTEL";
   const Icon = isHotel ? Hotel : transportIcon(offer.transportKind);
@@ -272,7 +293,7 @@ function SelectableOffer({
             ) : null}
           </div>
           <div className="display mt-2 text-lg font-extrabold tracking-[-0.02em] text-text">
-            {money(offer.price, locale, offer.currency)}
+            {displayMoney(offer.price, locale, userCurrency, offer.currency)}
             {isHotel ? <span className="text-xs font-normal text-muted"> {locale === "en" ? " /night" : locale === "es" ? " /noche" : " /nit"}</span> : null}
           </div>
         </div>
@@ -285,6 +306,7 @@ export function Picker() {
   const router = useRouter();
   const plan = usePlan();
   const { locale, t } = useLocale();
+  const [userCurrency] = useCurrency();
   const {
     offers,
     offersError,
@@ -375,11 +397,24 @@ export function Picker() {
     dates?.days ?? 1,
   );
   const totalBudget = Math.round(budget * people);
+  const displayGrandTotal =
+    convertCurrency(
+      costs.flightCost,
+      selectedFlight?.currency ?? userCurrency,
+      userCurrency,
+    ) +
+    convertCurrency(
+      costs.hotelCost,
+      selectedHotel?.currency ?? userCurrency,
+      userCurrency,
+    ) +
+    convertCurrency(costs.activitiesCost, "EUR", userCurrency);
+  const displayTotalBudget = convertCurrency(totalBudget, "EUR", userCurrency);
   const usagePct =
-    totalBudget > 0
-      ? Math.min(100, Math.round((costs.grandTotal / totalBudget) * 100))
+    displayTotalBudget > 0
+      ? Math.min(100, Math.round((displayGrandTotal / displayTotalBudget) * 100))
       : 0;
-  const overBudget = costs.grandTotal > totalBudget;
+  const overBudget = displayGrandTotal > displayTotalBudget;
 
   async function onSave() {
     if (!destination || !dates) return;
@@ -449,7 +484,9 @@ export function Picker() {
             {destination ? localizeCity(destination.id, locale) : (locale === "en" ? "Your Trip" : locale === "es" ? "Tu Viaje" : "El teu viatge")}
           </div>
           <div className="truncate text-xs text-muted">
-            {dates ? `${dates.days} ${dates.days === 1 ? t.day : t.days} · ${people} ${t.peopleCount(people).toLowerCase()} · ${budget} €/${t.perPersonWord}` : ""}
+            {dates
+              ? `${dates.days} ${dates.days === 1 ? t.day : t.days} · ${people} ${t.peopleCount(people).toLowerCase()} · ${displayMoney(budget, locale, userCurrency, "EUR")}/${t.perPersonWord}`
+              : ""}
           </div>
         </div>
       </div>
@@ -498,6 +535,7 @@ export function Picker() {
                   setShowTransitionOverlay(true);
                 }}
                 locale={locale}
+                userCurrency={userCurrency}
               />
             ))}
           </motion.div>
@@ -528,6 +566,7 @@ export function Picker() {
                   setStep("summary");
                 }}
                 locale={locale}
+                userCurrency={userCurrency}
               />
             ))}
           </motion.div>
@@ -541,22 +580,40 @@ export function Picker() {
               <div className="mt-3 grid gap-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted">{t.transport} ({people} {locale === "en" ? "people" : "pers."})</span>
-                  <span className="tnum font-semibold text-text">{money(costs.flightCost, locale)}</span>
+                  <span className="tnum font-semibold text-text">
+                    {displayMoney(
+                      costs.flightCost,
+                      locale,
+                      userCurrency,
+                      selectedFlight?.currency ?? userCurrency,
+                    )}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted">{t.accommodation}</span>
-                  <span className="tnum font-semibold text-text">{money(costs.hotelCost, locale)}</span>
+                  <span className="tnum font-semibold text-text">
+                    {displayMoney(
+                      costs.hotelCost,
+                      locale,
+                      userCurrency,
+                      selectedHotel?.currency ?? userCurrency,
+                    )}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted">{t.activitiesGastronomy}</span>
                   <span className="tnum font-semibold text-text">
-                    {itineraryLoading ? "…" : money(costs.activitiesCost, locale)}
+                    {itineraryLoading
+                      ? "…"
+                      : displayMoney(costs.activitiesCost, locale, userCurrency, "EUR")}
                   </span>
                 </div>
                 <div className="mt-1 flex justify-between border-t border-border pt-2">
                   <span className="display font-extrabold text-text">{t.tripTotal}</span>
                   <span className="display tnum text-lg font-extrabold text-[color:var(--green-deep)]">
-                    {itineraryLoading ? "…" : money(costs.grandTotal, locale)}
+                    {itineraryLoading
+                      ? "…"
+                      : formatMoney(displayGrandTotal, userCurrency, locale)}
                   </span>
                 </div>
               </div>
@@ -574,7 +631,8 @@ export function Picker() {
                 </div>
                 <div className="mt-1.5 flex justify-between text-[11px]">
                   <span className="text-faint">
-                    {t.budgetLabel} {money(totalBudget, locale)}
+                    {t.budgetLabel}{" "}
+                    {formatMoney(displayTotalBudget, userCurrency, locale)}
                   </span>
                   <span
                     className="tnum font-semibold"
@@ -589,10 +647,10 @@ export function Picker() {
 
             {/* Selected flight & hotel — reservable */}
             {selectedFlight ? (
-              <BookingCard offer={selectedFlight} label={locale === "en" ? "YOUR TRANSPORT" : locale === "es" ? "TU TRANSPORTE" : "EL TEU TRANSPORT"} locale={locale} t={t} />
+              <BookingCard offer={selectedFlight} label={locale === "en" ? "YOUR TRANSPORT" : locale === "es" ? "TU TRANSPORTE" : "EL TEU TRANSPORT"} locale={locale} t={t} userCurrency={userCurrency} />
             ) : null}
             {selectedHotel ? (
-              <BookingCard offer={selectedHotel} label={locale === "en" ? "YOUR ACCOMMODATION" : locale === "es" ? "TU ALOJAMIENTO" : "EL TEU ALLOTJAMENT"} locale={locale} t={t} />
+              <BookingCard offer={selectedHotel} label={locale === "en" ? "YOUR ACCOMMODATION" : locale === "es" ? "TU ALOJAMIENTO" : "EL TEU ALLOTJAMENT"} locale={locale} t={t} userCurrency={userCurrency} />
             ) : null}
 
             {/* Day-by-day itinerary */}
@@ -613,7 +671,7 @@ export function Picker() {
                     </p>
                   ) : null}
                   {(itinerary as Itinerary).days!.map((d, i) => (
-                    <DaySection key={i} day={d} index={i} locale={locale} t={t} />
+                    <DaySection key={i} day={d} index={i} locale={locale} t={t} userCurrency={userCurrency} />
                   ))}
                 </div>
               ) : (

@@ -10,11 +10,13 @@ import {
   Moon,
   Check,
   Search,
+  Banknote,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useLocale } from "@/lib/i18n-client";
 import { type Locale } from "@/lib/i18n";
 import { NATIONALITIES } from "@/lib/nationalities";
+import { useCurrency } from "@/lib/use-currency";
 
 interface SettingsFormProps {
   userId: string;
@@ -355,6 +357,7 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
   const [nationality, setNationality] = React.useState(
     initialData.nationality || "",
   );
+  const [currency, setCurrency] = useCurrency();
   const [hobbies, setHobbies] = React.useState(initialData.hobbies || "");
   const [avatar, setAvatar] = React.useState(initialData.image || "");
   const [avatarFile, setAvatarFile] = React.useState<File | null>(null);
@@ -662,6 +665,35 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
               { value: "ar", label: "🇸🇦 العربية" },
               { value: "zh", label: "🇨🇳 中文 (简体)" },
               { value: "hi", label: "🇮🇳 हिन्दी" }
+            ]}
+          />
+        </div>
+
+        <div className="mb-5 rounded-[14px] border-[1.5px] border-[color:var(--border)] bg-[color:var(--surface-2)] p-[12px_14px]">
+          <div className="mb-2.5 flex items-center gap-3">
+            <span className="flex h-[34px] w-[34px] flex-shrink-0 items-center justify-center rounded-[10px] bg-[color:var(--green-subtle)] text-[color:var(--green)]">
+              <Banknote size={17} />
+            </span>
+            <span className="flex-1">
+              <span className="block text-sm font-semibold text-[color:var(--text)]">
+                {t.currencyLabel}
+              </span>
+            </span>
+          </div>
+          <CustomSelect
+            value={currency}
+            onChange={(val) => setCurrency(val)}
+            placeholder="EUR"
+            options={[
+              { value: "EUR", label: "🇪🇺 EUR (€)" },
+              { value: "USD", label: "🇺🇸 USD ($)" },
+              { value: "GBP", label: "🇬🇧 GBP (£)" },
+              { value: "JPY", label: "🇯🇵 JPY (¥)" },
+              { value: "CHF", label: "🇨🇭 CHF" },
+              { value: "CAD", label: "🇨🇦 CAD ($)" },
+              { value: "AUD", label: "🇦🇺 AUD ($)" },
+              { value: "CNY", label: "🇨🇳 CNY (¥)" },
+              { value: "INR", label: "🇮🇳 INR (₹)" }
             ]}
           />
         </div>
