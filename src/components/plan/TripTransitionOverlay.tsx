@@ -234,10 +234,11 @@ export function TripTransitionOverlay({
   const origin: [number, number] = airportCoords(realOriginCode);
   const resolvedOriginCity = airportCity(realOriginCode);
 
-  // Destination coords: real destCode airport > geocoded city > default
+  // Destination coords: known airport IATA > geocoded city > default BCN
   const dest: [number, number] = (() => {
-    if (realDestCode) return airportCoords(realDestCode);
-    return destCoords ?? [2.0785, 41.2971];
+    if (realDestCode && AIRPORTS[realDestCode]) return AIRPORTS[realDestCode].coords;
+    if (destCoords) return destCoords;
+    return [2.0785, 41.2971];
   })();
 
   const originLng = origin[0],
