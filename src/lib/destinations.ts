@@ -1,3 +1,5 @@
+import { EXTRA_DESTINATIONS } from "./destinations-extra";
+
 /** Neutral blur placeholder for next/image (avoids images popping in). */
 export const BLUR_DATA_URL =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%23e4e0d8'/%3E%3C/svg%3E";
@@ -147,15 +149,18 @@ export const DESTINATIONS: Destination[] = [
       "https://images.unsplash.com/photo-1613395877344-13d4a8e0d49e?w=600&q=80&fit=crop&crop=center",
     emoji: "🇬🇷",
   },
+  ...EXTRA_DESTINATIONS,
 ];
 
 export function getDestinationImage(
   cityName: string,
   size: "card" | "hero" = "card",
 ): string {
-  const name = cityName.toLowerCase();
+  const name = cityName.toLowerCase().trim();
+  const slug = name.replace(/\s+/g, "-");
   const dest = DESTINATIONS.find(
     (d) =>
+      d.id === slug ||
       d.city.toLowerCase().includes(name) ||
       name.includes(d.city.toLowerCase()),
   );

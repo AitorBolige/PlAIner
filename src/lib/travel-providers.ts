@@ -1,4 +1,5 @@
 import { fromEur, normalizeCurrency, toEur } from "./currency";
+import { EXTRA_FLIGHT_IATA } from "./destination-i18n-data";
 import { TravelOfferInput, TravelOfferQuery } from "./travel-offers";
 
 /** Server-side fetch with AbortController timeout (default 8 s). */
@@ -1016,6 +1017,7 @@ function resolveFlightDestinationIata(query: TravelOfferQuery) {
     lanzarote: "ACE",
     maldives: "MLE",
     phuket: "HKT",
+    ...EXTRA_FLIGHT_IATA,
   };
 
   const resolved = cityMap[city];

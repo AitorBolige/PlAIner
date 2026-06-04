@@ -1,4 +1,9 @@
 
+import {
+  EXTRA_CITY_LOCALES,
+  EXTRA_CITY_VARIANTS,
+  EXTRA_COUNTRY_CODES,
+} from "./destination-i18n-data";
 
 export type Locale = "ca" | "es" | "en" | "de" | "fr" | "it" | "pt" | "ar" | "zh" | "hi";
 
@@ -3412,6 +3417,7 @@ export function localizeCountry(countryCode: string, locale: Locale): string {
     ID: { ca: "Indonèsia", es: "Indonesia", en: "Indonesia", de: "Indonesien", fr: "Indonésie", it: "Indonesia", pt: "Indonésia", ar: "إندونيسيا", zh: "印度尼西亚", hi: "इंडोनेशिया" },
     US: { ca: "EUA", es: "EE.UU.", en: "USA", de: "USA", fr: "États-Unis", it: "USA", pt: "EUA", ar: "الولايات المتحدة", zh: "美国", hi: "यूएसए" },
     GR: { ca: "Grècia", es: "Grecia", en: "Greece", de: "Griechenland", fr: "Grèce", it: "Grecia", pt: "Grécia", ar: "اليونان", zh: "希腊", hi: "ग्रीस" },
+    ...EXTRA_COUNTRY_CODES,
   };
   return countries[countryCode.toUpperCase()]?.[locale] ?? countryCode;
 }
@@ -3453,6 +3459,7 @@ const CITY_VARIANT_MAP: Record<string, string> = {
   "dubai": "dubai",
   "dubái": "dubai",
   "miami": "miami",
+  ...EXTRA_CITY_VARIANTS,
 };
 
 const stripDiacritics = (s: string) =>
@@ -3493,6 +3500,7 @@ export function localizeCity(cityId: string, locale: Locale): string {
     reykjavik: { ca: "Reykjavík", es: "Reykjavík", en: "Reykjavik", de: "Reykjavík", fr: "Reykjavik", it: "Reykjavík", pt: "Reiquiavique", ar: "ريكيافيك", zh: "雷克雅未克", hi: "रेक्याविक" },
     dubai: { ca: "Dubai", es: "Dubái", en: "Dubai", de: "Dubai", fr: "Dubaï", it: "Dubai", pt: "Dubai", ar: "دبي", zh: "迪拜", hi: "दुबई" },
     miami: { ca: "Miami", es: "Miami", en: "Miami", de: "Miami", fr: "Miami", it: "Miami", pt: "Miami", ar: "ميامي", zh: "迈阿密", hi: "मियामी" },
+    ...EXTRA_CITY_LOCALES,
   };
 
   const localized = cities[canonicalId]?.[locale];

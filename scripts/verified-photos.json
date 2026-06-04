@@ -1,0 +1,202 @@
+{
+  "barcelona": {
+    "hero": "photo-1650964827770-421afa7960ac",
+    "card": "photo-1735424325493-7dec695219c4"
+  },
+  "london": {
+    "hero": "photo-1681407979872-0a4cbde28391",
+    "card": "photo-1625756475700-f8e8396172c0"
+  },
+  "amsterdam": {
+    "hero": "photo-1534351590666-13e3e96b5017",
+    "card": "photo-1584003564911-a7a321c84e1c"
+  },
+  "berlin": {
+    "hero": "photo-1587330979470-3595ac045ab0",
+    "card": "photo-1560969184-10fe8719e047"
+  },
+  "prague": {
+    "hero": "photo-1564511287568-54483b52a35e",
+    "card": "photo-1600623471616-8c1966c91ff6"
+  },
+  "vienna": {
+    "hero": "photo-1516550893923-42d28e5677af",
+    "card": "photo-1519923041107-e4dc8d9193da"
+  },
+  "budapest": {
+    "hero": "photo-1616432902940-b7a1acbc60b3",
+    "card": "photo-1610752400564-c97cbbb5cfba"
+  },
+  "dubai": {
+    "hero": "photo-1512453979798-5ea266f8880c",
+    "card": "photo-1651467606797-e1c660cf3fda"
+  },
+  "istanbul": {
+    "hero": "photo-1691446930608-98466a4bdd0f",
+    "card": "photo-1580139644189-14a08f064717"
+  },
+  "cairo": {
+    "hero": "photo-1553913861-c0fddf2619ee",
+    "card": "photo-1539768942893-daf53e448371"
+  },
+  "cape-town": {
+    "hero": "photo-1588455471455-4b28e9ab3cd5",
+    "card": "photo-1604763655221-b98ebdac6ddf"
+  },
+  "nairobi": {
+    "hero": "photo-1669127300649-940337f1487e",
+    "card": "photo-1643913224222-17cc6adb2dfc"
+  },
+  "bangkok": {
+    "hero": "photo-1563492065599-3520f775eeed",
+    "card": "photo-1510379872535-9310dc6fd6a7"
+  },
+  "singapore": {
+    "hero": "photo-1525625293386-3f8f99389edd",
+    "card": "photo-1496939376851-89342e90adcd"
+  },
+  "hong-kong": {
+    "hero": "photo-1620015092538-e33c665fc181",
+    "card": "photo-1536599018102-9f803c140fc1"
+  },
+  "seoul": {
+    "hero": "photo-1535189043414-47a3c49a0bed",
+    "card": "photo-1506816561089-5cc37b3aa9b0"
+  },
+  "beijing": {
+    "hero": "photo-1614555383820-941c466f1b52",
+    "card": "photo-1577706881850-bf7c7d8906a5"
+  },
+  "shanghai": {
+    "hero": "photo-1545893835-abaa50cbe628",
+    "card": "photo-1612756336279-b9eb5b6b71d9"
+  },
+  "delhi": {
+    "hero": "photo-1587474260584-136574528ed5",
+    "card": "photo-1592639296346-560c37a0f711"
+  },
+  "mumbai": {
+    "hero": "photo-1595658658481-d53d3f999875",
+    "card": "photo-1573143950521-36ef5345dae9"
+  },
+  "sydney": {
+    "hero": "photo-1624138784614-87fd1b6528f8",
+    "card": "photo-1506973035872-a4ec16b8e8d9"
+  },
+  "melbourne": {
+    "hero": "photo-1595434971780-79d5c20c5090",
+    "card": "photo-1545044846-351ba102b6d5"
+  },
+  "auckland": {
+    "hero": "photo-1595125990323-885cec5217ff",
+    "card": "photo-1507699622108-4be3abd695ad"
+  },
+  "los-angeles": {
+    "hero": "photo-1534253893894-10d024888e49",
+    "card": "photo-1589053739346-ed32227546a4"
+  },
+  "san-francisco": {
+    "hero": "photo-1521747116042-5a810fda9664",
+    "card": "photo-1719858403364-83f7442a197e"
+  },
+  "chicago": {
+    "hero": "photo-1477959858617-67f85cf4f1df",
+    "card": "photo-1714662660476-022bfd34cf44"
+  },
+  "miami": {
+    "hero": "photo-1562517634-baa2da3acfbf",
+    "card": "photo-1543968332-f99478b1ebdc"
+  },
+  "mexico-city": {
+    "hero": "photo-1564975930846-3da8c44284a5",
+    "card": "photo-1705891848979-ef4dcccc3437"
+  },
+  "cancun": {
+    "hero": "photo-1602088113235-229c19758e9f",
+    "card": "photo-1565358720137-55235e0878a2"
+  },
+  "rio-de-janeiro": {
+    "hero": "photo-1594387295585-34ba732932c8",
+    "card": "photo-1604664474914-39713aa96dbf"
+  },
+  "buenos-aires": {
+    "hero": "photo-1706170421190-48b12aa10f5e",
+    "card": "photo-1678838032358-d5ef71b283db"
+  },
+  "lima": {
+    "hero": "photo-1660521844005-015733ce411e",
+    "card": "photo-1693492157127-4a1f3c945aa5"
+  },
+  "bogota": {
+    "hero": "photo-1568632234157-ce7aecd03d0d",
+    "card": "photo-1512617835784-a92626c0a554"
+  },
+  "havana": {
+    "hero": "photo-1584098181992-e7f35b51f85a",
+    "card": "photo-1748646848389-fbf2a42d5b1b"
+  },
+  "montreal": {
+    "hero": "photo-1519178251-5390a0fb6a3f",
+    "card": "photo-1545956146-d70420cd4320"
+  },
+  "vancouver": {
+    "hero": "photo-1730661906876-18bfc6e95f2f",
+    "card": "photo-1553855804-5ccc88ae0a2b"
+  },
+  "toronto": {
+    "hero": "photo-1569982615761-66697da68502",
+    "card": "photo-1632857997897-9418428d7368"
+  },
+  "reykjavik": {
+    "hero": "photo-1606130503037-6a8ef67c9d2d",
+    "card": "photo-1465353471565-b77e538f34c9"
+  },
+  "copenhagen": {
+    "hero": "photo-1561113500-8f4ad4f80a93",
+    "card": "photo-1722624225640-f80790628f07"
+  },
+  "stockholm": {
+    "hero": "photo-1508189860359-777d945909ef",
+    "card": "photo-1588653818221-2651ec1a6423"
+  },
+  "oslo": {
+    "hero": "photo-1725993486972-f569d8038915",
+    "card": "photo-1703534645782-b76687c3c3d1"
+  },
+  "helsinki": {
+    "hero": "photo-1538332576228-eb5b4c4de6f5",
+    "card": "photo-1568008842610-6642e5afe517"
+  },
+  "warsaw": {
+    "hero": "photo-1553422734-fd8dd260a116",
+    "card": "photo-1607427293702-036933bbf746"
+  },
+  "krakow": {
+    "hero": "photo-1563177978-4c5ffc081b2a",
+    "card": "photo-1577133192629-5140c5371590"
+  },
+  "athens": {
+    "hero": "photo-1603565816030-6b389eeb23cb",
+    "card": "photo-1555993539-1732b0258235"
+  },
+  "dubrovnik": {
+    "hero": "photo-1555990793-da11153b2473",
+    "card": "photo-1575540291670-8d3b26f7d327"
+  },
+  "venice": {
+    "hero": "photo-1566984991763-91b985a3f9c2",
+    "card": "photo-1578507840562-370632c7559f"
+  },
+  "florence": {
+    "hero": "photo-1687817997684-c9335cce7c5c",
+    "card": "photo-1691319683356-c8ac7f6647c1"
+  },
+  "milan": {
+    "hero": "photo-1610016302534-6f67f1c968d8",
+    "card": "photo-1572602648934-1d98de6dab48"
+  },
+  "nice": {
+    "hero": "photo-1643914729809-4aa59fdc4c17",
+    "card": "photo-1521309033026-f3438b7c4264"
+  }
+}
