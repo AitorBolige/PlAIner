@@ -1706,7 +1706,6 @@ export async function searchFlightsMetasearch(
     destinationIata: params.destinationIata,
     routeLabel: `${params.originIata} → ${params.destinationIata}`,
   } satisfies FlightRouteContext;
-  const maxPrice = params.maxPrice ?? undefined;
   const currency = params.currency || "EUR";
 
   console.log(`[searchFlightsMetasearch] Final offers found: ${list.length}`);
@@ -1749,17 +1748,6 @@ export async function searchFlightsMetasearchForQuery(
   });
 }
 
-// Helper to filter flights by max price
-function filterOffersByMaxPrice(
-  offers: TravelOfferInput[],
-  query?: TravelOfferQuery,
-) {
-  const effectiveMax = query?.maxPrice ?? query?.budgetMax;
-  if (effectiveMax && Number.isFinite(Number(effectiveMax))) {
-    return offers.filter((o) => Number(o.price) <= Number(effectiveMax));
-  }
-  return offers;
-}
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function resolveDefaultOriginIata(query: TravelOfferQuery) {

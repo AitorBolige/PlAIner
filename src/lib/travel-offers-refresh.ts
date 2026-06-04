@@ -7,7 +7,6 @@ import {
   upsertTravelSearchOffers,
 } from "@/lib/travel-offers";
 import { fromEur, normalizeCurrency } from "@/lib/currency";
-import { computeBudgetCaps } from "@/lib/plan-flow";
 import {
   searchFlightsMetasearchForQuery,
   searchHotelsApiDojo,
@@ -726,14 +725,6 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
           ),
         )
       : 1;
-  const caps = normalizedQuery.budgetMax
-    ? computeBudgetCaps(
-        normalizedQuery.budgetMax,
-        normalizedQuery.people,
-        nights,
-      )
-    : null;
-
   const hotelPromise = hasApiDojoHotelCreds
     ? searchHotelsApiDojo({
         query: normalizedQuery.city || normalizedQuery.destination,
