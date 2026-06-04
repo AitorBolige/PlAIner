@@ -140,14 +140,20 @@ export function FlightTransitionOverlay({
   ];
   const dest: [number, number] = destCoords ?? [2.0785, 41.2971];
 
+  const originLng = origin[0],
+    originLat = origin[1]; // eslint-disable-line @typescript-eslint/no-unused-vars
+  const destLng = dest[0],
+    destLat = dest[1]; // eslint-disable-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const arc = React.useMemo(
     () => greatCircleArc(origin, dest, 120),
-    [origin[0], dest[0]],
-  ); // eslint-disable-line
+    [originLng, destLng],
+  );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const distKm = React.useMemo(
     () => haversineKm(origin, dest),
-    [origin[0], dest[0]],
-  ); // eslint-disable-line
+    [originLng, destLng],
+  );
   const flightTime = estimateFlightTime(distKm);
 
   // Mid-point for initial camera + zoom level based on distance

@@ -240,10 +240,14 @@ export function TripTransitionOverlay({
     return destCoords ?? [2.0785, 41.2971];
   })();
 
+  const originLng = origin[0],
+    originLat = origin[1];
+  const destLng = dest[0],
+    destLat = dest[1];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const arc = React.useMemo(
     () => greatCircleArc(origin, dest),
-    [origin[0], origin[1], dest[0], dest[1]],
+    [originLng, originLat, destLng, destLat],
   );
   const distKm = haversineKm(origin, dest);
 

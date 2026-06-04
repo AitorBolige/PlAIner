@@ -754,6 +754,7 @@ function RecommendationCard({
         {/* Author info */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {trip.author.image ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={trip.author.image}
               alt=""

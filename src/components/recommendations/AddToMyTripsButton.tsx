@@ -12,12 +12,8 @@ interface Props {
   initialLocale?: import("@/lib/i18n").Locale;
 }
 
-export function AddToMyTripsButton({
-  tripId,
-  destination: _destination,
-  isOwn = false,
-  initialLocale,
-}: Props) {
+export function AddToMyTripsButton(props: Props) {
+  const { tripId, isOwn = false, initialLocale } = props;
   const router = useRouter();
   const { t } = useLocale(initialLocale);
   const [state, setState] = React.useState<"idle" | "loading" | "done">("idle");
