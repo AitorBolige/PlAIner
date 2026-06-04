@@ -191,9 +191,15 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (err) {
-    console.error("[POST /api/trips] Prisma error:", err instanceof Error ? err.message : err);
+    console.error(
+      "[POST /api/trips] Prisma error:",
+      err instanceof Error ? err.message : err,
+    );
     return NextResponse.json(
-      { ok: false, error: "No s'ha pogut desar el viatge. Torna-ho a intentar." },
+      {
+        ok: false,
+        error: "No s'ha pogut desar el viatge. Torna-ho a intentar.",
+      },
       { status: 500 },
     );
   }

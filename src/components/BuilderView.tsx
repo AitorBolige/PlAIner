@@ -35,8 +35,20 @@ export function BuilderView({
     { airline: "Iberia", time: "18:00 - 20:15", extraEur: 45, id: 3 },
   ];
   const hotelOptions = [
-    { name: "NH Collection Istanbul", rating: "4.5★", desc: "A prop del centre", extraEur: 0, id: 1 },
-    { name: "Hilton Bosphorus", rating: "4.8★", desc: "Vistes al mar", extraEur: 120, id: 2 },
+    {
+      name: "NH Collection Istanbul",
+      rating: "4.5★",
+      desc: "A prop del centre",
+      extraEur: 0,
+      id: 1,
+    },
+    {
+      name: "Hilton Bosphorus",
+      rating: "4.8★",
+      desc: "Vistes al mar",
+      extraEur: 120,
+      id: 2,
+    },
   ];
 
   const handleComplete = async () => {
@@ -112,8 +124,7 @@ export function BuilderView({
           <div
             style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 2 }}
           >
-            {dates.days} dies · {people} persones ·{" "}
-            {displayMoney(budget)}/p.
+            {dates.days} dies · {people} persones · {displayMoney(budget)}/p.
           </div>
         </div>
       </div>

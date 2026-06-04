@@ -33,25 +33,28 @@ export interface DayAccordionProps {
   days: DayDTO[];
 }
 
-function getLocalizedStartTime(val: string | null, targetLocale: string): string {
+function getLocalizedStartTime(
+  val: string | null,
+  targetLocale: string,
+): string {
   if (!val) return "";
   const name = val.trim().toLowerCase();
   const timesMap: Record<string, Record<string, string>> = {
-    "matí": { ca: "Matí", es: "Mañana", en: "Morning" },
-    "morning": { ca: "Matí", es: "Mañana", en: "Morning" },
-    "mañana": { ca: "Matí", es: "Mañana", en: "Morning" },
+    matí: { ca: "Matí", es: "Mañana", en: "Morning" },
+    morning: { ca: "Matí", es: "Mañana", en: "Morning" },
+    mañana: { ca: "Matí", es: "Mañana", en: "Morning" },
 
-    "dinar": { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
-    "lunch": { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
-    "almuerzo": { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
+    dinar: { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
+    lunch: { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
+    almuerzo: { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
 
-    "tarda": { ca: "Tarda", es: "Tarde", en: "Afternoon" },
-    "afternoon": { ca: "Tarda", es: "Tarde", en: "Afternoon" },
-    "tarde": { ca: "Tarda", es: "Tarde", en: "Afternoon" },
+    tarda: { ca: "Tarda", es: "Tarde", en: "Afternoon" },
+    afternoon: { ca: "Tarda", es: "Tarde", en: "Afternoon" },
+    tarde: { ca: "Tarda", es: "Tarde", en: "Afternoon" },
 
-    "sopar": { ca: "Sopar", es: "Cena", en: "Dinner" },
-    "dinner": { ca: "Sopar", es: "Cena", en: "Dinner" },
-    "cena": { ca: "Sopar", es: "Cena", en: "Dinner" },
+    sopar: { ca: "Sopar", es: "Cena", en: "Dinner" },
+    dinner: { ca: "Sopar", es: "Cena", en: "Dinner" },
+    cena: { ca: "Sopar", es: "Cena", en: "Dinner" },
   };
   return timesMap[name]?.[targetLocale] ?? val;
 }
@@ -62,7 +65,12 @@ export function DayAccordion({ days }: DayAccordionProps) {
   const displayMoney = useDisplayMoney();
 
   const dayLabel = locale === "en" ? "Day" : locale === "es" ? "Día" : "Dia";
-  const activitiesLabel = locale === "en" ? "activities" : locale === "es" ? "actividades" : "activitats";
+  const activitiesLabel =
+    locale === "en"
+      ? "activities"
+      : locale === "es"
+        ? "actividades"
+        : "activitats";
 
   return (
     <div className="grid gap-3">
@@ -85,7 +93,8 @@ export function DayAccordion({ days }: DayAccordionProps) {
                     {dayLabel} {d.dayNumber} — {d.title}
                   </div>
                   <div className="mt-1 text-sm text-[color:var(--color-text-muted)]">
-                    {d.activities.length} {activitiesLabel} · {displayMoney(total)}
+                    {d.activities.length} {activitiesLabel} ·{" "}
+                    {displayMoney(total)}
                   </div>
                 </div>
                 <ChevronDown
@@ -111,7 +120,9 @@ export function DayAccordion({ days }: DayAccordionProps) {
                           <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
                               <div className="text-sm font-semibold">
-                                {a.startTime ? `${getLocalizedStartTime(a.startTime, locale)} · ` : ""}
+                                {a.startTime
+                                  ? `${getLocalizedStartTime(a.startTime, locale)} · `
+                                  : ""}
                                 {a.name}
                               </div>
                               {a.description ? (

@@ -40,7 +40,8 @@ export interface BudgetZone {
 }
 
 export function budgetZone(v: number): BudgetZone {
-  if (v < 600) return { i: 0, label: "Econòmic", sub: "Escapades curtes a Europa" };
+  if (v < 600)
+    return { i: 0, label: "Econòmic", sub: "Escapades curtes a Europa" };
   if (v < 1500) return { i: 1, label: "Equilibrat", sub: "5-7 dies a Europa" };
   if (v < 3000) return { i: 2, label: "Confortable", sub: "Intercontinental" };
   return { i: 3, label: "Premium", sub: "Sense compromís" };
@@ -48,15 +49,28 @@ export function budgetZone(v: number): BudgetZone {
 
 /** Locale-aware version of budgetZone. */
 export function getBudgetZone(v: number, t: Translations): BudgetZone {
-  if (v < 600) return { i: 0, label: t.budgetEconomic, sub: t.budgetEconomicSub };
-  if (v < 1500) return { i: 1, label: t.budgetBalanced, sub: t.budgetBalancedSub };
-  if (v < 3000) return { i: 2, label: t.budgetComfortable, sub: t.budgetComfortableSub };
+  if (v < 600)
+    return { i: 0, label: t.budgetEconomic, sub: t.budgetEconomicSub };
+  if (v < 1500)
+    return { i: 1, label: t.budgetBalanced, sub: t.budgetBalancedSub };
+  if (v < 3000)
+    return { i: 2, label: t.budgetComfortable, sub: t.budgetComfortableSub };
   return { i: 3, label: t.budgetPremium, sub: t.budgetPremiumSub };
 }
 
 const MONTHS_CA = [
-  "gen", "feb", "març", "abr", "maig", "juny",
-  "jul", "ago", "set", "oct", "nov", "des",
+  "gen",
+  "feb",
+  "març",
+  "abr",
+  "maig",
+  "juny",
+  "jul",
+  "ago",
+  "set",
+  "oct",
+  "nov",
+  "des",
 ];
 
 export function monthAbbr(d: Date): string {

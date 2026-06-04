@@ -43,7 +43,9 @@ export async function POST(request: NextRequest) {
     ...raw,
     offers: raw.offers.map((o) => {
       const meta = o.metadata as { transportKind?: string } | null;
-      return meta?.transportKind ? { ...o, transportKind: meta.transportKind } : o;
+      return meta?.transportKind
+        ? { ...o, transportKind: meta.transportKind }
+        : o;
     }),
   };
 

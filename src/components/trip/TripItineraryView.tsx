@@ -1,10 +1,22 @@
 "use client";
 
 import * as React from "react";
-import { Clock, Coins, MapPin, Footprints, TrainFront, Car, UtensilsCrossed } from "lucide-react";
+import {
+  Clock,
+  Coins,
+  MapPin,
+  Footprints,
+  TrainFront,
+  Car,
+  UtensilsCrossed,
+} from "lucide-react";
 
 import type { DayDTO } from "@/components/trip/DayAccordion";
-import { DayRouteMap, type RouteLeg, type TransportMode } from "@/components/trip/DayRouteMap";
+import {
+  DayRouteMap,
+  type RouteLeg,
+  type TransportMode,
+} from "@/components/trip/DayRouteMap";
 import { useLocale } from "@/lib/i18n-client";
 import { useDisplayMoney } from "@/lib/use-display-money";
 import type { Translations } from "@/lib/i18n";
@@ -41,7 +53,10 @@ async function fetchRestaurantWebsite(
   coord: [number, number] | null | undefined,
 ): Promise<string | null> {
   const params = new URLSearchParams({ name, dest: destination });
-  if (coord) { params.set("lat", String(coord[1])); params.set("lng", String(coord[0])); }
+  if (coord) {
+    params.set("lat", String(coord[1]));
+    params.set("lng", String(coord[0]));
+  }
   try {
     const res = await fetch(`/api/restaurant-website?${params}`);
     return await res.json();
@@ -70,11 +85,14 @@ function useMenuUrl(
   const [url, setUrl] = React.useState<string>(storedMenuUrl ?? fallback);
 
   React.useEffect(() => {
-    if (storedMenuUrl) { setUrl(storedMenuUrl); return; }
+    if (storedMenuUrl) {
+      setUrl(storedMenuUrl);
+      return;
+    }
     fetchRestaurantWebsite(name, destination, coord).then((w) => {
       setUrl(w ?? fallback);
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activityId, !!coord]);
 
   return url;
@@ -131,7 +149,10 @@ function timeToMinutes(t: string): number {
 }
 
 /** Add minutes to a "HH:MM" string. Returns null if input is invalid. */
-function addMinutes(time: string | null | undefined, minutes: number): string | null {
+function addMinutes(
+  time: string | null | undefined,
+  minutes: number,
+): string | null {
   const t = parseTime(time);
   if (!t) return null;
   const [hStr, mStr] = t.split(":");
@@ -143,10 +164,28 @@ function addMinutes(time: string | null | undefined, minutes: number): string | 
 
 // ── Travel connector between activity cards ───────────────────────────────────
 
-const MODE_CONFIG: Record<TransportMode, { icon: React.ReactNode; label: string; color: string; bg: string }> = {
-  walk:    { icon: <Footprints size={13} />, label: "a peu",         color: "#0D9E7A", bg: "rgba(13,158,122,0.08)" },
-  transit: { icon: <TrainFront size={13} />, label: "metro / bus",   color: "#3B87E8", bg: "rgba(59,135,232,0.08)" },
-  taxi:    { icon: <Car        size={13} />, label: "taxi / vehicle", color: "#C8860A", bg: "rgba(200,134,10,0.08)" },
+const MODE_CONFIG: Record<
+  TransportMode,
+  { icon: React.ReactNode; label: string; color: string; bg: string }
+> = {
+  walk: {
+    icon: <Footprints size={13} />,
+    label: "a peu",
+    color: "#0D9E7A",
+    bg: "rgba(13,158,122,0.08)",
+  },
+  transit: {
+    icon: <TrainFront size={13} />,
+    label: "metro / bus",
+    color: "#3B87E8",
+    bg: "rgba(59,135,232,0.08)",
+  },
+  taxi: {
+    icon: <Car size={13} />,
+    label: "taxi / vehicle",
+    color: "#C8860A",
+    bg: "rgba(200,134,10,0.08)",
+  },
 };
 
 function TravelConnector({
@@ -169,36 +208,73 @@ function TravelConnector({
     <div className="flex items-stretch gap-3 px-1">
       {/* Vertical timeline */}
       <div className="flex w-9 flex-col items-center">
-        <div style={{ width: 2, flex: 1, background: "var(--border-md)", borderRadius: 1 }} />
+        <div
+          style={{
+            width: 2,
+            flex: 1,
+            background: "var(--border-md)",
+            borderRadius: 1,
+          }}
+        />
         <div
           className="flex shrink-0 items-center justify-center rounded-full"
-          style={{ width: 28, height: 28, background: cfg.bg, color: cfg.color, border: `1.5px solid ${cfg.color}33` }}
+          style={{
+            width: 28,
+            height: 28,
+            background: cfg.bg,
+            color: cfg.color,
+            border: `1.5px solid ${cfg.color}33`,
+          }}
         >
           {cfg.icon}
         </div>
-        <div style={{ width: 2, flex: 1, background: "var(--border-md)", borderRadius: 1 }} />
+        <div
+          style={{
+            width: 2,
+            flex: 1,
+            background: "var(--border-md)",
+            borderRadius: 1,
+          }}
+        />
       </div>
 
       <div className="flex flex-1 flex-col justify-center gap-1 py-2">
         {/* Transport row */}
-        <div className="flex items-center gap-1.5 text-xs" style={{ color: "var(--text-muted)" }}>
-          <span style={{ color: cfg.color, fontWeight: 700 }}>{fmtDuration(leg.durationSec)}</span>
+        <div
+          className="flex items-center gap-1.5 text-xs"
+          style={{ color: "var(--text-muted)" }}
+        >
+          <span style={{ color: cfg.color, fontWeight: 700 }}>
+            {fmtDuration(leg.durationSec)}
+          </span>
           <span>·</span>
           <span>{fmtDistance(leg.distanceM)}</span>
           <span>·</span>
           <span style={{ fontWeight: 600 }}>{cfg.label}</span>
         </div>
         {/* Departure → Arrival (real travel times) */}
-        <div className="flex items-center gap-1.5 text-[11px]" style={{ color: "var(--text-faint)" }}>
-          <span>{t.departsAt} <strong style={{ color: "var(--text-muted)" }}>{departAt}</strong></span>
+        <div
+          className="flex items-center gap-1.5 text-[11px]"
+          style={{ color: "var(--text-faint)" }}
+        >
+          <span>
+            {t.departsAt}{" "}
+            <strong style={{ color: "var(--text-muted)" }}>{departAt}</strong>
+          </span>
           <span style={{ opacity: 0.5 }}>→</span>
-          <span>{t.arrivesAt} <strong style={{ color: "var(--text-muted)" }}>{arriveAt}</strong></span>
+          <span>
+            {t.arrivesAt}{" "}
+            <strong style={{ color: "var(--text-muted)" }}>{arriveAt}</strong>
+          </span>
         </div>
         {/* Free time gap (if >5 min between arrival and next slot) */}
         {freeMin > 5 && (
           <div
             className="mt-0.5 inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
-            style={{ background: "var(--surface-2)", color: "var(--text-faint)" }}
+            style={{
+              background: "var(--surface-2)",
+              color: "var(--text-faint)",
+            }}
           >
             ☕ {fmtDuration(freeMin * 60)} {t.freeUntil(nextSlotAt)}
           </div>
@@ -221,10 +297,25 @@ interface ActivityCardProps {
   t: Translations;
 }
 
-function ActivityCard({ activity, index, color, label, time, coord, destination, t }: ActivityCardProps) {
+function ActivityCard({
+  activity,
+  index,
+  color,
+  label,
+  time,
+  coord,
+  destination,
+  t,
+}: ActivityCardProps) {
   const displayMoney = useDisplayMoney();
-  const rest    = isRestaurant(activity.category);
-  const menuUrl = useMenuUrl(activity.id, activity.name, activity.menuUrl, destination, coord);
+  const rest = isRestaurant(activity.category);
+  const menuUrl = useMenuUrl(
+    activity.id,
+    activity.name,
+    activity.menuUrl,
+    destination,
+    coord,
+  );
 
   return (
     <div className="overflow-hidden rounded-[var(--r-xl)] border border-border bg-surface shadow-[var(--shadow-xs)]">
@@ -238,36 +329,58 @@ function ActivityCard({ activity, index, color, label, time, coord, destination,
 
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-[0.1em]" style={{ color }}>
+            <span
+              className="text-[10px] font-bold uppercase tracking-[0.1em]"
+              style={{ color }}
+            >
               {label}
             </span>
             {time && (
-              <span className="rounded-full px-2 py-0.5 text-[11px] font-bold" style={{ background: `${color}18`, color }}>
+              <span
+                className="rounded-full px-2 py-0.5 text-[11px] font-bold"
+                style={{ background: `${color}18`, color }}
+              >
                 {time}
               </span>
             )}
           </div>
 
-          <p className="mt-0.5 text-[15px] font-semibold leading-snug text-text">{activity.name}</p>
+          <p className="mt-0.5 text-[15px] font-semibold leading-snug text-text">
+            {activity.name}
+          </p>
 
           {activity.description && (
-            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted">{activity.description}</p>
+            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-muted">
+              {activity.description}
+            </p>
           )}
 
           <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-muted">
             {activity.duration ? (
-              <span className="inline-flex items-center gap-1"><Clock size={11} />{activity.duration} min</span>
+              <span className="inline-flex items-center gap-1">
+                <Clock size={11} />
+                {activity.duration} min
+              </span>
             ) : null}
-            <span className="inline-flex items-center gap-1"><Coins size={11} />{displayMoney(activity.cost)}</span>
+            <span className="inline-flex items-center gap-1">
+              <Coins size={11} />
+              {displayMoney(activity.cost)}
+            </span>
 
             <a
-              href={buildMapsUrl(activity.name, activity.mapsUrl, destination, coord)}
+              href={buildMapsUrl(
+                activity.name,
+                activity.mapsUrl,
+                destination,
+                coord,
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 font-semibold"
               style={{ color: "var(--green)" }}
             >
-              <MapPin size={11} />{t.viewOnMap}
+              <MapPin size={11} />
+              {t.viewOnMap}
             </a>
 
             {rest && (
@@ -278,7 +391,8 @@ function ActivityCard({ activity, index, color, label, time, coord, destination,
                 className="inline-flex items-center gap-1 font-semibold"
                 style={{ color: "var(--coral)" }}
               >
-                <UtensilsCrossed size={11} />{t.viewMenu}
+                <UtensilsCrossed size={11} />
+                {t.viewMenu}
               </a>
             )}
           </div>
@@ -296,21 +410,29 @@ export interface TripItineraryViewProps {
   initialLocale?: import("@/lib/i18n").Locale;
 }
 
-export function TripItineraryView({ days, destination, initialLocale }: TripItineraryViewProps) {
+export function TripItineraryView({
+  days,
+  destination,
+  initialLocale,
+}: TripItineraryViewProps) {
   const { t } = useLocale(initialLocale);
   const sorted = React.useMemo(
     () => [...days].sort((a, b) => a.dayNumber - b.dayNumber),
     [days],
   );
 
-  const [selectedDayNum, setSelectedDayNum] = React.useState(sorted[0]?.dayNumber ?? 1);
-  const [legs,   setLegs]   = React.useState<RouteLeg[]>([]);
+  const [selectedDayNum, setSelectedDayNum] = React.useState(
+    sorted[0]?.dayNumber ?? 1,
+  );
+  const [legs, setLegs] = React.useState<RouteLeg[]>([]);
   const [coords, setCoords] = React.useState<([number, number] | null)[]>([]);
 
   const day = sorted.find((d) => d.dayNumber === selectedDayNum) ?? sorted[0];
   if (!day) return null;
 
-  const activitiesSorted = [...day.activities].sort((a, b) => a.order - b.order);
+  const activitiesSorted = [...day.activities].sort(
+    (a, b) => a.order - b.order,
+  );
 
   // Build scheduled times cascading forward from slot defaults.
   // Each slot has a realistic baseline; we only advance, never go back.
@@ -318,7 +440,9 @@ export function TripItineraryView({ days, destination, initialLocale }: TripItin
   let cursor: string | null = null;
 
   for (let i = 0; i < activitiesSorted.length; i++) {
-    const slotDefault = SLOT_DEFAULT_TIMES[i] ?? SLOT_DEFAULT_TIMES[SLOT_DEFAULT_TIMES.length - 1];
+    const slotDefault =
+      SLOT_DEFAULT_TIMES[i] ??
+      SLOT_DEFAULT_TIMES[SLOT_DEFAULT_TIMES.length - 1];
     // Use parsed startTime if valid, else keep cascaded cursor, else use slot default
     const parsed = parseTime(activitiesSorted[i].startTime);
     if (parsed) {
@@ -328,11 +452,11 @@ export function TripItineraryView({ days, destination, initialLocale }: TripItin
     }
     // Never go earlier than the slot's default time (prevents lunch at 09:15, etc.)
     const slotMin = timeToMinutes(slotDefault);
-    const curMin  = timeToMinutes(cursor);
+    const curMin = timeToMinutes(cursor);
     if (curMin < slotMin) cursor = slotDefault;
 
     scheduledTimes.push(cursor);
-    const durMin    = activitiesSorted[i].duration || 60;
+    const durMin = activitiesSorted[i].duration || 60;
     const travelMin = legs[i] ? Math.round(legs[i].durationSec / 60) : 0;
     cursor = addMinutes(cursor, durMin + travelMin) ?? cursor;
   }
@@ -352,16 +476,18 @@ export function TripItineraryView({ days, destination, initialLocale }: TripItin
       </div>
 
       {/* ── Day selector (outside map card so overflow-hidden doesn't clip scroll) ── */}
-      <div
-        className="flex flex-nowrap gap-2 overflow-x-auto px-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
+      <div className="flex flex-nowrap gap-2 overflow-x-auto px-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {sorted.map((d) => {
           const active = d.dayNumber === selectedDayNum;
           return (
             <button
               key={d.id}
               type="button"
-              onClick={() => { setSelectedDayNum(d.dayNumber); setLegs([]); setCoords([]); }}
+              onClick={() => {
+                setSelectedDayNum(d.dayNumber);
+                setLegs([]);
+                setCoords([]);
+              }}
               className="shrink-0 rounded-full px-4 py-2 text-[13px] font-semibold transition-all duration-200"
               style={{
                 background: active ? "var(--text)" : "var(--surface)",
@@ -378,7 +504,9 @@ export function TripItineraryView({ days, destination, initialLocale }: TripItin
 
       {/* ── Day heading ── */}
       <div className="px-1">
-        <p className="micro">{t.dayWord.toUpperCase()} {day.dayNumber}</p>
+        <p className="micro">
+          {t.dayWord.toUpperCase()} {day.dayNumber}
+        </p>
         <h3 className="display mt-0.5 text-lg font-extrabold tracking-[-0.02em] text-text">
           {day.title}
         </h3>
@@ -387,18 +515,25 @@ export function TripItineraryView({ days, destination, initialLocale }: TripItin
       {/* ── Activity cards + travel connectors ── */}
       <div className="grid">
         {activitiesSorted.map((activity, i) => {
-          const SLOT_LABELS = [t.slotMorning, t.slotLunch, t.slotAfternoon, t.slotDinner];
-          const color     = SLOT_COLORS[i] ?? "#0D9E7A";
-          const label     = SLOT_LABELS[i] ?? t.activityN(i + 1);
-          const time      = scheduledTimes[i];
-          const leg       = legs[i];
-          const departAt  = addMinutes(scheduledTimes[i], activity.duration || 60) ?? "";
+          const SLOT_LABELS = [
+            t.slotMorning,
+            t.slotLunch,
+            t.slotAfternoon,
+            t.slotDinner,
+          ];
+          const color = SLOT_COLORS[i] ?? "#0D9E7A";
+          const label = SLOT_LABELS[i] ?? t.activityN(i + 1);
+          const time = scheduledTimes[i];
+          const leg = legs[i];
+          const departAt =
+            addMinutes(scheduledTimes[i], activity.duration || 60) ?? "";
           const travelMin = leg ? Math.round(leg.durationSec / 60) : 0;
-          const arriveAt  = addMinutes(departAt, travelMin) ?? "";
+          const arriveAt = addMinutes(departAt, travelMin) ?? "";
           const nextSlotAt = scheduledTimes[i + 1] ?? "";
-          const freeMin   = arriveAt && nextSlotAt
-            ? Math.max(0, timeToMinutes(nextSlotAt) - timeToMinutes(arriveAt))
-            : 0;
+          const freeMin =
+            arriveAt && nextSlotAt
+              ? Math.max(0, timeToMinutes(nextSlotAt) - timeToMinutes(arriveAt))
+              : 0;
 
           return (
             <React.Fragment key={activity.id}>

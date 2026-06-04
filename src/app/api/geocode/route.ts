@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const MAPBOX_TOKEN =
-  process.env.MAPBOX_SECRET_TOKEN ??
-  process.env.NEXT_PUBLIC_MAPBOX_TOKEN ??
-  "";
+  process.env.MAPBOX_SECRET_TOKEN ?? process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 const GOOGLE_KEY = process.env.GOOGLE_MAPS_API_KEY ?? "";
 
 const CACHE = new Map<string, [number, number] | null>();
@@ -27,11 +25,11 @@ async function googleGeocode(
     params.set("radius", "50000");
   }
   try {
-    const res  = await fetch(
+    const res = await fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?${params}`,
     );
     const data = await res.json();
-    const loc  = data?.results?.[0]?.geometry?.location;
+    const loc = data?.results?.[0]?.geometry?.location;
     if (loc?.lat && loc?.lng) return [loc.lng, loc.lat];
     return null;
   } catch {
@@ -55,14 +53,14 @@ async function nominatimGeocode(
     "accept-language": "en",
   });
   if (plng && plat) {
-    const D   = 0.5;
+    const D = 0.5;
     const lng = parseFloat(plng);
     const lat = parseFloat(plat);
     params.set("viewbox", `${lng - D},${lat + D},${lng + D},${lat - D}`);
     params.set("bounded", "1");
   }
   try {
-    const res  = await fetch(
+    const res = await fetch(
       `https://nominatim.openstreetmap.org/search?${params}`,
       { headers: { "User-Agent": "PlAIner/1.0 (aitorbolige187@gmail.com)" } },
     );
@@ -90,7 +88,7 @@ async function mapboxGeocode(
     `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(q)}.json` +
     `?types=${types}&limit=1&access_token=${MAPBOX_TOKEN}`;
   if (plng && plat && !dest) {
-    const D   = 0.45;
+    const D = 0.45;
     const lng = parseFloat(plng);
     const lat = parseFloat(plat);
     url += `&proximity=${lng},${lat}&bbox=${lng - D},${lat - D},${lng + D},${lat + D}`;
@@ -108,7 +106,7 @@ async function mapboxGeocode(
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
-  const q    = searchParams.get("q")?.trim();
+  const q = searchParams.get("q")?.trim();
   const plng = searchParams.get("plng");
   const plat = searchParams.get("plat");
   const dest = searchParams.get("dest") === "1";
@@ -116,7 +114,8 @@ export async function GET(req: NextRequest) {
   if (!q) return NextResponse.json(null);
 
   const cacheKey = `${q}|${plng ?? ""}|${plat ?? ""}`;
-  if (CACHE.has(cacheKey)) return NextResponse.json(CACHE.get(cacheKey) ?? null);
+  if (CACHE.has(cacheKey))
+    return NextResponse.json(CACHE.get(cacheKey) ?? null);
 
   let result: [number, number] | null = null;
 

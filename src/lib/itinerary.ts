@@ -61,9 +61,13 @@ export function sanitizeItineraryPreferences(raw: unknown): string {
   return raw.trim().slice(0, MAX_ITINERARY_PREFERENCES_LENGTH);
 }
 
-export function buildItinerarySystemInstruction(preferences?: string, locale: string = "ca"): string {
+export function buildItinerarySystemInstruction(
+  preferences?: string,
+  locale: string = "ca",
+): string {
   const profile = sanitizeItineraryPreferences(preferences);
-  const langName = locale === "en" ? "English" : locale === "es" ? "Spanish" : "Catalan";
+  const langName =
+    locale === "en" ? "English" : locale === "es" ? "Spanish" : "Catalan";
   const langRule = `CRITICAL: You must write the entire output (including trip_title, themes, activity names, activity descriptions, restaurant names, and cuisines) in the ${langName} language. Do NOT use any other language.`;
   const baseInstruction = `${GEMINI_SYSTEM_INSTRUCTION}\n\n${langRule}`;
   if (!profile) return baseInstruction;
@@ -334,19 +338,24 @@ function buildAgeGroupBlock(ageGroups?: string[]): string {
     const label = AGE_GROUP_LABELS[g] ?? g;
     counts[label] = (counts[label] || 0) + 1;
   }
-  const parts = Object.entries(counts).map(([label, count]) => `${count} ${label}`);
+  const parts = Object.entries(counts).map(
+    ([label, count]) => `${count} ${label}`,
+  );
   let block = `\nTraveler ages: ${parts.join(", ")}.`;
   const hasMinor = ageGroups.includes("minor");
   const hasSenior = ageGroups.includes("senior");
   const hasYoung = ageGroups.includes("young");
   if (hasMinor) {
-    block += "\nIMPORTANT: There are minors in the group. Avoid bars, nightclubs, and venues with age restrictions. Prefer family-friendly activities and restaurants.";
+    block +=
+      "\nIMPORTANT: There are minors in the group. Avoid bars, nightclubs, and venues with age restrictions. Prefer family-friendly activities and restaurants.";
   }
   if (hasSenior) {
-    block += "\nIMPORTANT: There are seniors in the group. Prefer accessible venues, avoid steep climbs and long walks. Include rest-friendly schedules.";
+    block +=
+      "\nIMPORTANT: There are seniors in the group. Prefer accessible venues, avoid steep climbs and long walks. Include rest-friendly schedules.";
   }
   if (hasYoung && !hasMinor) {
-    block += "\nThe group includes young adults — feel free to include vibrant nightlife, trendy restaurants, and adventure activities.";
+    block +=
+      "\nThe group includes young adults — feel free to include vibrant nightlife, trendy restaurants, and adventure activities.";
   }
   return block + "\n";
 }

@@ -472,30 +472,36 @@ function buildGroundTransports(
   if (mode === "train") {
     return [
       {
-        type: "transport", provider: "Renfe",
+        type: "transport",
+        provider: "Renfe",
         title: `${route} · Renfe AVE`,
         description: "Alta velocitat · Directe",
-        price: 79, currency,
+        price: 79,
+        currency,
         bookingUrl: `https://www.renfe.com/es/es/cercanias/buscar-tren?destination=${encodedCity}`,
         availabilityText: "Directe",
         metadata: { transportKind: "train" },
         rank: 0,
       },
       {
-        type: "transport", provider: "TGV InOui",
+        type: "transport",
+        provider: "TGV InOui",
         title: `${route} · TGV InOui`,
         description: "Alta velocitat · Directe",
-        price: 95, currency,
+        price: 95,
+        currency,
         bookingUrl: `https://www.thetrainline.com/es/buscar-trenes/${encodedCity}`,
         availabilityText: "Directe",
         metadata: { transportKind: "train" },
         rank: 1,
       },
       {
-        type: "transport", provider: "Trenitalia",
+        type: "transport",
+        provider: "Trenitalia",
         title: `${route} · Trenitalia`,
         description: "Alta velocitat · 1 transbord",
-        price: 110, currency,
+        price: 110,
+        currency,
         bookingUrl: `https://www.trenitalia.com/`,
         availabilityText: "1 transbord",
         metadata: { transportKind: "train" },
@@ -507,30 +513,36 @@ function buildGroundTransports(
   if (mode === "bus") {
     return [
       {
-        type: "transport", provider: "FlixBus",
+        type: "transport",
+        provider: "FlixBus",
         title: `${route} · FlixBus`,
         description: "Directe · Wifi i endolls",
-        price: 39, currency,
+        price: 39,
+        currency,
         bookingUrl: `https://www.flixbus.es/buscar?to=${encodedCity}`,
         availabilityText: "Directe",
         metadata: { transportKind: "bus" },
         rank: 0,
       },
       {
-        type: "transport", provider: "ALSA",
+        type: "transport",
+        provider: "ALSA",
         title: `${route} · ALSA`,
         description: "1 parada intermèdia",
-        price: 34, currency,
+        price: 34,
+        currency,
         bookingUrl: `https://www.alsa.com/web/bus/`,
         availabilityText: "1 parada",
         metadata: { transportKind: "bus" },
         rank: 1,
       },
       {
-        type: "transport", provider: "BlaBlaCar Bus",
+        type: "transport",
+        provider: "BlaBlaCar Bus",
         title: `${route} · BlaBlaCar Bus`,
         description: "Directe",
-        price: 29, currency,
+        price: 29,
+        currency,
         bookingUrl: `https://www.blablacar.es/bus`,
         availabilityText: "Directe",
         metadata: { transportKind: "bus" },
@@ -542,10 +554,12 @@ function buildGroundTransports(
   // Car: single offer with Google Maps directions to the destination.
   return [
     {
-      type: "transport", provider: "Cotxe propi",
+      type: "transport",
+      provider: "Cotxe propi",
       title: `${route} · Cotxe propi`,
       description: "Ruta flexible · peatges a part",
-      price: 60, currency,
+      price: 60,
+      currency,
       bookingUrl: `https://www.google.com/maps/dir/?api=1&destination=${encodedCity}`,
       availabilityText: "Flexible",
       metadata: { transportKind: "car" },
@@ -558,7 +572,10 @@ function buildGroundTransports(
 function buildFallbackTransports(query: TravelOfferQuery): TravelOfferInput[] {
   const city = query.city ?? query.destination;
   const origin = (query.origin ?? "BCN").toUpperCase().slice(0, 3);
-  const dest = city.toUpperCase().slice(0, 3).replace(/[^A-Z]/g, "X");
+  const dest = city
+    .toUpperCase()
+    .slice(0, 3)
+    .replace(/[^A-Z]/g, "X");
   const route = `${origin} → ${dest}`;
   const currency = query.currency ?? "EUR";
   const budget = query.budgetMax ?? 800;
@@ -710,7 +727,11 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
         )
       : 1;
   const caps = normalizedQuery.budgetMax
-    ? computeBudgetCaps(normalizedQuery.budgetMax, normalizedQuery.people, nights)
+    ? computeBudgetCaps(
+        normalizedQuery.budgetMax,
+        normalizedQuery.people,
+        nights,
+      )
     : null;
 
   const hotelPromise = hasApiDojoHotelCreds
@@ -746,17 +767,24 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
     collected.push(...hotelResult.value);
     hotelHandledViaApi = true;
   } else if (hotelResult.status === "rejected") {
-    errors.push(`Hotels API: ${hotelResult.reason instanceof Error ? hotelResult.reason.message : String(hotelResult.reason)}`);
+    errors.push(
+      `Hotels API: ${hotelResult.reason instanceof Error ? hotelResult.reason.message : String(hotelResult.reason)}`,
+    );
   }
 
   const hasRealFlights =
     flightResult.status === "fulfilled" && flightResult.value.length > 0;
 
   if (hasRealFlights) {
-    collected.push(...(flightResult as PromiseFulfilledResult<TravelOfferInput[]>).value);
+    collected.push(
+      ...(flightResult as PromiseFulfilledResult<TravelOfferInput[]>).value,
+    );
   } else {
     if (flightResult.status === "rejected") {
-      const msg = flightResult.reason instanceof Error ? flightResult.reason.message : String(flightResult.reason);
+      const msg =
+        flightResult.reason instanceof Error
+          ? flightResult.reason.message
+          : String(flightResult.reason);
       console.error(`[refreshTravelOffers] Transport API error: ${msg}`);
       errors.push(`Transport API: ${msg}`);
     }

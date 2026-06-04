@@ -62,7 +62,11 @@ export function OfferCard({
               <Badge variant="neutral">
                 <span className="inline-flex items-center gap-1">
                   <Icon size={11} />
-                  {type === "hotel" ? "Hotel" : type === "flight" ? "Vol" : type}
+                  {type === "hotel"
+                    ? "Hotel"
+                    : type === "flight"
+                      ? "Vol"
+                      : type}
                 </span>
               </Badge>
               <span className="truncate text-xs text-[color:var(--text-faint)]">

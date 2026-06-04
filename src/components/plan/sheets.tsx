@@ -2,7 +2,14 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { Plane, TrainFront, Bus, Car, Search, type LucideIcon } from "lucide-react";
+import {
+  Plane,
+  TrainFront,
+  Bus,
+  Car,
+  Search,
+  type LucideIcon,
+} from "lucide-react";
 
 import { Sheet } from "@/components/ui/Sheet";
 import { Button } from "@/components/ui/Button";
@@ -49,7 +56,11 @@ export function DestinationSheet({ open, onClose }: SheetCommon) {
     : DESTINATIONS;
 
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title={t.chooseDestination}>
+    <Sheet
+      open={open}
+      onOpenChange={(o) => !o && onClose()}
+      title={t.chooseDestination}
+    >
       <div className="grid gap-3">
         {/* Search */}
         <div className="flex items-center gap-2 rounded-full border border-border bg-[color:var(--surface-2)] px-4 py-2.5">
@@ -62,7 +73,9 @@ export function DestinationSheet({ open, onClose }: SheetCommon) {
           />
         </div>
 
-        <div className="micro">{t.destinations} · {list.length}</div>
+        <div className="micro">
+          {t.destinations} · {list.length}
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           {list.map((d) => (
@@ -109,7 +122,9 @@ export function DestinationSheet({ open, onClose }: SheetCommon) {
                 <span className="display block text-[15px] font-extrabold tracking-[-0.02em]">
                   {localizeCity(d.id, locale)}
                 </span>
-                <span className="block text-[11px] opacity-90">{localizeCountry(d.countryCode, locale)}</span>
+                <span className="block text-[11px] opacity-90">
+                  {localizeCountry(d.countryCode, locale)}
+                </span>
               </span>
             </button>
           ))}
@@ -130,21 +145,35 @@ export function DatesSheet({ open, onClose }: SheetCommon) {
   });
 
   React.useEffect(() => {
-    if (open) setRange({ start: dates?.start ?? null, end: dates?.end ?? null });
+    if (open)
+      setRange({ start: dates?.start ?? null, end: dates?.end ?? null });
   }, [open, dates]);
 
   const valid = Boolean(range.start && range.end);
-  const days = valid ? daysBetween(range.start!, range.end!) : range.start ? 1 : 0;
+  const days = valid
+    ? daysBetween(range.start!, range.end!)
+    : range.start
+      ? 1
+      : 0;
 
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title={t.whenDoYouTravel}>
+    <Sheet
+      open={open}
+      onOpenChange={(o) => !o && onClose()}
+      title={t.whenDoYouTravel}
+    >
       <div className="grid gap-4">
         <Calendar value={range} onChange={setRange} />
 
         <div className="flex items-center justify-between rounded-[var(--r-md)] bg-[color:var(--surface-2)] px-4 py-3">
           <span className="text-sm text-muted">
             {range.start
-              ? formatDateRangeLocalized(range.start, range.end ?? range.start, valid ? days : undefined, t)
+              ? formatDateRangeLocalized(
+                  range.start,
+                  range.end ?? range.start,
+                  valid ? days : undefined,
+                  t,
+                )
               : t.chooseDatesInCalendar}
           </span>
           {valid ? (
@@ -192,7 +221,11 @@ export function TransportSheet({ open, onClose }: SheetCommon) {
   }, [open, transport]);
 
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title={t.howDoYouTravel}>
+    <Sheet
+      open={open}
+      onOpenChange={(o) => !o && onClose()}
+      title={t.howDoYouTravel}
+    >
       <div className="grid gap-4">
         <div className="grid grid-cols-2 gap-3">
           {options.map((opt) => {
@@ -227,7 +260,9 @@ export function TransportSheet({ open, onClose }: SheetCommon) {
                 >
                   {opt.label}
                 </span>
-                <span className="mt-0.5 block text-xs text-muted">{opt.sub}</span>
+                <span className="mt-0.5 block text-xs text-muted">
+                  {opt.sub}
+                </span>
               </button>
             );
           })}
@@ -267,19 +302,28 @@ export function BudgetSheet({ open, onClose }: SheetCommon) {
   const zoneColor = ZONE_COLORS[zone.i];
 
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title={t.whatBudget}>
+    <Sheet
+      open={open}
+      onOpenChange={(o) => !o && onClose()}
+      title={t.whatBudget}
+    >
       <div className="grid gap-5">
         {/* Big amount */}
         <div className="text-center">
           <div className="display text-5xl font-extrabold tracking-[-0.03em] text-text">
             {displayMoney(v)}
           </div>
-          <div className="mt-1 text-sm text-muted">{t.perPersonAllInclusive}</div>
+          <div className="mt-1 text-sm text-muted">
+            {t.perPersonAllInclusive}
+          </div>
           <div
             className="mt-3 inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[13px] font-bold"
             style={{ background: "var(--green-subtle)", color: zoneColor }}
           >
-            <span className="inline-block h-2 w-2 rounded-full" style={{ background: zoneColor }} />
+            <span
+              className="inline-block h-2 w-2 rounded-full"
+              style={{ background: zoneColor }}
+            />
             {zone.label.toUpperCase()}
             <span className="font-medium text-muted">· {zone.sub}</span>
           </div>
@@ -377,25 +421,37 @@ export function OriginSheet({ open, onClose }: SheetCommon) {
   const inputRef = React.useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    if (open) { setQuery(""); setTimeout(() => inputRef.current?.focus(), 100); }
+    if (open) {
+      setQuery("");
+      setTimeout(() => inputRef.current?.focus(), 100);
+    }
   }, [open]);
 
-  const filtered = query.trim().length === 0
-    ? ORIGIN_AIRPORTS
-    : ORIGIN_AIRPORTS.filter((a) =>
-        a.city.toLowerCase().includes(query.toLowerCase()) ||
-        a.code.toLowerCase().includes(query.toLowerCase()) ||
-        a.airport.toLowerCase().includes(query.toLowerCase())
-      );
+  const filtered =
+    query.trim().length === 0
+      ? ORIGIN_AIRPORTS
+      : ORIGIN_AIRPORTS.filter(
+          (a) =>
+            a.city.toLowerCase().includes(query.toLowerCase()) ||
+            a.code.toLowerCase().includes(query.toLowerCase()) ||
+            a.airport.toLowerCase().includes(query.toLowerCase()),
+        );
 
   const currentAirport = ORIGIN_AIRPORTS.find((a) => a.code === origin);
 
   return (
-    <Sheet open={open} onOpenChange={(o) => !o && onClose()} title={t.tripOrigin}>
+    <Sheet
+      open={open}
+      onOpenChange={(o) => !o && onClose()}
+      title={t.tripOrigin}
+    >
       <div className="grid gap-3">
         {/* Search */}
         <div className="relative">
-          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--text-faint)]" />
+          <Search
+            size={15}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-[color:var(--text-faint)]"
+          />
           <input
             ref={inputRef}
             value={query}
@@ -408,7 +464,9 @@ export function OriginSheet({ open, onClose }: SheetCommon) {
         {/* Airport list */}
         <div className="max-h-[320px] overflow-y-auto rounded-[var(--r-xl)] border border-border bg-surface">
           {filtered.length === 0 ? (
-            <p className="px-4 py-6 text-center text-sm text-muted">Sense resultats</p>
+            <p className="px-4 py-6 text-center text-sm text-muted">
+              Sense resultats
+            </p>
           ) : (
             filtered.map((a, i) => {
               const active = a.code === origin;
@@ -416,7 +474,10 @@ export function OriginSheet({ open, onClose }: SheetCommon) {
                 <button
                   key={a.code}
                   type="button"
-                  onClick={() => { setOrigin(a.code); onClose(); }}
+                  onClick={() => {
+                    setOrigin(a.code);
+                    onClose();
+                  }}
                   className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-[color:var(--surface-2)]"
                   style={{
                     borderTop: i > 0 ? "1px solid var(--border)" : "none",
@@ -425,8 +486,12 @@ export function OriginSheet({ open, onClose }: SheetCommon) {
                 >
                   <span className="text-xl leading-none">{a.flag}</span>
                   <span className="flex-1 min-w-0">
-                    <span className="block text-[14px] font-semibold text-text">{a.city}</span>
-                    <span className="block text-[11px] text-muted truncate">{a.airport}</span>
+                    <span className="block text-[14px] font-semibold text-text">
+                      {a.city}
+                    </span>
+                    <span className="block text-[11px] text-muted truncate">
+                      {a.airport}
+                    </span>
                   </span>
                   <span
                     className="flex-none rounded-md px-2 py-0.5 text-[11px] font-bold tracking-[0.1em]"
@@ -445,7 +510,11 @@ export function OriginSheet({ open, onClose }: SheetCommon) {
 
         {currentAirport && (
           <p className="text-center text-xs text-muted">
-            Origen actual: <span className="font-semibold text-text">{currentAirport.flag} {currentAirport.city} ({currentAirport.code})</span>
+            Origen actual:{" "}
+            <span className="font-semibold text-text">
+              {currentAirport.flag} {currentAirport.city} ({currentAirport.code}
+              )
+            </span>
           </p>
         )}
       </div>

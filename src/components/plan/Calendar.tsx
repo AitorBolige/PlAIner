@@ -34,19 +34,28 @@ export function Calendar({
   const { locale, t } = useLocale();
   const today = React.useMemo(() => startOfDay(new Date()), []);
   const [view, setView] = React.useState<Date>(
-    value.start ? new Date(value.start.getFullYear(), value.start.getMonth(), 1) : new Date(today.getFullYear(), today.getMonth(), 1),
+    value.start
+      ? new Date(value.start.getFullYear(), value.start.getMonth(), 1)
+      : new Date(today.getFullYear(), today.getMonth(), 1),
   );
 
-  const canGoPrev = view.getFullYear() > today.getFullYear() || view.getMonth() > today.getMonth();
+  const canGoPrev =
+    view.getFullYear() > today.getFullYear() ||
+    view.getMonth() > today.getMonth();
 
   // Build the grid: leading blanks (Monday-first) + days of month.
   const firstOfMonth = new Date(view.getFullYear(), view.getMonth(), 1);
-  const daysInMonth = new Date(view.getFullYear(), view.getMonth() + 1, 0).getDate();
+  const daysInMonth = new Date(
+    view.getFullYear(),
+    view.getMonth() + 1,
+    0,
+  ).getDate();
   const jsDow = firstOfMonth.getDay(); // 0=Sun
   const lead = (jsDow + 6) % 7; // Monday-first offset
   const cells: (Date | null)[] = [];
   for (let i = 0; i < lead; i++) cells.push(null);
-  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(view.getFullYear(), view.getMonth(), d));
+  for (let d = 1; d <= daysInMonth; d++)
+    cells.push(new Date(view.getFullYear(), view.getMonth(), d));
 
   function pick(day: Date) {
     const { start, end } = value;
@@ -61,8 +70,18 @@ export function Calendar({
     onChange({ start, end: day });
   }
 
-  const prevAriaLabel = locale === "en" ? "Previous month" : locale === "es" ? "Mes anterior" : "Mes anterior";
-  const nextAriaLabel = locale === "en" ? "Next month" : locale === "es" ? "Mes siguiente" : "Mes següent";
+  const prevAriaLabel =
+    locale === "en"
+      ? "Previous month"
+      : locale === "es"
+        ? "Mes anterior"
+        : "Mes anterior";
+  const nextAriaLabel =
+    locale === "en"
+      ? "Next month"
+      : locale === "es"
+        ? "Mes siguiente"
+        : "Mes següent";
 
   return (
     <div className="select-none">
@@ -93,7 +112,10 @@ export function Calendar({
       {/* Weekday labels */}
       <div className="grid grid-cols-7 gap-1">
         {t.calendarWeekdays.map((w) => (
-          <div key={w} className="py-1 text-center text-[11px] font-semibold uppercase tracking-[0.04em] text-faint">
+          <div
+            key={w}
+            className="py-1 text-center text-[11px] font-semibold uppercase tracking-[0.04em] text-faint"
+          >
             {w}
           </div>
         ))}
@@ -143,7 +165,9 @@ export function Calendar({
                 style={{
                   background: isEdge ? "var(--green)" : "transparent",
                   fontWeight: isEdge ? 700 : 500,
-                  boxShadow: isEdge ? "0 4px 12px rgba(13,158,122,0.35)" : "none",
+                  boxShadow: isEdge
+                    ? "0 4px 12px rgba(13,158,122,0.35)"
+                    : "none",
                 }}
               >
                 {day.getDate()}

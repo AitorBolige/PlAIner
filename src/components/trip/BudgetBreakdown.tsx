@@ -54,11 +54,15 @@ export function BudgetBreakdown({
       <div className="mt-6 grid gap-2 text-sm">
         <div className="flex items-center justify-between text-[color:var(--color-text-muted)]">
           <span>{t.flightLabel}</span>
-          <span className="text-[color:var(--color-text)]">{displayMoney(flight)}</span>
+          <span className="text-[color:var(--color-text)]">
+            {displayMoney(flight)}
+          </span>
         </div>
         <div className="flex items-center justify-between text-[color:var(--color-text-muted)]">
           <span>{t.hotelLabel}</span>
-          <span className="text-[color:var(--color-text)]">{displayMoney(hotel)}</span>
+          <span className="text-[color:var(--color-text)]">
+            {displayMoney(hotel)}
+          </span>
         </div>
         <div className="flex items-center justify-between text-[color:var(--color-text-muted)]">
           <span>{t.activitiesLabel}</span>
@@ -69,7 +73,8 @@ export function BudgetBreakdown({
         <div className="flex items-center justify-between text-[color:var(--color-text-muted)]">
           <span>{t.estimatedDailyLabel}</span>
           <span className="text-[color:var(--color-text)]">
-            {displayMoney(daily)}{t.perDaySuffix}
+            {displayMoney(daily)}
+            {t.perDaySuffix}
           </span>
         </div>
       </div>

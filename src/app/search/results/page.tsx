@@ -74,9 +74,7 @@ export default async function SearchResultsPage({
           <h1 className="display text-xl font-extrabold text-text">
             {t.invalidParamsTitle}
           </h1>
-          <p className="mt-2 text-sm text-muted">
-            {t.invalidParamsSub}
-          </p>
+          <p className="mt-2 text-sm text-muted">{t.invalidParamsSub}</p>
         </div>
       </PageTransition>
     );
@@ -123,7 +121,7 @@ export default async function SearchResultsPage({
                 {formatDateRange(
                   snapshot.search.startDate,
                   snapshot.search.endDate,
-                  locale
+                  locale,
                 )}
               </span>
             ) : null}
@@ -152,9 +150,7 @@ export default async function SearchResultsPage({
             <h2 className="display text-lg font-extrabold text-text">
               {t.noOffersYet}
             </h2>
-            <p className="mt-2 text-sm text-muted">
-              {t.noOffersYetSub}
-            </p>
+            <p className="mt-2 text-sm text-muted">{t.noOffersYetSub}</p>
           </div>
         ) : (
           <>

@@ -24,9 +24,11 @@ const SLOT_COLORS = ["#E85D3A", "#C8860A", "#E85D3A", "#C8860A"];
 
 // Module-level cache — survives day-switch remounts within the same session.
 const destCache = new Map<string, LngLat | null>();
-const poiCache  = new Map<string, LngLat | null>();
+const poiCache = new Map<string, LngLat | null>();
 
-async function serverGeocode(params: Record<string, string>): Promise<LngLat | null> {
+async function serverGeocode(
+  params: Record<string, string>,
+): Promise<LngLat | null> {
   const qs = new URLSearchParams(params).toString();
   const res = await fetch(`/api/geocode?${qs}`);
   const data: LngLat | null = await res.json();
@@ -40,7 +42,11 @@ async function geocodeDestination(dest: string): Promise<LngLat | null> {
   return c;
 }
 
-function extractPlaceName(raw: string): { clean: string; short: string; areaHint: string | null } {
+function extractPlaceName(raw: string): {
+  clean: string;
+  short: string;
+  areaHint: string | null;
+} {
   const verbs =
     /^(explore|visit|wander through|discover|experience|enjoy|see|try|ride|tour|walk(?:ing)?(?: through)?|stroll(?:ing)?(?:\s+through)?|take a|check out|head to|go to|taste|stop at|dine at|lunch at|dinner at|spend(?:\s+time\s+at)?|experience|relax at|browse|grab|sample|admire)\s+/i;
   let s = raw.replace(verbs, "").trim();
@@ -48,7 +54,12 @@ function extractPlaceName(raw: string): { clean: string; short: string; areaHint
   const areaHint = parenMatch
     ? parenMatch[1].replace(/^(?:near|in|at|around)\s+/i, "").trim()
     : null;
-  s = s.replace(/'s?\s+(historic|old|ancient|famous|scenic|traditional|cultural|local|popular|main|central|grand|royal)\s+\w+/i, "").trim();
+  s = s
+    .replace(
+      /'s?\s+(historic|old|ancient|famous|scenic|traditional|cultural|local|popular|main|central|grand|royal)\s+\w+/i,
+      "",
+    )
+    .trim();
   s = s.split(/\s*[&+]\s*|\s+and\s+|\s+[–-]\s+|[,:]\s*/)[0].trim();
   s = s.replace(/\s*\(.*\)$/, "").trim();
   const clean = s || raw;
@@ -74,7 +85,7 @@ async function geocodePoi(
   if (poiCache.has(cacheKey)) return poiCache.get(cacheKey)!;
 
   const { clean, short, areaHint } = extractPlaceName(activity.name);
-  const mapsQ                     = placeFromMapsUrl(activity.mapsUrl ?? "");
+  const mapsQ = placeFromMapsUrl(activity.mapsUrl ?? "");
   const [plng, plat] = [String(centre[0]), String(centre[1])];
 
   const attempts: Record<string, string>[] = [
@@ -118,9 +129,9 @@ type MapState = "loading" | "ready" | "failed";
 
 // Stroke colour per transport mode
 const MODE_COLOR: Record<TransportMode, string> = {
-  walk:    "#0D9E7A",
+  walk: "#0D9E7A",
   transit: "#3B87E8",
-  taxi:    "#C8860A",
+  taxi: "#C8860A",
 };
 
 export function DayRouteMap({
@@ -134,14 +145,21 @@ export function DayRouteMap({
   const containerRef = React.useRef<HTMLDivElement>(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const mapRef = React.useRef<any>(null);
-  const [state,    setState]    = React.useState<MapState>("loading");
+  const [state, setState] = React.useState<MapState>("loading");
   const [errorMsg, setErrorMsg] = React.useState("");
 
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 
   React.useEffect(() => {
-    if (!mapboxToken) { setErrorMsg("Falta NEXT_PUBLIC_MAPBOX_TOKEN"); setState("failed"); return; }
-    if (!containerRef.current || activities.length === 0) { setState("failed"); return; }
+    if (!mapboxToken) {
+      setErrorMsg("Falta NEXT_PUBLIC_MAPBOX_TOKEN");
+      setState("failed");
+      return;
+    }
+    if (!containerRef.current || activities.length === 0) {
+      setState("failed");
+      return;
+    }
 
     let cancelled = false;
 
@@ -153,7 +171,11 @@ export function DayRouteMap({
 
         const centre = await geocodeDestination(destination);
         if (cancelled) return;
-        if (!centre) { setErrorMsg(`No s'ha pogut geolocalitzar "${destination}"`); setState("failed"); return; }
+        if (!centre) {
+          setErrorMsg(`No s'ha pogut geolocalitzar "${destination}"`);
+          setState("failed");
+          return;
+        }
 
         const rawCoords: (LngLat | null)[] = [];
         for (const a of activities.slice(0, 8)) {
@@ -164,9 +186,15 @@ export function DayRouteMap({
 
         const valid = rawCoords
           .map((c, i) => (c ? { coord: c, act: activities[i] } : null))
-          .filter((x): x is { coord: LngLat; act: DayRouteMapActivity } => x !== null);
+          .filter(
+            (x): x is { coord: LngLat; act: DayRouteMapActivity } => x !== null,
+          );
 
-        if (valid.length < 1) { setErrorMsg("Mapa no disponible"); setState("failed"); return; }
+        if (valid.length < 1) {
+          setErrorMsg("Mapa no disponible");
+          setState("failed");
+          return;
+        }
 
         // Emit resolved coords (index matches activities array; null = not found)
         onCoordsResolved?.(rawCoords);
@@ -183,7 +211,10 @@ export function DayRouteMap({
           logoPosition: "bottom-left",
         });
         mapRef.current = map;
-        map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), "bottom-right");
+        map.addControl(
+          new mapboxgl.NavigationControl({ showCompass: false }),
+          "bottom-right",
+        );
 
         map.on("load", async () => {
           if (cancelled) return;
@@ -197,7 +228,11 @@ export function DayRouteMap({
 
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             let dirData: any = null;
-            try { dirData = await fetch(dirUrl).then((r) => r.json()); } catch { /* noop */ }
+            try {
+              dirData = await fetch(dirUrl).then((r) => r.json());
+            } catch {
+              /* noop */
+            }
             if (cancelled) return;
 
             const route = dirData?.routes?.[0];
@@ -207,8 +242,8 @@ export function DayRouteMap({
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const legs: RouteLeg[] = route.legs.map((l: any) => ({
                 durationSec: Math.round(l.duration ?? 0),
-                distanceM:   Math.round(l.distance ?? 0),
-                mode:        legMode(l.distance ?? 0),
+                distanceM: Math.round(l.distance ?? 0),
+                mode: legMode(l.distance ?? 0),
               }));
               onLegsResolved(legs);
             }
@@ -249,13 +284,20 @@ export function DayRouteMap({
                   }
                 });
               } else {
-                map.addSource("route", { type: "geojson", data: { type: "Feature", properties: {}, geometry } });
+                map.addSource("route", {
+                  type: "geojson",
+                  data: { type: "Feature", properties: {}, geometry },
+                });
                 map.addLayer({
                   id: "route-main",
                   type: "line",
                   source: "route",
                   layout: { "line-join": "round", "line-cap": "round" },
-                  paint: { "line-color": "#0D9E7A", "line-width": 3.5, "line-opacity": 0.9 },
+                  paint: {
+                    "line-color": "#0D9E7A",
+                    "line-width": 3.5,
+                    "line-opacity": 0.9,
+                  },
                 });
               }
             }
@@ -276,7 +318,13 @@ export function DayRouteMap({
             el.textContent = String(i + 1);
             new mapboxgl.Marker({ element: el })
               .setLngLat(coord)
-              .setPopup(new mapboxgl.Popup({ offset: 20, closeButton: false, className: "pl-map-popup" }).setText(act.name))
+              .setPopup(
+                new mapboxgl.Popup({
+                  offset: 20,
+                  closeButton: false,
+                  className: "pl-map-popup",
+                }).setText(act.name),
+              )
               .addTo(map);
           });
 
@@ -286,26 +334,54 @@ export function DayRouteMap({
         map.on("error", (e) => console.error("[DayRouteMap] map error:", e));
       } catch (err) {
         console.error("[DayRouteMap] init error:", err);
-        if (!cancelled) { setErrorMsg(String(err)); setState("failed"); }
+        if (!cancelled) {
+          setErrorMsg(String(err));
+          setState("failed");
+        }
       }
     }
 
     init();
-    return () => { cancelled = true; mapRef.current?.remove(); mapRef.current = null; };
+    return () => {
+      cancelled = true;
+      mapRef.current?.remove();
+      mapRef.current = null;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (state === "failed") {
     return (
-      <div className={className} style={{ height, display: "flex", alignItems: "center", justifyContent: "center", background: "var(--surface-2)", fontSize: 11, color: "var(--text-faint)", padding: "0 20px", textAlign: "center" }}>
+      <div
+        className={className}
+        style={{
+          height,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "var(--surface-2)",
+          fontSize: 11,
+          color: "var(--text-faint)",
+          padding: "0 20px",
+          textAlign: "center",
+        }}
+      >
         🗺️ {errorMsg || "Mapa no disponible"}
       </div>
     );
   }
 
   return (
-    <div className={className} style={{ position: "relative", height, overflow: "hidden" }}>
-      {state === "loading" && <div className="skeleton absolute inset-0 z-10" style={{ borderRadius: 0 }} />}
+    <div
+      className={className}
+      style={{ position: "relative", height, overflow: "hidden" }}
+    >
+      {state === "loading" && (
+        <div
+          className="skeleton absolute inset-0 z-10"
+          style={{ borderRadius: 0 }}
+        />
+      )}
       <div ref={containerRef} style={{ height: "100%", width: "100%" }} />
     </div>
   );

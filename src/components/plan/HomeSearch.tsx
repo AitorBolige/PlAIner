@@ -26,7 +26,11 @@ import {
 } from "@/components/plan/sheets";
 import { VoiceButton } from "@/components/plan/VoiceButton";
 import { PlanHeader } from "@/components/plan/PlanHeader";
-import { formatDateRangeLocalized, groupThousands, getBudgetZone } from "@/lib/plan";
+import {
+  formatDateRangeLocalized,
+  groupThousands,
+  getBudgetZone,
+} from "@/lib/plan";
 import { DESTINATIONS, BLUR_DATA_URL } from "@/lib/destinations";
 import { useLocale } from "@/lib/i18n-client";
 import { useDisplayMoney } from "@/lib/use-display-money";
@@ -41,12 +45,19 @@ const AGE_GROUPS: { id: AgeGroup; emoji: string }[] = [
   { id: "senior", emoji: "👴" },
 ];
 
-function ageGroupLabelRange(id: AgeGroup, t: ReturnType<typeof useLocale>["t"]): string {
+function ageGroupLabelRange(
+  id: AgeGroup,
+  t: ReturnType<typeof useLocale>["t"],
+): string {
   switch (id) {
-    case "minor": return t.ageMinorRange;
-    case "young": return t.ageYoungRange;
-    case "adult": return t.ageAdultRange;
-    case "senior": return t.ageSeniorRange;
+    case "minor":
+      return t.ageMinorRange;
+    case "young":
+      return t.ageYoungRange;
+    case "adult":
+      return t.ageAdultRange;
+    case "senior":
+      return t.ageSeniorRange;
   }
 }
 
@@ -115,7 +126,9 @@ function Row({
         >
           {value || placeholder}
         </span>
-        {sub ? <span className="block truncate text-xs text-muted">{sub}</span> : null}
+        {sub ? (
+          <span className="block truncate text-xs text-muted">{sub}</span>
+        ) : null}
       </span>
       {badge ? (
         <span className="rounded-full bg-[color:var(--gold-subtle)] px-2.5 py-1 text-[11px] font-semibold text-[color:var(--gold)]">
@@ -165,7 +178,9 @@ function AgeGroupChip({
       style={{
         background: selected ? "var(--green-subtle)" : "var(--surface-2)",
         color: selected ? "var(--green-deep)" : "var(--text-muted)",
-        border: selected ? "1.5px solid var(--green)" : "1.5px solid var(--border)",
+        border: selected
+          ? "1.5px solid var(--green)"
+          : "1.5px solid var(--border)",
       }}
     >
       <span>{label}</span>
@@ -195,7 +210,12 @@ export function HomeSearch() {
 
   const [sheet, setSheet] = React.useState<SheetKind>(null);
   const [ageExpanded, setAgeExpanded] = React.useState(false);
-  const fmtDates = formatDateRangeLocalized(dates?.start, dates?.end, dates?.days, t);
+  const fmtDates = formatDateRangeLocalized(
+    dates?.start,
+    dates?.end,
+    dates?.days,
+    t,
+  );
   const reduce = useReducedMotion();
 
   const bZone = getBudgetZone(budget, t);
@@ -226,7 +246,10 @@ export function HomeSearch() {
       };
 
   return (
-    <motion.div {...container} className="min-h-dvh overflow-y-auto bg-bg pb-28">
+    <motion.div
+      {...container}
+      className="min-h-dvh overflow-y-auto bg-bg pb-28"
+    >
       {/* Header with account menu */}
       <motion.div {...item}>
         <PlanHeader />
@@ -249,7 +272,11 @@ export function HomeSearch() {
           iconBg="var(--green-subtle)"
           label={t.destination}
           value={destination ? localizeCity(destination.id, locale) : undefined}
-          sub={destination ? localizeCountry(destination.countryCode, locale) : undefined}
+          sub={
+            destination
+              ? localizeCountry(destination.countryCode, locale)
+              : undefined
+          }
           placeholder={t.whichDestination}
           onClick={() => setSheet("dest")}
         />
@@ -283,9 +310,7 @@ export function HomeSearch() {
         />
 
         {/* People stepper + age groups */}
-        <div
-          style={{ borderTop: "1px solid var(--border)" }}
-        >
+        <div style={{ borderTop: "1px solid var(--border)" }}>
           <div
             className="flex items-center gap-3 px-4"
             style={{ minHeight: 64 }}
@@ -300,13 +325,19 @@ export function HomeSearch() {
               </div>
             </div>
             <div className="flex items-center gap-2.5">
-              <CircBtn disabled={people <= 1} onClick={() => setPeople(Math.max(1, people - 1))}>
+              <CircBtn
+                disabled={people <= 1}
+                onClick={() => setPeople(Math.max(1, people - 1))}
+              >
                 <Minus size={16} />
               </CircBtn>
               <span className="display min-w-[22px] text-center text-lg font-extrabold text-text">
                 {people}
               </span>
-              <CircBtn disabled={people >= 12} onClick={() => setPeople(Math.min(12, people + 1))}>
+              <CircBtn
+                disabled={people >= 12}
+                onClick={() => setPeople(Math.min(12, people + 1))}
+              >
                 <Plus size={16} />
               </CircBtn>
             </div>
@@ -322,10 +353,10 @@ export function HomeSearch() {
               {t.ageGroupLabel}
             </span>
             <span className="flex-1" />
-            <span
-              className="text-[11px] font-semibold text-muted"
-            >
-              {travelerAgeGroups.map((g) => ageGroupLabelRange(g, t)).join(", ")}
+            <span className="text-[11px] font-semibold text-muted">
+              {travelerAgeGroups
+                .map((g) => ageGroupLabelRange(g, t))
+                .join(", ")}
             </span>
             <motion.span
               animate={{ rotate: ageExpanded ? 180 : 0 }}
@@ -386,7 +417,10 @@ export function HomeSearch() {
         />
 
         {/* Preferences */}
-        <div className="px-4 pb-3.5 pt-3" style={{ borderTop: "1px solid var(--border)" }}>
+        <div
+          className="px-4 pb-3.5 pt-3"
+          style={{ borderTop: "1px solid var(--border)" }}
+        >
           <div className="micro">{t.preferences}</div>
           <div className="mb-2 mt-1 text-xs text-muted">
             {t.preferencesHint}
@@ -428,7 +462,9 @@ export function HomeSearch() {
 
       {/* Popular destinations */}
       <motion.div {...item} className="px-5 pb-2 pt-7">
-        <div className="micro text-[color:var(--green)]">{t.popularDestinations}</div>
+        <div className="micro text-[color:var(--green)]">
+          {t.popularDestinations}
+        </div>
         <div className="display text-lg font-extrabold tracking-[-0.025em] text-text">
           {t.whereToGo}
         </div>
@@ -466,9 +502,15 @@ export function HomeSearch() {
       </motion.div>
 
       {/* Sheets */}
-      <DestinationSheet open={sheet === "dest"} onClose={() => setSheet(null)} />
+      <DestinationSheet
+        open={sheet === "dest"}
+        onClose={() => setSheet(null)}
+      />
       <DatesSheet open={sheet === "dates"} onClose={() => setSheet(null)} />
-      <TransportSheet open={sheet === "transport"} onClose={() => setSheet(null)} />
+      <TransportSheet
+        open={sheet === "transport"}
+        onClose={() => setSheet(null)}
+      />
       <BudgetSheet open={sheet === "budget"} onClose={() => setSheet(null)} />
       <OriginSheet open={sheet === "origin"} onClose={() => setSheet(null)} />
     </motion.div>

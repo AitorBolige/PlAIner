@@ -64,16 +64,34 @@ export const authOptions: NextAuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: { email },
-          select: { id: true, email: true, name: true, image: true, passwordHash: true, nickname: true, onboarded: true },
+          select: {
+            id: true,
+            email: true,
+            name: true,
+            image: true,
+            passwordHash: true,
+            nickname: true,
+            onboarded: true,
+          },
         });
 
         if (!user?.passwordHash) {
-          await logLogin({ userId: null, email, method: "credentials", success: false });
+          await logLogin({
+            userId: null,
+            email,
+            method: "credentials",
+            success: false,
+          });
           return null;
         }
 
         const ok = await bcrypt.compare(password, user.passwordHash);
-        await logLogin({ userId: user.id, email, method: "credentials", success: ok });
+        await logLogin({
+          userId: user.id,
+          email,
+          method: "credentials",
+          success: ok,
+        });
 
         if (!ok) return null;
         return {
@@ -117,7 +135,13 @@ export const authOptions: NextAuthOptions = {
 
         const existing = await prisma.user.findUnique({
           where: { email },
-          select: { id: true, ageGroup: true, nickname: true, image: true, onboarded: true },
+          select: {
+            id: true,
+            ageGroup: true,
+            nickname: true,
+            image: true,
+            onboarded: true,
+          },
         });
 
         let userId: string;

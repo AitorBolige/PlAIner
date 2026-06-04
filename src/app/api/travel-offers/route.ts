@@ -15,10 +15,14 @@ const postBodySchema = z.object({
   providerSummary: z.string().trim().optional(),
 });
 
-function hoistTransportKind<T extends { metadata?: unknown }>(offers: T[]): T[] {
+function hoistTransportKind<T extends { metadata?: unknown }>(
+  offers: T[],
+): T[] {
   return offers.map((o) => {
     const meta = o.metadata as { transportKind?: string } | null;
-    return meta?.transportKind ? { ...o, transportKind: meta.transportKind } : o;
+    return meta?.transportKind
+      ? { ...o, transportKind: meta.transportKind }
+      : o;
   });
 }
 
@@ -75,15 +79,21 @@ export async function GET(request: NextRequest) {
     (o) => String(o.type).toUpperCase() === "TRANSPORT",
   );
   const hasMatchingTransports = transports.some((o) => {
-    const meta = o.metadata as { fallback?: boolean; transportKind?: string } | null;
-    const kindMatches = !meta?.transportKind || meta.transportKind === expectedKind;
+    const meta = o.metadata as {
+      fallback?: boolean;
+      transportKind?: string;
+    } | null;
+    const kindMatches =
+      !meta?.transportKind || meta.transportKind === expectedKind;
     if (!kindMatches) return false;
     // Plane: require non-fallback. Ground modes: any matching-kind transport is OK
     // (we don't have a real API for trains/buses, the curated offers are the real product).
     return expectedKind !== "plane" || meta?.fallback !== true;
   });
   const cacheUsable = hasHotels && hasMatchingTransports;
-  const normalizedOffers = cacheUsable ? hoistTransportKind(snapshot.offers) : [];
+  const normalizedOffers = cacheUsable
+    ? hoistTransportKind(snapshot.offers)
+    : [];
   const effectiveCache = { ...snapshot, offers: normalizedOffers };
 
   return NextResponse.json({

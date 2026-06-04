@@ -16,7 +16,11 @@ export async function middleware(req: NextRequest) {
       );
     }
     // Already logged-in and onboarded → skip auth pages
-    if (token.onboarded && isAuthPage && !req.nextUrl.pathname.startsWith("/auth/signout")) {
+    if (
+      token.onboarded &&
+      isAuthPage &&
+      !req.nextUrl.pathname.startsWith("/auth/signout")
+    ) {
       return NextResponse.redirect(new URL("/", req.url));
     }
   } else {

@@ -422,9 +422,7 @@ function LoginPageInner() {
           >
             <button
               type="button"
-              onClick={() =>
-                signIn("google", { callbackUrl: "/plan" })
-              }
+              onClick={() => signIn("google", { callbackUrl: "/plan" })}
               className="pl-tap"
               style={{
                 width: "100%",
@@ -446,9 +444,7 @@ function LoginPageInner() {
             </button>
             <button
               type="button"
-              onClick={() =>
-                signIn("facebook", { callbackUrl: "/plan" })
-              }
+              onClick={() => signIn("facebook", { callbackUrl: "/plan" })}
               className="pl-tap"
               style={{
                 width: "100%",

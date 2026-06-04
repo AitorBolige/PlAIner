@@ -5,8 +5,10 @@ import { ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/cn";
 
-export interface SelectProps
-  extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "size"> {
+export interface SelectProps extends Omit<
+  React.SelectHTMLAttributes<HTMLSelectElement>,
+  "size"
+> {
   label?: string;
   error?: string;
 }

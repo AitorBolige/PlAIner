@@ -45,9 +45,7 @@ export function ActivityCard({
               </div>
             ) : null}
           </div>
-          <div className="text-sm font-semibold">
-            {displayMoney(price)}
-          </div>
+          <div className="text-sm font-semibold">{displayMoney(price)}</div>
         </div>
         <div className="mt-4 flex items-center justify-end gap-2">
           <Button

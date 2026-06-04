@@ -8,7 +8,10 @@ export async function POST(req: Request) {
     const file = data.get("file") as File | null;
 
     if (!file) {
-      return NextResponse.json({ success: false, error: "No file provided" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "No file provided" },
+        { status: 400 },
+      );
     }
 
     const bytes = await file.arrayBuffer();
@@ -26,6 +29,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: true, url: `/uploads/${filename}` });
   } catch (err) {
     console.error("[api/upload]", err);
-    return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Internal Server Error" },
+      { status: 500 },
+    );
   }
 }

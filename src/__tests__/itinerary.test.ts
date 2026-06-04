@@ -74,14 +74,20 @@ describe("sanitizeItineraryPreferences", () => {
 
 describe("buildItinerarySystemInstruction", () => {
   it("returns the base instruction when no profile is provided", () => {
-    expect(buildItinerarySystemInstruction()).toBe(GEMINI_SYSTEM_INSTRUCTION);
-    expect(buildItinerarySystemInstruction("")).toBe(GEMINI_SYSTEM_INSTRUCTION);
+    const out = buildItinerarySystemInstruction();
+    expect(out).toContain(GEMINI_SYSTEM_INSTRUCTION);
+    expect(out).toContain("CRITICAL");
+    expect(out).not.toContain("USER TRAVEL PROFILE");
+
+    const out2 = buildItinerarySystemInstruction("");
+    expect(out2).toContain(GEMINI_SYSTEM_INSTRUCTION);
+    expect(out2).not.toContain("USER TRAVEL PROFILE");
   });
 
   it("appends the user travel profile block when provided", () => {
     const out = buildItinerarySystemInstruction("vegan, slow travel");
     expect(out).toContain(GEMINI_SYSTEM_INSTRUCTION);
-    expect(out).toContain('USER TRAVEL PROFILE');
+    expect(out).toContain("USER TRAVEL PROFILE");
     expect(out).toContain("vegan, slow travel");
   });
 });
@@ -232,9 +238,7 @@ describe("sumItineraryActivitiesCost", () => {
   });
 
   it("returns 0 for an empty itinerary", () => {
-    expect(
-      sumItineraryActivitiesCost({ trip_title: "x", days: [] }),
-    ).toBe(0);
+    expect(sumItineraryActivitiesCost({ trip_title: "x", days: [] })).toBe(0);
   });
 });
 

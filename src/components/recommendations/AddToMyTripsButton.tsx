@@ -12,7 +12,12 @@ interface Props {
   initialLocale?: import("@/lib/i18n").Locale;
 }
 
-export function AddToMyTripsButton({ tripId, destination, isOwn = false, initialLocale }: Props) {
+export function AddToMyTripsButton({
+  tripId,
+  destination,
+  isOwn = false,
+  initialLocale,
+}: Props) {
   const router = useRouter();
   const { t } = useLocale(initialLocale);
   const [state, setState] = React.useState<"idle" | "loading" | "done">("idle");
@@ -21,7 +26,9 @@ export function AddToMyTripsButton({ tripId, destination, isOwn = false, initial
     if (state !== "idle") return;
     setState("loading");
     try {
-      const res = await fetch(`/api/recommendations/${tripId}/clone`, { method: "POST" });
+      const res = await fetch(`/api/recommendations/${tripId}/clone`, {
+        method: "POST",
+      });
       const data = await res.json().catch(() => null);
       if (res.ok && data?.id) {
         setState("done");
@@ -38,7 +45,9 @@ export function AddToMyTripsButton({ tripId, destination, isOwn = false, initial
   return (
     <div
       className="safe-bottom fixed inset-x-0 bottom-0 z-50 mx-auto w-full max-w-[480px] px-4 pb-4 pt-2"
-      style={{ background: "linear-gradient(to top, var(--bg) 70%, transparent)" }}
+      style={{
+        background: "linear-gradient(to top, var(--bg) 70%, transparent)",
+      }}
     >
       {isOwn ? (
         <div
@@ -59,9 +68,10 @@ export function AddToMyTripsButton({ tripId, destination, isOwn = false, initial
           disabled={state === "loading" || state === "done"}
           className="flex w-full items-center justify-center gap-2.5 rounded-[var(--r-xl)] py-4 text-[15px] font-bold text-white transition-all disabled:opacity-80"
           style={{
-            background: state === "done"
-              ? "var(--green)"
-              : "linear-gradient(135deg, #0D9E7A 0%, #1a6b9a 100%)",
+            background:
+              state === "done"
+                ? "var(--green)"
+                : "linear-gradient(135deg, #0D9E7A 0%, #1a6b9a 100%)",
             boxShadow: "0 4px 20px rgba(13,158,122,0.4)",
           }}
         >

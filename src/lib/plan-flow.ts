@@ -36,7 +36,11 @@ export function sumItineraryActivities(itinerary: Itinerary | null): number {
   for (const day of itinerary.days) {
     for (const key of ITIN_SLOT_KEYS) {
       const slot = day[key];
-      if (slot && typeof slot.estimated_cost_eur === "number" && slot.estimated_cost_eur > 0) {
+      if (
+        slot &&
+        typeof slot.estimated_cost_eur === "number" &&
+        slot.estimated_cost_eur > 0
+      ) {
         total += slot.estimated_cost_eur;
       }
     }
@@ -58,8 +62,12 @@ export function computeCostBreakdown(
   people: number,
   nights = 1,
 ): CostBreakdown {
-  const flightCost = flight ? Math.round((flight.price || 0) * (people || 1)) : 0;
-  const hotelCost = hotel ? Math.round((hotel.price || 0) * Math.max(1, nights)) : 0;
+  const flightCost = flight
+    ? Math.round((flight.price || 0) * (people || 1))
+    : 0;
+  const hotelCost = hotel
+    ? Math.round((hotel.price || 0) * Math.max(1, nights))
+    : 0;
   const activitiesCost = sumItineraryActivities(itinerary);
   return {
     flightCost,
@@ -74,7 +82,11 @@ export function computeCostBreakdown(
  * derive per-component price caps so a single flight or hotel can't swallow the
  * whole budget — keeping the per-person total within budget with high probability.
  */
-export const BUDGET_SPLIT = { flight: 0.35, hotel: 0.45, activities: 0.2 } as const;
+export const BUDGET_SPLIT = {
+  flight: 0.35,
+  hotel: 0.45,
+  activities: 0.2,
+} as const;
 
 /** Per-component price caps derived from the PER-PERSON budget. */
 export function computeBudgetCaps(
@@ -103,8 +115,12 @@ export function remainingActivitiesBudget(
   nights = 1,
 ): number {
   const totalBudget = Math.round((budgetPerPerson || 0) * (people || 1));
-  const flightCost = flight ? Math.round((flight.price || 0) * (people || 1)) : 0;
-  const hotelCost = hotel ? Math.round((hotel.price || 0) * Math.max(1, nights)) : 0;
+  const flightCost = flight
+    ? Math.round((flight.price || 0) * (people || 1))
+    : 0;
+  const hotelCost = hotel
+    ? Math.round((hotel.price || 0) * Math.max(1, nights))
+    : 0;
   return Math.max(0, totalBudget - flightCost - hotelCost);
 }
 
@@ -126,7 +142,10 @@ export interface OfferQueryParams {
 export function buildMockOffers(params: OfferQueryParams): Offer[] {
   const city = params.destination.city;
   const origin = (params.origin || "BCN").toUpperCase().slice(0, 3);
-  const dest = city.toUpperCase().slice(0, 3).replace(/[^A-Z]/g, "X");
+  const dest = city
+    .toUpperCase()
+    .slice(0, 3)
+    .replace(/[^A-Z]/g, "X");
   const route = `${origin} → ${dest}`;
   const tid = params.transportId || "plane";
   const currency = normalizeCurrency(params.currency);
@@ -134,43 +153,384 @@ export function buildMockOffers(params: OfferQueryParams): Offer[] {
 
   const transportMocks: Record<string, Offer[]> = {
     plane: [
-      { id: "mk-fl-1", type: "TRANSPORT", transportKind: "plane", title: `${route} · Ryanair`, description: "06:40 → 08:50 · Tornada 21:10 → 23:15", price: p(72), currency, provider: "Ryanair", availabilityText: "2h 10m · Directe", metadata: { stops: 0, durationMinutes: 130, baggage: "Motxilla petita inclosa" } },
-      { id: "mk-fl-2", type: "TRANSPORT", transportKind: "plane", title: `${route} · Vueling`, description: "08:30 → 10:35 · Tornada 19:05 → 21:10", price: p(89), currency, provider: "Vueling", availabilityText: "2h 05m · Directe", metadata: { stops: 0, durationMinutes: 125, baggage: "Equipatge de mà 10 kg inclòs" } },
-      { id: "mk-fl-3", type: "TRANSPORT", transportKind: "plane", title: `${route} · easyJet`, description: "13:15 → 15:25 · Tornada 16:40 → 18:50", price: p(96), currency, provider: "easyJet", availabilityText: "2h 10m · Directe", metadata: { stops: 0, durationMinutes: 130, baggage: "Motxilla petita inclosa" } },
-      { id: "mk-fl-4", type: "TRANSPORT", transportKind: "plane", title: `${route} · Iberia`, description: "10:00 → 13:20 · Tornada 14:10 → 17:30", price: p(105), currency, provider: "Iberia", availabilityText: "3h 20m · 1 escala", metadata: { stops: 1, durationMinutes: 200, baggage: "Maleta 23 kg inclosa" } },
-      { id: "mk-fl-5", type: "TRANSPORT", transportKind: "plane", title: `${route} · Lufthansa`, description: "07:55 → 11:45 · Tornada 18:25 → 22:05", price: p(128), currency, provider: "Lufthansa", availabilityText: "3h 50m · 1 escala", metadata: { stops: 1, durationMinutes: 230, baggage: "Maleta 23 kg inclosa" } },
-      { id: "mk-fl-6", type: "TRANSPORT", transportKind: "plane", title: `${route} · Air France`, description: "16:20 → 18:30 · Tornada 09:15 → 11:25", price: p(142), currency, provider: "Air France", availabilityText: "2h 10m · Directe", metadata: { stops: 0, durationMinutes: 130, baggage: "Maleta 23 kg inclosa" } },
-      { id: "mk-fl-7", type: "TRANSPORT", transportKind: "plane", title: `${route} · KLM`, description: "11:40 → 15:05 · Tornada 16:50 → 20:15", price: p(156), currency, provider: "KLM", availabilityText: "3h 25m · 1 escala", metadata: { stops: 1, durationMinutes: 205, baggage: "Maleta 23 kg inclosa" } },
-      { id: "mk-fl-8", type: "TRANSPORT", transportKind: "plane", title: `${route} · Swiss`, description: "06:15 → 10:35 · Tornada 19:40 → 23:55", price: p(178), currency, provider: "Swiss", availabilityText: "4h 20m · 1 escala", metadata: { stops: 1, durationMinutes: 260, baggage: "Maleta 23 kg + esport inclòs" } },
+      {
+        id: "mk-fl-1",
+        type: "TRANSPORT",
+        transportKind: "plane",
+        title: `${route} · Ryanair`,
+        description: "06:40 → 08:50 · Tornada 21:10 → 23:15",
+        price: p(72),
+        currency,
+        provider: "Ryanair",
+        availabilityText: "2h 10m · Directe",
+        metadata: {
+          stops: 0,
+          durationMinutes: 130,
+          baggage: "Motxilla petita inclosa",
+        },
+      },
+      {
+        id: "mk-fl-2",
+        type: "TRANSPORT",
+        transportKind: "plane",
+        title: `${route} · Vueling`,
+        description: "08:30 → 10:35 · Tornada 19:05 → 21:10",
+        price: p(89),
+        currency,
+        provider: "Vueling",
+        availabilityText: "2h 05m · Directe",
+        metadata: {
+          stops: 0,
+          durationMinutes: 125,
+          baggage: "Equipatge de mà 10 kg inclòs",
+        },
+      },
+      {
+        id: "mk-fl-3",
+        type: "TRANSPORT",
+        transportKind: "plane",
+        title: `${route} · easyJet`,
+        description: "13:15 → 15:25 · Tornada 16:40 → 18:50",
+        price: p(96),
+        currency,
+        provider: "easyJet",
+        availabilityText: "2h 10m · Directe",
+        metadata: {
+          stops: 0,
+          durationMinutes: 130,
+          baggage: "Motxilla petita inclosa",
+        },
+      },
+      {
+        id: "mk-fl-4",
+        type: "TRANSPORT",
+        transportKind: "plane",
+        title: `${route} · Iberia`,
+        description: "10:00 → 13:20 · Tornada 14:10 → 17:30",
+        price: p(105),
+        currency,
+        provider: "Iberia",
+        availabilityText: "3h 20m · 1 escala",
+        metadata: {
+          stops: 1,
+          durationMinutes: 200,
+          baggage: "Maleta 23 kg inclosa",
+        },
+      },
+      {
+        id: "mk-fl-5",
+        type: "TRANSPORT",
+        transportKind: "plane",
+        title: `${route} · Lufthansa`,
+        description: "07:55 → 11:45 · Tornada 18:25 → 22:05",
+        price: p(128),
+        currency,
+        provider: "Lufthansa",
+        availabilityText: "3h 50m · 1 escala",
+        metadata: {
+          stops: 1,
+          durationMinutes: 230,
+          baggage: "Maleta 23 kg inclosa",
+        },
+      },
+      {
+        id: "mk-fl-6",
+        type: "TRANSPORT",
+        transportKind: "plane",
+        title: `${route} · Air France`,
+        description: "16:20 → 18:30 · Tornada 09:15 → 11:25",
+        price: p(142),
+        currency,
+        provider: "Air France",
+        availabilityText: "2h 10m · Directe",
+        metadata: {
+          stops: 0,
+          durationMinutes: 130,
+          baggage: "Maleta 23 kg inclosa",
+        },
+      },
+      {
+        id: "mk-fl-7",
+        type: "TRANSPORT",
+        transportKind: "plane",
+        title: `${route} · KLM`,
+        description: "11:40 → 15:05 · Tornada 16:50 → 20:15",
+        price: p(156),
+        currency,
+        provider: "KLM",
+        availabilityText: "3h 25m · 1 escala",
+        metadata: {
+          stops: 1,
+          durationMinutes: 205,
+          baggage: "Maleta 23 kg inclosa",
+        },
+      },
+      {
+        id: "mk-fl-8",
+        type: "TRANSPORT",
+        transportKind: "plane",
+        title: `${route} · Swiss`,
+        description: "06:15 → 10:35 · Tornada 19:40 → 23:55",
+        price: p(178),
+        currency,
+        provider: "Swiss",
+        availabilityText: "4h 20m · 1 escala",
+        metadata: {
+          stops: 1,
+          durationMinutes: 260,
+          baggage: "Maleta 23 kg + esport inclòs",
+        },
+      },
     ],
     train: [
-      { id: "mk-tr-1", type: "TRANSPORT", transportKind: "train", title: `${route} · Renfe AVE`, description: "08:00 → 14:30 · Tornada 17:10 → 23:40", price: p(79), currency, provider: "Renfe", availabilityText: "6h 30m · Directe", metadata: { stops: 0, durationMinutes: 390, baggage: "2 maletes incloses" } },
-      { id: "mk-tr-2", type: "TRANSPORT", transportKind: "train", title: `${route} · TGV InOui`, description: "09:15 → 16:10 · Tornada 18:05 → 00:55", price: p(95), currency, provider: "TGV InOui", availabilityText: "6h 55m · Directe", metadata: { stops: 0, durationMinutes: 415, baggage: "2 maletes incloses" } },
-      { id: "mk-tr-3", type: "TRANSPORT", transportKind: "train", title: `${route} · Trenitalia`, description: "07:40 → 15:05 · Tornada 16:20 → 23:50", price: p(110), currency, provider: "Trenitalia", availabilityText: "7h 25m · 1 transbord", metadata: { stops: 1, durationMinutes: 445, baggage: "2 maletes incloses" } },
+      {
+        id: "mk-tr-1",
+        type: "TRANSPORT",
+        transportKind: "train",
+        title: `${route} · Renfe AVE`,
+        description: "08:00 → 14:30 · Tornada 17:10 → 23:40",
+        price: p(79),
+        currency,
+        provider: "Renfe",
+        availabilityText: "6h 30m · Directe",
+        metadata: {
+          stops: 0,
+          durationMinutes: 390,
+          baggage: "2 maletes incloses",
+        },
+      },
+      {
+        id: "mk-tr-2",
+        type: "TRANSPORT",
+        transportKind: "train",
+        title: `${route} · TGV InOui`,
+        description: "09:15 → 16:10 · Tornada 18:05 → 00:55",
+        price: p(95),
+        currency,
+        provider: "TGV InOui",
+        availabilityText: "6h 55m · Directe",
+        metadata: {
+          stops: 0,
+          durationMinutes: 415,
+          baggage: "2 maletes incloses",
+        },
+      },
+      {
+        id: "mk-tr-3",
+        type: "TRANSPORT",
+        transportKind: "train",
+        title: `${route} · Trenitalia`,
+        description: "07:40 → 15:05 · Tornada 16:20 → 23:50",
+        price: p(110),
+        currency,
+        provider: "Trenitalia",
+        availabilityText: "7h 25m · 1 transbord",
+        metadata: {
+          stops: 1,
+          durationMinutes: 445,
+          baggage: "2 maletes incloses",
+        },
+      },
     ],
     bus: [
-      { id: "mk-bs-1", type: "TRANSPORT", transportKind: "bus", title: `${route} · FlixBus`, description: "21:30 → 11:50 · Tornada 22:00 → 12:20", price: p(34), currency, provider: "FlixBus", availabilityText: "14h 20m · Directe", metadata: { stops: 0, durationMinutes: 860, baggage: "1 maleta + 1 motxilla" } },
-      { id: "mk-bs-2", type: "TRANSPORT", transportKind: "bus", title: `${route} · ALSA`, description: "20:15 → 11:20 · Tornada 21:40 → 12:45", price: p(39), currency, provider: "ALSA", availabilityText: "15h 05m · 1 parada", metadata: { stops: 1, durationMinutes: 905, baggage: "1 maleta + 1 motxilla" } },
-      { id: "mk-bs-3", type: "TRANSPORT", transportKind: "bus", title: `${route} · BlaBlaCar Bus`, description: "22:00 → 12:10 · Tornada 23:15 → 13:30", price: p(29), currency, provider: "BlaBlaCar Bus", availabilityText: "14h 10m · Directe", metadata: { stops: 0, durationMinutes: 850, baggage: "1 maleta inclosa" } },
+      {
+        id: "mk-bs-1",
+        type: "TRANSPORT",
+        transportKind: "bus",
+        title: `${route} · FlixBus`,
+        description: "21:30 → 11:50 · Tornada 22:00 → 12:20",
+        price: p(34),
+        currency,
+        provider: "FlixBus",
+        availabilityText: "14h 20m · Directe",
+        metadata: {
+          stops: 0,
+          durationMinutes: 860,
+          baggage: "1 maleta + 1 motxilla",
+        },
+      },
+      {
+        id: "mk-bs-2",
+        type: "TRANSPORT",
+        transportKind: "bus",
+        title: `${route} · ALSA`,
+        description: "20:15 → 11:20 · Tornada 21:40 → 12:45",
+        price: p(39),
+        currency,
+        provider: "ALSA",
+        availabilityText: "15h 05m · 1 parada",
+        metadata: {
+          stops: 1,
+          durationMinutes: 905,
+          baggage: "1 maleta + 1 motxilla",
+        },
+      },
+      {
+        id: "mk-bs-3",
+        type: "TRANSPORT",
+        transportKind: "bus",
+        title: `${route} · BlaBlaCar Bus`,
+        description: "22:00 → 12:10 · Tornada 23:15 → 13:30",
+        price: p(29),
+        currency,
+        provider: "BlaBlaCar Bus",
+        availabilityText: "14h 10m · Directe",
+        metadata: {
+          stops: 0,
+          durationMinutes: 850,
+          baggage: "1 maleta inclosa",
+        },
+      },
     ],
     car: [
-      { id: "mk-cr-1", type: "TRANSPORT", transportKind: "car", title: `${route} · Cotxe propi`, description: "Ruta flexible · peatges a part", price: p(60), currency, provider: "El teu cotxe", availabilityText: "Flexible · Sortida quan vulguis", metadata: { stops: 0, baggage: "Sense límit d'equipatge" } },
+      {
+        id: "mk-cr-1",
+        type: "TRANSPORT",
+        transportKind: "car",
+        title: `${route} · Cotxe propi`,
+        description: "Ruta flexible · peatges a part",
+        price: p(60),
+        currency,
+        provider: "El teu cotxe",
+        availabilityText: "Flexible · Sortida quan vulguis",
+        metadata: { stops: 0, baggage: "Sense límit d'equipatge" },
+      },
     ],
   };
 
   const flights = transportMocks[tid] ?? transportMocks.plane;
 
   const hotels: Offer[] = [
-    { id: "mk-ht-1", type: "HOTEL", title: `Hostal ${city} Centre ★★`, description: "Habitació doble · Wifi gratuït · A 5 min del centre", price: p(58), currency, provider: "Booking.com", rating: 7.9, reviewCount: 640, imageUrl: "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&q=75&fit=crop" },
-    { id: "mk-ht-2", type: "HOTEL", title: `Boutique Hotel ${city} ★★★`, description: "Habitació doble · Barri històric · Wifi gratuït", price: p(85), currency, provider: "Booking.com", rating: 8.2, reviewCount: 860, imageUrl: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&q=75&fit=crop" },
-    { id: "mk-ht-3", type: "HOTEL", title: `Hotel ${city} Centro ★★★★`, description: "Habitació doble · Esmorzar inclòs · Centre històric", price: p(110), currency, provider: "Booking.com", rating: 8.7, reviewCount: 1240, imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=75&fit=crop" },
-    { id: "mk-ht-4", type: "HOTEL", title: `${city} Riverside Hotel ★★★★`, description: "Habitació superior · Vistes al riu · Gimnàs i bar", price: p(145), currency, provider: "Booking.com", rating: 9.0, reviewCount: 720, imageUrl: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400&q=75&fit=crop" },
-    { id: "mk-ht-5", type: "HOTEL", title: `${city} Luxury Suites ★★★★★`, description: "Suite deluxe · Vistes panoràmiques · Spa inclòs", price: p(220), currency, provider: "Booking.com", rating: 9.4, reviewCount: 530, imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&q=75&fit=crop" },
-    { id: "mk-ht-6", type: "HOTEL", title: `${city} Backpackers Hostel ★`, description: "Llit en habitació compartida · Cuina comuna · Cèntric", price: p(32), currency, provider: "Hostelworld", rating: 7.5, reviewCount: 1480, imageUrl: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400&q=75&fit=crop" },
-    { id: "mk-ht-7", type: "HOTEL", title: `Aparthotel ${city} ★★★`, description: "Apartament amb cuina · Ideal estades llargues · Wifi", price: p(98), currency, provider: "Booking.com", rating: 8.4, reviewCount: 910, imageUrl: "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=75&fit=crop" },
-    { id: "mk-ht-8", type: "HOTEL", title: `${city} Design Hotel ★★★★`, description: "Habitació de disseny · Terrassa · Esmorzar buffet", price: p(132), currency, provider: "Booking.com", rating: 8.9, reviewCount: 670, imageUrl: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&q=75&fit=crop" },
-    { id: "mk-ht-9", type: "HOTEL", title: `Gran Hotel ${city} ★★★★★`, description: "Habitació premium · Piscina i spa · Servei 24h", price: p(185), currency, provider: "Booking.com", rating: 9.2, reviewCount: 1020, imageUrl: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=400&q=75&fit=crop" },
-    { id: "mk-ht-10", type: "HOTEL", title: `${city} Palace Resort ★★★★★`, description: "Suite amb vistes · Restaurant gourmet · Spa de luxe", price: p(280), currency, provider: "Booking.com", rating: 9.6, reviewCount: 410, imageUrl: "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400&q=75&fit=crop" },
+    {
+      id: "mk-ht-1",
+      type: "HOTEL",
+      title: `Hostal ${city} Centre ★★`,
+      description: "Habitació doble · Wifi gratuït · A 5 min del centre",
+      price: p(58),
+      currency,
+      provider: "Booking.com",
+      rating: 7.9,
+      reviewCount: 640,
+      imageUrl:
+        "https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&q=75&fit=crop",
+    },
+    {
+      id: "mk-ht-2",
+      type: "HOTEL",
+      title: `Boutique Hotel ${city} ★★★`,
+      description: "Habitació doble · Barri històric · Wifi gratuït",
+      price: p(85),
+      currency,
+      provider: "Booking.com",
+      rating: 8.2,
+      reviewCount: 860,
+      imageUrl:
+        "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=400&q=75&fit=crop",
+    },
+    {
+      id: "mk-ht-3",
+      type: "HOTEL",
+      title: `Hotel ${city} Centro ★★★★`,
+      description: "Habitació doble · Esmorzar inclòs · Centre històric",
+      price: p(110),
+      currency,
+      provider: "Booking.com",
+      rating: 8.7,
+      reviewCount: 1240,
+      imageUrl:
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&q=75&fit=crop",
+    },
+    {
+      id: "mk-ht-4",
+      type: "HOTEL",
+      title: `${city} Riverside Hotel ★★★★`,
+      description: "Habitació superior · Vistes al riu · Gimnàs i bar",
+      price: p(145),
+      currency,
+      provider: "Booking.com",
+      rating: 9.0,
+      reviewCount: 720,
+      imageUrl:
+        "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400&q=75&fit=crop",
+    },
+    {
+      id: "mk-ht-5",
+      type: "HOTEL",
+      title: `${city} Luxury Suites ★★★★★`,
+      description: "Suite deluxe · Vistes panoràmiques · Spa inclòs",
+      price: p(220),
+      currency,
+      provider: "Booking.com",
+      rating: 9.4,
+      reviewCount: 530,
+      imageUrl:
+        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=400&q=75&fit=crop",
+    },
+    {
+      id: "mk-ht-6",
+      type: "HOTEL",
+      title: `${city} Backpackers Hostel ★`,
+      description: "Llit en habitació compartida · Cuina comuna · Cèntric",
+      price: p(32),
+      currency,
+      provider: "Hostelworld",
+      rating: 7.5,
+      reviewCount: 1480,
+      imageUrl:
+        "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=400&q=75&fit=crop",
+    },
+    {
+      id: "mk-ht-7",
+      type: "HOTEL",
+      title: `Aparthotel ${city} ★★★`,
+      description: "Apartament amb cuina · Ideal estades llargues · Wifi",
+      price: p(98),
+      currency,
+      provider: "Booking.com",
+      rating: 8.4,
+      reviewCount: 910,
+      imageUrl:
+        "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=400&q=75&fit=crop",
+    },
+    {
+      id: "mk-ht-8",
+      type: "HOTEL",
+      title: `${city} Design Hotel ★★★★`,
+      description: "Habitació de disseny · Terrassa · Esmorzar buffet",
+      price: p(132),
+      currency,
+      provider: "Booking.com",
+      rating: 8.9,
+      reviewCount: 670,
+      imageUrl:
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&q=75&fit=crop",
+    },
+    {
+      id: "mk-ht-9",
+      type: "HOTEL",
+      title: `Gran Hotel ${city} ★★★★★`,
+      description: "Habitació premium · Piscina i spa · Servei 24h",
+      price: p(185),
+      currency,
+      provider: "Booking.com",
+      rating: 9.2,
+      reviewCount: 1020,
+      imageUrl:
+        "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=400&q=75&fit=crop",
+    },
+    {
+      id: "mk-ht-10",
+      type: "HOTEL",
+      title: `${city} Palace Resort ★★★★★`,
+      description: "Suite amb vistes · Restaurant gourmet · Spa de luxe",
+      price: p(280),
+      currency,
+      provider: "Booking.com",
+      rating: 9.6,
+      reviewCount: 410,
+      imageUrl:
+        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=400&q=75&fit=crop",
+    },
   ];
 
   const flightUrl = `https://www.google.com/travel/flights?q=${encodeURIComponent(`vols a ${city}`)}`;
@@ -247,7 +607,11 @@ export async function fetchOffers(
       45_000,
     );
     const payload = await res.json().catch(() => null);
-    if (res.ok && Array.isArray(payload?.cache?.offers) && payload.cache.offers.length > 0) {
+    if (
+      res.ok &&
+      Array.isArray(payload?.cache?.offers) &&
+      payload.cache.offers.length > 0
+    ) {
       return { offers: payload.cache.offers as Offer[], error: null };
     }
     // No live offers → fall back to demo data so the flow never dead-ends.
@@ -257,7 +621,11 @@ export async function fetchOffers(
   try {
     const res = await fetchWithTimeout(url.toString(), {}, 8_000);
     const payload = await res.json().catch(() => null);
-    if (res.ok && Array.isArray(payload?.cache?.offers) && payload.cache.offers.length > 0) {
+    if (
+      res.ok &&
+      Array.isArray(payload?.cache?.offers) &&
+      payload.cache.offers.length > 0
+    ) {
       return { offers: payload.cache.offers as Offer[], error: null };
     }
     return await refresh();
@@ -301,10 +669,17 @@ export async function generateItinerary(
       }),
     });
     const data = await res.json().catch(() => null);
-    if (res.ok && data?.days) return { itinerary: data as Itinerary, error: null };
-    return { itinerary: null, error: data?.error ?? "No s'ha pogut generar l'itinerari." };
+    if (res.ok && data?.days)
+      return { itinerary: data as Itinerary, error: null };
+    return {
+      itinerary: null,
+      error: data?.error ?? "No s'ha pogut generar l'itinerari.",
+    };
   } catch {
-    return { itinerary: null, error: "Error de connexió en generar l'itinerari." };
+    return {
+      itinerary: null,
+      error: "Error de connexió en generar l'itinerari.",
+    };
   }
 }
 
@@ -352,7 +727,8 @@ export async function saveTrip(
       body: JSON.stringify(body),
     });
     const data = await res.json().catch(() => null);
-    if (res.ok && data?.ok && data?.trip?.id) return { id: data.trip.id, error: null };
+    if (res.ok && data?.ok && data?.trip?.id)
+      return { id: data.trip.id, error: null };
     return { id: null, error: data?.error ?? "No s'ha pogut desar el viatge." };
   } catch {
     return { id: null, error: "Error de connexió en desar el viatge." };

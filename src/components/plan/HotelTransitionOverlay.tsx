@@ -55,8 +55,12 @@ export function HotelTransitionOverlay({
       setTimeout(() => {
         setPinDropped(true);
         map.flyTo({
-          center: coords, zoom: 14.5, pitch: 52, bearing: 8,
-          duration: 2200, essential: true,
+          center: coords,
+          zoom: 14.5,
+          pitch: 52,
+          bearing: 8,
+          duration: 2200,
+          essential: true,
           easing: (x) => 1 - Math.pow(1 - x, 3),
         });
       }, 500);
@@ -77,7 +81,10 @@ export function HotelTransitionOverlay({
   // Fallback if no destCoords
   React.useEffect(() => {
     if (destCoords) return;
-    const t = setTimeout(() => { setVisible(false); setTimeout(onComplete, 400); }, 1000);
+    const t = setTimeout(() => {
+      setVisible(false);
+      setTimeout(onComplete, 400);
+    }, 1000);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [destCoords]);
@@ -103,13 +110,19 @@ export function HotelTransitionOverlay({
             {/* Top gradient fade so the header sits cleanly */}
             <div
               className="pointer-events-none absolute inset-x-0 top-0 h-44"
-              style={{ background: "linear-gradient(to bottom, var(--bg) 30%, transparent 100%)" }}
+              style={{
+                background:
+                  "linear-gradient(to bottom, var(--bg) 30%, transparent 100%)",
+              }}
             />
 
             {/* Bottom gradient */}
             <div
               className="pointer-events-none absolute inset-x-0 bottom-0 h-56"
-              style={{ background: "linear-gradient(to top, var(--bg) 40%, transparent 100%)" }}
+              style={{
+                background:
+                  "linear-gradient(to top, var(--bg) 40%, transparent 100%)",
+              }}
             />
 
             {/* Hotel name header */}
@@ -117,7 +130,12 @@ export function HotelTransitionOverlay({
               <motion.p
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25, type: "spring", stiffness: 300, damping: 24 }}
+                transition={{
+                  delay: 0.25,
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 24,
+                }}
                 className="text-[10px] font-bold uppercase tracking-[0.18em] text-[color:var(--green)]"
               >
                 {destCity}
@@ -125,7 +143,12 @@ export function HotelTransitionOverlay({
               <motion.p
                 initial={{ opacity: 0, y: -6 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4, type: "spring", stiffness: 280, damping: 22 }}
+                transition={{
+                  delay: 0.4,
+                  type: "spring",
+                  stiffness: 280,
+                  damping: 22,
+                }}
                 className="display mt-1 text-center text-xl font-extrabold tracking-[-0.02em] text-text"
                 style={{ maxWidth: 280 }}
               >
@@ -138,8 +161,11 @@ export function HotelTransitionOverlay({
                   transition={{ delay: 0.6 }}
                   className="mt-1.5 text-xs text-muted"
                 >
-                  {"★".repeat(Math.round(hotel.rating))} {hotel.rating.toFixed(1)}
-                  {hotel.reviewCount ? ` · ${hotel.reviewCount.toLocaleString()} ${t.opinionsWord}` : ""}
+                  {"★".repeat(Math.round(hotel.rating))}{" "}
+                  {hotel.rating.toFixed(1)}
+                  {hotel.reviewCount
+                    ? ` · ${hotel.reviewCount.toLocaleString()} ${t.opinionsWord}`
+                    : ""}
                 </motion.p>
               )}
             </div>
@@ -155,7 +181,11 @@ export function HotelTransitionOverlay({
                   <motion.div
                     initial={{ scaleX: 0, opacity: 0 }}
                     animate={{ scaleX: 1, opacity: 0.2 }}
-                    transition={{ delay: 0.22, duration: 0.28, ease: "easeOut" }}
+                    transition={{
+                      delay: 0.22,
+                      duration: 0.28,
+                      ease: "easeOut",
+                    }}
                     style={{
                       position: "absolute",
                       width: 44,
@@ -182,8 +212,10 @@ export function HotelTransitionOverlay({
                     <div
                       className="flex h-[52px] w-[52px] items-center justify-center rounded-full ring-[3px] ring-white"
                       style={{
-                        background: "linear-gradient(145deg, #0D9E7A 0%, #0a7d61 100%)",
-                        boxShadow: "0 8px 32px rgba(13,158,122,0.5), 0 2px 8px rgba(0,0,0,0.2)",
+                        background:
+                          "linear-gradient(145deg, #0D9E7A 0%, #0a7d61 100%)",
+                        boxShadow:
+                          "0 8px 32px rgba(13,158,122,0.5), 0 2px 8px rgba(0,0,0,0.2)",
                       }}
                     >
                       <span style={{ fontSize: 24 }}>🏨</span>
@@ -193,7 +225,8 @@ export function HotelTransitionOverlay({
                       style={{
                         width: 3,
                         height: 18,
-                        background: "linear-gradient(to bottom, #0D9E7A, transparent)",
+                        background:
+                          "linear-gradient(to bottom, #0D9E7A, transparent)",
                         borderRadius: 2,
                       }}
                     />
@@ -206,7 +239,12 @@ export function HotelTransitionOverlay({
             <motion.div
               initial={{ y: 100, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.7, type: "spring", stiffness: 280, damping: 26 }}
+              transition={{
+                delay: 0.7,
+                type: "spring",
+                stiffness: 280,
+                damping: 26,
+              }}
               className="absolute inset-x-4 bottom-10 overflow-hidden rounded-[20px] bg-surface ring-1 ring-border"
               style={{ boxShadow: "0 16px 48px rgba(0,0,0,0.12)" }}
             >
@@ -232,17 +270,25 @@ export function HotelTransitionOverlay({
                       {hotel.provider}
                     </p>
                   )}
-                  <p className="truncate text-sm font-bold text-text">{hotel.title}</p>
+                  <p className="truncate text-sm font-bold text-text">
+                    {hotel.title}
+                  </p>
                   {hotel.description && (
-                    <p className="mt-0.5 line-clamp-1 text-xs text-muted">{hotel.description}</p>
+                    <p className="mt-0.5 line-clamp-1 text-xs text-muted">
+                      {hotel.description}
+                    </p>
                   )}
                 </div>
                 <div className="flex-none text-right">
                   <p className="text-base font-extrabold text-[color:var(--green)]">
-                    {hotel.price > 0 ? displayMoney(hotel.price, hotel.currency) : ""}
+                    {hotel.price > 0
+                      ? displayMoney(hotel.price, hotel.currency)
+                      : ""}
                   </p>
                   {hotel.availabilityText && (
-                    <p className="text-[10px] text-muted">{hotel.availabilityText}</p>
+                    <p className="text-[10px] text-muted">
+                      {hotel.availabilityText}
+                    </p>
                   )}
                 </div>
               </div>

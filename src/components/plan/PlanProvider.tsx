@@ -140,31 +140,37 @@ function buildAgeGroups(current: AgeGroup[], newLength: number): AgeGroup[] {
 }
 
 export function PlanProvider({ children }: { children: React.ReactNode }) {
-  const [destination, setDestination] = React.useState<Destination | null>(null);
+  const [destination, setDestination] = React.useState<Destination | null>(
+    null,
+  );
   const [dates, setDates] = React.useState<DateRange | null>(null);
-  const [transport, setTransport] = React.useState<TransportOption | null>(null);
+  const [transport, setTransport] = React.useState<TransportOption | null>(
+    null,
+  );
   const [origin, setOrigin] = React.useState("BCN");
   const [people, _setPeople] = React.useState(2);
   const [budget, setBudget] = React.useState(1200);
   const [preferences, setPreferences] = React.useState("");
-  const [travelerAgeGroups, setTravelerAgeGroups] = React.useState<AgeGroup[]>(["adult", "adult"]);
+  const [travelerAgeGroups, setTravelerAgeGroups] = React.useState<AgeGroup[]>([
+    "adult",
+    "adult",
+  ]);
   const [step, setStep] = React.useState<FlowStep>("search");
   const [offers, setOffers] = React.useState<Offer[] | null>(null);
   const [offersLoading, setOffersLoading] = React.useState(false);
   const [offersError, setOffersError] = React.useState<string | null>(null);
-  const [selectedFlight, setSelectedFlight] = React.useState<Offer | null>(null);
+  const [selectedFlight, setSelectedFlight] = React.useState<Offer | null>(
+    null,
+  );
   const [selectedHotel, setSelectedHotel] = React.useState<Offer | null>(null);
   const [itinerary, setItinerary] = React.useState<unknown | null>(null);
   const [itineraryLoading, setItineraryLoading] = React.useState(false);
 
   // When people count changes, auto-adjust age groups array.
-  const setPeople = React.useCallback(
-    (n: number) => {
-      _setPeople(n);
-      setTravelerAgeGroups((prev) => buildAgeGroups(prev, n));
-    },
-    [],
-  );
+  const setPeople = React.useCallback((n: number) => {
+    _setPeople(n);
+    setTravelerAgeGroups((prev) => buildAgeGroups(prev, n));
+  }, []);
 
   const setTravelerAgeGroup = React.useCallback(
     (index: number, group: AgeGroup) => {

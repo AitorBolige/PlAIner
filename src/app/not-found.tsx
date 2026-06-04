@@ -8,7 +8,8 @@ export default function NotFound() {
         <div
           className="flex h-20 w-20 items-center justify-center rounded-full text-white"
           style={{
-            background: "linear-gradient(155deg, #0D9E7A 0%, #1a6b9a 70%, #2D3561 100%)",
+            background:
+              "linear-gradient(155deg, #0D9E7A 0%, #1a6b9a 70%, #2D3561 100%)",
             boxShadow: "var(--shadow-lg)",
           }}
         >

@@ -108,7 +108,7 @@ function coerceParsed(raw: unknown): ParsedPlan | null {
   let travelerAgeGroups: AgeGroup[] | null = null;
   if (Array.isArray(r.travelerAgeGroups) && r.travelerAgeGroups.length > 0) {
     const groups = r.travelerAgeGroups.filter((g): g is AgeGroup =>
-      (AGE_VALID as readonly string[]).includes(g as string)
+      (AGE_VALID as readonly string[]).includes(g as string),
     );
     if (groups.length > 0) travelerAgeGroups = groups;
   }
@@ -133,7 +133,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const rl = rateLimit(`voice-plan:${session.user.id}`, RATE_LIMIT, RATE_WINDOW_MS);
+  const rl = rateLimit(
+    `voice-plan:${session.user.id}`,
+    RATE_LIMIT,
+    RATE_WINDOW_MS,
+  );
   if (!rl.allowed) {
     const retryAfter = Math.max(1, Math.ceil((rl.resetAt - Date.now()) / 1000));
     return NextResponse.json(
@@ -195,7 +199,7 @@ export async function POST(req: NextRequest) {
     `- travelerAgeGroups: array of age group strings, one per traveller, using ONLY these values: "minor" (child under 18), "young" (young adult 18-30), "adult" (adult 31-60), "senior" (senior 60+). Infer from words like: nen/niño/child→minor, jove/joven/young→young, adult/adulte→adult, gent gran/mayor/elderly/senior→senior. If ages are not mentioned, return null. If people count is given but no ages, return null.`,
     "- budget: the budget amount in EUR the user mentioned, as a number, or null",
     "- budgetIsTotal: boolean. true if that budget is meant for the whole trip / all travellers combined; false if it is per person. When ambiguous, default to false (per person).",
-    "- transport: one of \"plane\", \"train\", \"bus\", \"car\" if a transport mode is mentioned (avió/avión→plane, tren→train, bus/autobús/ferri→bus, cotxe/coche→car), otherwise null",
+    '- transport: one of "plane", "train", "bus", "car" if a transport mode is mentioned (avió/avión→plane, tren→train, bus/autobús/ferri→bus, cotxe/coche→car), otherwise null',
     `- preferences: a short free-text summary of interests/style mentioned, written in ${langName}, or null`,
     "Rules: if only a duration is given (e.g. '4 days') and a start date can be inferred, compute endDate so the trip spans that many days inclusive. If no year is given, assume the soonest future occurrence. Never invent a destination that was not mentioned. Output strictly valid JSON, no markdown.",
   ].join("\n");
@@ -250,18 +254,26 @@ export async function POST(req: NextRequest) {
     try {
       parsed = JSON.parse(text);
     } catch {
-      return NextResponse.json({ error: "Invalid AI response" }, { status: 502 });
+      return NextResponse.json(
+        { error: "Invalid AI response" },
+        { status: 502 },
+      );
     }
 
     const plan = coerceParsed(parsed);
     if (!plan) {
-      return NextResponse.json({ error: "Invalid AI response" }, { status: 502 });
+      return NextResponse.json(
+        { error: "Invalid AI response" },
+        { status: 502 },
+      );
     }
 
     return NextResponse.json({ plan }, { status: 200 });
   } catch (err: unknown) {
     const message =
-      err instanceof Error ? err.message.toLowerCase() : String(err).toLowerCase();
+      err instanceof Error
+        ? err.message.toLowerCase()
+        : String(err).toLowerCase();
     const isRateLimit =
       message.includes("429") ||
       message.includes("quota") ||

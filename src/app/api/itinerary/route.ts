@@ -132,10 +132,7 @@ export async function POST(req: NextRequest) {
     ITINERARY_RATE_WINDOW_MS,
   );
   if (!rl.allowed) {
-    const retryAfter = Math.max(
-      1,
-      Math.ceil((rl.resetAt - Date.now()) / 1000),
-    );
+    const retryAfter = Math.max(1, Math.ceil((rl.resetAt - Date.now()) / 1000));
     return NextResponse.json(
       { error: "Too many requests. Please slow down." },
       { status: 429, headers: { "Retry-After": String(retryAfter) } },
@@ -180,7 +177,9 @@ export async function POST(req: NextRequest) {
   const travelerAgeGroups = Array.isArray(body.travelerAgeGroups)
     ? body.travelerAgeGroups.map(String)
     : undefined;
-  const locale = String(body.locale || "ca").trim().toLowerCase();
+  const locale = String(body.locale || "ca")
+    .trim()
+    .toLowerCase();
 
   if (!destination) {
     geminiLog("validation failed", {
@@ -262,7 +261,10 @@ export async function POST(req: NextRequest) {
 
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const systemInstruction = buildItinerarySystemInstruction(preferences, locale);
+    const systemInstruction = buildItinerarySystemInstruction(
+      preferences,
+      locale,
+    );
 
     const prompt = buildItineraryUserPrompt(
       destination,

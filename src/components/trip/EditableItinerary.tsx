@@ -32,25 +32,28 @@ import { useLocale } from "@/lib/i18n-client";
 import { useDisplayMoney } from "@/lib/use-display-money";
 import { type Locale, type Translations } from "@/lib/i18n";
 
-function getLocalizedStartTime(val: string | null, targetLocale: string): string {
+function getLocalizedStartTime(
+  val: string | null,
+  targetLocale: string,
+): string {
   if (!val) return "";
   const name = val.trim().toLowerCase();
   const timesMap: Record<string, Record<string, string>> = {
-    "matí": { ca: "Matí", es: "Mañana", en: "Morning" },
-    "morning": { ca: "Matí", es: "Mañana", en: "Morning" },
-    "mañana": { ca: "Matí", es: "Mañana", en: "Morning" },
+    matí: { ca: "Matí", es: "Mañana", en: "Morning" },
+    morning: { ca: "Matí", es: "Mañana", en: "Morning" },
+    mañana: { ca: "Matí", es: "Mañana", en: "Morning" },
 
-    "dinar": { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
-    "lunch": { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
-    "almuerzo": { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
+    dinar: { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
+    lunch: { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
+    almuerzo: { ca: "Dinar", es: "Almuerzo", en: "Lunch" },
 
-    "tarda": { ca: "Tarda", es: "Tarde", en: "Afternoon" },
-    "afternoon": { ca: "Tarda", es: "Tarde", en: "Afternoon" },
-    "tarde": { ca: "Tarda", es: "Tarde", en: "Afternoon" },
+    tarda: { ca: "Tarda", es: "Tarde", en: "Afternoon" },
+    afternoon: { ca: "Tarda", es: "Tarde", en: "Afternoon" },
+    tarde: { ca: "Tarda", es: "Tarde", en: "Afternoon" },
 
-    "sopar": { ca: "Sopar", es: "Cena", en: "Dinner" },
-    "dinner": { ca: "Sopar", es: "Cena", en: "Dinner" },
-    "cena": { ca: "Sopar", es: "Cena", en: "Dinner" },
+    sopar: { ca: "Sopar", es: "Cena", en: "Dinner" },
+    dinner: { ca: "Sopar", es: "Cena", en: "Dinner" },
+    cena: { ca: "Sopar", es: "Cena", en: "Dinner" },
   };
   return timesMap[name]?.[targetLocale] ?? val;
 }
@@ -130,8 +133,14 @@ function SortableActivity({
   readonly?: boolean;
 }) {
   const displayMoney = useDisplayMoney();
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: activity.id, data: { dayId, type: "activity" } });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: activity.id, data: { dayId, type: "activity" } });
 
   return (
     <div
@@ -157,7 +166,9 @@ function SortableActivity({
         )}
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold text-text">
-            {activity.startTime ? `${getLocalizedStartTime(activity.startTime, locale)} · ` : ""}
+            {activity.startTime
+              ? `${getLocalizedStartTime(activity.startTime, locale)} · `
+              : ""}
             {activity.name}
           </div>
           {activity.description ? (
@@ -177,7 +188,17 @@ function SortableActivity({
 
 // Day column ---------------------------------------------------------------
 
-function DayColumn({ day, locale, t, readonly }: { day: DayDTO; locale: string; t: Translations; readonly?: boolean; }) {
+function DayColumn({
+  day,
+  locale,
+  t,
+  readonly,
+}: {
+  day: DayDTO;
+  locale: string;
+  t: Translations;
+  readonly?: boolean;
+}) {
   const displayMoney = useDisplayMoney();
   const total = dayTotal(day);
   return (
@@ -199,7 +220,14 @@ function DayColumn({ day, locale, t, readonly }: { day: DayDTO; locale: string; 
             </div>
           ) : (
             day.activities.map((a) => (
-              <SortableActivity key={a.id} activity={a} dayId={day.id} locale={locale} t={t} readonly={true} />
+              <SortableActivity
+                key={a.id}
+                activity={a}
+                dayId={day.id}
+                locale={locale}
+                t={t}
+                readonly={true}
+              />
             ))
           )}
         </div>
@@ -215,7 +243,13 @@ function DayColumn({ day, locale, t, readonly }: { day: DayDTO; locale: string; 
               </div>
             ) : (
               day.activities.map((a) => (
-                <SortableActivity key={a.id} activity={a} dayId={day.id} locale={locale} t={t} />
+                <SortableActivity
+                  key={a.id}
+                  activity={a}
+                  dayId={day.id}
+                  locale={locale}
+                  t={t}
+                />
               ))
             )}
           </div>
@@ -335,9 +369,7 @@ export function EditableItinerary({
     <div className="grid gap-3">
       {!readonly && (
         <div className="flex items-center justify-between gap-3">
-          <div className="text-xs text-muted">
-            {t.dragActivitiesHint}
-          </div>
+          <div className="text-xs text-muted">{t.dragActivitiesHint}</div>
           {dirty ? (
             <Button
               type="button"
@@ -367,7 +399,13 @@ export function EditableItinerary({
       {readonly ? (
         <div className="grid gap-3">
           {days.map((d) => (
-            <DayColumn key={d.id} day={d} locale={locale} t={t} readonly={true} />
+            <DayColumn
+              key={d.id}
+              day={d}
+              locale={locale}
+              t={t}
+              readonly={true}
+            />
           ))}
         </div>
       ) : (
@@ -388,7 +426,9 @@ export function EditableItinerary({
             {activeActivity ? (
               <div className="rounded-[var(--r-md)] border border-brand bg-surface p-3 shadow-[var(--shadow-lg)]">
                 <div className="text-sm font-semibold text-text">
-                  {activeActivity.startTime ? `${activeActivity.startTime} · ` : ""}
+                  {activeActivity.startTime
+                    ? `${activeActivity.startTime} · `
+                    : ""}
                   {activeActivity.name}
                 </div>
               </div>

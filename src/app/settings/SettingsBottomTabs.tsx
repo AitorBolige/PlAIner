@@ -17,8 +17,23 @@ export function SettingsBottomTabs({ user }: SettingsBottomTabsProps) {
       label: t.tabSearch,
       iconInactive: (
         <svg width={26} height={26} viewBox="0 0 24 24" fill="none">
-          <circle cx={11} cy={11} r={7.5} stroke="currentColor" strokeWidth={1.7} fill="none" />
-          <line x1={17} y1={17} x2={22} y2={22} stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" />
+          <circle
+            cx={11}
+            cy={11}
+            r={7.5}
+            stroke="currentColor"
+            strokeWidth={1.7}
+            fill="none"
+          />
+          <line
+            x1={17}
+            y1={17}
+            x2={22}
+            y2={22}
+            stroke="currentColor"
+            strokeWidth={1.7}
+            strokeLinecap="round"
+          />
         </svg>
       ),
     },
@@ -49,7 +64,14 @@ export function SettingsBottomTabs({ user }: SettingsBottomTabsProps) {
             fill="none"
             strokeLinejoin="round"
           />
-          <circle cx={12} cy={9} r={2.5} stroke="currentColor" strokeWidth={1.5} fill="none" />
+          <circle
+            cx={12}
+            cy={9}
+            r={2.5}
+            stroke="currentColor"
+            strokeWidth={1.5}
+            fill="none"
+          />
         </svg>
       ),
     },
@@ -66,7 +88,14 @@ export function SettingsBottomTabs({ user }: SettingsBottomTabsProps) {
       ) : (
         <svg width={26} height={26} viewBox="0 0 24 24" fill="none">
           <circle cx={12} cy={8} r={4} fill="var(--green)" opacity={0.18} />
-          <circle cx={12} cy={8} r={4} stroke="var(--green)" strokeWidth={2} fill="none" />
+          <circle
+            cx={12}
+            cy={8}
+            r={4}
+            stroke="var(--green)"
+            strokeWidth={2}
+            fill="none"
+          />
           <path
             d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"
             stroke="var(--green)"
@@ -97,7 +126,8 @@ export function SettingsBottomTabs({ user }: SettingsBottomTabsProps) {
               type="button"
               onClick={() => {
                 if (t.id === "search") window.location.href = "/plan";
-                else if (t.id === "recommendations") window.location.href = "/recommendations";
+                else if (t.id === "recommendations")
+                  window.location.href = "/recommendations";
                 else if (t.id === "trips") window.location.href = "/trips";
               }}
               className="flex max-w-[100px] flex-1 flex-col items-center justify-center gap-0.5 border-0 bg-transparent"

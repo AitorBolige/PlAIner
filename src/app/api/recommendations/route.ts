@@ -29,10 +29,18 @@ export async function GET(request: NextRequest) {
 
   // Filters
   const destination = sp.get("destination")?.trim() || undefined;
-  const minBudget = sp.has("minBudget") ? Number(sp.get("minBudget")) : undefined;
-  const maxBudget = sp.has("maxBudget") ? Number(sp.get("maxBudget")) : undefined;
-  const minPeople = sp.has("minPeople") ? Number(sp.get("minPeople")) : undefined;
-  const maxPeople = sp.has("maxPeople") ? Number(sp.get("maxPeople")) : undefined;
+  const minBudget = sp.has("minBudget")
+    ? Number(sp.get("minBudget"))
+    : undefined;
+  const maxBudget = sp.has("maxBudget")
+    ? Number(sp.get("maxBudget"))
+    : undefined;
+  const minPeople = sp.has("minPeople")
+    ? Number(sp.get("minPeople"))
+    : undefined;
+  const maxPeople = sp.has("maxPeople")
+    ? Number(sp.get("maxPeople"))
+    : undefined;
   const minDays = sp.has("minDays") ? Number(sp.get("minDays")) : undefined;
   const maxDays = sp.has("maxDays") ? Number(sp.get("maxDays")) : undefined;
   const sortBy = sp.get("sortBy") || "recent";
@@ -66,7 +74,10 @@ export async function GET(request: NextRequest) {
 
   // Duration filter: compare days between startDate and endDate
   // We use raw SQL condition for this via Prisma's AND array
-  if ((minDays != null && !isNaN(minDays)) || (maxDays != null && !isNaN(maxDays))) {
+  if (
+    (minDays != null && !isNaN(minDays)) ||
+    (maxDays != null && !isNaN(maxDays))
+  ) {
     // We'll filter post-query for duration since Prisma doesn't support
     // computed column filters directly. For a small app this is fine.
     // We fetch a bit more and filter in JS.
@@ -105,7 +116,10 @@ export async function GET(request: NextRequest) {
   });
 
   // Post-query duration filter
-  if ((minDays != null && !isNaN(minDays)) || (maxDays != null && !isNaN(maxDays))) {
+  if (
+    (minDays != null && !isNaN(minDays)) ||
+    (maxDays != null && !isNaN(maxDays))
+  ) {
     trips = trips.filter((t) => {
       const days = Math.max(
         1,
@@ -124,7 +138,8 @@ export async function GET(request: NextRequest) {
   const hasMore = trips.length > limit;
   if (hasMore) trips = trips.slice(0, limit);
 
-  const nextCursor = hasMore && trips.length > 0 ? trips[trips.length - 1].id : null;
+  const nextCursor =
+    hasMore && trips.length > 0 ? trips[trips.length - 1].id : null;
 
   const tripsDto = trips.map((t) => ({
     id: t.id,

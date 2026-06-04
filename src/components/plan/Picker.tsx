@@ -49,10 +49,14 @@ import { useCurrency } from "@/lib/use-currency";
 /** Pick the right lucide icon for a transport offer based on `transportKind`. */
 function transportIcon(kind?: string | null) {
   switch (kind) {
-    case "train": return TrainFront;
-    case "bus":   return Bus;
-    case "car":   return Car;
-    default:      return Plane;
+    case "train":
+      return TrainFront;
+    case "bus":
+      return Bus;
+    case "car":
+      return Car;
+    default:
+      return Plane;
   }
 }
 
@@ -85,8 +89,12 @@ function SlotRow({
     <div className="flex items-start gap-2.5">
       <span className="mt-0.5 flex-none text-[color:var(--green)]">{icon}</span>
       <div className="min-w-0 flex-1 overflow-hidden">
-        <div className="text-[10px] uppercase tracking-[0.06em] text-faint">{label}</div>
-        <div className="truncate text-sm font-medium text-text">{slot.name}</div>
+        <div className="text-[10px] uppercase tracking-[0.06em] text-faint">
+          {label}
+        </div>
+        <div className="truncate text-sm font-medium text-text">
+          {slot.name}
+        </div>
         {sub ? <div className="truncate text-xs text-muted">{sub}</div> : null}
       </div>
       {slot.estimated_cost_eur ? (
@@ -122,10 +130,34 @@ function DaySection({
         </span>
       </div>
       <div className="grid gap-2.5">
-        <SlotRow icon={<Sun size={14} />} label={t.slotMorning} slot={day.morning_activity} locale={locale} userCurrency={userCurrency} />
-        <SlotRow icon={<Utensils size={14} />} label={t.slotLunch} slot={day.lunch_restaurant} locale={locale} userCurrency={userCurrency} />
-        <SlotRow icon={<MapPin size={14} />} label={t.slotAfternoon} slot={day.afternoon_activity} locale={locale} userCurrency={userCurrency} />
-        <SlotRow icon={<Moon size={14} />} label={t.slotDinner} slot={day.dinner_restaurant} locale={locale} userCurrency={userCurrency} />
+        <SlotRow
+          icon={<Sun size={14} />}
+          label={t.slotMorning}
+          slot={day.morning_activity}
+          locale={locale}
+          userCurrency={userCurrency}
+        />
+        <SlotRow
+          icon={<Utensils size={14} />}
+          label={t.slotLunch}
+          slot={day.lunch_restaurant}
+          locale={locale}
+          userCurrency={userCurrency}
+        />
+        <SlotRow
+          icon={<MapPin size={14} />}
+          label={t.slotAfternoon}
+          slot={day.afternoon_activity}
+          locale={locale}
+          userCurrency={userCurrency}
+        />
+        <SlotRow
+          icon={<Moon size={14} />}
+          label={t.slotDinner}
+          slot={day.dinner_restaurant}
+          locale={locale}
+          userCurrency={userCurrency}
+        />
       </div>
     </div>
   );
@@ -158,12 +190,22 @@ function BookingCard({
         <Icon size={18} />
       </span>
       <div className="min-w-0 flex-1">
-        <div className="text-[10px] uppercase tracking-[0.06em] text-faint">{label}</div>
-        <div className="truncate text-sm font-semibold text-text">{offer.title}</div>
+        <div className="text-[10px] uppercase tracking-[0.06em] text-faint">
+          {label}
+        </div>
+        <div className="truncate text-sm font-semibold text-text">
+          {offer.title}
+        </div>
         <div className="text-xs text-muted">
           {offer.provider ? `${offer.provider} · ` : ""}
           {displayMoney(offer.price, locale, userCurrency, offer.currency)}
-          {isHotel ? (locale === "en" ? " /night" : locale === "es" ? " /noche" : " /nit") : ""}
+          {isHotel
+            ? locale === "en"
+              ? " /night"
+              : locale === "es"
+                ? " /noche"
+                : " /nit"
+            : ""}
         </div>
       </div>
       {offer.bookingUrl ? (
@@ -243,7 +285,11 @@ function SelectableOffer({
       className="w-full text-left"
       variants={{
         hidden: { opacity: 0, y: 14 },
-        show: { opacity: 1, y: 0, transition: { duration: 0.32, ease: [0.16, 1, 0.3, 1] } },
+        show: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.32, ease: [0.16, 1, 0.3, 1] },
+        },
       }}
       whileHover={{ y: -2 }}
       whileTap={{ scale: 0.99 }}
@@ -261,7 +307,11 @@ function SelectableOffer({
       >
         {offer.imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={offer.imageUrl} alt="" className="h-28 w-28 flex-shrink-0 object-cover" />
+          <img
+            src={offer.imageUrl}
+            alt=""
+            className="h-28 w-28 flex-shrink-0 object-cover"
+          />
         ) : (
           <div className="flex h-28 w-28 flex-shrink-0 items-center justify-center bg-[color:var(--surface-2)] text-faint">
             <Icon size={26} />
@@ -270,7 +320,9 @@ function SelectableOffer({
         <div className="flex min-w-0 flex-1 flex-col justify-between p-3">
           <div className="min-w-0">
             <div className="flex items-center justify-between gap-2">
-              <span className="truncate text-[11px] text-faint">{offer.provider}</span>
+              <span className="truncate text-[11px] text-faint">
+                {offer.provider}
+              </span>
               {selected ? (
                 <motion.span
                   initial={{ scale: 0.6, opacity: 0 }}
@@ -278,13 +330,22 @@ function SelectableOffer({
                   transition={{ type: "spring", stiffness: 500, damping: 22 }}
                   className="inline-flex items-center gap-1 text-[11px] font-semibold text-[color:var(--green)]"
                 >
-                  <Check size={12} /> {locale === "en" ? "Chosen" : locale === "es" ? "Elegido" : "Triat"}
+                  <Check size={12} />{" "}
+                  {locale === "en"
+                    ? "Chosen"
+                    : locale === "es"
+                      ? "Elegido"
+                      : "Triat"}
                 </motion.span>
               ) : null}
             </div>
-            <h3 className="mt-1 truncate text-sm font-semibold text-text">{offer.title}</h3>
+            <h3 className="mt-1 truncate text-sm font-semibold text-text">
+              {offer.title}
+            </h3>
             {offer.description ? (
-              <p className="mt-0.5 line-clamp-2 text-xs text-muted">{offer.description}</p>
+              <p className="mt-0.5 line-clamp-2 text-xs text-muted">
+                {offer.description}
+              </p>
             ) : null}
             {!isHotel ? (
               <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
@@ -337,15 +398,30 @@ function SelectableOffer({
             ) : null}
             {offer.rating != null ? (
               <div className="mt-1 inline-flex items-center gap-1 text-xs text-muted">
-                <Star size={12} className="text-[color:var(--gold)]" fill="currentColor" />
-                <span className="font-semibold text-text">{offer.rating.toFixed(1)}</span>
+                <Star
+                  size={12}
+                  className="text-[color:var(--gold)]"
+                  fill="currentColor"
+                />
+                <span className="font-semibold text-text">
+                  {offer.rating.toFixed(1)}
+                </span>
                 {offer.reviewCount ? <span>({offer.reviewCount})</span> : null}
               </div>
             ) : null}
           </div>
           <div className="display mt-2 text-lg font-extrabold tracking-[-0.02em] text-text">
             {displayMoney(offer.price, locale, userCurrency, offer.currency)}
-            {isHotel ? <span className="text-xs font-normal text-muted"> {locale === "en" ? " /night" : locale === "es" ? " /noche" : " /nit"}</span> : null}
+            {isHotel ? (
+              <span className="text-xs font-normal text-muted">
+                {" "}
+                {locale === "en"
+                  ? " /night"
+                  : locale === "es"
+                    ? " /noche"
+                    : " /nit"}
+              </span>
+            ) : null}
           </div>
         </div>
       </Card>
@@ -381,9 +457,12 @@ export function Picker() {
   const [saving, setSaving] = React.useState(false);
 
   // ─── Transition overlays ────────────────────────────────────────────────────
-  const [showTransitionOverlay, setShowTransitionOverlay] = React.useState(false);
+  const [showTransitionOverlay, setShowTransitionOverlay] =
+    React.useState(false);
   const carAnimShown = React.useRef(false);
-  const [destCoords, setDestCoords] = React.useState<[number, number] | null>(null);
+  const [destCoords, setDestCoords] = React.useState<[number, number] | null>(
+    null,
+  );
 
   // Geocode destination once we have it
   React.useEffect(() => {
@@ -434,7 +513,13 @@ export function Picker() {
   React.useEffect(() => {
     if (step !== "summary" || !destination || !dates) return;
     if (itinerary || itineraryLoading) return;
-    const remaining = remainingActivitiesBudget(budget, people, selectedFlight, selectedHotel, dates.days);
+    const remaining = remainingActivitiesBudget(
+      budget,
+      people,
+      selectedFlight,
+      selectedHotel,
+      dates.days,
+    );
     plan.setItineraryLoading(true);
     void generateItinerary({
       destination: destination.city,
@@ -458,7 +543,7 @@ export function Picker() {
     if (isCar && flights.length > 0 && !selectedFlight) {
       plan.setSelectedFlight(flights[0]);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isCar, flights.length]);
 
   function back() {
@@ -466,7 +551,6 @@ export function Picker() {
     else if (step === "hotels" && !isCar) setStep("flights");
     else plan.reset();
   }
-
 
   // Re-run the search (remounts GeneratingScreen → fresh fetch).
   function retry() {
@@ -496,7 +580,10 @@ export function Picker() {
   const displayTotalBudget = convertCurrency(totalBudget, "EUR", userCurrency);
   const usagePct =
     displayTotalBudget > 0
-      ? Math.min(100, Math.round((displayGrandTotal / displayTotalBudget) * 100))
+      ? Math.min(
+          100,
+          Math.round((displayGrandTotal / displayTotalBudget) * 100),
+        )
       : 0;
   const overBudget = displayGrandTotal > displayTotalBudget;
 
@@ -522,300 +609,396 @@ export function Picker() {
       return;
     }
     if (fav) {
-      await fetch(`/api/trips/${id}/favorite`, { method: "POST" }).catch(() => null);
+      await fetch(`/api/trips/${id}/favorite`, { method: "POST" }).catch(
+        () => null,
+      );
     }
     toast.success(t.tripSaved);
     router.push("/trips");
   }
 
-  const localizedDest = destination ? localizeCity(destination.city, locale) : "";
+  const localizedDest = destination
+    ? localizeCity(destination.city, locale)
+    : "";
 
   return (
     <>
-    {/* ── Unified flight + hotel transition overlay ── */}
-    {showTransitionOverlay && destination && (
-      <TripTransitionOverlay
-        flightOffer={selectedFlight}
-        originCode={origin}
-        initialLocale={locale}
-        transportKind={(plan.transport?.id as "plane" | "train" | "bus" | "car" | undefined) ?? "plane"}
-        destCity={localizedDest}
-        destCoords={destCoords}
-        hotels={hotels}
-        onHotelSelected={(hotel) => {
-          plan.setSelectedHotel(hotel);
-          setStep("summary");
-        }}
-        onComplete={() => {
-          setShowTransitionOverlay(false);
-          if (isCar) setStep("hotels");
-        }}
-      />
-    )}
+      {/* ── Unified flight + hotel transition overlay ── */}
+      {showTransitionOverlay && destination && (
+        <TripTransitionOverlay
+          flightOffer={selectedFlight}
+          originCode={origin}
+          initialLocale={locale}
+          transportKind={
+            (plan.transport?.id as
+              | "plane"
+              | "train"
+              | "bus"
+              | "car"
+              | undefined) ?? "plane"
+          }
+          destCity={localizedDest}
+          destCoords={destCoords}
+          hotels={hotels}
+          onHotelSelected={(hotel) => {
+            plan.setSelectedHotel(hotel);
+            setStep("summary");
+          }}
+          onComplete={() => {
+            setShowTransitionOverlay(false);
+            if (isCar) setStep("hotels");
+          }}
+        />
+      )}
 
-    <div className="flex min-h-dvh flex-col bg-bg">
-      {/* Header */}
-      <div className="flex items-center gap-3 border-b border-border px-5 pb-4 pt-14">
-        <button
-          type="button"
-          onClick={back}
-          className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-full border border-border bg-[color:var(--surface-2)] text-text"
-          aria-label={t.backWord}
-        >
-          <ArrowLeft size={18} />
-        </button>
-        <div className="min-w-0">
-          <div className="display truncate text-[19px] font-extrabold tracking-[-0.02em] text-text">
-            {destination ? localizeCity(destination.id, locale) : (locale === "en" ? "Your Trip" : locale === "es" ? "Tu Viaje" : "El teu viatge")}
-          </div>
-          <div className="truncate text-xs text-muted">
-            {dates
-              ? `${dates.days} ${dates.days === 1 ? t.day : t.days} · ${t.peopleCount(people).toLowerCase()} · ${displayMoney(budget, locale, userCurrency, "EUR")}/${t.perPersonWord}`
-              : ""}
-          </div>
-        </div>
-      </div>
-
-      {/* Step label */}
-      <div className="px-5 pt-4">
-        <div className="micro text-[color:var(--green)]">
-          {step === "flights" ? t.stepTransport : step === "hotels" ? t.stepAccommodation : t.stepSummary}
-        </div>
-      </div>
-
-      <div className="flex-1 overflow-y-auto px-4 pb-28 pt-3">
-        {offersError && step !== "summary" ? (
-          <PickerNotice
-            title={locale === "en" ? "No offers found" : locale === "es" ? "No hemos encontrado ofertas" : "No hem trobat ofertes"}
-            sub={offersError}
-            onRetry={retry}
-            retryLabel={t.searchAgain}
-          />
-        ) : null}
-
-        <AnimatePresence mode="wait">
-          <motion.div key={step} {...stepAnim}>
-        {step === "flights" ? (
-          <motion.div
-            className="grid gap-3"
-            initial="hidden"
-            animate="show"
-            variants={{ show: { transition: { staggerChildren: 0.05 } } }}
+      <div className="flex min-h-dvh flex-col bg-bg">
+        {/* Header */}
+        <div className="flex items-center gap-3 border-b border-border px-5 pb-4 pt-14">
+          <button
+            type="button"
+            onClick={back}
+            className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-full border border-border bg-[color:var(--surface-2)] text-text"
+            aria-label={t.backWord}
           >
-            {flights.length === 0 && !offersError ? (
-              <PickerNotice
-                title={t.noTransportTitle}
-                sub={t.noTransportSub}
-                onRetry={retry}
-                retryLabel={t.searchAgain}
-              />
-            ) : null}
-            {flights.map((o) => (
-              <SelectableOffer
-                key={o.id}
-                offer={o}
-                selected={selectedFlight?.id === o.id}
-                onSelect={() => {
-                  plan.setSelectedFlight(o);
-                  setShowTransitionOverlay(true);
-                }}
-                locale={locale}
-                userCurrency={userCurrency}
-              />
-            ))}
-          </motion.div>
-        ) : null}
-
-        {step === "hotels" ? (
-          <motion.div
-            className="grid gap-3"
-            initial="hidden"
-            animate="show"
-            variants={{ show: { transition: { staggerChildren: 0.05 } } }}
-          >
-            {hotels.length === 0 && !offersError ? (
-              <PickerNotice
-                title={t.noHotelTitle}
-                sub={t.noHotelSub}
-                onRetry={retry}
-                retryLabel={t.searchAgain}
-              />
-            ) : null}
-            {hotels.map((o) => (
-              <SelectableOffer
-                key={o.id}
-                offer={o}
-                selected={selectedHotel?.id === o.id}
-                onSelect={() => {
-                  plan.setSelectedHotel(o);
-                  setStep("summary");
-                }}
-                locale={locale}
-                userCurrency={userCurrency}
-              />
-            ))}
-          </motion.div>
-        ) : null}
-
-        {step === "summary" ? (
-          <div className="grid gap-4">
-            {/* Cost breakdown */}
-            <Card className="p-4">
-              <div className="micro text-[color:var(--green)]">{t.costSummary}</div>
-              <div className="mt-3 grid gap-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted">{t.transport} ({people} {locale === "en" ? "people" : "pers."})</span>
-                  <span className="tnum font-semibold text-text">
-                    {displayMoney(
-                      costs.flightCost,
-                      locale,
-                      userCurrency,
-                      selectedFlight?.currency ?? userCurrency,
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted">{t.accommodation}</span>
-                  <span className="tnum font-semibold text-text">
-                    {displayMoney(
-                      costs.hotelCost,
-                      locale,
-                      userCurrency,
-                      selectedHotel?.currency ?? userCurrency,
-                    )}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted">{t.activitiesGastronomy}</span>
-                  <span className="tnum font-semibold text-text">
-                    {itineraryLoading
-                      ? "…"
-                      : displayMoney(costs.activitiesCost, locale, userCurrency, "EUR")}
-                  </span>
-                </div>
-                <div className="mt-1 flex justify-between border-t border-border pt-2">
-                  <span className="display font-extrabold text-text">{t.tripTotal}</span>
-                  <span className="display tnum text-lg font-extrabold text-[color:var(--green-deep)]">
-                    {itineraryLoading
-                      ? "…"
-                      : formatMoney(displayGrandTotal, userCurrency, locale)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Budget usage bar */}
-              <div className="mt-3">
-                <div className="h-1.5 w-full overflow-hidden rounded-full bg-[color:var(--surface-2)]">
-                  <motion.div
-                    className="h-full rounded-full"
-                    style={{ background: overBudget ? "#DC2626" : "var(--green)" }}
-                    initial={reduce ? false : { width: 0 }}
-                    animate={{ width: `${usagePct}%` }}
-                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  />
-                </div>
-                <div className="mt-1.5 flex justify-between text-[11px]">
-                  <span className="text-faint">
-                    {t.budgetLabel}{" "}
-                    {formatMoney(displayTotalBudget, userCurrency, locale)}
-                  </span>
-                  <span
-                    className="tnum font-semibold"
-                    style={{ color: overBudget ? "#DC2626" : "var(--text-muted)" }}
-                  >
-                    {overBudget ? `${t.exceeded} · ` : ""}
-                    {usagePct}%
-                  </span>
-                </div>
-              </div>
-            </Card>
-
-            {/* Selected flight & hotel — reservable */}
-            {selectedFlight ? (
-              <BookingCard offer={selectedFlight} label={locale === "en" ? "YOUR TRANSPORT" : locale === "es" ? "TU TRANSPORTE" : "EL TEU TRANSPORT"} locale={locale} t={t} userCurrency={userCurrency} />
-            ) : null}
-            {selectedHotel ? (
-              <BookingCard offer={selectedHotel} label={locale === "en" ? "YOUR ACCOMMODATION" : locale === "es" ? "TU ALOJAMIENTO" : "EL TEU ALLOTJAMENT"} locale={locale} t={t} userCurrency={userCurrency} />
-            ) : null}
-
-            {/* Day-by-day itinerary */}
-            <Card className="p-4">
-              <div className="flex items-center gap-2">
-                <Sparkles size={16} className="text-[color:var(--green)]" />
-                <span className="display text-base font-bold text-text">{t.dayByDayItinerary}</span>
-              </div>
-              {itineraryLoading ? (
-                <div className="mt-3 flex items-center gap-2 text-sm text-muted">
-                  <Loader2 size={16} className="animate-spin" /> {t.preparingItinerary}
-                </div>
-              ) : itinerary && (itinerary as Itinerary).days?.length ? (
-                <div className="mt-3 grid gap-3">
-                  {(itinerary as Itinerary).trip_title ? (
-                    <p className="text-sm font-medium text-muted">
-                      {(itinerary as Itinerary).trip_title}
-                    </p>
-                  ) : null}
-                  {(itinerary as Itinerary).days!.map((d, i) => (
-                    <DaySection key={i} day={d} index={i} locale={locale} t={t} userCurrency={userCurrency} />
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-2 text-sm text-muted">{t.noItinerary}</p>
-              )}
-            </Card>
-
-            {/* Action Toggles */}
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => setFav((f) => !f)}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-text transition-colors"
-              >
-                <Heart
-                  size={16}
-                  className={fav ? "text-[color:#E85D3A]" : "text-muted"}
-                  fill={fav ? "#E85D3A" : "none"}
-                />
-                {fav ? t.markedFavorite : t.markFavorite}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setIsPublic((p) => !p)}
-                className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-text transition-colors"
-              >
-                <Globe
-                  size={16}
-                  className={isPublic ? "text-[color:var(--green)]" : "text-muted"}
-                />
-                {isPublic ? t.shareWithCommunity : t.shareWithCommunity}
-              </button>
+            <ArrowLeft size={18} />
+          </button>
+          <div className="min-w-0">
+            <div className="display truncate text-[19px] font-extrabold tracking-[-0.02em] text-text">
+              {destination
+                ? localizeCity(destination.id, locale)
+                : locale === "en"
+                  ? "Your Trip"
+                  : locale === "es"
+                    ? "Tu Viaje"
+                    : "El teu viatge"}
+            </div>
+            <div className="truncate text-xs text-muted">
+              {dates
+                ? `${dates.days} ${dates.days === 1 ? t.day : t.days} · ${t.peopleCount(people).toLowerCase()} · ${displayMoney(budget, locale, userCurrency, "EUR")}/${t.perPersonWord}`
+                : ""}
             </div>
           </div>
-        ) : null}
-          </motion.div>
-        </AnimatePresence>
-      </div>
+        </div>
 
-      {/* Save bar (summary only) */}
-      {step === "summary" ? (
-        <motion.div
-          initial={reduce ? false : { y: 90 }}
-          animate={{ y: 0 }}
-          transition={{ type: "spring", stiffness: 380, damping: 32 }}
-          className="safe-bottom fixed inset-x-0 bottom-0 mx-auto w-full max-w-[480px] border-t border-border bg-surface p-4 shadow-[var(--shadow-lg)]">
-          <Button
-            type="button"
-            className="w-full normal-case tracking-normal"
-            isLoading={saving}
-            disabled={itineraryLoading || saving}
-            onClick={onSave}
+        {/* Step label */}
+        <div className="px-5 pt-4">
+          <div className="micro text-[color:var(--green)]">
+            {step === "flights"
+              ? t.stepTransport
+              : step === "hotels"
+                ? t.stepAccommodation
+                : t.stepSummary}
+          </div>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-4 pb-28 pt-3">
+          {offersError && step !== "summary" ? (
+            <PickerNotice
+              title={
+                locale === "en"
+                  ? "No offers found"
+                  : locale === "es"
+                    ? "No hemos encontrado ofertas"
+                    : "No hem trobat ofertes"
+              }
+              sub={offersError}
+              onRetry={retry}
+              retryLabel={t.searchAgain}
+            />
+          ) : null}
+
+          <AnimatePresence mode="wait">
+            <motion.div key={step} {...stepAnim}>
+              {step === "flights" ? (
+                <motion.div
+                  className="grid gap-3"
+                  initial="hidden"
+                  animate="show"
+                  variants={{ show: { transition: { staggerChildren: 0.05 } } }}
+                >
+                  {flights.length === 0 && !offersError ? (
+                    <PickerNotice
+                      title={t.noTransportTitle}
+                      sub={t.noTransportSub}
+                      onRetry={retry}
+                      retryLabel={t.searchAgain}
+                    />
+                  ) : null}
+                  {flights.map((o) => (
+                    <SelectableOffer
+                      key={o.id}
+                      offer={o}
+                      selected={selectedFlight?.id === o.id}
+                      onSelect={() => {
+                        plan.setSelectedFlight(o);
+                        setShowTransitionOverlay(true);
+                      }}
+                      locale={locale}
+                      userCurrency={userCurrency}
+                    />
+                  ))}
+                </motion.div>
+              ) : null}
+
+              {step === "hotels" ? (
+                <motion.div
+                  className="grid gap-3"
+                  initial="hidden"
+                  animate="show"
+                  variants={{ show: { transition: { staggerChildren: 0.05 } } }}
+                >
+                  {hotels.length === 0 && !offersError ? (
+                    <PickerNotice
+                      title={t.noHotelTitle}
+                      sub={t.noHotelSub}
+                      onRetry={retry}
+                      retryLabel={t.searchAgain}
+                    />
+                  ) : null}
+                  {hotels.map((o) => (
+                    <SelectableOffer
+                      key={o.id}
+                      offer={o}
+                      selected={selectedHotel?.id === o.id}
+                      onSelect={() => {
+                        plan.setSelectedHotel(o);
+                        setStep("summary");
+                      }}
+                      locale={locale}
+                      userCurrency={userCurrency}
+                    />
+                  ))}
+                </motion.div>
+              ) : null}
+
+              {step === "summary" ? (
+                <div className="grid gap-4">
+                  {/* Cost breakdown */}
+                  <Card className="p-4">
+                    <div className="micro text-[color:var(--green)]">
+                      {t.costSummary}
+                    </div>
+                    <div className="mt-3 grid gap-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted">
+                          {t.transport} ({people}{" "}
+                          {locale === "en" ? "people" : "pers."})
+                        </span>
+                        <span className="tnum font-semibold text-text">
+                          {displayMoney(
+                            costs.flightCost,
+                            locale,
+                            userCurrency,
+                            selectedFlight?.currency ?? userCurrency,
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted">{t.accommodation}</span>
+                        <span className="tnum font-semibold text-text">
+                          {displayMoney(
+                            costs.hotelCost,
+                            locale,
+                            userCurrency,
+                            selectedHotel?.currency ?? userCurrency,
+                          )}
+                        </span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted">
+                          {t.activitiesGastronomy}
+                        </span>
+                        <span className="tnum font-semibold text-text">
+                          {itineraryLoading
+                            ? "…"
+                            : displayMoney(
+                                costs.activitiesCost,
+                                locale,
+                                userCurrency,
+                                "EUR",
+                              )}
+                        </span>
+                      </div>
+                      <div className="mt-1 flex justify-between border-t border-border pt-2">
+                        <span className="display font-extrabold text-text">
+                          {t.tripTotal}
+                        </span>
+                        <span className="display tnum text-lg font-extrabold text-[color:var(--green-deep)]">
+                          {itineraryLoading
+                            ? "…"
+                            : formatMoney(
+                                displayGrandTotal,
+                                userCurrency,
+                                locale,
+                              )}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Budget usage bar */}
+                    <div className="mt-3">
+                      <div className="h-1.5 w-full overflow-hidden rounded-full bg-[color:var(--surface-2)]">
+                        <motion.div
+                          className="h-full rounded-full"
+                          style={{
+                            background: overBudget ? "#DC2626" : "var(--green)",
+                          }}
+                          initial={reduce ? false : { width: 0 }}
+                          animate={{ width: `${usagePct}%` }}
+                          transition={{
+                            duration: 0.6,
+                            ease: [0.16, 1, 0.3, 1],
+                          }}
+                        />
+                      </div>
+                      <div className="mt-1.5 flex justify-between text-[11px]">
+                        <span className="text-faint">
+                          {t.budgetLabel}{" "}
+                          {formatMoney(
+                            displayTotalBudget,
+                            userCurrency,
+                            locale,
+                          )}
+                        </span>
+                        <span
+                          className="tnum font-semibold"
+                          style={{
+                            color: overBudget ? "#DC2626" : "var(--text-muted)",
+                          }}
+                        >
+                          {overBudget ? `${t.exceeded} · ` : ""}
+                          {usagePct}%
+                        </span>
+                      </div>
+                    </div>
+                  </Card>
+
+                  {/* Selected flight & hotel — reservable */}
+                  {selectedFlight ? (
+                    <BookingCard
+                      offer={selectedFlight}
+                      label={
+                        locale === "en"
+                          ? "YOUR TRANSPORT"
+                          : locale === "es"
+                            ? "TU TRANSPORTE"
+                            : "EL TEU TRANSPORT"
+                      }
+                      locale={locale}
+                      t={t}
+                      userCurrency={userCurrency}
+                    />
+                  ) : null}
+                  {selectedHotel ? (
+                    <BookingCard
+                      offer={selectedHotel}
+                      label={
+                        locale === "en"
+                          ? "YOUR ACCOMMODATION"
+                          : locale === "es"
+                            ? "TU ALOJAMIENTO"
+                            : "EL TEU ALLOTJAMENT"
+                      }
+                      locale={locale}
+                      t={t}
+                      userCurrency={userCurrency}
+                    />
+                  ) : null}
+
+                  {/* Day-by-day itinerary */}
+                  <Card className="p-4">
+                    <div className="flex items-center gap-2">
+                      <Sparkles
+                        size={16}
+                        className="text-[color:var(--green)]"
+                      />
+                      <span className="display text-base font-bold text-text">
+                        {t.dayByDayItinerary}
+                      </span>
+                    </div>
+                    {itineraryLoading ? (
+                      <div className="mt-3 flex items-center gap-2 text-sm text-muted">
+                        <Loader2 size={16} className="animate-spin" />{" "}
+                        {t.preparingItinerary}
+                      </div>
+                    ) : itinerary && (itinerary as Itinerary).days?.length ? (
+                      <div className="mt-3 grid gap-3">
+                        {(itinerary as Itinerary).trip_title ? (
+                          <p className="text-sm font-medium text-muted">
+                            {(itinerary as Itinerary).trip_title}
+                          </p>
+                        ) : null}
+                        {(itinerary as Itinerary).days!.map((d, i) => (
+                          <DaySection
+                            key={i}
+                            day={d}
+                            index={i}
+                            locale={locale}
+                            t={t}
+                            userCurrency={userCurrency}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="mt-2 text-sm text-muted">{t.noItinerary}</p>
+                    )}
+                  </Card>
+
+                  {/* Action Toggles */}
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setFav((f) => !f)}
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-text transition-colors"
+                    >
+                      <Heart
+                        size={16}
+                        className={fav ? "text-[color:#E85D3A]" : "text-muted"}
+                        fill={fav ? "#E85D3A" : "none"}
+                      />
+                      {fav ? t.markedFavorite : t.markFavorite}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsPublic((p) => !p)}
+                      className="inline-flex items-center gap-2 rounded-full border border-border bg-surface px-4 py-2 text-sm text-text transition-colors"
+                    >
+                      <Globe
+                        size={16}
+                        className={
+                          isPublic ? "text-[color:var(--green)]" : "text-muted"
+                        }
+                      />
+                      {isPublic ? t.shareWithCommunity : t.shareWithCommunity}
+                    </button>
+                  </div>
+                </div>
+              ) : null}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+
+        {/* Save bar (summary only) */}
+        {step === "summary" ? (
+          <motion.div
+            initial={reduce ? false : { y: 90 }}
+            animate={{ y: 0 }}
+            transition={{ type: "spring", stiffness: 380, damping: 32 }}
+            className="safe-bottom fixed inset-x-0 bottom-0 mx-auto w-full max-w-[480px] border-t border-border bg-surface p-4 shadow-[var(--shadow-lg)]"
           >
-            {saving ? t.savingLabel : t.saveTripLabel}
-          </Button>
-        </motion.div>
-      ) : null}
-    </div>
+            <Button
+              type="button"
+              className="w-full normal-case tracking-normal"
+              isLoading={saving}
+              disabled={itineraryLoading || saving}
+              onClick={onSave}
+            >
+              {saving ? t.savingLabel : t.saveTripLabel}
+            </Button>
+          </motion.div>
+        ) : null}
+      </div>
     </>
   );
 }

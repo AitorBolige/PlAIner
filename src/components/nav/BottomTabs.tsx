@@ -13,13 +13,43 @@ function SearchIcon({ active }: { active: boolean }) {
   return active ? (
     <svg width={26} height={26} viewBox="0 0 24 24" fill="none">
       <circle cx={11} cy={11} r={7.5} fill={ACTIVE} opacity={0.18} />
-      <circle cx={11} cy={11} r={7.5} stroke={ACTIVE} strokeWidth={2} fill="none" />
-      <line x1={17} y1={17} x2={22} y2={22} stroke={ACTIVE} strokeWidth={2.2} strokeLinecap="round" />
+      <circle
+        cx={11}
+        cy={11}
+        r={7.5}
+        stroke={ACTIVE}
+        strokeWidth={2}
+        fill="none"
+      />
+      <line
+        x1={17}
+        y1={17}
+        x2={22}
+        y2={22}
+        stroke={ACTIVE}
+        strokeWidth={2.2}
+        strokeLinecap="round"
+      />
     </svg>
   ) : (
     <svg width={26} height={26} viewBox="0 0 24 24" fill="none">
-      <circle cx={11} cy={11} r={7.5} stroke={INACTIVE} strokeWidth={1.7} fill="none" />
-      <line x1={17} y1={17} x2={22} y2={22} stroke={INACTIVE} strokeWidth={1.7} strokeLinecap="round" />
+      <circle
+        cx={11}
+        cy={11}
+        r={7.5}
+        stroke={INACTIVE}
+        strokeWidth={1.7}
+        fill="none"
+      />
+      <line
+        x1={17}
+        y1={17}
+        x2={22}
+        y2={22}
+        stroke={INACTIVE}
+        strokeWidth={1.7}
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -46,7 +76,14 @@ function TripsIcon({ active }: { active: boolean }) {
         fill="none"
         strokeLinejoin="round"
       />
-      <circle cx={12} cy={9} r={2.5} stroke={INACTIVE} strokeWidth={1.5} fill="none" />
+      <circle
+        cx={12}
+        cy={9}
+        r={2.5}
+        stroke={INACTIVE}
+        strokeWidth={1.5}
+        fill="none"
+      />
     </svg>
   );
 }
@@ -55,8 +92,17 @@ function ProfileIcon({ active }: { active: boolean }) {
   const c = active ? ACTIVE : INACTIVE;
   return (
     <svg width={26} height={26} viewBox="0 0 24 24" fill="none">
-      {active ? <circle cx={12} cy={8} r={4} fill={ACTIVE} opacity={0.18} /> : null}
-      <circle cx={12} cy={8} r={4} stroke={c} strokeWidth={active ? 2 : 1.7} fill="none" />
+      {active ? (
+        <circle cx={12} cy={8} r={4} fill={ACTIVE} opacity={0.18} />
+      ) : null}
+      <circle
+        cx={12}
+        cy={8}
+        r={4}
+        stroke={c}
+        strokeWidth={active ? 2 : 1.7}
+        fill="none"
+      />
       <path
         d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"
         stroke={c}
@@ -72,7 +118,9 @@ function RecommendationsIcon({ active }: { active: boolean }) {
   const c = active ? ACTIVE : INACTIVE;
   return (
     <svg width={26} height={26} viewBox="0 0 24 24" fill="none">
-      {active ? <circle cx={12} cy={12} r={8} fill={ACTIVE} opacity={0.18} /> : null}
+      {active ? (
+        <circle cx={12} cy={12} r={8} fill={ACTIVE} opacity={0.18} />
+      ) : null}
       <path
         d="M12 2L14.4 9.6L22 12L14.4 14.4L12 22L9.6 14.4L2 12L9.6 9.6L12 2Z"
         stroke={c}
@@ -90,7 +138,11 @@ const TAB_DEFS: {
   Icon: (p: { active: boolean }) => React.ReactElement;
 }[] = [
   { id: "search", href: "/plan", Icon: SearchIcon },
-  { id: "recommendations", href: "/recommendations", Icon: RecommendationsIcon },
+  {
+    id: "recommendations",
+    href: "/recommendations",
+    Icon: RecommendationsIcon,
+  },
   { id: "trips", href: "/trips", Icon: TripsIcon },
   { id: "settings", href: "/settings", Icon: ProfileIcon },
 ];

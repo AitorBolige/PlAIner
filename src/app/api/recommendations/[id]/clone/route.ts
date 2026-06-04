@@ -73,6 +73,9 @@ export async function POST(_req: Request, { params }: RouteContext) {
     return NextResponse.json({ id: cloned.id }, { status: 201 });
   } catch (err) {
     console.error("[clone trip]", err);
-    return NextResponse.json({ error: "Error en clonar el viatge." }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error en clonar el viatge." },
+      { status: 500 },
+    );
   }
 }

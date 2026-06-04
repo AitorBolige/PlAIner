@@ -426,9 +426,7 @@ function OnboardingInner() {
                   <div className="flex items-center justify-center gap-4 pt-2">
                     <button
                       type="button"
-                      onClick={() =>
-                        setAge((a) => Math.max(1, (a ?? 25) - 1))
-                      }
+                      onClick={() => setAge((a) => Math.max(1, (a ?? 25) - 1))}
                       className="flex h-12 w-12 flex-none items-center justify-center rounded-full border-[1.5px] border-border bg-[color:var(--surface-2)] text-xl font-bold text-text"
                       aria-label="-1"
                     >
@@ -521,7 +519,9 @@ function OnboardingInner() {
                             color: "var(--text)",
                           }}
                         >
-                          <span className="text-base leading-none">{n.flag}</span>
+                          <span className="text-base leading-none">
+                            {n.flag}
+                          </span>
                           <span className="truncate">{label}</span>
                         </button>
                       );
@@ -717,7 +717,9 @@ function Chip({
         color: selected ? "var(--green-deep, var(--green))" : "var(--text)",
       }}
     >
-      {selected && <Check size={14} className="mr-1.5 text-[color:var(--green)]" />}
+      {selected && (
+        <Check size={14} className="mr-1.5 text-[color:var(--green)]" />
+      )}
       {children}
     </motion.button>
   );

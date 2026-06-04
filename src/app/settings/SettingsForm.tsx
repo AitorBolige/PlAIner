@@ -36,25 +36,190 @@ function getLocalizedGender(val: string | null, targetLocale: Locale): string {
   if (!val) return "";
   const name = val.trim().toLowerCase();
   const gendersMap: Record<string, Partial<Record<Locale, string>>> = {
-    "dona": { ca: "Dona", es: "Mujer", en: "Woman", de: "Frau", fr: "Femme", it: "Donna", pt: "Mulher", ar: "أنثى", zh: "女", hi: "महिला" },
-    "woman": { ca: "Dona", es: "Mujer", en: "Woman", de: "Frau", fr: "Femme", it: "Donna", pt: "Mulher", ar: "أنثى", zh: "女", hi: "महिला" },
-    "mujer": { ca: "Dona", es: "Mujer", en: "Woman", de: "Frau", fr: "Femme", it: "Donna", pt: "Mulher", ar: "أنثى", zh: "女", hi: "महिला" },
+    dona: {
+      ca: "Dona",
+      es: "Mujer",
+      en: "Woman",
+      de: "Frau",
+      fr: "Femme",
+      it: "Donna",
+      pt: "Mulher",
+      ar: "أنثى",
+      zh: "女",
+      hi: "महिला",
+    },
+    woman: {
+      ca: "Dona",
+      es: "Mujer",
+      en: "Woman",
+      de: "Frau",
+      fr: "Femme",
+      it: "Donna",
+      pt: "Mulher",
+      ar: "أنثى",
+      zh: "女",
+      hi: "महिला",
+    },
+    mujer: {
+      ca: "Dona",
+      es: "Mujer",
+      en: "Woman",
+      de: "Frau",
+      fr: "Femme",
+      it: "Donna",
+      pt: "Mulher",
+      ar: "أنثى",
+      zh: "女",
+      hi: "महिला",
+    },
 
-    "home": { ca: "Home", es: "Hombre", en: "Man", de: "Mann", fr: "Homme", it: "Uomo", pt: "Homem", ar: "ذكر", zh: "男", hi: "पुरुष" },
-    "man": { ca: "Home", es: "Hombre", en: "Man", de: "Mann", fr: "Homme", it: "Uomo", pt: "Homem", ar: "ذكر", zh: "男", hi: "पुरुष" },
-    "hombre": { ca: "Home", es: "Hombre", en: "Man", de: "Mann", fr: "Homme", it: "Uomo", pt: "Homem", ar: "ذكر", zh: "男", hi: "पुरुष" },
+    home: {
+      ca: "Home",
+      es: "Hombre",
+      en: "Man",
+      de: "Mann",
+      fr: "Homme",
+      it: "Uomo",
+      pt: "Homem",
+      ar: "ذكر",
+      zh: "男",
+      hi: "पुरुष",
+    },
+    man: {
+      ca: "Home",
+      es: "Hombre",
+      en: "Man",
+      de: "Mann",
+      fr: "Homme",
+      it: "Uomo",
+      pt: "Homem",
+      ar: "ذكر",
+      zh: "男",
+      hi: "पुरुष",
+    },
+    hombre: {
+      ca: "Home",
+      es: "Hombre",
+      en: "Man",
+      de: "Mann",
+      fr: "Homme",
+      it: "Uomo",
+      pt: "Homem",
+      ar: "ذكر",
+      zh: "男",
+      hi: "पुरुष",
+    },
 
-    "no binari": { ca: "No binari", es: "No binario", en: "Non-binary", de: "Non-binär", fr: "Non-binaire", it: "Non binario", pt: "Não-binário", ar: "غير ثنائي", zh: "非二元", hi: "गैर-बाइनरी" },
-    "non-binary": { ca: "No binari", es: "No binario", en: "Non-binary", de: "Non-binär", fr: "Non-binaire", it: "Non binario", pt: "Não-binário", ar: "غير ثنائي", zh: "非二元", hi: "गैर-बाइनरी" },
-    "no binario": { ca: "No binari", es: "No binario", en: "Non-binary", de: "Non-binär", fr: "Non-binaire", it: "Non binario", pt: "Não-binário", ar: "غير ثنائي", zh: "非二元", hi: "गैर-बाइनरी" },
+    "no binari": {
+      ca: "No binari",
+      es: "No binario",
+      en: "Non-binary",
+      de: "Non-binär",
+      fr: "Non-binaire",
+      it: "Non binario",
+      pt: "Não-binário",
+      ar: "غير ثنائي",
+      zh: "非二元",
+      hi: "गैर-बाइनरी",
+    },
+    "non-binary": {
+      ca: "No binari",
+      es: "No binario",
+      en: "Non-binary",
+      de: "Non-binär",
+      fr: "Non-binaire",
+      it: "Non binario",
+      pt: "Não-binário",
+      ar: "غير ثنائي",
+      zh: "非二元",
+      hi: "गैर-बाइनरी",
+    },
+    "no binario": {
+      ca: "No binari",
+      es: "No binario",
+      en: "Non-binary",
+      de: "Non-binär",
+      fr: "Non-binaire",
+      it: "Non binario",
+      pt: "Não-binário",
+      ar: "غير ثنائي",
+      zh: "非二元",
+      hi: "गैर-बाइनरी",
+    },
 
-    "prefereixo no dir-ho": { ca: "Prefereixo no dir-ho", es: "Prefiero no decirlo", en: "Prefer not to say", de: "Keine Angabe", fr: "Préfère ne pas le dire", it: "Preferisco no dirlo", pt: "Prefiro não dizer", ar: "أفضل عدم الإفصاح", zh: "不想透露", hi: "बताना नहीं चाहते" },
-    "prefer not to say": { ca: "Prefereixo no dir-ho", es: "Prefiero no decirlo", en: "Prefer not to say", de: "Keine Angabe", fr: "Préfère ne pas le dire", it: "Preferisco no dirlo", pt: "Prefiro não dizer", ar: "أفضل عدم الإفصاح", zh: "不想透露", hi: "बताना नहीं चाहते" },
-    "prefiero no decirlo": { ca: "Prefereixo no dir-ho", es: "Prefiero no decirlo", en: "Prefer not to say", de: "Keine Angabe", fr: "Préfère ne pas le dire", it: "Preferisco no dirlo", pt: "Prefiro não dizer", ar: "أفضل عدم الإفصاح", zh: "不想透露", hi: "बताना नहीं चाहते" },
+    "prefereixo no dir-ho": {
+      ca: "Prefereixo no dir-ho",
+      es: "Prefiero no decirlo",
+      en: "Prefer not to say",
+      de: "Keine Angabe",
+      fr: "Préfère ne pas le dire",
+      it: "Preferisco no dirlo",
+      pt: "Prefiro não dizer",
+      ar: "أفضل عدم الإفصاح",
+      zh: "不想透露",
+      hi: "बताना नहीं चाहते",
+    },
+    "prefer not to say": {
+      ca: "Prefereixo no dir-ho",
+      es: "Prefiero no decirlo",
+      en: "Prefer not to say",
+      de: "Keine Angabe",
+      fr: "Préfère ne pas le dire",
+      it: "Preferisco no dirlo",
+      pt: "Prefiro não dizer",
+      ar: "أفضل عدم الإفصاح",
+      zh: "不想透露",
+      hi: "बताना नहीं चाहते",
+    },
+    "prefiero no decirlo": {
+      ca: "Prefereixo no dir-ho",
+      es: "Prefiero no decirlo",
+      en: "Prefer not to say",
+      de: "Keine Angabe",
+      fr: "Préfère ne pas le dire",
+      it: "Preferisco no dirlo",
+      pt: "Prefiro não dizer",
+      ar: "أفضل عدم الإفصاح",
+      zh: "不想透露",
+      hi: "बताना नहीं चाहते",
+    },
 
-    "altre": { ca: "Altre", es: "Otro", en: "Other", de: "Andere", fr: "Autre", it: "Altro", pt: "Outro", ar: "آخر", zh: "其他", hi: "अन्य" },
-    "other": { ca: "Altre", es: "Otro", en: "Other", de: "Andere", fr: "Autre", it: "Altro", pt: "Outro", ar: "آخر", zh: "其他", hi: "अन्य" },
-    "otro": { ca: "Altre", es: "Otro", en: "Other", de: "Andere", fr: "Autre", it: "Altro", pt: "Outro", ar: "آخر", zh: "其他", hi: "अन्य" },
+    altre: {
+      ca: "Altre",
+      es: "Otro",
+      en: "Other",
+      de: "Andere",
+      fr: "Autre",
+      it: "Altro",
+      pt: "Outro",
+      ar: "آخر",
+      zh: "其他",
+      hi: "अन्य",
+    },
+    other: {
+      ca: "Altre",
+      es: "Otro",
+      en: "Other",
+      de: "Andere",
+      fr: "Autre",
+      it: "Altro",
+      pt: "Outro",
+      ar: "آخر",
+      zh: "其他",
+      hi: "अन्य",
+    },
+    otro: {
+      ca: "Altre",
+      es: "Otro",
+      en: "Other",
+      de: "Andere",
+      fr: "Autre",
+      it: "Altro",
+      pt: "Outro",
+      ar: "آخر",
+      zh: "其他",
+      hi: "अन्य",
+    },
   };
   return gendersMap[name]?.[targetLocale] ?? gendersMap[name]?.en ?? val;
 }
@@ -133,13 +298,24 @@ interface CustomSelectProps {
   className?: string;
 }
 
-function CustomSelect({ id, value, onChange, options, placeholder, icon, className }: CustomSelectProps) {
+function CustomSelect({
+  id,
+  value,
+  onChange,
+  options,
+  placeholder,
+  icon,
+  className,
+}: CustomSelectProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     }
@@ -158,7 +334,9 @@ function CustomSelect({ id, value, onChange, options, placeholder, icon, classNa
         className={`w-full rounded-[14px] border-[1.5px] border-[color:var(--border)] bg-[color:var(--surface-2)] py-0 pr-4 text-[15px] text-[color:var(--text)] outline-none transition-[border-color,box-shadow] duration-[180ms] flex items-center justify-between cursor-pointer relative ${
           icon ? "pl-11 h-[52px]" : "pl-4 h-11"
         } ${
-          isOpen ? "border-[color:var(--green)] shadow-[0_0_0_4px_var(--green-subtle)]" : ""
+          isOpen
+            ? "border-[color:var(--green)] shadow-[0_0_0_4px_var(--green-subtle)]"
+            : ""
         }`}
       >
         <div className="flex items-center gap-3">
@@ -167,11 +345,19 @@ function CustomSelect({ id, value, onChange, options, placeholder, icon, classNa
               {icon}
             </span>
           )}
-          <span className={value ? "text-[color:var(--text)] font-semibold" : "text-[color:var(--text-faint)]"}>
+          <span
+            className={
+              value
+                ? "text-[color:var(--text)] font-semibold"
+                : "text-[color:var(--text-faint)]"
+            }
+          >
             {selectedOption ? selectedOption.label : placeholder}
           </span>
         </div>
-        <span className={`text-[10px] text-[color:var(--text-faint)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
+        <span
+          className={`text-[10px] text-[color:var(--text-faint)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+        >
           ▼
         </span>
       </button>
@@ -199,7 +385,9 @@ function CustomSelect({ id, value, onChange, options, placeholder, icon, classNa
                   }`}
                 >
                   <span>{opt.label}</span>
-                  {isSelected && <Check size={15} className="text-[color:var(--green)]" />}
+                  {isSelected && (
+                    <Check size={15} className="text-[color:var(--green)]" />
+                  )}
                 </button>
               );
             })}
@@ -220,7 +408,14 @@ interface NationalitySelectProps {
   locale: Locale;
 }
 
-function NationalitySelect({ id, value, onChange, placeholder, searchPlaceholder, locale }: NationalitySelectProps) {
+function NationalitySelect({
+  id,
+  value,
+  onChange,
+  placeholder,
+  searchPlaceholder,
+  locale,
+}: NationalitySelectProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [search, setSearch] = React.useState("");
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -228,7 +423,10 @@ function NationalitySelect({ id, value, onChange, placeholder, searchPlaceholder
 
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
         setSearch("");
       }
@@ -243,13 +441,14 @@ function NationalitySelect({ id, value, onChange, placeholder, searchPlaceholder
     }
   }, [isOpen]);
 
-  const options = React.useMemo(() =>
-    NATIONALITIES.map((n) => ({
-      code: n.code,
-      flag: n.flag,
-      label: n.labels[locale] || n.labels.en,
-    })),
-    [locale]
+  const options = React.useMemo(
+    () =>
+      NATIONALITIES.map((n) => ({
+        code: n.code,
+        flag: n.flag,
+        label: n.labels[locale] || n.labels.en,
+      })),
+    [locale],
   );
 
   const filtered = React.useMemo(() => {
@@ -258,7 +457,7 @@ function NationalitySelect({ id, value, onChange, placeholder, searchPlaceholder
     return options.filter(
       (o) =>
         o.label.toLowerCase().startsWith(q) ||
-        o.code.toLowerCase().startsWith(q)
+        o.code.toLowerCase().startsWith(q),
     );
   }, [options, search]);
 
@@ -269,18 +468,37 @@ function NationalitySelect({ id, value, onChange, placeholder, searchPlaceholder
       <button
         id={id}
         type="button"
-        onClick={() => { setIsOpen(!isOpen); setSearch(""); }}
+        onClick={() => {
+          setIsOpen(!isOpen);
+          setSearch("");
+        }}
         className={`w-full rounded-[14px] border-[1.5px] border-[color:var(--border)] bg-[color:var(--surface-2)] py-0 pl-11 pr-4 h-[52px] text-[15px] text-[color:var(--text)] outline-none transition-[border-color,box-shadow] duration-[180ms] flex items-center justify-between cursor-pointer relative ${
-          isOpen ? "border-[color:var(--green)] shadow-[0_0_0_4px_var(--green-subtle)]" : ""
+          isOpen
+            ? "border-[color:var(--green)] shadow-[0_0_0_4px_var(--green-subtle)]"
+            : ""
         }`}
       >
         <span className="absolute left-[15px] top-1/2 -translate-y-1/2 text-[color:var(--text-faint)] flex pointer-events-none">
           <Globe2 size={17} />
         </span>
-        <span className={selected ? "text-[color:var(--text)] font-semibold flex items-center gap-2" : "text-[color:var(--text-faint)]"}>
-          {selected ? <>{selected.flag} {selected.label}</> : placeholder}
+        <span
+          className={
+            selected
+              ? "text-[color:var(--text)] font-semibold flex items-center gap-2"
+              : "text-[color:var(--text-faint)]"
+          }
+        >
+          {selected ? (
+            <>
+              {selected.flag} {selected.label}
+            </>
+          ) : (
+            placeholder
+          )}
         </span>
-        <span className={`text-[10px] text-[color:var(--text-faint)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
+        <span
+          className={`text-[10px] text-[color:var(--text-faint)] transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+        >
           ▼
         </span>
       </button>
@@ -335,7 +553,9 @@ function NationalitySelect({ id, value, onChange, placeholder, searchPlaceholder
                       <span className="text-base">{opt.flag}</span>
                       <span>{opt.label}</span>
                     </span>
-                    {isSelected && <Check size={15} className="text-[color:var(--green)]" />}
+                    {isSelected && (
+                      <Check size={15} className="text-[color:var(--green)]" />
+                    )}
                   </button>
                 );
               })
@@ -347,7 +567,11 @@ function NationalitySelect({ id, value, onChange, placeholder, searchPlaceholder
   );
 }
 
-export function SettingsForm({ userId, initialData, initialLocale }: SettingsFormProps) {
+export function SettingsForm({
+  userId,
+  initialData,
+  initialLocale,
+}: SettingsFormProps) {
   const { update } = useSession();
   const [dark, toggleTheme] = useTheme();
   const { locale, t } = useLocale(initialLocale);
@@ -409,9 +633,12 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
       const formData = new FormData();
       formData.append("file", avatarFile);
       try {
-        const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
         if (uploadRes.ok) {
-          const uploadData = await uploadRes.json() as { url?: string };
+          const uploadData = (await uploadRes.json()) as { url?: string };
           avatarUrl = uploadData.url ?? avatar;
           setAvatar(avatarUrl);
           setAvatarFile(null);
@@ -437,7 +664,7 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
     setLoading(false);
 
     if (!res.ok) {
-      const data = await res.json().catch(() => ({})) as { error?: string };
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
       setError(data.error ?? t.saveSettingsError);
       return;
     }
@@ -458,8 +685,7 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
         <div
           className="-mt-[30px] h-[100px] w-[100px] rounded-full p-[3.5px]"
           style={{
-            background:
-              "linear-gradient(135deg, #0D9E7A 0%, #1a6b9a 100%)",
+            background: "linear-gradient(135deg, #0D9E7A 0%, #1a6b9a 100%)",
             boxShadow: "0 10px 30px rgba(13,158,122,0.32)",
           }}
         >
@@ -484,9 +710,7 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
       </div>
 
       <div className="mt-2.5 mb-[22px] text-center">
-        <div
-          className="display text-[19px] font-extrabold tracking-[-0.02em] text-[color:var(--text)]"
-        >
+        <div className="display text-[19px] font-extrabold tracking-[-0.02em] text-[color:var(--text)]">
           {nickname.trim() ? `@${nickname.trim()}` : t.onboardingDefaultProfile}
         </div>
         <div className="mt-0.5 text-[13px] text-[color:var(--text-muted)]">
@@ -495,7 +719,11 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
       </div>
 
       <form onSubmit={onSubmit}>
-        <Field id="nickname" label={t.nicknameLabel} icon={<UserIcon size={17} />}>
+        <Field
+          id="nickname"
+          label={t.nicknameLabel}
+          icon={<UserIcon size={17} />}
+        >
           <input
             type="text"
             value={nickname}
@@ -551,7 +779,11 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
           />
         </div>
 
-        <Field id="hobbies" label={t.hobbiesLabel} icon={<Sparkles size={17} />}>
+        <Field
+          id="hobbies"
+          label={t.hobbiesLabel}
+          icon={<Sparkles size={17} />}
+        >
           <input
             type="text"
             value={hobbies}
@@ -564,15 +796,25 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
         <div className="mb-5">
           <label className={labelCls}>
             {t.avatarLabel}{" "}
-            <span className="font-medium normal-case opacity-70">{t.avatarOptional}</span>
+            <span className="font-medium normal-case opacity-70">
+              {t.avatarOptional}
+            </span>
           </label>
           <div className="flex items-center gap-3">
             <div className="relative h-14 w-14 flex-shrink-0 overflow-hidden rounded-full border-[1.5px] border-[color:var(--border)] bg-[color:var(--surface-2)]">
-              {showAvatar
+              {showAvatar ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                ? <img src={avatar} alt="" className="h-full w-full object-cover" onError={() => setAvatarOk(false)} />
-                : <span className="flex h-full w-full items-center justify-center text-[color:var(--text-faint)]"><Camera size={20} /></span>
-              }
+                <img
+                  src={avatar}
+                  alt=""
+                  className="h-full w-full object-cover"
+                  onError={() => setAvatarOk(false)}
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-[color:var(--text-faint)]">
+                  <Camera size={20} />
+                </span>
+              )}
             </div>
             <div className="relative flex-1">
               <input
@@ -592,8 +834,13 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
                 type="button"
                 className="flex h-[52px] w-full items-center gap-2 rounded-[14px] border-[1.5px] border-[color:var(--border)] bg-[color:var(--surface-2)] px-4 text-[15px] text-[color:var(--text)]"
               >
-                <Camera size={16} className="flex-shrink-0 text-[color:var(--text-faint)]" />
-                <span className="truncate">{avatarFile ? "Foto seleccionada" : "Pujar nova foto..."}</span>
+                <Camera
+                  size={16}
+                  className="flex-shrink-0 text-[color:var(--text-faint)]"
+                />
+                <span className="truncate">
+                  {avatarFile ? "Foto seleccionada" : "Pujar nova foto..."}
+                </span>
               </button>
             </div>
           </div>
@@ -669,7 +916,7 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
               { value: "pt", label: "🇵🇹 Português" },
               { value: "ar", label: "🇸🇦 العربية" },
               { value: "zh", label: "🇨🇳 中文 (简体)" },
-              { value: "hi", label: "🇮🇳 हिन्दी" }
+              { value: "hi", label: "🇮🇳 हिन्दी" },
             ]}
           />
         </div>
@@ -698,7 +945,7 @@ export function SettingsForm({ userId, initialData, initialLocale }: SettingsFor
               { value: "CAD", label: "🇨🇦 CAD ($)" },
               { value: "AUD", label: "🇦🇺 AUD ($)" },
               { value: "CNY", label: "🇨🇳 CNY (¥)" },
-              { value: "INR", label: "🇮🇳 INR (₹)" }
+              { value: "INR", label: "🇮🇳 INR (₹)" },
             ]}
           />
         </div>

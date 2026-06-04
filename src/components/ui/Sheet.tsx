@@ -24,7 +24,11 @@ export function Sheet({
   snapPoints,
 }: SheetProps) {
   return (
-    <Drawer.Root open={open} onOpenChange={onOpenChange} snapPoints={snapPoints}>
+    <Drawer.Root
+      open={open}
+      onOpenChange={onOpenChange}
+      snapPoints={snapPoints}
+    >
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm" />
         <Drawer.Content

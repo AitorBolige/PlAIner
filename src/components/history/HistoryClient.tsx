@@ -3,7 +3,14 @@
 import * as React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Calendar, ChevronRight, Heart, MapPin, Plus, Sparkles } from "lucide-react";
+import {
+  Calendar,
+  ChevronRight,
+  Heart,
+  MapPin,
+  Plus,
+  Sparkles,
+} from "lucide-react";
 
 import { getDestinationImage, BLUR_DATA_URL } from "@/lib/destinations";
 
@@ -29,7 +36,13 @@ function fmtDate(iso: string, t: Translations) {
   return `${d.getUTCDate()} ${t.months[d.getUTCMonth()]}`;
 }
 
-export function HistoryClient({ trips, initialLocale }: { trips: TripLite[]; initialLocale?: Locale }) {
+export function HistoryClient({
+  trips,
+  initialLocale,
+}: {
+  trips: TripLite[];
+  initialLocale?: Locale;
+}) {
   const router = useRouter();
   const { locale, t } = useLocale(initialLocale);
   const [activeTab, setActiveTab] = React.useState<TabFilter>("all");
@@ -44,7 +57,11 @@ export function HistoryClient({ trips, initialLocale }: { trips: TripLite[]; ini
       { id: "all" as const, label: t.tabFilterAll, count: trips.length },
       { id: "upcoming" as const, label: t.tabFilterUpcoming, count: upcoming },
       { id: "past" as const, label: t.tabFilterPast, count: past },
-      { id: "favorites" as const, label: t.tabFilterFavorites, count: favorites },
+      {
+        id: "favorites" as const,
+        label: t.tabFilterFavorites,
+        count: favorites,
+      },
     ];
   }, [now, trips, t]);
 
@@ -215,9 +232,7 @@ export function HistoryClient({ trips, initialLocale }: { trips: TripLite[]; ini
                 marginBottom: "8px",
               }}
             >
-              {activeTab === "favorites"
-                ? t.noFavoritesYet
-                : t.startFirstTrip}
+              {activeTab === "favorites" ? t.noFavoritesYet : t.startFirstTrip}
             </h3>
             <p
               style={{
@@ -375,14 +390,25 @@ export function HistoryClient({ trips, initialLocale }: { trips: TripLite[]; ini
             />
           </button>
           {trip.isFromCommunity && (
-            <div style={{
-              position: "absolute", bottom: "42px", left: "12px",
-              display: "flex", alignItems: "center", gap: "4px",
-              background: "rgba(13,158,122,0.85)", backdropFilter: "blur(8px)",
-              color: "#fff", fontSize: "10px", fontWeight: 700,
-              padding: "3px 8px", borderRadius: "var(--r-pill)",
-              letterSpacing: "0.04em", textTransform: "uppercase",
-            }}>
+            <div
+              style={{
+                position: "absolute",
+                bottom: "42px",
+                left: "12px",
+                display: "flex",
+                alignItems: "center",
+                gap: "4px",
+                background: "rgba(13,158,122,0.85)",
+                backdropFilter: "blur(8px)",
+                color: "#fff",
+                fontSize: "10px",
+                fontWeight: 700,
+                padding: "3px 8px",
+                borderRadius: "var(--r-pill)",
+                letterSpacing: "0.04em",
+                textTransform: "uppercase",
+              }}
+            >
               <Sparkles size={10} /> {t.communityBadge}
             </div>
           )}

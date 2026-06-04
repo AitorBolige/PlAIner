@@ -8,7 +8,11 @@ import { usePlan } from "@/components/plan/PlanProvider";
 import { toast } from "@/components/ui/Toast";
 import { useLocale } from "@/lib/i18n-client";
 import { canonicalCityId } from "@/lib/i18n";
-import { DESTINATIONS, getDestinationImage, type Destination } from "@/lib/destinations";
+import {
+  DESTINATIONS,
+  getDestinationImage,
+  type Destination,
+} from "@/lib/destinations";
 import {
   BUDGET_MAX,
   BUDGET_MIN,
@@ -35,7 +39,12 @@ interface VoicePlan {
 
 function pickMime(): string {
   if (typeof MediaRecorder === "undefined") return "";
-  const c = ["audio/webm;codecs=opus", "audio/webm", "audio/mp4", "audio/ogg;codecs=opus"];
+  const c = [
+    "audio/webm;codecs=opus",
+    "audio/webm",
+    "audio/mp4",
+    "audio/ogg;codecs=opus",
+  ];
   return c.find((t) => MediaRecorder.isTypeSupported(t)) ?? "";
 }
 
@@ -89,7 +98,8 @@ export function VoiceButton() {
 
   React.useEffect(
     () => () => {
-      if (recorderRef.current?.state === "recording") recorderRef.current.stop();
+      if (recorderRef.current?.state === "recording")
+        recorderRef.current.stop();
       streamRef.current?.getTracks().forEach((t) => t.stop());
     },
     [],
@@ -101,14 +111,16 @@ export function VoiceButton() {
   }
 
   const AGE_VALID = ["minor", "young", "adult", "senior"] as const;
-  type AgeGroup = typeof AGE_VALID[number];
+  type AgeGroup = (typeof AGE_VALID)[number];
 
   function applyPlan(p: VoicePlan) {
-    if (p.destination) plan.setDestination(synthDestination(p.destination, p.country));
+    if (p.destination)
+      plan.setDestination(synthDestination(p.destination, p.country));
     if (p.startDate && p.endDate) {
       const s = parseInputDate(p.startDate);
       const e = parseInputDate(p.endDate);
-      if (s && e && e >= s) plan.setDates({ start: s, end: e, days: daysBetween(s, e) });
+      if (s && e && e >= s)
+        plan.setDates({ start: s, end: e, days: daysBetween(s, e) });
     }
     const ppl = p.people && p.people > 0 ? Math.round(p.people) : plan.people;
     if (p.people && p.people > 0) plan.setPeople(ppl);
@@ -125,7 +137,7 @@ export function VoiceButton() {
     if (p.preferences) plan.setPreferences(p.preferences);
     if (p.travelerAgeGroups && p.travelerAgeGroups.length > 0) {
       const groups = p.travelerAgeGroups.filter((g): g is AgeGroup =>
-        (AGE_VALID as readonly string[]).includes(g)
+        (AGE_VALID as readonly string[]).includes(g),
       );
       groups.forEach((g, i) => plan.setTravelerAgeGroup(i, g));
     }
@@ -143,7 +155,11 @@ export function VoiceButton() {
       const res = await fetch("/api/voice-plan", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ audio, mimeType: mimeRef.current || "audio/webm", lang }),
+        body: JSON.stringify({
+          audio,
+          mimeType: mimeRef.current || "audio/webm",
+          lang,
+        }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data?.plan) {
@@ -196,7 +212,10 @@ export function VoiceButton() {
     chunksRef.current = [];
     let recorder: MediaRecorder;
     try {
-      recorder = new MediaRecorder(stream, mimeRef.current ? { mimeType: mimeRef.current } : undefined);
+      recorder = new MediaRecorder(
+        stream,
+        mimeRef.current ? { mimeType: mimeRef.current } : undefined,
+      );
     } catch {
       release();
       toast.error(t.voiceRecordFailed);
@@ -207,7 +226,9 @@ export function VoiceButton() {
     };
     recorder.onstop = () => {
       release();
-      const blob = new Blob(chunksRef.current, { type: mimeRef.current || "audio/webm" });
+      const blob = new Blob(chunksRef.current, {
+        type: mimeRef.current || "audio/webm",
+      });
       if (blob.size < 800) {
         setPhase("idle");
         toast.error(t.voiceTooShort);
@@ -253,7 +274,10 @@ export function VoiceButton() {
       >
         {/* Diagonal sheen sweep (idle only) */}
         {idle ? (
-          <span aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-[18px]">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute inset-0 overflow-hidden rounded-[18px]"
+          >
             <span
               className="pl-voice-sheen absolute inset-y-0 left-0 w-1/3"
               style={{
@@ -298,7 +322,11 @@ export function VoiceButton() {
           <motion.span
             aria-hidden
             className="relative flex-none text-white/85"
-            animate={reduce ? undefined : { opacity: [0.5, 1, 0.5], scale: [0.92, 1, 0.92] }}
+            animate={
+              reduce
+                ? undefined
+                : { opacity: [0.5, 1, 0.5], scale: [0.92, 1, 0.92] }
+            }
             transition={{ duration: 2.6, ease: "easeInOut", repeat: Infinity }}
           >
             <Sparkles size={18} />

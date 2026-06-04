@@ -1,7 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { CheckCircle2, ExternalLink, Globe, Hotel, Lock, Plane, Sparkles, Star } from "lucide-react";
+import {
+  CheckCircle2,
+  ExternalLink,
+  Globe,
+  Hotel,
+  Lock,
+  Plane,
+  Sparkles,
+  Star,
+} from "lucide-react";
 import { useLocale } from "@/lib/i18n-client";
 import { useDisplayMoney } from "@/lib/use-display-money";
 
@@ -48,11 +57,7 @@ function BookingCard({
   const [marking, setMarking] = React.useState(false);
 
   const isHotel = type === "hotel";
-  const icon = isHotel ? (
-    <Hotel size={20} />
-  ) : (
-    <Plane size={20} />
-  );
+  const icon = isHotel ? <Hotel size={20} /> : <Plane size={20} />;
   const iconColor = isHotel ? "var(--green)" : "var(--coral)";
   const iconBg = isHotel ? "var(--green-subtle)" : "var(--coral-subtle)";
 
@@ -136,7 +141,11 @@ function BookingCard({
               <span className="block font-display text-[17px] font-extrabold text-text">
                 {displayMoney(offer.price)}
               </span>
-              <span className="block text-[10px] text-muted">{type === "hotel" ? `× ${t.nightsSuffix(nights)}` : t.perPersonWord}</span>
+              <span className="block text-[10px] text-muted">
+                {type === "hotel"
+                  ? `× ${t.nightsSuffix(nights)}`
+                  : t.perPersonWord}
+              </span>
             </span>
           ) : null}
         </div>
@@ -224,113 +233,133 @@ export function BookingSection({
 
   return (
     <>
-    {isFromCommunity && (
-      <div
-        className="mt-6 flex items-center gap-3 rounded-[var(--r-xl)] border px-4 py-3"
-        style={{
-          background: "var(--green-subtle)",
-          borderColor: "rgba(13,158,122,0.2)",
-        }}
-      >
-        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full" style={{ background: "var(--green)", color: "#fff" }}>
-          <Sparkles size={16} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-[13px] font-bold text-text">{t.inspiredByCommunity}</p>
-          <p className="text-[11px] text-muted">{t.inspiredByCommunityDesc}</p>
-        </div>
-      </div>
-    )}
-    <section className="mt-4 overflow-hidden rounded-[var(--r-xl)] border border-border bg-surface shadow-[var(--shadow-sm)]">
-      <div className="border-b border-border px-4 py-3">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="display text-base font-extrabold tracking-[-0.02em] text-text">
-              {t.bookYourTrip}
-            </h2>
-            <p className="mt-0.5 text-xs text-muted">
-              {allBooked
-                ? t.allBooked
-                : t.notBookedYetSub}
-            </p>
-          </div>
-          {allBooked && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--green-subtle)] px-2.5 py-1 text-[11px] font-bold text-[color:var(--green)]">
-              <CheckCircle2 size={12} /> {t.allReady}
-            </span>
-          )}
-        </div>
-      </div>
-
-      <BookingCard
-        type="flight"
-        offer={flightOffer}
-        fallbackUrl={flightFallbackUrl}
-        fallbackTitle={t.flightToCity(destination)}
-        fallbackSub={t.travelerSuffix(people)}
-        initialBooked={flightBooked}
-        tripId={tripId}
-        field="flightBooked"
-        t={t}
-      />
-
-      <BookingCard
-        type="hotel"
-        offer={hotelOffer}
-        fallbackUrl={hotelFallbackUrl}
-        fallbackTitle={t.accommodationInCity(destination)}
-        fallbackSub={t.nightsSuffix(nights)}
-        initialBooked={hotelBooked}
-        tripId={tripId}
-        field="hotelBooked"
-        nights={nights}
-        t={t}
-      />
-
-      {/* Share toggle */}
-      <button
-        type="button"
-        disabled={toggling || isFromCommunity}
-        onClick={togglePublic}
-        className="flex w-full items-center gap-3 border-t border-border px-4 py-3.5 transition-colors hover:bg-[color:var(--surface-2)] disabled:opacity-60"
-        style={{ cursor: isFromCommunity ? "not-allowed" : "pointer" }}
-      >
-        <span
-          className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-full"
+      {isFromCommunity && (
+        <div
+          className="mt-6 flex items-center gap-3 rounded-[var(--r-xl)] border px-4 py-3"
           style={{
-            background: isFromCommunity ? "var(--surface-2)" : isPublic ? "var(--green-subtle)" : "var(--surface-2)",
-            color: isFromCommunity ? "var(--text-faint)" : isPublic ? "var(--green)" : "var(--text-faint)",
+            background: "var(--green-subtle)",
+            borderColor: "rgba(13,158,122,0.2)",
           }}
         >
-          {isFromCommunity ? <Lock size={16} /> : <Globe size={18} />}
-        </span>
-        <span className="flex-1 text-left">
-          <span className="block text-[14px] font-semibold text-text">
-            {t.shareWithCommunity}
-          </span>
-          <span className="block text-[11px] text-muted">
-            {isFromCommunity
-              ? t.cantShareCommunityTrip
-              : isPublic
-              ? t.visibleOnDiscover
-              : t.onlyYouCanSee}
-          </span>
-        </span>
-        {isFromCommunity ? (
-          <Lock size={16} className="flex-none text-[color:var(--text-faint)]" />
-        ) : (
           <span
-            className="relative inline-block h-6 w-11 flex-none overflow-hidden rounded-full transition-colors duration-200"
-            style={{ background: isPublic ? "var(--green)" : "var(--border-md)" }}
+            className="flex h-9 w-9 flex-none items-center justify-center rounded-full"
+            style={{ background: "var(--green)", color: "#fff" }}
           >
-            <span
-              className="absolute top-[3px] left-[3px] h-[18px] w-[18px] rounded-full bg-white shadow transition-transform duration-200"
-              style={{ transform: isPublic ? "translateX(19px)" : "translateX(0px)" }}
-            />
+            <Sparkles size={16} />
           </span>
-        )}
-      </button>
-    </section>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-bold text-text">
+              {t.inspiredByCommunity}
+            </p>
+            <p className="text-[11px] text-muted">
+              {t.inspiredByCommunityDesc}
+            </p>
+          </div>
+        </div>
+      )}
+      <section className="mt-4 overflow-hidden rounded-[var(--r-xl)] border border-border bg-surface shadow-[var(--shadow-sm)]">
+        <div className="border-b border-border px-4 py-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="display text-base font-extrabold tracking-[-0.02em] text-text">
+                {t.bookYourTrip}
+              </h2>
+              <p className="mt-0.5 text-xs text-muted">
+                {allBooked ? t.allBooked : t.notBookedYetSub}
+              </p>
+            </div>
+            {allBooked && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--green-subtle)] px-2.5 py-1 text-[11px] font-bold text-[color:var(--green)]">
+                <CheckCircle2 size={12} /> {t.allReady}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <BookingCard
+          type="flight"
+          offer={flightOffer}
+          fallbackUrl={flightFallbackUrl}
+          fallbackTitle={t.flightToCity(destination)}
+          fallbackSub={t.travelerSuffix(people)}
+          initialBooked={flightBooked}
+          tripId={tripId}
+          field="flightBooked"
+          t={t}
+        />
+
+        <BookingCard
+          type="hotel"
+          offer={hotelOffer}
+          fallbackUrl={hotelFallbackUrl}
+          fallbackTitle={t.accommodationInCity(destination)}
+          fallbackSub={t.nightsSuffix(nights)}
+          initialBooked={hotelBooked}
+          tripId={tripId}
+          field="hotelBooked"
+          nights={nights}
+          t={t}
+        />
+
+        {/* Share toggle */}
+        <button
+          type="button"
+          disabled={toggling || isFromCommunity}
+          onClick={togglePublic}
+          className="flex w-full items-center gap-3 border-t border-border px-4 py-3.5 transition-colors hover:bg-[color:var(--surface-2)] disabled:opacity-60"
+          style={{ cursor: isFromCommunity ? "not-allowed" : "pointer" }}
+        >
+          <span
+            className="inline-flex h-9 w-9 flex-none items-center justify-center rounded-full"
+            style={{
+              background: isFromCommunity
+                ? "var(--surface-2)"
+                : isPublic
+                  ? "var(--green-subtle)"
+                  : "var(--surface-2)",
+              color: isFromCommunity
+                ? "var(--text-faint)"
+                : isPublic
+                  ? "var(--green)"
+                  : "var(--text-faint)",
+            }}
+          >
+            {isFromCommunity ? <Lock size={16} /> : <Globe size={18} />}
+          </span>
+          <span className="flex-1 text-left">
+            <span className="block text-[14px] font-semibold text-text">
+              {t.shareWithCommunity}
+            </span>
+            <span className="block text-[11px] text-muted">
+              {isFromCommunity
+                ? t.cantShareCommunityTrip
+                : isPublic
+                  ? t.visibleOnDiscover
+                  : t.onlyYouCanSee}
+            </span>
+          </span>
+          {isFromCommunity ? (
+            <Lock
+              size={16}
+              className="flex-none text-[color:var(--text-faint)]"
+            />
+          ) : (
+            <span
+              className="relative inline-block h-6 w-11 flex-none overflow-hidden rounded-full transition-colors duration-200"
+              style={{
+                background: isPublic ? "var(--green)" : "var(--border-md)",
+              }}
+            >
+              <span
+                className="absolute top-[3px] left-[3px] h-[18px] w-[18px] rounded-full bg-white shadow transition-transform duration-200"
+                style={{
+                  transform: isPublic ? "translateX(19px)" : "translateX(0px)",
+                }}
+              />
+            </span>
+          )}
+        </button>
+      </section>
     </>
   );
 }

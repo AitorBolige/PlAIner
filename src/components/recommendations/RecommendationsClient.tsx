@@ -3,10 +3,21 @@
 import * as React from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Calendar, MapPin, Users, ChevronRight, X, Sparkles } from "lucide-react";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  ChevronRight,
+  X,
+  Sparkles,
+} from "lucide-react";
 import { useInView } from "react-intersection-observer";
 
-import { getDestinationImage, BLUR_DATA_URL, DESTINATIONS } from "@/lib/destinations";
+import {
+  getDestinationImage,
+  BLUR_DATA_URL,
+  DESTINATIONS,
+} from "@/lib/destinations";
 import { useLocale } from "@/lib/i18n-client";
 import { useDisplayMoney } from "@/lib/use-display-money";
 import { localizeCity, type Locale, type Translations } from "@/lib/i18n";
@@ -61,8 +72,9 @@ export default function RecommendationsClient() {
   const [minDays, setMinDays] = React.useState<number | "">("");
   const [maxDays, setMaxDays] = React.useState<number | "">("");
   const [people, setPeople] = React.useState<number | "">("");
-  const [sortBy, setSortBy] = React.useState<"recent" | "cheapest" | "expensive">("recent");
-
+  const [sortBy, setSortBy] = React.useState<
+    "recent" | "cheapest" | "expensive"
+  >("recent");
 
   // Data
   const [trips, setTrips] = React.useState<RecommendationLite[]>([]);
@@ -138,7 +150,13 @@ export default function RecommendationsClient() {
     destination !== "" || maxBudget !== "" || minDays !== "" || people !== "";
 
   return (
-    <div style={{ background: "var(--bg)", minHeight: "100dvh", paddingBottom: "100px" }}>
+    <div
+      style={{
+        background: "var(--bg)",
+        minHeight: "100dvh",
+        paddingBottom: "100px",
+      }}
+    >
       <div style={{ padding: "56px 20px 20px" }}>
         <div>
           <h1
@@ -153,7 +171,13 @@ export default function RecommendationsClient() {
           >
             {t.recommendationsTitle}
           </h1>
-          <p style={{ fontSize: "14px", color: "var(--text-muted)", marginTop: "8px" }}>
+          <p
+            style={{
+              fontSize: "14px",
+              color: "var(--text-muted)",
+              marginTop: "8px",
+            }}
+          >
             {t.recommendationsSub}
           </p>
         </div>
@@ -200,8 +224,10 @@ export default function RecommendationsClient() {
             height: "36px",
             padding: "0 14px",
             borderRadius: "var(--r-pill)",
-            border: sortBy === "cheapest" ? "none" : "1px solid var(--border-md)",
-            background: sortBy === "cheapest" ? "var(--text)" : "var(--surface)",
+            border:
+              sortBy === "cheapest" ? "none" : "1px solid var(--border-md)",
+            background:
+              sortBy === "cheapest" ? "var(--text)" : "var(--surface)",
             color: sortBy === "cheapest" ? "var(--bg)" : "var(--text-muted)",
             fontSize: "13px",
             fontWeight: 600,
@@ -221,8 +247,10 @@ export default function RecommendationsClient() {
             height: "36px",
             padding: "0 14px",
             borderRadius: "var(--r-pill)",
-            border: sortBy === "expensive" ? "none" : "1px solid var(--border-md)",
-            background: sortBy === "expensive" ? "var(--text)" : "var(--surface)",
+            border:
+              sortBy === "expensive" ? "none" : "1px solid var(--border-md)",
+            background:
+              sortBy === "expensive" ? "var(--text)" : "var(--surface)",
             color: sortBy === "expensive" ? "var(--bg)" : "var(--text-muted)",
             fontSize: "13px",
             fontWeight: 600,
@@ -258,22 +286,51 @@ export default function RecommendationsClient() {
 
       {/* Destination chips */}
       <div style={{ padding: "0 0 12px" }}>
-        <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: "8px", paddingLeft: "20px" }}>
+        <p
+          style={{
+            fontSize: "11px",
+            fontWeight: 700,
+            letterSpacing: "0.07em",
+            textTransform: "uppercase",
+            color: "var(--text-faint)",
+            marginBottom: "8px",
+            paddingLeft: "20px",
+          }}
+        >
           {t.filterDestination}
         </p>
-        <div style={{ display: "flex", gap: "8px", overflowX: "auto", scrollbarWidth: "none", padding: "0 20px 4px" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "8px",
+            overflowX: "auto",
+            scrollbarWidth: "none",
+            padding: "0 20px 4px",
+          }}
+        >
           {DESTINATIONS.map((d) => {
             const active = destination === d.city;
             return (
-              <button key={d.id} onClick={() => setDestination(active ? "" : d.city)} style={{
-                flexShrink: 0, display: "flex", alignItems: "center", gap: "6px",
-                height: "36px", padding: "0 12px", borderRadius: "var(--r-pill)",
-                border: active ? "none" : "1px solid var(--border-md)",
-                background: active ? "var(--green)" : "var(--surface)",
-                color: active ? "#fff" : "var(--text-muted)",
-                fontSize: "13px", fontWeight: 600, cursor: "pointer",
-                transition: "all 150ms var(--ease)",
-              }}>
+              <button
+                key={d.id}
+                onClick={() => setDestination(active ? "" : d.city)}
+                style={{
+                  flexShrink: 0,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  height: "36px",
+                  padding: "0 12px",
+                  borderRadius: "var(--r-pill)",
+                  border: active ? "none" : "1px solid var(--border-md)",
+                  background: active ? "var(--green)" : "var(--surface)",
+                  color: active ? "#fff" : "var(--text-muted)",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 150ms var(--ease)",
+                }}
+              >
                 <span>{d.emoji}</span>
                 <span>{localizeCity(d.city, locale)}</span>
               </button>
@@ -284,21 +341,41 @@ export default function RecommendationsClient() {
 
       {/* Budget chips */}
       <div style={{ padding: "0 20px 12px" }}>
-        <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: "8px" }}>
+        <p
+          style={{
+            fontSize: "11px",
+            fontWeight: 700,
+            letterSpacing: "0.07em",
+            textTransform: "uppercase",
+            color: "var(--text-faint)",
+            marginBottom: "8px",
+          }}
+        >
           {t.filterBudget}
         </p>
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
           {budgetOptions.map((opt) => {
             const active = maxBudget === opt.value;
             return (
-              <button key={opt.value} onClick={() => { setMaxBudget(active ? "" : opt.value); setMinBudget(""); }} style={{
-                height: "34px", padding: "0 14px", borderRadius: "var(--r-pill)",
-                border: active ? "none" : "1px solid var(--border-md)",
-                background: active ? "var(--green)" : "var(--surface)",
-                color: active ? "#fff" : "var(--text-muted)",
-                fontSize: "13px", fontWeight: 600, cursor: "pointer",
-                transition: "all 150ms var(--ease)",
-              }}>
+              <button
+                key={opt.value}
+                onClick={() => {
+                  setMaxBudget(active ? "" : opt.value);
+                  setMinBudget("");
+                }}
+                style={{
+                  height: "34px",
+                  padding: "0 14px",
+                  borderRadius: "var(--r-pill)",
+                  border: active ? "none" : "1px solid var(--border-md)",
+                  background: active ? "var(--green)" : "var(--surface)",
+                  color: active ? "#fff" : "var(--text-muted)",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 150ms var(--ease)",
+                }}
+              >
                 {opt.label}
               </button>
             );
@@ -308,50 +385,101 @@ export default function RecommendationsClient() {
 
       {/* People chips */}
       <div style={{ padding: "0 20px 12px" }}>
-        <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: "8px" }}>
+        <p
+          style={{
+            fontSize: "11px",
+            fontWeight: 700,
+            letterSpacing: "0.07em",
+            textTransform: "uppercase",
+            color: "var(--text-faint)",
+            marginBottom: "8px",
+          }}
+        >
           {t.filterPeople}
         </p>
         <div style={{ display: "flex", gap: "6px" }}>
           {[1, 2, 3, 4, 5].map((p) => (
-            <button key={p} onClick={() => setPeople(people === p ? "" : p)} style={{
-              width: "40px", height: "40px", borderRadius: "50%",
-              border: people === p ? "none" : "1px solid var(--border-md)",
-              background: people === p ? "var(--green)" : "var(--surface)",
-              color: people === p ? "#fff" : "var(--text-muted)",
-              fontSize: "14px", fontWeight: 600, cursor: "pointer",
-              transition: "all 150ms var(--ease)",
-            }}>
+            <button
+              key={p}
+              onClick={() => setPeople(people === p ? "" : p)}
+              style={{
+                width: "40px",
+                height: "40px",
+                borderRadius: "50%",
+                border: people === p ? "none" : "1px solid var(--border-md)",
+                background: people === p ? "var(--green)" : "var(--surface)",
+                color: people === p ? "#fff" : "var(--text-muted)",
+                fontSize: "14px",
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 150ms var(--ease)",
+              }}
+            >
               {p}
             </button>
           ))}
-          <button onClick={() => setPeople(people === 6 ? "" : 6)} style={{
-            height: "40px", padding: "0 12px", borderRadius: "var(--r-pill)",
-            border: people === 6 ? "none" : "1px solid var(--border-md)",
-            background: people === 6 ? "var(--green)" : "var(--surface)",
-            color: people === 6 ? "#fff" : "var(--text-muted)",
-            fontSize: "13px", fontWeight: 600, cursor: "pointer",
-            transition: "all 150ms var(--ease)",
-          }}>6+</button>
+          <button
+            onClick={() => setPeople(people === 6 ? "" : 6)}
+            style={{
+              height: "40px",
+              padding: "0 12px",
+              borderRadius: "var(--r-pill)",
+              border: people === 6 ? "none" : "1px solid var(--border-md)",
+              background: people === 6 ? "var(--green)" : "var(--surface)",
+              color: people === 6 ? "#fff" : "var(--text-muted)",
+              fontSize: "13px",
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 150ms var(--ease)",
+            }}
+          >
+            6+
+          </button>
         </div>
       </div>
 
       {/* Duration chips */}
       <div style={{ padding: "0 20px 16px" }}>
-        <p style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "0.07em", textTransform: "uppercase", color: "var(--text-faint)", marginBottom: "8px" }}>
+        <p
+          style={{
+            fontSize: "11px",
+            fontWeight: 700,
+            letterSpacing: "0.07em",
+            textTransform: "uppercase",
+            color: "var(--text-faint)",
+            marginBottom: "8px",
+          }}
+        >
           {t.filterDuration}
         </p>
         <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
           {DAYS_OPTIONS.map((opt) => {
             const active = minDays === opt.min && maxDays === opt.max;
             return (
-              <button key={opt.min} onClick={() => { if (active) { setMinDays(""); setMaxDays(""); } else { setMinDays(opt.min); setMaxDays(opt.max); } }} style={{
-                height: "34px", padding: "0 14px", borderRadius: "var(--r-pill)",
-                border: active ? "none" : "1px solid var(--border-md)",
-                background: active ? "var(--green)" : "var(--surface)",
-                color: active ? "#fff" : "var(--text-muted)",
-                fontSize: "13px", fontWeight: 600, cursor: "pointer",
-                transition: "all 150ms var(--ease)",
-              }}>
+              <button
+                key={opt.min}
+                onClick={() => {
+                  if (active) {
+                    setMinDays("");
+                    setMaxDays("");
+                  } else {
+                    setMinDays(opt.min);
+                    setMaxDays(opt.max);
+                  }
+                }}
+                style={{
+                  height: "34px",
+                  padding: "0 14px",
+                  borderRadius: "var(--r-pill)",
+                  border: active ? "none" : "1px solid var(--border-md)",
+                  background: active ? "var(--green)" : "var(--surface)",
+                  color: active ? "#fff" : "var(--text-muted)",
+                  fontSize: "13px",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 150ms var(--ease)",
+                }}
+              >
                 {opt.label}
               </button>
             );
@@ -421,11 +549,23 @@ export default function RecommendationsClient() {
         ) : (
           <>
             {trips.map((trip) => (
-              <RecommendationCard key={trip.id} trip={trip} t={t} locale={locale} />
+              <RecommendationCard
+                key={trip.id}
+                trip={trip}
+                t={t}
+                locale={locale}
+              />
             ))}
             <div ref={ref} style={{ height: "20px" }}>
               {loadingMore && (
-                <div style={{ textAlign: "center", padding: "10px", fontSize: "14px", color: "var(--text-muted)" }}>
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "10px",
+                    fontSize: "14px",
+                    color: "var(--text-muted)",
+                  }}
+                >
                   {t.loadingMore}
                 </div>
               )}
@@ -437,18 +577,31 @@ export default function RecommendationsClient() {
   );
 }
 
-function RecommendationCard({ trip, t, locale }: { trip: RecommendationLite; t: Translations; locale: Locale }) {
+function RecommendationCard({
+  trip,
+  t,
+  locale,
+}: {
+  trip: RecommendationLite;
+  t: Translations;
+  locale: Locale;
+}) {
   const displayMoney = useDisplayMoney();
   const router = useRouter();
   const localizedCity = localizeCity(trip.destination, locale);
-  const heroImg = trip.imageUrl || getDestinationImage(trip.destination, "hero");
+  const heroImg =
+    trip.imageUrl || getDestinationImage(trip.destination, "hero");
 
   const start = new Date(trip.startDate);
   const end = new Date(trip.endDate);
-  const days = Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+  const days = Math.max(
+    1,
+    Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)),
+  );
 
   const flag = trip.author.nationality
-    ? NATIONALITIES.find((n) => n.code === trip.author.nationality)?.flag || "🌍"
+    ? NATIONALITIES.find((n) => n.code === trip.author.nationality)?.flag ||
+      "🌍"
     : "🌍";
 
   const authorName = trip.author.nickname || "Anonymous";
@@ -464,11 +617,15 @@ function RecommendationCard({ trip, t, locale }: { trip: RecommendationLite; t: 
         borderRadius: "var(--r-xl)",
         overflow: "hidden",
         boxShadow: "var(--shadow-md)",
-        border: trip.isOwn ? "1px solid rgba(13,158,122,0.25)" : "1px solid var(--border)",
+        border: trip.isOwn
+          ? "1px solid rgba(13,158,122,0.25)"
+          : "1px solid var(--border)",
         cursor: "pointer",
       }}
     >
-      <div style={{ height: "160px", position: "relative", overflow: "hidden" }}>
+      <div
+        style={{ height: "160px", position: "relative", overflow: "hidden" }}
+      >
         <Image
           src={heroImg}
           alt={localizedCity}
@@ -482,18 +639,30 @@ function RecommendationCard({ trip, t, locale }: { trip: RecommendationLite; t: 
           style={{
             position: "absolute",
             inset: 0,
-            background: "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%)",
+            background:
+              "linear-gradient(to bottom, rgba(0,0,0,0) 40%, rgba(0,0,0,0.55) 100%)",
           }}
         />
         {trip.isOwn && (
-          <div style={{
-            position: "absolute", top: "10px", left: "12px",
-            display: "flex", alignItems: "center", gap: "4px",
-            background: "rgba(13,158,122,0.9)", backdropFilter: "blur(8px)",
-            color: "#fff", fontSize: "10px", fontWeight: 700,
-            padding: "4px 10px", borderRadius: "var(--r-pill)",
-            letterSpacing: "0.05em", textTransform: "uppercase",
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              top: "10px",
+              left: "12px",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+              background: "rgba(13,158,122,0.9)",
+              backdropFilter: "blur(8px)",
+              color: "#fff",
+              fontSize: "10px",
+              fontWeight: 700,
+              padding: "4px 10px",
+              borderRadius: "var(--r-pill)",
+              letterSpacing: "0.05em",
+              textTransform: "uppercase",
+            }}
+          >
             <Sparkles size={10} /> {t.ownTripBadge}
           </div>
         )}
@@ -523,11 +692,15 @@ function RecommendationCard({ trip, t, locale }: { trip: RecommendationLite; t: 
         >
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <Calendar size={13} color="var(--text-faint)" />
-            <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>{t.daysCount(days)}</span>
+            <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+              {t.daysCount(days)}
+            </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
             <Users size={13} color="var(--text-faint)" />
-            <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>{trip.people}</span>
+            <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
+              {trip.people}
+            </span>
           </div>
         </div>
 
@@ -586,7 +759,12 @@ function RecommendationCard({ trip, t, locale }: { trip: RecommendationLite; t: 
             <img
               src={trip.author.image}
               alt=""
-              style={{ width: "24px", height: "24px", borderRadius: "50%", objectFit: "cover" }}
+              style={{
+                width: "24px",
+                height: "24px",
+                borderRadius: "50%",
+                objectFit: "cover",
+              }}
             />
           ) : (
             <div
@@ -606,8 +784,20 @@ function RecommendationCard({ trip, t, locale }: { trip: RecommendationLite; t: 
               {authorName.charAt(0).toUpperCase()}
             </div>
           )}
-          <span style={{ fontSize: "13px", color: "var(--text-muted)", display: "flex", alignItems: "center", gap: "4px" }}>
-            {t.authorLabel} <span style={{ fontWeight: 600, color: "var(--text)" }}>{authorName}</span> {flag}
+          <span
+            style={{
+              fontSize: "13px",
+              color: "var(--text-muted)",
+              display: "flex",
+              alignItems: "center",
+              gap: "4px",
+            }}
+          >
+            {t.authorLabel}{" "}
+            <span style={{ fontWeight: 600, color: "var(--text)" }}>
+              {authorName}
+            </span>{" "}
+            {flag}
           </span>
         </div>
       </div>

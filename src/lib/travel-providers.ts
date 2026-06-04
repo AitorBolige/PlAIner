@@ -1,4 +1,5 @@
 import { fromEur, normalizeCurrency, toEur } from "./currency";
+import { EXTRA_FLIGHT_IATA } from "./destination-i18n-data";
 import { TravelOfferInput, TravelOfferQuery } from "./travel-offers";
 
 /** Server-side fetch with AbortController timeout (default 8 s). */
@@ -219,7 +220,9 @@ export async function searchHotelsApiDojo(
 
   const nights = Math.max(1, Math.round(params.nights ?? 1));
   const offers = list
-    .map((item, idx) => mapApiDojoHotelOffer(item, idx, fallbackCurrency, nights))
+    .map((item, idx) =>
+      mapApiDojoHotelOffer(item, idx, fallbackCurrency, nights),
+    )
     .filter((o): o is TravelOfferInput => o !== null)
     .sort((a, b) => a.price - b.price);
 
@@ -366,8 +369,18 @@ function mapApiDojoHotelOffer(
 
   const latRaw = item.latitude ?? item.lat;
   const lngRaw = item.longitude ?? item.lng;
-  const lat = typeof latRaw === "number" ? latRaw : (latRaw != null ? Number(latRaw) : undefined);
-  const lng = typeof lngRaw === "number" ? lngRaw : (lngRaw != null ? Number(lngRaw) : undefined);
+  const lat =
+    typeof latRaw === "number"
+      ? latRaw
+      : latRaw != null
+        ? Number(latRaw)
+        : undefined;
+  const lng =
+    typeof lngRaw === "number"
+      ? lngRaw
+      : lngRaw != null
+        ? Number(lngRaw)
+        : undefined;
 
   return {
     type: "hotel",
@@ -474,31 +487,93 @@ function getAutocompleteFallbackPlaceId(iataCode: string): string | null {
   const k = iataCode.trim().toUpperCase();
   const fallbacks: Record<string, string> = {
     // Iberian Peninsula
-    BCN: "BCN", MAD: "MAD", LIS: "LIS", OPO: "OPO", SVQ: "SVQ", VLC: "VLC",
-    AGP: "AGP", PMI: "PMI", IBZ: "IBZ", TFS: "TFS", ACE: "ACE", FUE: "FUE",
+    BCN: "BCN",
+    MAD: "MAD",
+    LIS: "LIS",
+    OPO: "OPO",
+    SVQ: "SVQ",
+    VLC: "VLC",
+    AGP: "AGP",
+    PMI: "PMI",
+    IBZ: "IBZ",
+    TFS: "TFS",
+    ACE: "ACE",
+    FUE: "FUE",
     // France
-    CDG: "CDG", ORY: "ORY", NCE: "NCE", LYS: "LYS", MRS: "MRS", BOD: "BOD",
+    CDG: "CDG",
+    ORY: "ORY",
+    NCE: "NCE",
+    LYS: "LYS",
+    MRS: "MRS",
+    BOD: "BOD",
     // UK
-    LHR: "LOND", LGW: "LOND", EDI: "EDI", MAN: "MAN",
+    LHR: "LOND",
+    LGW: "LOND",
+    EDI: "EDI",
+    MAN: "MAN",
     // Germany
-    FRA: "FRA", MUC: "MUC", BER: "BER", HAM: "HAM", DUS: "DUS",
+    FRA: "FRA",
+    MUC: "MUC",
+    BER: "BER",
+    HAM: "HAM",
+    DUS: "DUS",
     // Italy
-    FCO: "FCO", MXP: "MXP", VCE: "VCE", FLR: "FLR", NAP: "NAP",
+    FCO: "FCO",
+    MXP: "MXP",
+    VCE: "VCE",
+    FLR: "FLR",
+    NAP: "NAP",
     // Benelux / Scandinavia
-    AMS: "AMS", BRU: "BRU", CPH: "CPH", ARN: "ARN", OSL: "OSL", HEL: "HEL",
+    AMS: "AMS",
+    BRU: "BRU",
+    CPH: "CPH",
+    ARN: "ARN",
+    OSL: "OSL",
+    HEL: "HEL",
     // Central / Eastern Europe
-    VIE: "VIE", ZRH: "ZRH", PRG: "PRG", BUD: "BUD", WAW: "WAW", KRK: "KRK",
+    VIE: "VIE",
+    ZRH: "ZRH",
+    PRG: "PRG",
+    BUD: "BUD",
+    WAW: "WAW",
+    KRK: "KRK",
     // Mediterranean
-    ATH: "ATH", IST: "IST", JTR: "JTR", JMK: "JMK", DBV: "DBV",
+    ATH: "ATH",
+    IST: "IST",
+    JTR: "JTR",
+    JMK: "JMK",
+    DBV: "DBV",
     // Middle East / Africa
-    DXB: "DXB", DOH: "DOH", RAK: "RAK", CMN: "CMN", CAI: "CAI",
+    DXB: "DXB",
+    DOH: "DOH",
+    RAK: "RAK",
+    CMN: "CMN",
+    CAI: "CAI",
     // Asia
-    HND: "HND", NRT: "NRT", KIX: "KIX", BKK: "BKK", SIN: "SIN",
-    HKG: "HKG", PEK: "PEK", PVG: "PVG", DEL: "DEL", BOM: "BOM",
-    DPS: "DPS", KUL: "KUL", ICN: "ICN",
+    HND: "HND",
+    NRT: "NRT",
+    KIX: "KIX",
+    BKK: "BKK",
+    SIN: "SIN",
+    HKG: "HKG",
+    PEK: "PEK",
+    PVG: "PVG",
+    DEL: "DEL",
+    BOM: "BOM",
+    DPS: "DPS",
+    KUL: "KUL",
+    ICN: "ICN",
     // Americas
-    JFK: "JFK", EWR: "NYC", LAX: "LAX", MIA: "MIA", CUN: "CUN",
-    MEX: "MEX", BOG: "BOG", LIM: "LIM", EZE: "BUE", GRU: "SAO",
+    JFK: "JFK",
+    EWR: "NYC",
+    LAX: "LAX",
+    MIA: "MIA",
+    CUN: "CUN",
+    MEX: "MEX",
+    BOG: "BOG",
+    LIM: "LIM",
+    EZE: "BUE",
+    GRU: "SAO",
     // Other
     SYD: "SYD",
   };
@@ -521,7 +596,9 @@ async function getEntityIdFromAutoComplete(
   // Use known-good place ids immediately — avoids a slow/failing autocomplete round-trip.
   const fast = getAutocompleteFallbackPlaceId(iataCode);
   if (fast) {
-    console.log(`[getEntityIdFromAutoComplete] Using known place id for ${iataCode}: ${fast}`);
+    console.log(
+      `[getEntityIdFromAutoComplete] Using known place id for ${iataCode}: ${fast}`,
+    );
     return fast;
   }
 
@@ -544,8 +621,7 @@ async function getEntityIdFromAutoComplete(
 
       // flights-sky autocomplete returns rows with a `PlaceId` field (e.g. "BCN").
       const placeIdRaw =
-        trimSkyScraperSkyId(item.PlaceId) ||
-        trimSkyScraperSkyId(item.placeId);
+        trimSkyScraperSkyId(item.PlaceId) || trimSkyScraperSkyId(item.placeId);
       if (placeIdRaw) {
         return placeIdRaw;
       }
@@ -964,7 +1040,7 @@ function resolveFlightDestinationIata(query: TravelOfferQuery) {
     // Asia
     tokyo: "HND",
     tokio: "HND",
-    toquio: "HND",   // Catalan: Tòquio
+    toquio: "HND", // Catalan: Tòquio
     osaka: "KIX",
     kyoto: "ITM",
     bangkok: "BKK",
@@ -1000,6 +1076,7 @@ function resolveFlightDestinationIata(query: TravelOfferQuery) {
     lanzarote: "ACE",
     maldives: "MLE",
     phuket: "HKT",
+    ...EXTRA_FLIGHT_IATA,
   };
 
   const resolved = cityMap[city];
@@ -1458,7 +1535,10 @@ export async function searchFlightsMetasearch(
     console.warn(
       `[searchFlightsMetasearch] No itineraries yet (attempt ${attempt}), retrying...`,
     );
-    if (Date.now() - searchStart + SEARCH_RETRY_GAP_MS < SEARCH_RETRY_BUDGET_MS) {
+    if (
+      Date.now() - searchStart + SEARCH_RETRY_GAP_MS <
+      SEARCH_RETRY_BUDGET_MS
+    ) {
       await new Promise((r) => setTimeout(r, SEARCH_RETRY_GAP_MS));
     } else {
       break;
@@ -1592,9 +1672,13 @@ export async function searchFlightsMetasearch(
 
       if (!activePollUrl) break;
 
-      const pollResponse = await serverFetch(activePollUrl, {
-        headers,
-      }, 7_000).catch(() => null);
+      const pollResponse = await serverFetch(
+        activePollUrl,
+        {
+          headers,
+        },
+        7_000,
+      ).catch(() => null);
       if (!pollResponse?.ok) break;
 
       const pollPayload = await pollResponse.json().catch(() => null);
