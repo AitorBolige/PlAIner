@@ -1748,7 +1748,6 @@ export async function searchFlightsMetasearchForQuery(
   });
 }
 
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function resolveDefaultOriginIata(query: TravelOfferQuery) {
   const city = (query.city || query.destination).trim().toLowerCase();

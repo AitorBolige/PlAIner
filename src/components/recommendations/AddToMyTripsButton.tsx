@@ -14,7 +14,7 @@ interface Props {
 
 export function AddToMyTripsButton({
   tripId,
-  destination,
+  destination: _destination,
   isOwn = false,
   initialLocale,
 }: Props) {

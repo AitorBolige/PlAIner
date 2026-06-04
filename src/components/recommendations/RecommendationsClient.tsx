@@ -51,8 +51,6 @@ const DAYS_OPTIONS = [
   { label: "15+ dies", min: 15, max: 999 },
 ];
 
-const PEOPLE_OPTIONS = [1, 2, 3, 4, 5];
-
 export default function RecommendationsClient() {
   const { locale, t } = useLocale();
   const displayMoney = useDisplayMoney();

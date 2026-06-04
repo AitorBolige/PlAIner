@@ -26,11 +26,7 @@ import {
 } from "@/components/plan/sheets";
 import { VoiceButton } from "@/components/plan/VoiceButton";
 import { PlanHeader } from "@/components/plan/PlanHeader";
-import {
-  formatDateRangeLocalized,
-  groupThousands,
-  getBudgetZone,
-} from "@/lib/plan";
+import { formatDateRangeLocalized, getBudgetZone } from "@/lib/plan";
 import { DESTINATIONS, BLUR_DATA_URL } from "@/lib/destinations";
 import { useLocale } from "@/lib/i18n-client";
 import { useDisplayMoney } from "@/lib/use-display-money";

@@ -22,7 +22,6 @@ import {
   getBudgetZone,
   daysBetween,
   formatDateRangeLocalized,
-  groupThousands,
   getTransportOptions,
 } from "@/lib/plan";
 import { usePlan } from "@/components/plan/PlanProvider";

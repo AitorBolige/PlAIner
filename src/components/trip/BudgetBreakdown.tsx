@@ -28,7 +28,7 @@ export function BudgetBreakdown({
   className,
   initialLocale,
 }: BudgetBreakdownProps) {
-  const { locale, t } = useLocale(initialLocale);
+  const { t } = useLocale(initialLocale);
   const displayMoney = useDisplayMoney();
   const inRange = budgetMax ? total <= budgetMax : true;
   const badge = inRange ? (
