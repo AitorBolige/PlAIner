@@ -38,7 +38,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const cache = await refreshTravelOffers(parsed.data.query);
+  const raw = await refreshTravelOffers(parsed.data.query);
+  const cache = {
+    ...raw,
+    offers: raw.offers.map((o) => {
+      const meta = o.metadata as { transportKind?: string } | null;
+      return meta?.transportKind ? { ...o, transportKind: meta.transportKind } : o;
+    }),
+  };
 
   return NextResponse.json({
     ok: true,

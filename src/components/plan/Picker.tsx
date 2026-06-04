@@ -374,6 +374,7 @@ export function Picker() {
     itineraryLoading,
   } = plan;
 
+  const isCar = plan.transport?.id === "car";
   const [step, setStep] = React.useState<Step>("flights");
   const [fav, setFav] = React.useState(false);
   const [isPublic, setIsPublic] = React.useState(false);
@@ -381,6 +382,7 @@ export function Picker() {
 
   // ─── Transition overlays ────────────────────────────────────────────────────
   const [showTransitionOverlay, setShowTransitionOverlay] = React.useState(false);
+  const carAnimShown = React.useRef(false);
   const [destCoords, setDestCoords] = React.useState<[number, number] | null>(null);
 
   // Geocode destination once we have it
@@ -389,10 +391,19 @@ export function Picker() {
     fetch(`/api/geocode?q=${encodeURIComponent(destination.city)}&dest=1`)
       .then((r) => r.json())
       .then((d: [number, number] | null) => {
-        if (Array.isArray(d) && d.length === 2) setDestCoords(d);
+        if (Array.isArray(d) && d.length === 2) {
+          setDestCoords(d);
+        }
       })
       .catch(() => null);
   }, [destination?.city]);
+
+  // For car: trigger the map animation once destCoords is ready (only once)
+  React.useEffect(() => {
+    if (!isCar || !destCoords || carAnimShown.current) return;
+    carAnimShown.current = true;
+    setShowTransitionOverlay(true);
+  }, [isCar, destCoords]);
   const reduce = useReducedMotion();
   const stepAnim = reduce
     ? {}
@@ -442,11 +453,20 @@ export function Picker() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [step]);
 
+  // Auto-select the car offer silently (no picker needed for own car)
+  React.useEffect(() => {
+    if (isCar && flights.length > 0 && !selectedFlight) {
+      plan.setSelectedFlight(flights[0]);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCar, flights.length]);
+
   function back() {
     if (step === "summary") setStep("hotels");
-    else if (step === "hotels") setStep("flights");
+    else if (step === "hotels" && !isCar) setStep("flights");
     else plan.reset();
   }
+
 
   // Re-run the search (remounts GeneratingScreen → fresh fetch).
   function retry() {
@@ -528,6 +548,7 @@ export function Picker() {
         }}
         onComplete={() => {
           setShowTransitionOverlay(false);
+          if (isCar) setStep("hotels");
         }}
       />
     )}

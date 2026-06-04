@@ -223,23 +223,7 @@ export async function searchHotelsApiDojo(
     .filter((o): o is TravelOfferInput => o !== null)
     .sort((a, b) => a.price - b.price);
 
-  if (
-    typeof params.maxPrice === "number" &&
-    Number.isFinite(params.maxPrice) &&
-    params.maxPrice > 0
-  ) {
-    const withinCap = offers.filter(
-      (o) => o.price <= (params.maxPrice as number),
-    );
-    // Best-effort: never hand back an empty list just because the budget is
-    // tight — show the cheapest options instead so the Picker isn't blank.
-    if (withinCap.length > 0) return withinCap;
-    console.warn(
-      `[searchHotelsApiDojo] No hotels within per-night cap ${params.maxPrice}; returning cheapest ${Math.min(10, offers.length)}.`,
-    );
-    return offers.slice(0, 10);
-  }
-  return offers;
+  return offers.slice(0, 10);
 }
 
 function mapApiDojoHotelOffer(
@@ -1291,19 +1275,7 @@ function mapRapidApiFlightOffer(
   departureDate?: string,
   returnDate?: string,
 ): TravelOfferInput | null {
-  const effectiveMaxPrice =
-    typeof maxPrice === "number" && Number.isFinite(maxPrice)
-      ? maxPrice
-      : undefined;
   const price = extractFlightPrice(offer);
-  if (
-    typeof effectiveMaxPrice === "number" &&
-    effectiveMaxPrice > 0 &&
-    Number.isFinite(price) &&
-    price > effectiveMaxPrice
-  ) {
-    return null;
-  }
 
   const legs = Array.isArray(offer.legs) ? (offer.legs as Array<unknown>) : [];
   const outbound = summarizeFlightLeg(legs[0]);
@@ -1656,39 +1628,30 @@ export async function searchFlightsMetasearch(
   console.log(`[searchFlightsMetasearch] Final offers found: ${list.length}`);
 
   const rawList = Array.isArray(list) ? list : [];
-  const mapAll = (cap?: number) =>
-    rawList
-      .map((offer: unknown, idx: number) => {
-        if (!offer || typeof offer !== "object") return null;
-        return mapRapidApiFlightOffer(
-          offer as Record<string, unknown>,
-          route,
-          idx,
-          cap,
-          currency,
-          params.departureDate,
-          params.returnDate,
-        );
-      })
-      .filter((offer): offer is TravelOfferInput => Boolean(offer))
-      .sort((a, b) => a.price - b.price);
+  const allOffers = rawList
+    .map((offer: unknown, idx: number) => {
+      if (!offer || typeof offer !== "object") return null;
+      return mapRapidApiFlightOffer(
+        offer as Record<string, unknown>,
+        route,
+        idx,
+        undefined,
+        currency,
+        params.departureDate,
+        params.returnDate,
+      );
+    })
+    .filter((offer): offer is TravelOfferInput => Boolean(offer))
+    .sort((a, b) => a.price - b.price);
 
-  const withinCap = mapAll(maxPrice);
-  if (withinCap.length > 0 || !maxPrice) return withinCap;
-
-  // Best-effort: budget too tight for any flight → show the cheapest available
-  // instead of an empty transport step.
-  console.warn(
-    `[searchFlightsMetasearch] No flights within per-person cap ${maxPrice}; returning cheapest available.`,
-  );
-  return mapAll(undefined).slice(0, 10);
+  return allOffers.slice(0, 10);
 }
 
 export async function searchFlightsMetasearchForQuery(
   query: TravelOfferQuery,
 ): Promise<TravelOfferInput[]> {
   const route = resolveMetasearchFlightRoute(query);
-  const offers = await searchFlightsMetasearch({
+  return searchFlightsMetasearch({
     originIata: route.originIata,
     destinationIata: route.destinationIata,
     departureDate: query.startDate
@@ -1698,11 +1661,8 @@ export async function searchFlightsMetasearchForQuery(
       ? query.endDate.toISOString().slice(0, 10)
       : undefined,
     passengers: query.people ?? 1,
-    maxPrice: query.maxPrice ?? query.budgetMax ?? undefined,
     currency: query.currency,
   });
-
-  return filterOffersByMaxPrice(offers, query);
 }
 
 // Helper to filter flights by max price

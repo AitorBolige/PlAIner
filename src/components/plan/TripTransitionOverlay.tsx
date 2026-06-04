@@ -119,6 +119,21 @@ function greatCircleArc([lng1, lat1]: [number, number], [lng2, lat2]: [number, n
 const TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 type Phase = "flying" | "city" | "hotel-select" | "hotel-zoom" | "done";
 
+async function fetchOsrmRoute(
+  origin: [number, number],
+  dest: [number, number],
+): Promise<[number, number][] | null> {
+  try {
+    const url = `https://router.project-osrm.org/route/v1/driving/${origin[0]},${origin[1]};${dest[0]},${dest[1]}?geometries=geojson&overview=full`;
+    const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
+    if (!r.ok) return null;
+    const data = await r.json() as { routes?: Array<{ geometry: { coordinates: [number, number][] } }> };
+    const coords = data.routes?.[0]?.geometry?.coordinates;
+    if (Array.isArray(coords) && coords.length > 1) return coords as [number, number][];
+    return null;
+  } catch { return null; }
+}
+
 export interface TripTransitionOverlayProps {
   /** The flight offer selected by the user. Metadata fields drive the animation. */
   flightOffer?: Offer | null;
@@ -210,123 +225,140 @@ export function TripTransitionOverlay({
 
   // ─── Init map + fly animation ─────────────────────────────────────────────
   React.useEffect(() => {
-    // We need: a container, a token, and a valid route (destCode from metadata OR geocoded coords)
     const hasRoute = realDestCode !== null || destCoords !== null;
     if (!containerRef.current || !TOKEN || !hasRoute) {
       setTimeout(() => { setVisible(false); onComplete(); }, 800);
       return;
     }
 
-    mapboxgl.accessToken = TOKEN;
-    const map = new mapboxgl.Map({
-      container: containerRef.current,
-      style: "mapbox://styles/mapbox/light-v11",
-      center: [midLng, midLat],
-      zoom: initZoom,
-      pitch: 30,
-      bearing: 0,
-      interactive: false,
-      attributionControl: false,
-      logoPosition: "bottom-right",
-    });
-    mapRef.current = map;
-    setTimeout(() => map.resize(), 50);
+    let cancelled = false;
+    let mapInstance: mapboxgl.Map | null = null;
 
-    map.on("style.load", () => {
-      // Origin dot
-      const mkO = Object.assign(document.createElement("div"), { style: "width:13px;height:13px;border-radius:50%;background:#0D9E7A;box-shadow:0 0 0 4px rgba(13,158,122,0.25),0 2px 8px rgba(13,158,122,0.5)" });
-      new mapboxgl.Marker({ element: mkO, anchor: "center" }).setLngLat(origin).addTo(map);
+    async function run() {
+      // Ground transport: fetch real road route from OSRM; fall back to great-circle arc.
+      let routeCoords: [number, number][] = arc;
+      if (!isAir) {
+        const osrm = await fetchOsrmRoute(origin, dest);
+        if (!cancelled && osrm && osrm.length > 1) routeCoords = osrm;
+      }
+      if (cancelled || !containerRef.current) return;
 
-      // Dest dot (hidden until landing)
-      const mkD = Object.assign(document.createElement("div"), { style: "width:13px;height:13px;border-radius:50%;background:#18160f;box-shadow:0 0 0 4px rgba(24,22,15,0.15),0 2px 8px rgba(0,0,0,0.3);opacity:0;transition:opacity 0.5s" });
-      new mapboxgl.Marker({ element: mkD, anchor: "center" }).setLngLat(dest).addTo(map);
+      mapboxgl.accessToken = TOKEN;
+      const map = new mapboxgl.Map({
+        container: containerRef.current,
+        style: "mapbox://styles/mapbox/light-v11",
+        center: [midLng, midLat],
+        zoom: initZoom,
+        pitch: 30,
+        bearing: 0,
+        interactive: false,
+        attributionControl: false,
+        logoPosition: "bottom-right",
+      });
+      mapInstance = map;
+      mapRef.current = map;
+      setTimeout(() => map.resize(), 50);
 
-      // Plane
-      const planeEl = document.createElement("div");
-      planeEl.innerHTML = `<div id="pl" style="font-size:20px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7)) drop-shadow(0 0 8px rgba(13,158,122,0.5))">${markerEmoji}</div>`;
-      planeEl.style.color = "#18160f";
-      planeElRef.current = planeEl;
-      const planeMkr = new mapboxgl.Marker({ element: planeEl, anchor: "center" }).setLngLat(arc[0]).addTo(map);
-      planeRef.current = planeMkr;
+      map.on("style.load", () => {
+        // Origin dot
+        const mkO = Object.assign(document.createElement("div"), { style: "width:13px;height:13px;border-radius:50%;background:#0D9E7A;box-shadow:0 0 0 4px rgba(13,158,122,0.25),0 2px 8px rgba(13,158,122,0.5)" });
+        new mapboxgl.Marker({ element: mkO, anchor: "center" }).setLngLat(origin).addTo(map);
 
-      // Arc
-      map.addSource("arc", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [] } } });
-      map.addLayer({ id: "arc-glow", type: "line", source: "arc", paint: { "line-color": "#0D9E7A", "line-width": 10, "line-opacity": 0.18, "line-blur": 6 } });
-      map.addLayer({ id: "arc-line", type: "line", source: "arc", paint: { "line-color": "#0D9E7A", "line-width": 2.5, "line-opacity": 1 } });
+        // Dest dot (hidden until arrival)
+        const mkD = Object.assign(document.createElement("div"), { style: "width:13px;height:13px;border-radius:50%;background:#18160f;box-shadow:0 0 0 4px rgba(24,22,15,0.15),0 2px 8px rgba(0,0,0,0.3);opacity:0;transition:opacity 0.5s" });
+        new mapboxgl.Marker({ element: mkD, anchor: "center" }).setLngLat(dest).addTo(map);
 
-      // ── Fly animation ──────────────────────────────────────────────────────
-      const FLIGHT_MS = 5000;
-      const landingLabel = t.transitStatusArriving;
-      let start: number | null = null, lastCam = 0, done = false;
+        // Vehicle marker
+        const planeEl = document.createElement("div");
+        planeEl.innerHTML = `<div id="pl" style="font-size:20px;line-height:1;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.7)) drop-shadow(0 0 8px rgba(13,158,122,0.5))">${markerEmoji}</div>`;
+        planeEl.style.color = "#18160f";
+        planeElRef.current = planeEl;
+        const planeMkr = new mapboxgl.Marker({ element: planeEl, anchor: "center" }).setLngLat(routeCoords[0]).addTo(map);
+        planeRef.current = planeMkr;
 
-      function tick(ts: number) {
-        if (done) return;
-        if (!start) start = ts;
-        const t = Math.min((ts - start) / FLIGHT_MS, 1);
-        const te = easeInOut(t);
-        const idx = Math.min(Math.floor(te * (arc.length - 1)), arc.length - 2);
-        const frac = te * (arc.length - 1) - idx;
-        const lng = lerp(arc[idx][0], arc[idx + 1][0], frac);
-        const lat = lerp(arc[idx][1], arc[idx + 1][1], frac);
-        planeMkr.setLngLat([lng, lat]);
+        // Route line
+        map.addSource("arc", { type: "geojson", data: { type: "Feature", properties: {}, geometry: { type: "LineString", coordinates: [] } } });
+        map.addLayer({ id: "arc-glow", type: "line", source: "arc", paint: { "line-color": "#0D9E7A", "line-width": 10, "line-opacity": 0.18, "line-blur": 6 } });
+        map.addLayer({ id: "arc-line", type: "line", source: "arc", paint: { "line-color": "#0D9E7A", "line-width": 2.5, "line-opacity": 1 } });
 
-        (map.getSource("arc") as mapboxgl.GeoJSONSource)?.setData({
-          type: "Feature", properties: {},
-          geometry: { type: "LineString", coordinates: arc.slice(0, idx + 2) },
-        });
+        // ── Travel animation ───────────────────────────────────────────────
+        const FLIGHT_MS = 5000;
+        const landingLabel = t.transitStatusArriving;
+        let start: number | null = null, lastCam = 0, done = false;
 
-        const ni = Math.min(idx + 1, arc.length - 1);
-        const angle = toDeg(Math.atan2(arc[ni][1] - arc[idx][1], arc[ni][0] - arc[idx][0])) - 45;
-        const plIcon = planeEl.querySelector<HTMLElement>("#pl");
-        // Planes bank along the heading; ground vehicles stay upright.
-        if (plIcon) plIcon.style.transform = isAir ? `rotate(${angle}deg)` : "rotate(0deg)";
+        function tick(ts: number) {
+          if (done) return;
+          if (!start) start = ts;
+          const t = Math.min((ts - start) / FLIGHT_MS, 1);
+          const te = easeInOut(t);
+          const idx = Math.min(Math.floor(te * (routeCoords.length - 1)), routeCoords.length - 2);
+          const frac = te * (routeCoords.length - 1) - idx;
+          const lng = lerp(routeCoords[idx][0], routeCoords[idx + 1][0], frac);
+          const lat = lerp(routeCoords[idx][1], routeCoords[idx + 1][1], frac);
+          planeMkr.setLngLat([lng, lat]);
 
-        if (ts - lastCam > 200) {
-          lastCam = ts;
-          const la = Math.min(idx + 8, arc.length - 1);
-          map.easeTo({
-            center: [lerp(lng, arc[la][0], 0.4), lerp(lat, arc[la][1], 0.4)],
-            zoom: lerp(initZoom, initZoom + 1.5, te),
-            // Ground modes: flatter camera, no aerial bank.
-            pitch: isAir ? lerp(25, 45, te) : lerp(0, 10, te),
-            bearing: isAir ? angle + 45 : 0,
-            duration: 250, easing: x => x,
+          (map.getSource("arc") as mapboxgl.GeoJSONSource)?.setData({
+            type: "Feature", properties: {},
+            geometry: { type: "LineString", coordinates: routeCoords.slice(0, idx + 2) },
           });
+
+          const ni = Math.min(idx + 1, routeCoords.length - 1);
+          const angle = toDeg(Math.atan2(routeCoords[ni][1] - routeCoords[idx][1], routeCoords[ni][0] - routeCoords[idx][0])) - 45;
+          const plIcon = planeEl.querySelector<HTMLElement>("#pl");
+          // Planes bank along heading; ground vehicles stay upright.
+          if (plIcon) plIcon.style.transform = isAir ? `rotate(${angle}deg)` : "rotate(0deg)";
+
+          if (ts - lastCam > 200) {
+            lastCam = ts;
+            const la = Math.min(idx + 8, routeCoords.length - 1);
+            map.easeTo({
+              center: [lerp(lng, routeCoords[la][0], 0.4), lerp(lat, routeCoords[la][1], 0.4)],
+              zoom: lerp(initZoom, initZoom + 1.5, te),
+              pitch: isAir ? lerp(25, 45, te) : lerp(0, 10, te),
+              bearing: isAir ? angle + 45 : 0,
+              duration: 250, easing: x => x,
+            });
+          }
+
+          if (t < 1) { rafRef.current = requestAnimationFrame(tick); return; }
+
+          // Arrived → drop into city
+          done = true;
+          mkD.style.opacity = "1";
+          setFlightStatus(landingLabel);
+          planeMkr.setLngLat(dest);
+          planeEl.style.opacity = "0";
+
+          map.flyTo({ center: dest, zoom: initZoom + 0.5, pitch: 0, bearing: 0, duration: 700, essential: true, easing: x => x });
+          setTimeout(() => {
+            map.flyTo({
+              center: dest, zoom: Math.min(initZoom + 7, 13),
+              pitch: 0, bearing: 0, duration: 1800, essential: true,
+              easing: x => 1 - Math.pow(1 - x, 2.5),
+            });
+            setTimeout(() => {
+              map.dragPan.disable();
+              if (hotels.length === 0) {
+                setVisible(false);
+                setTimeout(onComplete, 480);
+              } else {
+                setPhase("hotel-select");
+              }
+            }, 1900);
+          }, 750);
         }
 
-        if (t < 1) { rafRef.current = requestAnimationFrame(tick); return; }
+        rafRef.current = requestAnimationFrame(tick);
+      });
+    }
 
-        // Landed → vertical drop onto city
-        done = true;
-        mkD.style.opacity = "1";
-        setFlightStatus(landingLabel);
-        planeMkr.setLngLat(dest);
-        planeEl.style.opacity = "0";
+    run();
 
-        map.flyTo({ center: dest, zoom: initZoom + 0.5, pitch: 0, bearing: 0, duration: 700, essential: true, easing: x => x });
-        setTimeout(() => {
-          map.flyTo({
-            center: dest, zoom: Math.min(initZoom + 7, 13),
-            pitch: 0, bearing: 0, duration: 1800, essential: true,
-            easing: x => 1 - Math.pow(1 - x, 2.5),
-          });
-          // Enable map interaction for hotel phase (or skip if no hotels)
-          setTimeout(() => {
-            map.dragPan.disable();
-            if (hotels.length === 0) {
-              setVisible(false);
-              setTimeout(onComplete, 480);
-            } else {
-              setPhase("hotel-select");
-            }
-          }, 1900);
-        }, 750);
-      }
-
-      rafRef.current = requestAnimationFrame(tick);
-    });
-
-    return () => { cancelAnimationFrame(rafRef.current); map.remove(); };
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(rafRef.current);
+      if (mapInstance) mapInstance.remove();
+    };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

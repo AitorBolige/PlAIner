@@ -726,18 +726,14 @@ export async function refreshTravelOffers(query: TravelOfferQuery) {
         rooms: 1,
         currency: normalizedQuery.currency,
         nights,
-        maxPrice: caps?.hotelCapPerNight,
       })
     : Promise.resolve([]);
 
   const mode = normalizedQuery.transportId ?? "plane";
-  const flightQuery = caps
-    ? { ...normalizedQuery, maxPrice: caps.flightCap }
-    : normalizedQuery;
   const flightPromise =
     mode === "plane"
       ? hasFlightCreds
-        ? searchFlightsMetasearchForQuery(flightQuery)
+        ? searchFlightsMetasearchForQuery(normalizedQuery)
         : Promise.resolve([] as TravelOfferInput[])
       : Promise.resolve(buildGroundTransports(normalizedQuery, mode));
 

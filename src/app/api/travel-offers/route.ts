@@ -15,6 +15,13 @@ const postBodySchema = z.object({
   providerSummary: z.string().trim().optional(),
 });
 
+function hoistTransportKind<T extends { metadata?: unknown }>(offers: T[]): T[] {
+  return offers.map((o) => {
+    const meta = o.metadata as { transportKind?: string } | null;
+    return meta?.transportKind ? { ...o, transportKind: meta.transportKind } : o;
+  });
+}
+
 function assertIngestSecret(request: NextRequest) {
   const configuredSecret = process.env.TRAVEL_OFFERS_INGEST_SECRET?.trim();
   if (!configuredSecret) return true;
@@ -76,14 +83,7 @@ export async function GET(request: NextRequest) {
     return expectedKind !== "plane" || meta?.fallback !== true;
   });
   const cacheUsable = hasHotels && hasMatchingTransports;
-  // Hoist `metadata.transportKind` to top-level so the client `Offer` shape
-  // gets it without poking into metadata.
-  const normalizedOffers = cacheUsable
-    ? snapshot.offers.map((o) => {
-        const meta = o.metadata as { transportKind?: string } | null;
-        return meta?.transportKind ? { ...o, transportKind: meta.transportKind } : o;
-      })
-    : [];
+  const normalizedOffers = cacheUsable ? hoistTransportKind(snapshot.offers) : [];
   const effectiveCache = { ...snapshot, offers: normalizedOffers };
 
   return NextResponse.json({
